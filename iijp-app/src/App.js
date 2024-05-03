@@ -1,11 +1,18 @@
-import logo from "./logo.svg";
-import "./App.css";
+import React from 'react';
+import Navbar from "./Components/Navbar";
+import { Route,Routes } from 'react-router-dom';
+import Analisis from './Components/pages/Analisis';
+import Novedades from './Components/pages/Novedades';
 
 function App() {
   return (
-    <div className="App">
-      <button className="btn btn-primary">Crear</button>
-    </div>
+    <React.Fragment>
+      <Navbar></Navbar>
+      <Routes>
+    <Route path="/Analisis" element={<Analisis/>}></Route>
+    <Route path="/Novedades" element={<Novedades/>}></Route>
+      </Routes>
+    </React.Fragment>
   );
 }
 
