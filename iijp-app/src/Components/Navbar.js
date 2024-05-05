@@ -1,9 +1,10 @@
 import { FaBars, FaTimes, FaHome } from "react-icons/fa";
 import React, { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { navItems } from "./NavItems";
 import "../Styles/main.css";
 function Navbar() {
-    const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <header>
       <div id="nav-container">
@@ -26,20 +27,18 @@ function Navbar() {
               <span></span>
             </div>
             <ul className={menuOpen ? "open" : ""}>
-              
-              <li>
-                <NavLink to="/Analisis">Analisis de Datos</NavLink>
-              </li>
-
-              <li>
-                <NavLink to="/Novedades">Novedades</NavLink>
-              </li>
-              <li>
-                <NavLink to="/Recursos">Recursos</NavLink>
-              </li>
-              <li>
-                <NavLink to="/Preguntas">Preguntas</NavLink>
-              </li>
+              {navItems.map((item) => {
+                return (
+                  <li>
+                    <NavLink
+                      to={item.path}
+                      onClick={() => setMenuOpen(!menuOpen)}
+                    >
+                      {item.title}
+                    </NavLink>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
         </div>
