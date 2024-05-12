@@ -1,8 +1,10 @@
 import { FaBars, FaTimes, FaHome } from "react-icons/fa";
 import React, { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { FaGear } from "react-icons/fa6";
 import { navItems } from "./NavItems";
 import "../Styles/main.css";
+import NavLinks from "./NavLinks";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   return (
@@ -17,16 +19,16 @@ function Navbar() {
         </div>
         <div id="nav-content-2">
           <nav>
-            <Link to="/" className="title">
+            <Link to="/Inicio" className="title">
               <FaHome />
               &nbsp;Inicio
             </Link>
             <div className="menu" onClick={() => setMenuOpen(!menuOpen)}>
-              <span></span>
-              <span></span>
-              <span></span>
+              <FaBars id="bars" key="first" className={menuOpen ? "open" : ""}></FaBars>
+              <FaTimes id="close" key="second" className={menuOpen ? "open" : ""}></FaTimes>
             </div>
             <ul className={menuOpen ? "open" : ""}>
+            <NavLinks/>
               {navItems.map((item) => {
                 return (
                   <li>
@@ -40,6 +42,9 @@ function Navbar() {
                 );
               })}
             </ul>
+            <div id="settings" className="p-2 hover:bg-white hover:text-black rounded-lg m-2">
+            <FaGear className="text-lg " />
+            </div>
           </nav>
         </div>
       </div>

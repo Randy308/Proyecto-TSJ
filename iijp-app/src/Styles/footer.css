@@ -1,0 +1,25 @@
+:root{
+
+    --mainColor:#450920;
+    --secondaryColor: #fff;
+    --secondaryFontColor: #EAF8BF;
+}
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Roboto Flex", sans-serif;
+}
+
+
+.footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color:var(--mainColor);
+  color: white;
+  text-align: center;
+}

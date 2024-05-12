@@ -1,8 +1,8 @@
 export const navItems = [
     {
         id: 1,
-        title: "Analisis de Datos",
-        path: "/Analisis",
+        title: "Generalidades",
+        path: "/Generalidades",
         cName: "nav-item",
       },{
         id: 2,
