@@ -15,11 +15,18 @@
 
 
 .footer {
-  position: fixed;
+  position: relative;
   left: 0;
   bottom: 0;
   width: 100%;
   background-color:var(--mainColor);
   color: white;
   text-align: center;
+}
+
+#footer-icons svg{
+
+  padding: 2px;
+  font-size: large;
+
 }
