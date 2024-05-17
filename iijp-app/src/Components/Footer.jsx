@@ -16,7 +16,7 @@ const Footer = () => {
           <FaPhoneAlt className="footer-icon" />
           <IoMail className="footer-icon" />
         </div>
-        <div>
+        <div className="footer-title">
           <p>
             © 2024 IIJP - Instituto de Investigaciones Juridicas y Politicas
           </p>

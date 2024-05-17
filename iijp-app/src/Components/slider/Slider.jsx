@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { sliderData } from "../slider/SliderData";
+
 import "../../Styles/slider.css";
 const Slider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slideLength = sliderData.length;
 
-  const autoScroll = false;
+  const autoScroll = true;
   let slideInterval;
   let intervalTime = 5000;
 
@@ -42,23 +43,22 @@ const Slider = () => {
       <AiOutlineArrowRight className="arrow next" onClick={nextSlide} />
       {sliderData.map((slide, index) => {
         return (
-          <div id="slider-content"
-            className={index === currentSlide ? "slide current" : "slide"}
+          <div className={index === currentSlide ? "slide current" : "slide"}
             key={index}
           >
             {index === currentSlide && (
-              <div id="grid-content" className="p-3">
-                <div id="image-card" className="p-4">
+              <div id="grid-content" className="custom:p-0">
+                <div id="image-card" className="custom:p-1">
                   <img src={slide.image}  alt="slide" className="image rounded-lg" />
                 </div>
-                <div className="content p-4">
-                  <div className="titulo-card m-4">
+                <div className="content custom:p-0">
+                  <div className="titulo-card">
                     <h2>{slide.heading}</h2>
                   </div>
-                  <div className="desc-card m-4">
+                  <div className="desc-card">
                     <p>{slide.desc}</p>
                     <hr />
-                    <button className="btn btn-primary">Ver mas</button>
+                    <button className="bg-blue-500 m-4 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Ver mas</button>
                   </div>
                 </div>
               </div>
