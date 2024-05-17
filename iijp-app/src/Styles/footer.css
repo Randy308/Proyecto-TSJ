@@ -15,7 +15,7 @@
 
 
 .footer {
-  position: relative;
+  /* position: relative; */
   left: 0;
   bottom: 0;
   width: 100%;
@@ -24,9 +24,21 @@
   text-align: center;
 }
 
-#footer-icons svg{
 
-  padding: 2px;
-  font-size: large;
+.footer-icon {
+  height: 1.3rem;
+  width: 1.3rem;
+  cursor: pointer;
+  z-index: 999;
+  color: white; /* Asegura que el color sea blanco */
+}
 
+#footer-icons {
+  display: flex;
+  justify-content: center;
+  padding: 1.2rem; /* Ajusta el padding del contenedor */
+}
+
+#footer-icons * {
+  margin: 0.6rem; /* Ajusta el margin entre los íconos */
 }

@@ -1,8 +1,9 @@
 import React from 'react'
+import Slider from '../slider/Slider'
 
 const Inicio = () => {
   return (
-    <div>Inicio</div>
+    <Slider/>
   )
 }
 

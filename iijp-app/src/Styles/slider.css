@@ -1,0 +1,52 @@
+.slider{
+  border-radius: 1.5rem;
+  background-color: #DCDCDD;
+  margin: 2rem;
+}
+
+.titulo-card {
+  background-color: white;
+  padding: 1rem;
+  border-radius: 1.3rem;
+  font-weight: bold;
+}
+.desc-card{
+  background-color: white;
+  padding: 2rem;
+  height: auto;
+  border-radius: 1.3rem;
+}
+.content{
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.prev{
+  position: absolute;
+  z-index: 999;
+  left: 2rem;
+  top: 60%;
+}
+
+.next{
+  position: absolute;
+  z-index: 999;
+  right: 2rem;
+  top: 60%;
+}
+
+.arrow {
+  cursor: pointer;
+  height: 1.4rem;
+  width: 1.4rem;
+}
+.arrow:hover {
+  color: #777;
+}
+
+#image-card img{
+  height: 100%;
+}
+#grid-content{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
