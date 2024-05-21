@@ -2,7 +2,7 @@ import React from 'react'
 
 const Novedades = () => {
   return (
-    <div>Novedades</div>
+    <div className='blank-space'>Novedades</div>
   )
 }
 

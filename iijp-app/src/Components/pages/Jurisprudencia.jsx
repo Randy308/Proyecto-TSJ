@@ -6,7 +6,7 @@ const Jurisprudencia = () => {
   return (
     <main className="main">
       <div>
-        <h2 className="text-center py-4">Herramientas</h2>
+        <h2 className="text-center py-4 text-lg">Herramientas</h2>
         <div className="flex p-4 justify-center">
         {jurisprudenciaItems.map((item) => {
           return (
