@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\TemaController;
+use App\Http\Controllers\TemasController;
 use Illuminate\Support\Facades\Route;
 
 /*

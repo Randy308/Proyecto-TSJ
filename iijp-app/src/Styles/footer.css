@@ -1,0 +1,47 @@
+:root{
+
+    --mainColor:#450920;
+    --secondaryColor: #fff;
+    --secondaryFontColor: #EAF8BF;
+}
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Roboto Flex", sans-serif;
+}
+
+
+.footer {
+  /* position: absolute; */
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color:var(--mainColor);
+  color: white;
+  text-align: center;
+}
+
+
+.footer-icon {
+  height: 1.3rem;
+  width: 1.3rem;
+  cursor: pointer;
+  color: white;
+}
+
+#footer-icons {
+  display: flex;
+  justify-content: center;
+  padding: 1.2rem; 
+}
+
+#footer-icons * {
+  margin: 0.6rem; 
+}
+
+.footer-icon:hover {
+  transform: scale(1.5);
+}
