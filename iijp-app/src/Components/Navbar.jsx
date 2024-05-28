@@ -29,9 +29,9 @@ function Navbar() {
             </div>
             <ul className={menuOpen ? "open" : ""}>
             <NavLinks/>
-              {navItems.map((item) => {
+              {navItems.map((item, index) => {
                 return (
-                  <li>
+                  <li key={index}>
                     <NavLink
                       to={item.path}
                       onClick={() => setMenuOpen(!menuOpen)}

@@ -1,0 +1,50 @@
+#features  path:hover {
+  fill: green;
+  stroke: blue;
+}
+
+#features path:not(.activo):hover {
+  fill: blue;
+  stroke: green;
+}
+
+#features  path.activo {
+    fill: red;
+    stroke: blue;
+  }
+
+g#features {
+  transform: scale(0.55);
+}
+
+g#points {
+  transform: scale(0.55);
+}
+g#label_points {
+  transform: scale(0.55);
+}
+#svg_bolivia {
+  width: 550px;
+  height: 550px;
+}
+
+title{
+    z-index: 999;
+}
+@media (max-width: 720px) {
+  g#features {
+    transform: scale(0.35);
+  }
+
+  g#points {
+    transform: scale(0.35);
+  }
+  g#label_points {
+    transform: scale(0.35);
+  }
+
+  #svg_bolivia {
+    width: 320px;
+    height: 420px;
+  }
+}
