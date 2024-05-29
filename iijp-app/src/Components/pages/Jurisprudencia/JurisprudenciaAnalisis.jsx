@@ -2,31 +2,76 @@ import React, { useState } from "react";
 import "../../../Styles/mapa.css";
 import "../../../Styles/analisis-jurisprudencia.css";
 import { departamentos } from "./Mapa";
+import { years, salas } from "./years";
 const JurisprudenciaAnalisis = () => {
   const [activo, setActivo] = useState(null);
   const [departamento, setDepartamento] = useState("");
-  const [year, setYear] = useState("");
-  const [sala, setSala] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedSala, setSelectedSala] = useState("");
   const cambiarActivo = (id, name) => {
     setActivo(id);
-    console.log(name);
+    setDepartamento(name);
+  };
+  const cambiarYear = (year) => {
+    setSelectedYear(year);
+  };
+  const cambiarSala = (sala) => {
+    setSelectedSala(sala);
+  };
+  const limpiarMapa = () => {
+    setActivo(null);
+    setSelectedYear("");
+    setSelectedSala("");
   };
   return (
     <div>
       <form>
-        <h1>Hola mundo</h1>
+        <h1 className="text-center font-bold text-lg">Hola mundo</h1>
         <div className="form-juris">
           <div className="subfrom-juris">
             <div>
-              <h3>Seleccionar Años</h3>
-              <div>
-                <input type="radio" value="Male" name="gender" /> Male
-                <input type="radio" value="Female" name="gender" /> Female
-                <input type="radio" value="Other" name="gender" /> Other
+              <h3 className="text-center">Seleccionar Años</h3>
+              <div className="years-col">
+                {years.map((year) => {
+                  return (
+                    <div className="card" key={year}>
+                      <input
+                        type="radio"
+                        value={year}
+                        name="year"
+                        id={year}
+                        checked={selectedYear === year}
+                        onChange={() => cambiarYear(year)}
+                      />
+                      <label htmlFor={year}>
+                        <h5>{year}</h5>
+                      </label>
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <div>
-              <h3>Seleccionar Sala</h3>
+              <h3 className="text-center">Seleccionar Sala</h3>
+              <div className="salas-col">
+                {salas.map((sala) => {
+                  return (
+                    <div className="card" key={sala}>
+                      <input
+                        type="radio"
+                        value={sala}
+                        name="sala"
+                        id={sala}
+                        checked={selectedSala === sala}
+                        onChange={() => cambiarSala(sala)}
+                      />
+                      <label htmlFor={sala}>
+                        <h5>{sala}</h5>
+                      </label>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
@@ -141,7 +186,14 @@ const JurisprudenciaAnalisis = () => {
               type="button"
               className="bg-green-600 text-white hover:bg-green-700 p-3 m-4 rounded-lg"
             >
-              Guardar
+              Generar
+            </button>
+            <button
+              type="button"
+              onClick={() => limpiarMapa()}
+              className="bg-green-600 text-white hover:bg-green-700 p-3 m-4 rounded-lg"
+            >
+              Limpiar
             </button>
           </div>
         </div>
