@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\TemaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -20,3 +21,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::get('/temas-generales', [TemaController::class, 'verTemasGenerales'])->name('temas-generales');
+
+Route::get('/resoluciones', [ResolutionController::class, 'obtenerAvg'])->name('resoluciones');

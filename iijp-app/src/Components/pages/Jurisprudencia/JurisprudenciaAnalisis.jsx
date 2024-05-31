@@ -3,7 +3,13 @@ import "../../../Styles/mapa.css";
 import "../../../Styles/analisis-jurisprudencia.css";
 import { departamentos } from "./Mapa";
 import { years, salas } from "./years";
+
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
 const JurisprudenciaAnalisis = () => {
+  const endpoint = "http://localhost:8000/api/resoluciones";
+
   const [activo, setActivo] = useState(null);
   const [departamento, setDepartamento] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
@@ -23,9 +29,30 @@ const JurisprudenciaAnalisis = () => {
     setSelectedYear("");
     setSelectedSala("");
   };
+
+  
+  const navigate = useNavigate();
+
+  const get = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.get(endpoint, {
+        params: {
+          departamento: departamento,
+          selectedYear: selectedYear,
+          selectedSala: selectedSala,
+        },
+      });
+      console.log(response.data); // Maneja la respuesta según tus necesidades
+      navigate("/Jurisprudencia/Busqueda");
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   return (
     <div>
-      <form>
+      <form onSubmit={get}>
         <h1 className="text-center font-bold text-lg">Hola mundo</h1>
         <div className="form-juris">
           <div className="subfrom-juris">
@@ -183,7 +210,7 @@ const JurisprudenciaAnalisis = () => {
         <div className="flex justify-end">
           <div>
             <button
-              type="button"
+              type="submit"
               className="bg-green-600 text-white hover:bg-green-700 p-3 m-4 rounded-lg"
             >
               Generar
