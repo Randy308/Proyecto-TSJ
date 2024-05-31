@@ -16,7 +16,7 @@ class CreateResolutionsTable extends Migration
         Schema::create('resolutions', function (Blueprint $table) {
             $table->id();
             $table->text('nro_resolucion');
-            $table->text('nro_expediente');
+            $table->text('nro_expediente')->nullable();
             $table->date('fecha_emision')->nullable();
             $table->date('fecha_publicacion')->nullable();
             $table->text('tipo_resolucion')->nullable();

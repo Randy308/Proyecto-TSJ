@@ -74,21 +74,36 @@ class ResolutionController extends Controller
         $mi_sala = Salas::where('sala', $sala)->first();
 
         if (!$mi_sala) {
-            return response()->json(['error' => 'Sala no encontrada a'.$sala], 404);
+            return response()->json(['error' => 'Sala no encontrada a' . $sala], 404);
         }
 
-        // Obtener las resoluciones filtradas por año y departamento
-        $resolutions = Resolutions::whereYear('fecha_emision', $year)
-            ->where('departamento', $departamento)
-            ->where('sala_id', $mi_sala->id)
-            ->select(
-                DB::raw('DATE_PART(\'month\', fecha_emision) as mes'),
-                'forma_resolucion',
-                DB::raw('count(*) as cantidad')
-            )
-            ->groupBy('mes', 'forma_resolucion')
-            ->get();
 
-        return $resolutions;
+
+        $data = [];
+        $forma_resolucion = Resolutions::select('forma_resolucion')->distinct()->get();
+
+        foreach ($forma_resolucion as $res) {
+            $resolutions = Resolutions::whereYear('fecha_emision', $year)
+                ->where('departamento', $departamento)
+                ->where('sala_id', $mi_sala->id)
+                ->where('forma_resolucion', $res->forma_resolucion)
+                ->select(
+                    DB::raw('DATE_PART(\'month\', fecha_emision) as mes'),
+                    DB::raw('count(*) as cantidad')
+                )
+                ->groupBy('mes')
+                ->orderBy('mes')
+                ->get();
+            if ($resolutions->isNotEmpty()) {
+                $data[] = [
+                    'id' => $res->forma_resolucion,
+                    'color' => 'hsl(118, 70%, 50%)',
+                    'data' => $resolutions->toArray()
+                ];
+            }
+        }
+
+
+        return $data;
     }
 }
