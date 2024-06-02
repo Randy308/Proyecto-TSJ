@@ -1,25 +1,26 @@
 import React from "react";
 import Navbar from "./Components/Navbar";
-import { Route, Routes } from "react-router-dom";
-import Analisis from "./Components/pages/Analisis";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Analisis from "./Components/pages/Preguntas";
 import Novedades from "./Components/pages/Novedades";
 import Inicio from "./Components/pages/Inicio";
 import Footer from "./Components/Footer";
-import Generalidades from "./Components/pages/Generalidades";
+import Preguntas from "./Components/pages/Preguntas";
 import Jurisprudencia from "./Components/pages/Jurisprudencia";
-import JurisprudenciaBusqueda from "./Components/pages/Jurisprudencia/JurisprudenciaBusqueda";
-import JurisprudenciaAnalisis from "./Components/pages/Jurisprudencia/JurisprudenciaAnalisis";
-import JurisprudenciaCronologia from "./Components/pages/Jurisprudencia/JurisprudenciaCronologia";
+import JurisprudenciaBusqueda from "./Components/pages/pages_randy/JurisprudenciaBusqueda";
+import JurisprudenciaAnalisis from "./Components/pages/pages_randy/JurisprudenciaAnalisis";
+import JurisprudenciaCronologia from "./Components/pages/pages_randy/JurisprudenciaCronologia";
 function App() {
   return (
     <main>
       <React.Fragment>
         <Navbar></Navbar>
         <Routes>
+        <Route path="/" element={<Navigate to="/Inicio" />}></Route>
           <Route path="/Analisis" element={<Analisis />}></Route>
           <Route path="/Inicio" element={<Inicio />}></Route>
           <Route path="/Novedades" element={<Novedades />}></Route>
-          <Route path="/Generalidades" element={<Generalidades />}></Route>
+          <Route path="/Preguntas" element={<Preguntas />}></Route>
           <Route path="/Jurisprudencia" element={<Jurisprudencia />}></Route>
 
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import ShowTemas from '../../ShowTemas'
+import ShowTemas from './ShowTemas'
 
 const JurisprudenciaBusqueda = () => {
   return (

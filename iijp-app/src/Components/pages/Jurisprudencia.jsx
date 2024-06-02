@@ -1,5 +1,5 @@
 import React from "react";
-import { jurisprudenciaItems } from "./Jurisprudencia/JurisprudenciaItems";
+import { jurisprudenciaItems } from "./pages_randy/JurisprudenciaItems";
 import { Link } from "react-router-dom";
 import "../../Styles/jurisprudencia.css"
 const Jurisprudencia = () => {
