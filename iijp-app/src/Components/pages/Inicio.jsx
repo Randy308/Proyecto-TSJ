@@ -1,14 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaChartLine } from "react-icons/fa";
 import { FaMagnifyingGlassChart } from "react-icons/fa6";
+import { FaChartPie } from "react-icons/fa";
 import "../../Styles/inicio.css";
 const Inicio = () => {
   const tarjetas = [
     {
       nombre: "TCP Dinamicas",
       path: "/Dinamicas",
-      icon: <FaChartLine className="tarjetas-icon-style" />,
+      icon: <FaChartPie className="tarjetas-icon-style" />,
     },
     {
       nombre: "TSJ Jurisprudencia",
