@@ -35,6 +35,8 @@
     transition: 0.9s;
     transform: rotateY(180deg);
 }
+
+
 @media (max-width: 720px) {
 
     .card-container {
