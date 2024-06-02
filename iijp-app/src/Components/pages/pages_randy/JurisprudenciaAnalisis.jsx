@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import "../../../Styles/mapa.css";
-import "../../../Styles/analisis-jurisprudencia.css";
+import "../../../Styles/Styles_randy/mapa.css";
+import "../../../Styles/Styles_randy/analisis-jurisprudencia.css";
 import { departamentos } from "./Mapa";
 import { years, salas } from "./years";
 
@@ -33,7 +33,7 @@ const JurisprudenciaAnalisis = () => {
   
   const navigate = useNavigate();
 
-  const get = async (e) => {
+  const obtenerConteo = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.get(endpoint, {
@@ -44,16 +44,16 @@ const JurisprudenciaAnalisis = () => {
         },
       });
       console.log(response.data); // Maneja la respuesta según tus necesidades
-      navigate("/Jurisprudencia/Busqueda");
+      navigate("/Jurisprudencia/Resultados",{ state: { data: response.data } }); 
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
   return (
-    <div>
-      <form onSubmit={get}>
-        <h1 className="text-center font-bold text-lg">Hola mundo</h1>
+    <div className="py-4 my-4">
+      <form onSubmit={obtenerConteo}>
+        <h1 className="text-center font-bold text-lg py-4">Hola mundo</h1>
         <div className="form-juris">
           <div className="subfrom-juris">
             <div>
@@ -102,7 +102,7 @@ const JurisprudenciaAnalisis = () => {
             </div>
           </div>
 
-          <div>
+          <div className="flex justify-center items-center">
             <svg
               baseProfile="tiny"
               fill="#6f9c76"

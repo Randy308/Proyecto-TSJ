@@ -27,7 +27,7 @@
 
 .card-container {
   align-items: center;
-  height: 600px;
+  height: 78.8vh;
 }
 
 .card-container .card:hover .tarjetas-icon-style {
@@ -35,7 +35,6 @@
     transition: 0.9s;
     transform: rotateY(180deg);
 }
-
 
 @media (max-width: 720px) {
 

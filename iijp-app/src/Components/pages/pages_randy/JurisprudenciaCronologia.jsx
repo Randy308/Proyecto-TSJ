@@ -2,7 +2,9 @@ import React from 'react'
 
 const JurisprudenciaCronologia = () => {
   return (
-    <div>JurisprudenciaCronologia</div>
+    <div>
+      
+    </div>
   )
 }
 
