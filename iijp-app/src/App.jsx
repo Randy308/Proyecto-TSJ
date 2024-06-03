@@ -11,27 +11,44 @@ import JurisprudenciaBusqueda from "./Components/pages/pages_randy/Jurisprudenci
 import JurisprudenciaAnalisis from "./Components/pages/pages_randy/JurisprudenciaAnalisis";
 import JurisprudenciaCronologia from "./Components/pages/pages_randy/JurisprudenciaCronologia";
 import ResultadoAnalisis from "./Components/pages/pages_randy/ResultadoAnalisis";
+import { ThemeProvider } from "./Components/ThemeProvider";
+
 function App() {
+
   return (
-    <main>
-      <React.Fragment>
-        <Navbar></Navbar>
-        <Routes>
-        <Route path="/" element={<Navigate to="/Inicio" />}></Route>
-          <Route path="/Analisis" element={<Analisis />}></Route>
-          <Route path="/Inicio" element={<Inicio />}></Route>
-          <Route path="/Novedades" element={<Novedades />}></Route>
-          <Route path="/Preguntas" element={<Preguntas />}></Route>
-          <Route path="/Jurisprudencia" element={<Jurisprudencia />}></Route>
-          <Route path="/Jurisprudencia/Analisis" element={<JurisprudenciaAnalisis />}></Route>
-          <Route path="/Jurisprudencia/Resultados" element={<ResultadoAnalisis />}></Route>
-          <Route path="/Jurisprudencia/Busqueda" element={<JurisprudenciaBusqueda />}></Route>
-          <Route path="/Jurisprudencia/Cronologias" element={<JurisprudenciaCronologia />}></Route>
-        </Routes>
-        <Footer></Footer>
-      </React.Fragment>
-    </main>
-    
+    <ThemeProvider>
+      <main>
+        <React.Fragment>
+          <Navbar></Navbar>
+         
+          <Routes>
+            <Route path="/" element={<Navigate to="/Inicio" />}></Route>
+            <Route path="/Analisis" element={<Analisis />}></Route>
+            <Route path="/Inicio" element={<Inicio />}></Route>
+            <Route path="/Novedades" element={<Novedades />}></Route>
+            <Route path="/Preguntas" element={<Preguntas />}></Route>
+            <Route path="/Jurisprudencia" element={<Jurisprudencia />}></Route>
+            <Route
+              path="/Jurisprudencia/Analisis"
+              element={<JurisprudenciaAnalisis />}
+            ></Route>
+            <Route
+              path="/Jurisprudencia/Resultados"
+              element={<ResultadoAnalisis />}
+            ></Route>
+            <Route
+              path="/Jurisprudencia/Busqueda"
+              element={<JurisprudenciaBusqueda />}
+            ></Route>
+            <Route
+              path="/Jurisprudencia/Cronologias"
+              element={<JurisprudenciaCronologia />}
+            ></Route>
+          </Routes>
+          <Footer></Footer>
+        </React.Fragment>
+      </main>
+    </ThemeProvider>
   );
 }
 

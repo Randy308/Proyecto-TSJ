@@ -48,3 +48,9 @@
 .footer-icon:hover {
   transform: scale(1.5);
 }
+
+div#parent-container.dark-theme main .footer{
+  background: rgb(53,78,126);
+background: linear-gradient(90deg, rgba(53,78,126,1) 0%, rgba(47,61,88,1) 100%);
+
+}

@@ -1,11 +1,15 @@
 import { FaBars, FaTimes } from "react-icons/fa";
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FaGear } from "react-icons/fa6";
+import { IoSunny } from "react-icons/io5";
+import { FaMoon } from "react-icons/fa";
 import { navItems } from "./NavItems";
 import "../Styles/main.css";
+import { useToggleContext, useThemeContext } from "../Components/ThemeProvider";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const isDark = useThemeContext();
+  const cambiarTema = useToggleContext();
   return (
     <header>
       <nav>
@@ -54,7 +58,10 @@ function Navbar() {
           id="settings"
           className="p-2 hover:bg-white hover:text-black rounded-lg m-2"
         >
-          <FaGear className="text-lg " />
+          <button onClick={cambiarTema} className="p-2">
+                       <IoSunny className={["text-lg", isDark ? "hidden" : ""].join(' ')}/>
+                       <FaMoon className={["text-lg", isDark ? "" : "hidden"].join(' ')}/>
+          </button>
         </div>
       </nav>
     </header>

@@ -13,6 +13,11 @@
   --secondaryFontColor: #eaf8bf;
 }
 
+#parent-container.dark-theme{
+  background-color: #242E42;
+}
+
+
 nav img.first-logo {
   height: fit-content;
   padding: 0;
@@ -32,7 +37,7 @@ nav {
     107deg,
     rgba(169, 97, 112, 1) 0%,
     rgba(137, 41, 67, 1) 24%,
-    rgba(86, 20, 39, 1) 100%
+    rgb(111, 57, 72) 100%
   );
   color: var(--secondaryColor);
   position: sticky;
@@ -213,4 +218,12 @@ nav ul li.submenu a:not(.active):hover {
   nav ul li.submenu a.active {
     color: var(--mainColor);
   }
+}
+div#parent-container.dark-theme main header nav{
+  background: rgb(53,78,126);
+background: linear-gradient(90deg, rgba(53,78,126,1) 0%, rgba(47,61,88,1) 100%);
+
+}
+.hidden{
+  display: none;
 }
