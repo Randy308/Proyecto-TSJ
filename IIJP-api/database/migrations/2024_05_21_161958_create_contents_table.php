@@ -16,7 +16,6 @@ class CreateContentsTable extends Migration
         Schema::create('contents', function (Blueprint $table) {
             $table->id();
             $table->text('contenido');
-            $table->text('contenido_html')->nullable();
             $table->unsignedBigInteger('resolution_id');
             $table->foreign('resolution_id')->references('id')->on('resolutions')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

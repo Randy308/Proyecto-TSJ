@@ -45,7 +45,7 @@ function Navbar() {
                 <NavLink
                   to={item.path}
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className={isFirstItem ? "flex text-center" : ""}
+                  className={isFirstItem ? "flex text-center items-center" : ""}
                 >
                   {isFirstItem && item.icon && <>{item.icon}&nbsp;</>}
                   {item.title}

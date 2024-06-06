@@ -6,18 +6,21 @@ export const jurisprudenciaItems = [
     title: "Analisis",
     path: "/Jurisprudencia/Analisis",
     cName: "tool-item",
-    icon: <FaChartLine className="icon-style"/> 
+    icon: <FaChartLine className="icon-style"/> ,
+    color: "f86c6b"
   },{
     id: 2,
-    title: "Busqueda",
+    title: "Cronologias",
     path: "/Jurisprudencia/Busqueda",
     cName: "tool-item",
-    icon: <FaSearch className="icon-style"/> 
+    icon: <FaSearch className="icon-style"/> ,
+    color: "ffc107"
   },{
     id: 3,
-    title: "Cronologias",
+    title: "Busqueda",
     path: "/Jurisprudencia/Cronologias",
     cName: "tool-item",
-    icon: <FaClock className="icon-style"/> 
+    icon: <FaClock className="icon-style"/> ,
+    color: "4dbd74"
   },
 ];

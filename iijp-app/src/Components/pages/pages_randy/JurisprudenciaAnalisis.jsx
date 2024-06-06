@@ -43,7 +43,7 @@ const JurisprudenciaAnalisis = () => {
           selectedSala: selectedSala,
         },
       });
-      console.log(response.data); // Maneja la respuesta según tus necesidades
+      console.log(response.data);
       navigate("/Jurisprudencia/Resultados",{ state: { data: response.data } }); 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -53,7 +53,7 @@ const JurisprudenciaAnalisis = () => {
   return (
     <div className="py-4 my-4">
       <form onSubmit={obtenerConteo}>
-        <h1 className="text-center font-bold text-lg py-4">Hola mundo</h1>
+        <h1 className="text-center font-bold text-lg py-4">Opciones</h1>
         <div className="form-juris">
           <div className="subfrom-juris">
             <div>

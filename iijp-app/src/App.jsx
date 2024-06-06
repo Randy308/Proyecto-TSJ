@@ -14,13 +14,11 @@ import ResultadoAnalisis from "./Components/pages/pages_randy/ResultadoAnalisis"
 import { ThemeProvider } from "./Components/ThemeProvider";
 
 function App() {
-
   return (
     <ThemeProvider>
       <main>
         <React.Fragment>
           <Navbar></Navbar>
-         
           <Routes>
             <Route path="/" element={<Navigate to="/Inicio" />}></Route>
             <Route path="/Analisis" element={<Analisis />}></Route>
