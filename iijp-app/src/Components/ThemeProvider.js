@@ -11,7 +11,7 @@ export function useToggleContext() {
   return useContext(themeToggleContext);
 }
 export function ThemeProvider(props) {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
   const toggleTheme = () => {
     console.log(isDark)
