@@ -12,6 +12,7 @@ import JurisprudenciaAnalisis from "./Components/pages/pages_randy/Jurisprudenci
 import JurisprudenciaCronologia from "./Components/pages/pages_randy/JurisprudenciaCronologia";
 import ResultadoAnalisis from "./Components/pages/pages_randy/ResultadoAnalisis";
 import { ThemeProvider } from "./Components/ThemeProvider";
+import ResolucionTSJ from "./Components/pages/pages_randy/resoluciones/ResolucionTSJ";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
               path="/Jurisprudencia/Cronologias"
               element={<JurisprudenciaCronologia />}
             ></Route>
+            <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ/>} />
           </Routes>
           <Footer></Footer>
         </React.Fragment>

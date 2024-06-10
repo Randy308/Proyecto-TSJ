@@ -68,7 +68,7 @@ const ResultadoAnalisis = () => {
   };
 
   return (
-    <div>
+    <div  style={ {height:800}}>
       <h1>Analisis</h1>
       <div className="p-4 m-4 flex items-center justify-center" > 
         {transformedData.length > 0 ? (

@@ -1,0 +1,7 @@
+.materia-div.ocultar:not(.show){
+    display: none;
+}
+
+.materia-div.ocultar.show{
+    display: block;
+}

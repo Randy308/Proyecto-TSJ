@@ -1,16 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "../../../Styles/Styles_randy/mapa.css";
 import "../../../Styles/Styles_randy/analisis-jurisprudencia.css";
 import { departamentos } from "./Mapa";
-import { years, salas } from "./years";
 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const JurisprudenciaAnalisis = () => {
-  const endpoint = "http://localhost:8000/api/resoluciones";
+  const endpoint = "http://localhost:8000/api";
 
   const [activo, setActivo] = useState(null);
+
+  const [salas, setSalas] = useState([]);
+  const [years, setYears] = useState([]);
+
+  useEffect(() => {
+    getAllSalas();
+  }, []);
+
+  const getAllSalas = async () => {
+    try {
+      const response = await axios.get(`${endpoint}/salas`);
+      setSalas(response.data.salas);
+      setYears(response.data.years);
+    } catch (error) {
+      console.error("Error al realizar la solicitud:", error);
+    }
+  };
+
   const [departamento, setDepartamento] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSala, setSelectedSala] = useState("");
@@ -30,13 +47,12 @@ const JurisprudenciaAnalisis = () => {
     setSelectedSala("");
   };
 
-  
   const navigate = useNavigate();
 
   const obtenerConteo = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(endpoint, {
+      const response = await axios.get(`${endpoint}/resoluciones`, {
         params: {
           departamento: departamento,
           selectedYear: selectedYear,
@@ -44,9 +60,16 @@ const JurisprudenciaAnalisis = () => {
         },
       });
       console.log(response.data);
-      navigate("/Jurisprudencia/Resultados",{ state: { data: response.data } }); 
+      if(response.data.length > 0){
+        navigate("/Jurisprudencia/Resultados", {
+          state: { data: response.data },
+        });
+      }else{
+        alert("No existen datos")
+      }
+      
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     }
   };
 
@@ -83,17 +106,17 @@ const JurisprudenciaAnalisis = () => {
               <div className="salas-col">
                 {salas.map((sala) => {
                   return (
-                    <div className="card" key={sala}>
+                    <div className="card" key={sala.nombre}>
                       <input
                         type="radio"
-                        value={sala}
+                        value={sala.nombre}
                         name="sala"
-                        id={sala}
-                        checked={selectedSala === sala}
-                        onChange={() => cambiarSala(sala)}
+                        id={sala.nombre}
+                        checked={selectedSala === sala.nombre}
+                        onChange={() => cambiarSala(sala.nombre)}
                       />
-                      <label htmlFor={sala}>
-                        <h5>{sala}</h5>
+                      <label htmlFor={sala.nombre}>
+                        <h5>{sala.nombre}</h5>
                       </label>
                     </div>
                   );

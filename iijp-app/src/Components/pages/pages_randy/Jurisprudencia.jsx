@@ -11,10 +11,10 @@ const Jurisprudencia = () => {
           {jurisprudenciaItems.map((item) => {
             return (
               <div className={`card p-4 m-3 bg-${item.color} rounded-md`}>
-                <div id="j-container-icons" className="flex justify-center">
+                <div id="j-container-icons" className="py-4 flex justify-center items-center">
                   {item.icon}
                 </div>
-                <p className="text-center py-4">{item.title}</p>
+                <p className="text-center">{item.title}</p>
                 <Link to={item.path} className="flex justify-center p-4 m-4">
                   <button className="rounded-lg bg-blue-500 text-white p-3 m-4 hover:bg-blue-800">
                     Acceder

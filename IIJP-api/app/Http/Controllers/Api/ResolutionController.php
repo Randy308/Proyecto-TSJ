@@ -7,6 +7,8 @@ use App\Models\Resolutions;
 use App\Models\Salas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ResolutionController extends Controller
 {
@@ -37,10 +39,27 @@ class ResolutionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id): JsonResponse
     {
-        //
+        try {
+            // Intentar encontrar la resolución por su ID
+            $resolucion = Resolutions::findOrFail($id);
+
+            // Devolver la resolución encontrada
+            return response()->json($resolucion, 200);
+        } catch (ModelNotFoundException $e) {
+            // Devolver una respuesta de error si no se encuentra la resolución
+            return response()->json([
+                'error' => 'Resolución no encontrada'
+            ], 404);
+        } catch (\Exception $e) {
+            // Manejar otras excepciones posibles
+            return response()->json([
+                'error' => 'Ocurrió un error al intentar obtener la resolución'
+            ], 500);
+        }
     }
+
 
     /**
      * Update the specified resource in storage.
