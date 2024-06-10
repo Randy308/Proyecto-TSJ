@@ -61,6 +61,17 @@ const ShowTemas = () => {
     <div className="container m-4 p-4" style={{ height: 800 }}>
       <div>
         <p className="text-bold text-3xl text-center">Seleccione Materia</p>
+        {arbol.map((tema) => (
+          <div
+            className="p-4 rounded-lg "
+            key={tema}
+            id={tema}
+            onClick={() => setActivo(tema.id)} // Correct usage of onClick
+          >
+            {tema}
+          </div>
+        ))}
+
       </div>
       <div className="flex gap-4 flex-wrap flex-row w-100 h-100 p-4 m-4">
         {temas.map((tema) => (
