@@ -48,7 +48,7 @@ class TemaController extends Controller
         $results = DB::table('temas_complementarios as tc')
             ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
             ->select('tc.resolution_id','tc.ratio','tc.descriptor', 'tc.restrictor','tc.tipo_jurisprudencia', 'r.nro_resolucion', 'r.tipo_resolucion' , 'r.proceso' , 'r.forma_resolucion')
-            ->where('tc.descriptor', 'like', '%'.$descriptor.'%')->limit(10)->orderBy('tc.descriptor')
+            ->where('tc.descriptor', 'like', '%'.$descriptor.'%')->limit(25)->orderBy('tc.descriptor')
             ->get();
         if (!$results) {
             return response()->json(['error' => 'Sala no encontrada a ' . $results], 404);

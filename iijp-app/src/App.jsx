@@ -14,47 +14,39 @@ import ResultadoAnalisis from "./Components/pages/pages_randy/ResultadoAnalisis"
 import { ThemeProvider } from "./Components/ThemeProvider";
 import ResolucionTSJ from "./Components/pages/pages_randy/resoluciones/ResolucionTSJ";
 import CronologiasResultados from "./Components/pages/pages_randy/CronologiasResultados";
-
+import { useLocation } from 'react-router-dom';
 function App() {
+
+  const location = useLocation();
+  const noNavbarFooterRoutes = ['/Jurisprudencia/Resolucion/:id']; // Agrega más rutas según sea necesario
+
+  const shouldShowNavbarFooter = !noNavbarFooterRoutes.some((route) =>
+    location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
+  );
+
   return (
     <ThemeProvider>
-      <main>
-        <React.Fragment>
-          <Navbar></Navbar>
-          <Routes>
-            <Route path="/" element={<Navigate to="/Inicio" />}></Route>
-            <Route path="/Analisis" element={<Analisis />}></Route>
-            <Route path="/Inicio" element={<Inicio />}></Route>
-            <Route path="/Novedades" element={<Novedades />}></Route>
-            <Route path="/Preguntas" element={<Preguntas />}></Route>
-            <Route path="/Jurisprudencia" element={<Jurisprudencia />}></Route>
-            <Route
-              path="/Jurisprudencia/Analisis"
-              element={<JurisprudenciaAnalisis />}
-            ></Route>
-            <Route
-              path="/Jurisprudencia/Resultados"
-              element={<ResultadoAnalisis />}
-            ></Route>
-            <Route
-              path="/Jurisprudencia/Busqueda"
-              element={<JurisprudenciaBusqueda />}
-            ></Route>
-            <Route
-              path="/Jurisprudencia/Cronologias"
-              element={<JurisprudenciaCronologia />}
-            ></Route>
-            <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ/>} />
-
-            <Route
-              path="/Jurisprudencia/Cronologias/Resultados"
-              element={<CronologiasResultados />}
-            ></Route>
-          </Routes>
-          <Footer></Footer>
-        </React.Fragment>
-      </main>
-    </ThemeProvider>
+    <main>
+      <React.Fragment>
+        {shouldShowNavbarFooter && <Navbar />}
+        <Routes>
+          <Route path="/" element={<Navigate to="/Inicio" />} />
+          <Route path="/Analisis" element={<Analisis />} />
+          <Route path="/Inicio" element={<Inicio />} />
+          <Route path="/Novedades" element={<Novedades />} />
+          <Route path="/Preguntas" element={<Preguntas />} />
+          <Route path="/Jurisprudencia" element={<Jurisprudencia />} />
+          <Route path="/Jurisprudencia/Analisis" element={<JurisprudenciaAnalisis />} />
+          <Route path="/Jurisprudencia/Resultados" element={<ResultadoAnalisis />} />
+          <Route path="/Jurisprudencia/Busqueda" element={<JurisprudenciaBusqueda />} />
+          <Route path="/Jurisprudencia/Cronologias" element={<JurisprudenciaCronologia />} />
+          <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
+          <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
+        </Routes>
+        {shouldShowNavbarFooter && <Footer />}
+      </React.Fragment>
+    </main>
+  </ThemeProvider>
   );
 }
 
