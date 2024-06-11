@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import Loading from "../../../Loading";
 
 const ResolucionTSJ = () => {
   const { id } = useParams();
@@ -22,7 +23,7 @@ const ResolucionTSJ = () => {
   };
 
   if (resolucion === null) {
-    return <div style={ {width:700,height:700}}>Cargando...</div>;
+    return <div className="flex items-center justify-center" style={ {height:800}}><Loading/></div>;
   }
   return (
     <div>

@@ -91,7 +91,7 @@ const ShowTemas = () => {
     return (
       <div
         className="flex items-center justify-center"
-        style={{ width: 800, height: 800 }}
+        style={{ height: 800 }}
       >
         <Loading />
       </div>
