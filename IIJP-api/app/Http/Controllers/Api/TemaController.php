@@ -23,14 +23,41 @@ class TemaController extends Controller
 
     public function verTemasGenerales()
     {
-        $temas_generales = DB::table('temas')->select('id','nombre','tema_id')->whereNull('tema_id')->get();
+        $temas_generales = DB::table('temas')->select('id', 'nombre', 'tema_id')->whereNull('tema_id')->get();
         return $temas_generales;
     }
-    public function obtenerHijos($id){
+    public function obtenerHijos($id)
+    {
 
         $hijos = Temas::where('tema_id', '=', $id)->get();
         return $hijos->toJson();
     }
+
+    public function obtenerCronologias(Request $request)
+    {
+
+        $tema_id = $request['tema_id'];
+        $descriptor = $request['descriptor'];
+        // Encuentra el tema por ID
+        $tema = Temas::where('id', $tema_id)->first();
+
+        if (!$tema) {
+            return response()->json(['error' => 'Sala no encontrada a ' . $tema_id], 404);
+        }
+
+        $results = DB::table('temas_complementarios as tc')
+            ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
+            ->select('tc.resolution_id','tc.ratio','tc.descriptor', 'tc.restrictor','tc.tipo_jurisprudencia', 'r.nro_resolucion', 'r.tipo_resolucion' , 'r.proceso' , 'r.forma_resolucion')
+            ->where('tc.descriptor', 'like', '%'.$descriptor.'%')->limit(10)->orderBy('tc.descriptor')
+            ->get();
+        if (!$results) {
+            return response()->json(['error' => 'Sala no encontrada a ' . $results], 404);
+        }
+        return response()->json($results);
+
+    }
+
+
 
     public function getCronologia(Request $request)
     {

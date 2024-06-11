@@ -39,16 +39,20 @@ class ResolutionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
     public function show($id): JsonResponse
     {
         try {
-            // Intentar encontrar la resolución por su ID
-            $resolucion = Resolutions::findOrFail($id);
 
-            // Devolver la resolución encontrada
+            $resolucion = DB::table('contents as c')
+            ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
+            ->select('c.contenido','r.nro_resolucion','r.nro_expediente','r.fecha_emision','r.tipo_resolucion'
+            ,'r.departamento','r.magistrado','r.forma_resolucion','r.proceso','r.demandante','r.demandado')
+            ->where('r.id', '=', $id)->first();
+
             return response()->json($resolucion, 200);
         } catch (ModelNotFoundException $e) {
-            // Devolver una respuesta de error si no se encuentra la resolución
+
             return response()->json([
                 'error' => 'Resolución no encontrada'
             ], 404);

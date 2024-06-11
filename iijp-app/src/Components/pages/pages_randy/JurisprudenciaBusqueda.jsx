@@ -3,7 +3,7 @@ import ShowTemas from './ShowTemas'
 
 const JurisprudenciaBusqueda = () => {
   return (
-    <div className='flex items-center justify-center'><ShowTemas/></div>
+    <div><ShowTemas/></div>
   )
 }
 

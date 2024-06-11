@@ -24,16 +24,23 @@ const ResolucionTSJ = () => {
   if (resolucion === null) {
     return <div style={ {width:700,height:700}}>Cargando...</div>;
   }
-
   return (
     <div>
       {Object.entries(resolucion).map(([key, value]) => (
         <div key={key}>
-          <strong>{key}:</strong> {value}
+          <strong>{key}:</strong> 
+          {key === 'contenido' ? (
+            value.split('\r\n').map((line, index) => (
+              <div key={index}>{line}</div>
+            ))
+          ) : (
+            value
+          )}
         </div>
       ))}
     </div>
   );
+  
 };
 
 export default ResolucionTSJ;
