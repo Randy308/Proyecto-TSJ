@@ -58,52 +58,51 @@ const styles = StyleSheet.create({
   },
   descriptor0: {
     fontFamily: "OpenSans",
-    fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 20,
-    marginLeft: 10,
+    fontSize: 37,
+   textAlign: "center",
   },
   descriptor1: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 19,
-    marginLeft: 20,
+    fontSize: 34,
+    textAlign: "center",
   },
   descriptor2: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 18,
-    marginLeft: 30,
+    fontSize: 30,
+    marginLeft: 3,
   },
   descriptor3: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 17,
-    marginLeft: 40,
+    fontSize: 25,
+    marginLeft: 15,
   },
   descriptor4: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 16,
-    marginLeft: 50,
+    fontSize: 20,
+    marginLeft: 30,
   },
   descriptor5: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
     fontSize: 15,
-    marginLeft: 60,
+    marginLeft: 45,
   },
   descriptor6: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 14,
-    marginLeft: 70,
+    fontSize: 10,
+    marginLeft: 75,
   },
   ratio: {
     fontWeight: "normal",
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   resolucion: {
-    marginLeft: 70,
+    marginLeft: 75,
   },
   titulo: {
     textAlign: "center",
@@ -150,9 +149,7 @@ const getStyleByIndex = (index) => {
   }
 };
 
-var current = [];
-var titulo = "Titulo";
-var subtitulo = "Subtitulo";
+
 const CrearLista = ({ lista, indice }) => {
 
   console.log("size of the list "+lista.length)
