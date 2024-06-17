@@ -25,20 +25,18 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    margin: 15,
-    padding: 15,
     paddingTop: 35,
     paddingBottom: 65,
     paddingHorizontal: 35,
   },
   section: {
-    margin: 10,
-    padding: 10,
+    margin: 5,
+    padding: 5,
     flexGrow: 1,
   },
   row: {
-    margin: 10,
-    padding: 10,
+    margin: 5,
+    padding: 5,
   },
   value: {
     fontWeight: 700,
@@ -60,7 +58,7 @@ const styles = StyleSheet.create({
     fontFamily: "OpenSans",
     fontWeight: "normal",
     fontSize: 37,
-   textAlign: "center",
+    textAlign: "center",
   },
   descriptor1: {
     fontFamily: "OpenSans",
@@ -74,7 +72,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "normal",
     fontSize: 30,
-    marginLeft: 3,
+    marginLeft: 2,
   },
   descriptor3: {
     fontFamily: "OpenSans",
@@ -95,7 +93,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontWeight: "normal",
     fontSize: 15,
-    marginLeft: 45,
+    marginLeft: 55,
   },
   descriptor6: {
     fontFamily: "OpenSans",
@@ -121,6 +119,21 @@ const styles = StyleSheet.create({
   },
   subtitulo: {
     textAlign: "center",
+  },
+  pageNumber: {
+    position: "absolute",
+    fontSize: 12,
+    bottom: 30,
+    left: 0,
+    right: 0,
+    textAlign: "center",
+    color: "grey",
+  },
+  header: {
+    fontSize: 12,
+    marginBottom: 20,
+    textAlign: "center",
+    color: "grey",
   },
 });
 
@@ -149,14 +162,12 @@ const getStyleByIndex = (index) => {
   }
 };
 
-
 const CrearLista = ({ lista, indice }) => {
-
-  console.log("size of the list "+lista.length)
-  console.log(typeof(lista))
-  if( lista && lista.length > 0){
-    console.log(lista)
-    console.log(indice)
+  console.log("size of the list " + lista.length);
+  console.log(typeof lista);
+  if (lista && lista.length > 0) {
+    console.log(lista);
+    console.log(indice);
     return (
       <View>
         {lista.map((item, index) => (
@@ -166,15 +177,18 @@ const CrearLista = ({ lista, indice }) => {
         ))}
       </View>
     );
-  }else{
-    return null
+  } else {
+    return null;
   }
-  
 };
 
 const MyDocument = ({ data }) => (
   <Document>
     <Page size="letter" style={styles.page}>
+      <Text style={styles.header} fixed>
+        A
+      </Text>
+
       <View style={styles.section}>
         {/* {data.current.map((item, index) => (
           <Text key={index} style={styles.titulo}>
@@ -208,6 +222,11 @@ const MyDocument = ({ data }) => (
           <Text>No existe informacion disponible</Text>
         )}
       </View>
+      <Text
+        style={styles.pageNumber}
+        render={({ pageNumber, totalPages }) => `${pageNumber}`}
+        fixed
+      />
     </Page>
   </Document>
 );
