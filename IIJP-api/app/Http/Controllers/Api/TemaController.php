@@ -47,13 +47,50 @@ class TemaController extends Controller
 
         $results = DB::table('temas_complementarios as tc')
             ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
-            ->select('tc.resolution_id','tc.ratio','tc.descriptor', 'tc.restrictor','tc.tipo_jurisprudencia', 'r.nro_resolucion', 'r.tipo_resolucion' , 'r.proceso' , 'r.forma_resolucion')
-            ->where('tc.descriptor', 'like', '%'.$descriptor.'%')->limit(25)->orderBy('tc.descriptor')
+            ->select('tc.resolution_id', 'tc.ratio', 'tc.descriptor', 'tc.restrictor', 'tc.tipo_jurisprudencia', 'r.nro_resolucion', 'r.tipo_resolucion', 'r.proceso', 'r.forma_resolucion')
+            ->where('tc.descriptor', 'like', '%' . $descriptor . '%')->limit(25)->orderBy('tc.descriptor')
             ->get();
         if (!$results) {
             return response()->json(['error' => 'Sala no encontrada a ' . $results], 404);
         }
-        return response()->json($results);
+        $data = [];
+        $current = [];
+         
+        foreach ($results as $element) {
+            $pieces = explode(" / ", $element->descriptor);
+            //array_push($lista, $pieces);
+            $indices = [];
+            if (count($current) > 0) {
+                foreach ($pieces as $piece) {
+                    $key = array_search($piece, $pieces);
+                    if (in_array($piece, $current)) {
+
+                        unset($pieces[$key]);
+
+                    } else {
+                        array_push($indices, $key);
+                        array_push($current, $piece);
+                    }
+                }
+                $element->descriptor = array_values($pieces);
+                $element->indices = $indices;
+            } else {
+                $current = $pieces;
+                foreach ($pieces as $piece) {
+                    $key = array_search($piece, $pieces);
+                    array_push($indices, $key);
+
+                }
+                $element->descriptor = $pieces;
+                $element->indices = $indices;
+            }
+
+        }
+        $data[] = [
+            'current' => $current,
+            'data' => $results->toArray()
+        ];
+        return response()->json($data);
 
     }
 

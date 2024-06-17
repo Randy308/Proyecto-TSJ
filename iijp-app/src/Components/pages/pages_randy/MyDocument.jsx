@@ -60,35 +60,35 @@ const styles = StyleSheet.create({
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 15,
+    fontSize: 20,
     marginLeft: 10,
   },
   descriptor1: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 15,
+    fontSize: 19,
     marginLeft: 20,
   },
   descriptor2: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 15,
+    fontSize: 18,
     marginLeft: 30,
   },
   descriptor3: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 15,
+    fontSize: 17,
     marginLeft: 40,
   },
   descriptor4: {
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 15,
+    fontSize: 16,
     marginLeft: 50,
   },
   descriptor5: {
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     fontFamily: "OpenSans",
     fontStyle: "italic",
     fontWeight: "normal",
-    fontSize: 15,
+    fontSize: 14,
     marginLeft: 70,
   },
   ratio: {
@@ -153,36 +153,42 @@ const getStyleByIndex = (index) => {
 var current = [];
 var titulo = "Titulo";
 var subtitulo = "Subtitulo";
-const CrearLista = ({ text }) => {
-  var lista = text.split(" / ").map((nombre, index) => ({
-    nombre,
-    index,
-  }));
+const CrearLista = ({ lista, indice }) => {
 
-  titulo = lista.length > 0 ? lista.shift().nombre : "";
-  subtitulo = lista.length > 0 ? lista.shift().nombre : "";
-
-  return (
-    <View>
-      {lista.map((item) => (
-        <Text key={item.index} style={getStyleByIndex(item.index)}>
-          {item.nombre}
-        </Text>
-      ))}
-    </View>
-  );
+  console.log("size of the list "+lista.length)
+  console.log(typeof(lista))
+  if( lista && lista.length > 0){
+    console.log(lista)
+    console.log(indice)
+    return (
+      <View>
+        {lista.map((item, index) => (
+          <Text key={index} style={getStyleByIndex(indice[index])}>
+            {item}
+          </Text>
+        ))}
+      </View>
+    );
+  }else{
+    return null
+  }
+  
 };
 
 const MyDocument = ({ data }) => (
   <Document>
     <Page size="letter" style={styles.page}>
       <View style={styles.section}>
-        <Text style={styles.titulo}>{titulo}</Text>
-        <Text style={styles.subtitulo}>{subtitulo}</Text>
+        {/* {data.current.map((item, index) => (
+          <Text key={index} style={styles.titulo}>
+            {item}
+          </Text>
+        ))} */}
+
         {data ? (
-          data.map((item, index) => (
+          data.data.map((item, index) => (
             <View key={index} style={styles.row}>
-              <CrearLista text={item.descriptor} />
+              <CrearLista lista={item.descriptor} indice={item.indices} />
               <View style={styles.resolucion}>
                 <Text style={styles.label}>{item.restrictor}</Text>
                 <Text style={styles.resolution}>

@@ -7,6 +7,9 @@ import MyDocument from "./MyDocument";
 const CronologiasResultados = () => {
   const location = useLocation();
   const { data } = location.state || [];
+  //console.log(data[0].data)
+ // console.log(data[0].current)
+
   return (
     <div className="flex items-center justify-center">
       <PDFViewer
@@ -16,7 +19,7 @@ const CronologiasResultados = () => {
           width: "100vh",
         }}
       >
-        <MyDocument data={data}/>
+        <MyDocument data={data[0]}/>
       </PDFViewer>
     </div>);
 };
