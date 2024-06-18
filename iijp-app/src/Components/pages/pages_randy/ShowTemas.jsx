@@ -5,14 +5,13 @@ import "../../../Styles/Styles_randy/cronologia-jurisprudencia.css";
 import { useNavigate } from "react-router-dom";
 const endpoint = "http://localhost:8000/api";
 const ShowTemas = () => {
-
   const navigate = useNavigate();
 
   const [temas, setTemas] = useState(null);
   const [currentTema, setCurrentTema] = useState(null);
 
   const [arbol, setArbol] = useState([]);
-  
+
   useEffect(() => {
     getAllTemas();
   }, []);
@@ -89,10 +88,7 @@ const ShowTemas = () => {
 
   if (temas === null) {
     return (
-      <div
-        className="flex items-center justify-center"
-        style={{ height: 800 }}
-      >
+      <div className="flex items-center justify-center" style={{ height: 800 }}>
         <Loading />
       </div>
     );
@@ -131,12 +127,15 @@ const ShowTemas = () => {
           </div>
         ))}
       </div>
-      <div className="flex items-end justify-end">
+      <div className="flex items-end justify-end gap-4">
         <button
           type="button"
           onClick={obtenerCronologia}
           className="bg-blue-400 hover:bg-blue-700 p-4 rounded-lg text-white"
         >
+          Generar Cronologia
+        </button>
+        <button className="bg-blue-400 hover:bg-blue-700 p-4 rounded-lg text-white">
           Siguiente
         </button>
       </div>
