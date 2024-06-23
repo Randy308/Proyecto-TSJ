@@ -32,13 +32,34 @@ class Resolutions extends Model
         'sintesis',
     ];
 
-    public function salas()
+    public function sala()
     {
-        return $this->belongsToMany(Salas::class);
+        return $this->belongsTo(Salas::class);
+    }
+    public function temas_complementarios()
+    {
+        return $this->belongsToMany(TemasComplementarios::class);
     }
 
-    public function temas()
+    public function tema()
     {
-        return $this->belongsToMany(Temas::class);
+        return $this->belongsTo(Temas::class);
+    }
+    public function magistrado()
+    {
+        return $this->belongsTo(Magistrados::class);
+    }
+
+    public function forma_resolucion()
+    {
+        return $this->belongsTo(FormaResolucions::class);
+    }
+    public function departamento()
+    {
+        return $this->belongsTo(Departamentos::class);
+    }
+    public function tipo_resolucion()
+    {
+        return $this->belongsTo(TipoResolucions::class);
     }
 }

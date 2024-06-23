@@ -11,11 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class TemaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         //
@@ -47,7 +43,9 @@ class TemaController extends Controller
 
         $results = DB::table('temas_complementarios as tc')
             ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
-            ->select('tc.resolution_id', 'tc.ratio', 'tc.descriptor', 'tc.restrictor', 'tc.tipo_jurisprudencia', 'r.nro_resolucion', 'r.tipo_resolucion', 'r.proceso', 'r.forma_resolucion')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->select('tc.resolution_id', 'tc.ratio', 'tc.descriptor', 'tc.restrictor', 'tc.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.name as tipo_resolucion', 'r.proceso', 'fr.name as forma_resolucion')
             ->where('tc.descriptor', 'like', '%' . $descriptor . '%')->limit(25)->orderBy('tc.descriptor')
             ->get();
         if (!$results) {
@@ -55,7 +53,7 @@ class TemaController extends Controller
         }
         $data = [];
         $current = [];
-         
+
         foreach ($results as $element) {
             $pieces = explode(" / ", $element->descriptor);
             //array_push($lista, $pieces);
@@ -147,35 +145,18 @@ class TemaController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function show($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
         //

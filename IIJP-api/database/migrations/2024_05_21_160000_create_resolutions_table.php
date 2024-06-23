@@ -15,17 +15,17 @@ class CreateResolutionsTable extends Migration
     {
         Schema::create('resolutions', function (Blueprint $table) {
             $table->id();
-            $table->text('nro_resolucion');
-            $table->text('nro_expediente')->nullable();
+            $table->string('nro_resolucion');
+            $table->string('nro_expediente')->nullable();
             $table->date('fecha_emision')->nullable();
             $table->date('fecha_publicacion')->nullable();
-            $table->text('tipo_resolucion')->nullable();
-            $table->text('departamento')->nullable();
+            $table->unsignedBigInteger('tipo_resolucion_id')->nullable();
+            $table->unsignedBigInteger('departamento_id')->nullable();
             $table->unsignedBigInteger('sala_id')->nullable();
-            $table->text('magistrado')->nullable();
-            $table->text('forma_resolucion')->nullable();
-            $table->text('restrictor')->nullable();
-            $table->text('descriptor')->nullable();
+            $table->unsignedBigInteger('magistrado_id')->nullable();
+            $table->unsignedBigInteger('forma_resolucion_id')->nullable();
+            $table->string('restrictor')->nullable();
+            $table->string('descriptor')->nullable();
             $table->text('tipo_jurisprudencia')->nullable();
             $table->text('proceso')->nullable();
             $table->text('precedente')->nullable();
@@ -37,6 +37,10 @@ class CreateResolutionsTable extends Migration
             $table->text('sintesis')->nullable();
             $table->foreign('sala_id')->references('id')->on('salas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('tema_id')->references('id')->on('temas')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('forma_resolucion_id')->references('id')->on('forma_resolucions')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('tipo_resolucion_id')->references('id')->on('tipo_resolucions')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('magistrado_id')->references('id')->on('magistrados')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreign('departamento_id')->references('id')->on('departamentos')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });
     }

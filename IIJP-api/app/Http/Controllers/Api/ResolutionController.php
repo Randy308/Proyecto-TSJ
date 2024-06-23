@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Departamentos;
+use App\Models\FormaResolucions;
 use App\Models\Resolutions;
 use App\Models\Salas;
 use Illuminate\Http\Request;
@@ -12,43 +14,44 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ResolutionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
 
     public function show($id): JsonResponse
     {
         try {
 
             $resolucion = DB::table('contents as c')
-            ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
-            ->select('c.contenido','r.nro_resolucion','r.nro_expediente','r.fecha_emision','r.tipo_resolucion'
-            ,'r.departamento','r.magistrado','r.forma_resolucion','r.proceso','r.demandante','r.demandado')
-            ->where('r.id', '=', $id)->first();
+                ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
+                ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+                ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+                ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+                ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
+                ->select(
+                    'c.contenido',
+                    'r.nro_resolucion',
+                    'r.nro_expediente',
+                    'r.fecha_emision',
+                    'tr.name as tipo_resolucion',
+                    'd.name as departamento',
+                    'm.name as magistrado',
+                    'fr.name as forma_resolucion',
+                    'r.proceso',
+                    'r.demandante',
+                    'r.demandado'
+                )
+                ->where('r.id', '=', $id)
+                ->first();
+
 
             return response()->json($resolucion, 200);
         } catch (ModelNotFoundException $e) {
@@ -65,24 +68,13 @@ class ResolutionController extends Controller
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
         //
@@ -95,21 +87,25 @@ class ResolutionController extends Controller
         $sala = $request['selectedSala'];
 
         $mi_sala = Salas::where('sala', $sala)->first();
-
+        $mi_departamento = Departamentos::where("name", $departamento)->first();
         if (!$mi_sala) {
             return response()->json(['error' => 'Sala no encontrada a' . $sala], 404);
+        }
+
+        if (!$mi_departamento) {
+            return response()->json(['error' => 'Departamento no encontrado ' . $departamento], 404);
         }
 
 
 
         $data = [];
-        $forma_resolucion = Resolutions::select('forma_resolucion')->distinct()->get();
+        $forma_resolucion = FormaResolucions::distinct()->get();
 
         foreach ($forma_resolucion as $res) {
             $resolutions = Resolutions::whereYear('fecha_emision', $year)
-                ->where('departamento', $departamento)
+                ->where('departamento_id', $mi_departamento->id)
                 ->where('sala_id', $mi_sala->id)
-                ->where('forma_resolucion', $res->forma_resolucion)
+                ->where('forma_resolucion_id', $res->id)
                 ->select(
                     DB::raw('DATE_PART(\'month\', fecha_emision) as mes'),
                     DB::raw('count(*) as cantidad')
@@ -119,7 +115,7 @@ class ResolutionController extends Controller
                 ->get();
             if ($resolutions->isNotEmpty()) {
                 $data[] = [
-                    'id' => $res->forma_resolucion,
+                    'id' => $res->name,
                     'color' => 'hsl(118, 70%, 50%)',
                     'data' => $resolutions->toArray()
                 ];
