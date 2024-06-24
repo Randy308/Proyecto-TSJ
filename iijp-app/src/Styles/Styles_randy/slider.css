@@ -18,6 +18,7 @@
 }
 .current{
   padding: 2rem;
+  display: grid;
 }
 
 .titulo-card {

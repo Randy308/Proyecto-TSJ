@@ -1,4 +1,3 @@
-
 :root {
   --mainColor: #450920;
   --secondaryColor: #fff;
@@ -26,6 +25,24 @@
   --light: #f0f3f5;
   --dark: #2f353a;
 }
+@keyframes fadeInY {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+
+.cards-container .card {
+  width: 300px;
+  height: auto;
+  animation: 1.5s fadeInY;
+  transition: width 5ms, height 4ms;
+}
 
 .bg-f86c6b{
   background-color: #f86c6b;
@@ -39,7 +56,7 @@
 }
 
 #j-container-icons .icon-style {
-  font-size: 4rem;
+  font-size: 7rem;
   color: rgba(255, 255, 255, .6) ;
 }
 
@@ -59,7 +76,10 @@
   transform: scale(1.1);
   
 }
-
+.card:hover #j-container-icons .icon-style {
+  transition: 0.9s;
+  transform: rotateY(180deg);
+}
 
 @media (max-width: 720px) {
   .main{

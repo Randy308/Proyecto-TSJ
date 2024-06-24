@@ -6,21 +6,24 @@ const Jurisprudencia = () => {
   return (
     <main className="main py-4 my-4">
       <div>
-        <h2 className="text-center py-4 text-lg">Herramientas</h2>
-        <div className="flex p-4 m-4 justify-center items-center custom:flex-col">
+        <h2 className="text-center py-4 text-3xl font-bold">Herramientas</h2>
+        <div className="cards-container flex p-4 m-4 justify-center items-center custom:flex-col">
           {jurisprudenciaItems.map((item) => {
             return (
-              <div className={`card p-4 m-3 bg-${item.color} rounded-md`}>
-                <div id="j-container-icons" className="py-4 flex justify-center items-center">
-                  {item.icon}
+              <Link to={item.path}>
+                <div className={`card p-4 m-3 bg-${item.color} rounded-md flex flex-col`}>
+                  <div
+                    id="j-container-icons"
+                    className="py-4 flex justify-center items-center"
+                  >
+                    {item.icon}
+                  </div>
+                  <p className="text-center text-lg font-bold text-white">{item.title}</p>
+
+                  <p className="p-4 text-xs text-white">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis rerum repudiandae, unde accusamus laboriosam, in tempore voluptas corrupti temporibus fuga, animi veniam quas exercitationem quae odit non dolorem iusto nihil!</p>
+
                 </div>
-                <p className="text-center">{item.title}</p>
-                <Link to={item.path} className="flex justify-center p-4 m-4">
-                  <button className="rounded-lg bg-blue-500 text-white p-3 m-4 hover:bg-blue-800">
-                    Acceder
-                  </button>
-                </Link>
-              </div>
+              </Link>
             );
           })}
         </div>

@@ -1,16 +1,14 @@
-#features  path:hover {
-  fill: #2AAA8A;
-  stroke: blue;
+#features  path {
+  fill: #B2E6D4;
+  stroke: black;
 }
 
 #features path:not(.activo):hover {
-  fill: #097969;
-  stroke: green;
+  fill: #87CEAA;
 }
 
 #features  path.activo {
-    fill: #90EE90;
-    stroke: blue;
+    fill: #9FDAB6;
   }
 
 g#features {

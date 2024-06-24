@@ -12,6 +12,18 @@ const ShowTemas = () => {
 
   const [arbol, setArbol] = useState([]);
 
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = () => {
+    setCurrentSlide(1);
+    console.log("next");
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide(0);
+    console.log("prev");
+  };
+
   useEffect(() => {
     getAllTemas();
   }, []);
@@ -82,7 +94,9 @@ const ShowTemas = () => {
         alert("No existen datos");
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      const message = error.response.data;
+      console.error("Error fetching data:", message);
+      alert(message.error)
     }
   };
 
@@ -95,7 +109,8 @@ const ShowTemas = () => {
   }
 
   return (
-    <div className="m-4 p-4" style={{ height: 800 }}>
+    <div id="cronologia-container" className="m-4 p-4">
+      <div className="header-container">
       <div>
         <p className="text-bold text-3xl text-center my-4">
           Seleccione Materia
@@ -115,19 +130,29 @@ const ShowTemas = () => {
           ))}
         </div>
       </div>
-      <div className="flex gap-4 flex-wrap flex-row h-100 p-4 m-4">
-        {temas.map((tema) => (
-          <div
-            className={`p-4 rounded-lg materia-div bg-blue-400 hover:bg-blue-700 text-white hover:cursor-pointer"`}
-            key={tema.id}
-            id={tema.id}
-            onClick={() => setActivo(tema.id)} // Correct usage of onClick
-          >
-            {tema.nombre}
-          </div>
-        ))}
       </div>
-      <div className="flex items-end justify-end gap-4">
+      <div className="slider-container">
+        <div className={`slide ${currentSlide === 0 ? "current" : ""}`}>
+          {temas.map((tema) => (
+            <div
+              className={`p-4 rounded-lg materia-div bg-blue-400 hover:bg-blue-700 text-white hover:cursor-pointer"`}
+              key={tema.id}
+              id={tema.id}
+              onClick={() => setActivo(tema.id)}
+            >
+              {tema.nombre}
+            </div>
+          ))}
+        </div>
+        <div className={`slide ${currentSlide === 1 ? "current" : ""}`}></div>
+      </div>
+      <div className="button-container">
+        <button
+          className={`bg-blue-400 hover:bg-blue-700 p-4 rounded-lg text-white ${currentSlide === 0 ? "ocultar" : ""}`}
+          onClick={prevSlide}
+        >
+          Anterior
+        </button>
         <button
           type="button"
           onClick={obtenerCronologia}
@@ -135,7 +160,10 @@ const ShowTemas = () => {
         >
           Generar Cronologia
         </button>
-        <button className="bg-blue-400 hover:bg-blue-700 p-4 rounded-lg text-white">
+        <button
+          className={`bg-blue-400 hover:bg-blue-700 p-4 rounded-lg text-white ${currentSlide === 1 ? "ocultar" : ""}`}
+          onClick={nextSlide}
+        >
           Siguiente
         </button>
       </div>

@@ -186,7 +186,7 @@ const MyDocument = ({ data }) => (
   <Document>
     <Page size="letter" style={styles.page}>
       <Text style={styles.header} fixed>
-        A
+        IIJP
       </Text>
 
       <View style={styles.section}>
@@ -210,10 +210,45 @@ const MyDocument = ({ data }) => (
                     {item.nro_resolucion}
                   </Link>
                 </Text>
-                {item.ratio && (
-                  <Text style={styles.ratio}>
-                    Ratio: {formatText(item.ratio)}
-                  </Text>
+
+                {item.tipo_jurisprudencia ? (
+                  <View>
+                    <Text style={styles.ratio}>
+                      Tipo de jurisprudencia:{" "}
+                      {formatText(item.tipo_jurisprudencia)}
+                    </Text>
+                  </View>
+                ) : (
+                  " "
+                )}
+
+                {item.forma_resolucion ? (
+                  <View>
+                    <Text style={styles.ratio}>
+                      Forma de Resolucion: {formatText(item.forma_resolucion)}
+                    </Text>
+                  </View>
+                ) : (
+                  " "
+                )}
+                {item.proceso ? (
+                  <View>
+                    <Text style={styles.ratio}>
+                      Proceso: {formatText(item.proceso)}
+                    </Text>
+                  </View>
+                ) : (
+                  " "
+                )}
+
+                {item.ratio ? (
+                  <View>
+                    <Text style={styles.ratio}>
+                      Ratio: {formatText(item.ratio)}
+                    </Text>
+                  </View>
+                ) : (
+                  " "
                 )}
               </View>
             </View>

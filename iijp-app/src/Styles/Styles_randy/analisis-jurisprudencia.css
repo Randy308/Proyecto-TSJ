@@ -22,15 +22,21 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 2rem;
-  justify-content: space-between;
+  margin: 2rem;
+  padding: 1rem;
+  justify-content: start;
+  border-radius: 1rem;
+  /* border: 1px solid black; */
 }
 .salas-col {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 2rem;
+  margin: 1rem;
+  padding: 1rem;
   justify-content: space-between;
+  border-radius: 1rem;
+
 }
 input[type="radio"] {
   -webkit-appearance: none;
@@ -118,6 +124,6 @@ h5 {
   .subfrom-juris {
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-rows: repeat(2, auto);
   }
 }

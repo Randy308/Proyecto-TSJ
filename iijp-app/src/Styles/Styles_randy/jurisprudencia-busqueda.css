@@ -1,0 +1,64 @@
+.cintaCategoria{
+    position: relative;
+    color: white;
+    text-align: center;
+    height: 100%;
+    width: 100%;
+}
+.contenedor {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+.Cancelado .card-header {
+    background-color: #c73633; /* Tono más oscuro de rojo */
+}
+
+.Activo .card-header {
+    background-color: #3c9c64; /* Tono más oscuro de verde */
+}
+
+.Borrador .card-header {
+    background-color: #E6C700; /* Tono más oscuro de naranja */
+}
+
+.Finalizado .card-header {
+    background-color: #345d8d; /* Tono más oscuro de azul */
+}
+.FiltroInvisible{
+    display: none;
+}
+body{
+    background-color: #f5f5f5;
+}
+.Cancelado {
+    background-color: #ee6f68;
+    position: relative;
+
+    color: white;
+    text-align: center;
+}
+
+.Activo {
+    background-color: #82dfab;
+    position: relative;
+
+    color: white;
+    text-align: center;
+}
+
+.Borrador {
+    background-color: #FEDD00;
+    position: relative;
+
+    color: white;
+    text-align: center;
+}
+
+.Finalizado {
+    background-color: #558AD1;
+    position: relative;
+
+    color: white;
+    text-align: center;
+}
