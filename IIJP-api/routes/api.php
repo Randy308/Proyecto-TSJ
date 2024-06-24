@@ -32,3 +32,8 @@ Route::get('/salas-hijos/{id}', [TemaController::class, 'obtenerHijos'])->name('
 
 
 Route::get('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
+
+
+
+Route::get('/obtener-parametros', [ResolutionController::class, 'obtenerParametros'])->name('obtener-parametros');
+Route::get('/filtrar-resoluciones', [ResolutionController::class, 'filtrarResoluciones'])->name('filtrar-resoluciones');

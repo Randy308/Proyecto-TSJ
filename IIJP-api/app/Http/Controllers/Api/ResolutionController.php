@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contents;
 use App\Models\Departamentos;
 use App\Models\FormaResolucions;
 use App\Models\Resolutions;
@@ -79,8 +80,74 @@ class ResolutionController extends Controller
     {
         //
     }
+    public function obtenerParametros()
+    {
+        $departamentos = Departamentos::all("name as nombre");
+        $salas = Salas::all("sala as nombre");
 
-    public function obtenerAvg(Request $request)
+        if (!$salas || !$departamentos) {
+            return response()->json(['error' => 'Solicitud no encontrada'], 404);
+        }
+
+        $data = [
+            'departamentos' => $departamentos->toArray(),
+            'salas' => $salas->toArray()
+        ];
+
+        return response()->json($data);
+    }
+
+    public function filtrarResoluciones(Request $request)
+    {
+        $texto = $request['texto'];
+        $departamento = $request['departamento'];
+        $sala = $request['selectedSala'];
+        $mi_sala = null;
+        $mi_departamento = null;
+
+        if ($sala) {
+            if ($sala != "todas") {
+                $mi_sala = Salas::where("sala", $sala)->first();
+                if (!$mi_sala) {
+                    return response()->json(['error' => 'Sala no encontrada'], 404);
+                }
+            }
+        } else {
+            return response()->json(['error' => 'Campo sala no encontrado'], 404);
+        }
+
+        if ($departamento) {
+            if ($departamento != "todos") {
+                $mi_departamento = Departamentos::where("name", $departamento)->first();
+                if (!$mi_departamento) {
+                    return response()->json(['error' => 'Departamento no encontrado'], 404);
+                }
+            }
+        } else {
+            return response()->json(['error' => 'Campo departamento no encontrado'], 404);
+        }
+
+        $resoluciones = Contents::where("contenido", "like", "%" . $texto . "%")->take(50)->get("resolution_id");
+        $data = [];
+        foreach ($resoluciones as $res) {
+            $query = Resolutions::query()->where("id", $res->resolution_id);
+            if ($mi_sala) {
+                $query->where("sala_id", $mi_sala->id);
+            }
+
+            if ($mi_departamento) {
+                $query->where("departamento_id", $mi_departamento->id);
+            }
+
+            $resolucion = $query->first();
+            if ($resolucion) {
+                $data[] = $resolucion;
+            }
+        }
+
+        return response()->json($data);
+    }
+        public function obtenerAvg(Request $request)
     {
         $year = $request['selectedYear'];
         $departamento = $request['departamento'];

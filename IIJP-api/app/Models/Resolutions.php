@@ -62,4 +62,9 @@ class Resolutions extends Model
     {
         return $this->belongsTo(TipoResolucions::class);
     }
+
+    public function content()
+    {
+        return $this->belongsTo(Contents::class);
+    }
 }
