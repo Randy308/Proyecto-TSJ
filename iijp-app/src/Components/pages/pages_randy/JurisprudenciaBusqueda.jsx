@@ -4,12 +4,15 @@ import { FaFilter } from "react-icons/fa";
 //import 'bootstrap/dist/css/bootstrap.css';
 import axios from "axios";
 import { Link } from "react-router-dom";
+import ReactPaginate from "react-paginate";
+import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
 const JurisprudenciaBusqueda = () => {
   const endpoint = "http://localhost:8000/api";
 
   const [activo, setActivo] = useState(null);
 
+  const [lastPage, setLastPage] = useState(1);
   const [salas, setSalas] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
   const [resoluciones, setResoluciones] = useState([]);
@@ -31,6 +34,7 @@ const JurisprudenciaBusqueda = () => {
   const [texto, setTexto] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSala, setSelectedSala] = useState("todas");
+  const [pageCount, setPageCount] = useState(1);
   const cambiarActivo = (id, name) => {
     setActivo(id);
     setSelectedDepartamento(name);
@@ -57,8 +61,12 @@ const JurisprudenciaBusqueda = () => {
     setTexto("");
   };
 
-  const obtenerResoluciones = async (e) => {
-    e.preventDefault();
+  const handlePageClick = (e) => {
+    const selectedPage = Math.min(e.selected + 1, lastPage);
+    //setPage(selectedPage);
+    obtenerResoluciones(selectedPage);
+  };
+  const obtenerResoluciones = async (page) => {
     try {
       const response = await axios.get(`${endpoint}/filtrar-resoluciones`, {
         params: {
@@ -66,11 +74,14 @@ const JurisprudenciaBusqueda = () => {
           departamento: selectedDepartamento,
           selectedYear: selectedYear,
           selectedSala: selectedSala,
+          page: page,
         },
       });
-      console.log(response.data.data);
+      console.log(response.data);
       if (response.data.data.length > 0) {
         setResoluciones(response.data.data);
+        setLastPage(response.data.last_page);
+        setPageCount(response.data.last_page);
       } else {
         alert("No existen datos");
       }
@@ -181,7 +192,7 @@ const JurisprudenciaBusqueda = () => {
           <div className="p-4 my-4 flex justify-end content-end">
             <button
               className="rounded-lg bg-blue-500 hover:bg-blue-800 p-4 text-white"
-              onClick={obtenerResoluciones}
+              onClick={() => obtenerResoluciones(1)}
             >
               Buscar
             </button>
@@ -189,10 +200,13 @@ const JurisprudenciaBusqueda = () => {
         </div>
       </div>
 
-      <div className="row">
+      <div className="row p-4">
         <div className="p-4 m-4">Resultados</div>
         {resoluciones.map((item, index) => (
-          <div className="flex flex-row gap-1 p-4 m-4 content-between justify-between bg-white rounded-lg">
+          <div
+            className="flex flex-row gap-1 p-4 m-4 content-between justify-between bg-white rounded-lg"
+            key={index}
+          >
             <div>{item.nro_resolucion}</div>
             <div>{item.fecha_emision}</div>
             <div>{item.sala_id}</div>
@@ -210,6 +224,29 @@ const JurisprudenciaBusqueda = () => {
             </div>
           </div>
         ))}
+        <div>
+          <ReactPaginate
+            breakLabel={<span className="mr-4">...</span>}
+            nextLabel={
+              <span className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-md">
+                <BsChevronRight />
+              </span>
+            }
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={5}
+            pageCount={pageCount}
+            previousLabel={
+              <span className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-md mr-4">
+                <BsChevronLeft />
+              </span>
+            }
+            containerClassName="flex items-center justify-center mt-8 mb-4 gap-2"
+            pageClassName="block border border-solid w-10 h-10 flex items-center justify-center 
+                rounded-md mr-4 hover:bg-slate-100"
+            activeClassName="bg-purple-500 text-white"
+            renderOnZeroPageCount={null}
+          />
+        </div>
       </div>
     </div>
   );

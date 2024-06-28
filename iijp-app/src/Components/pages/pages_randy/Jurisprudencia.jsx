@@ -10,7 +10,7 @@ const Jurisprudencia = () => {
         <div className="cards-container flex p-4 m-4 justify-center items-center custom:flex-col">
           {jurisprudenciaItems.map((item) => {
             return (
-              <Link to={item.path}>
+              <Link to={item.path} key={item.id}>
                 <div className={`card p-4 m-3 bg-${item.color} rounded-md flex flex-col`}>
                   <div
                     id="j-container-icons"
