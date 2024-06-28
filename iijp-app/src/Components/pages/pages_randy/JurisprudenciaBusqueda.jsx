@@ -68,9 +68,9 @@ const JurisprudenciaBusqueda = () => {
           selectedSala: selectedSala,
         },
       });
-      console.log(response.data);
-      if (response.data.length > 0) {
-        setResoluciones(response.data);
+      console.log(response.data.data);
+      if (response.data.data.length > 0) {
+        setResoluciones(response.data.data);
       } else {
         alert("No existen datos");
       }

@@ -127,27 +127,24 @@ class ResolutionController extends Controller
             return response()->json(['error' => 'Campo departamento no encontrado'], 404);
         }
 
-        $resoluciones = Contents::where("contenido", "like", "%" . $texto . "%")->take(50)->get("resolution_id");
-        $data = [];
-        foreach ($resoluciones as $res) {
-            $query = Resolutions::query()->where("id", $res->resolution_id);
-            if ($mi_sala) {
-                $query->where("sala_id", $mi_sala->id);
-            }
+        $resoluciones = Contents::where("contenido", "like", "%" . $texto . "%")->pluck('resolution_id');
 
-            if ($mi_departamento) {
-                $query->where("departamento_id", $mi_departamento->id);
-            }
+        $query = Resolutions::query()->whereIn('id', $resoluciones);
 
-            $resolucion = $query->first();
-            if ($resolucion) {
-                $data[] = $resolucion;
-            }
+        if ($mi_sala) {
+            $query->where("sala_id", $mi_sala->id);
         }
 
-        return response()->json($data);
+        if ($mi_departamento) {
+            $query->where("departamento_id", $mi_departamento->id);
+        }
+
+        $paginatedData = $query->paginate(10); // Adjust the number of items per page as needed
+
+        return response()->json($paginatedData);
     }
-        public function obtenerAvg(Request $request)
+
+    public function obtenerAvg(Request $request)
     {
         $year = $request['selectedYear'];
         $departamento = $request['departamento'];
