@@ -6,22 +6,21 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import { TiArrowBack } from "react-icons/ti";
 const ResolucionTSJ = () => {
   const { id } = useParams();
-  const endpoint = `http://localhost:8000/api/resolucion/${id}`;
-  const [currentSlide, setCurrentSlide] = useState(0);
+  
   const [resolucion, setResolucion] = useState(null);
   useEffect(() => {
+    const endpoint = `http://localhost:8000/api/resolucion/${id}`;
+    const getResolution = async () => {
+      try {
+        const response = await axios.get(endpoint);
+        setResolucion(response.data);
+        console.log(response.data);
+      } catch (error) {
+        console.error("Error al realizar la solicitud:", error);
+      }
+    };
     getResolution();
-  }, []);
-
-  const getResolution = async () => {
-    try {
-      const response = await axios.get(endpoint);
-      setResolucion(response.data);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-    }
-  };
+  }, [id]);
 
   if (resolucion === null) {
     return (
@@ -55,12 +54,15 @@ const ResolucionTSJ = () => {
           </div>
           <div className="bg-[#F0F0F0] m-4 " style={{ width: 500 }}>
             <div className="p-4 text-center bg-[#561427] text-white ">
-              <p className="flex flex-row gap-4 justify-center items-center"><TiArrowBack className="text-3xl"/>Analisis Documental </p>
+              <p className="flex flex-row gap-4 justify-center items-center">
+                <TiArrowBack className="text-3xl" />
+                Analisis Documental{" "}
+              </p>
             </div>
             <div className="bg-white rounded-lg p-4 m-4 flex flex-row justify-around">
               {" "}
               <p>Datos Generales</p>
-              <IoMdArrowDropdown className="text-2xl"/>
+              <IoMdArrowDropdown className="text-2xl" />
             </div>
             <div className=" bg-white p-4 m-4 rounded-lg oculto">
               <p>

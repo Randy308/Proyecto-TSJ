@@ -3,7 +3,6 @@ import "../../../Styles/Styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
 //import 'bootstrap/dist/css/bootstrap.css';
 import axios from "axios";
-import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
@@ -17,10 +16,11 @@ const JurisprudenciaBusqueda = () => {
   const [departamentos, setDepartamentos] = useState([]);
   const [resoluciones, setResoluciones] = useState([]);
   useEffect(() => {
-    getParametros();
+    getParams();
+    console.log(process.env.REACT_APP_BACKEND)
   }, []);
 
-  const getParametros = async () => {
+  const getParams = async () => {
     try {
       const response = await axios.get(`${endpoint}/obtener-parametros`);
       setSalas(response.data.salas);
@@ -189,13 +189,14 @@ const JurisprudenciaBusqueda = () => {
               </div>
             </div>
           </div>
-          <div className="p-4 my-4 flex justify-end content-end">
+          <div className="p-4 my-4 flex justify-end content-end gap-4">
             <button
               className="rounded-lg bg-blue-500 hover:bg-blue-800 p-4 text-white"
               onClick={() => obtenerResoluciones(1)}
             >
               Buscar
             </button>
+            <button className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-4" onClick={()=> limpiarFiltros}> Limpiar </button>
           </div>
         </div>
       </div>
@@ -207,12 +208,12 @@ const JurisprudenciaBusqueda = () => {
             className="flex flex-row gap-1 p-4 m-4 content-between justify-between bg-white rounded-lg"
             key={index}
           >
-            <div>{item.nro_resolucion}</div>
-            <div>{item.fecha_emision}</div>
+            <div>Numero de Resolucion: {item.nro_resolucion}</div>
+            <div>Fecha de Emision: {item.fecha_emision}</div>
             <div>{item.sala_id}</div>
 
             <div>Departamento: {item.departamento_id}</div>
-
+          <span>{process.env.REACT_APP_SECRET_NAME}</span>
             <div>
               <button className="p-4 bg-blue-400 text-white rounded-lg">
                 <a
