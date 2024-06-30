@@ -16,6 +16,7 @@ const JurisprudenciaBusqueda = () => {
   const [salas, setSalas] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
   const [resoluciones, setResoluciones] = useState([]);
+  
   useEffect(() => {
     getParams();
     console.log(process.env.REACT_APP_BACKEND);
@@ -33,22 +34,36 @@ const JurisprudenciaBusqueda = () => {
 
   const [selectedDepartamento, setSelectedDepartamento] = useState("todos");
   const [texto, setTexto] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
   const [selectedSala, setSelectedSala] = useState("todas");
+  const [orden , setOrden] = useState("Recientes");
+  const [fechaExacta , setFechaExacta] = useState("");
+  const [fechaDesde , setFechaDesde] = useState("");
+  const [fechaHasta , setFechaHasta] = useState("");
   const [pageCount, setPageCount] = useState(1);
-  const cambiarActivo = (id, name) => {
-    setActivo(id);
-    setSelectedDepartamento(name);
-  };
-  const cambiarYear = (event) => {
-    setSelectedYear(event.target.value);
-  };
+  
+
   const cambiarSala = (event) => {
     setSelectedSala(event.target.value);
+  };
+  const cambiarOrden = (event) => {
+    setOrden(event.target.value);
   };
 
   const cambiarDepartamento = (event) => {
     setSelectedDepartamento(event.target.value);
+  };
+  const cambiarFechaExacta = (event) => {
+    setFechaExacta(event.target.value);
+    setFechaDesde("");
+    setFechaHasta("");
+  };
+  const cambiarFechaDesde = (event) => {
+    setFechaDesde(event.target.value);
+    setFechaExacta("");
+  };
+  const cambiarFechaHasta = (event) => {
+    setFechaHasta(event.target.value);
+    setFechaExacta("");
   };
 
   const actualizarInput = (event) => {
@@ -56,10 +71,13 @@ const JurisprudenciaBusqueda = () => {
   };
 
   const limpiarFiltros = () => {
-    setSelectedYear("");
-    setSelectedSala("");
-    setSelectedDepartamento("");
+    setSelectedSala("Todas");
+    setSelectedDepartamento("Todos");
     setTexto("");
+    setOrden("Recientes");
+    setFechaDesde("");
+    setFechaExacta("");
+    setFechaHasta("");
   };
 
   const handlePageClick = (e) => {
@@ -73,8 +91,11 @@ const JurisprudenciaBusqueda = () => {
         params: {
           texto: texto,
           departamento: selectedDepartamento,
-          selectedYear: selectedYear,
           selectedSala: selectedSala,
+          orden:orden,
+          fecha_exacta: fechaExacta,
+          fecha_desde: fechaDesde,
+          fecha_hasta:fechaHasta,
           page: page,
         },
       });
@@ -101,21 +122,22 @@ const JurisprudenciaBusqueda = () => {
 
   return (
     <div
-      className="md:container mx-auto bg-gray-200"
+      className="md:container mx-auto px-40 custom:px-0"
       id="jurisprudencia-busqueda"
     >
       <div className="row p-4">
         <p className="m-4 p-4 text-center font-bold text-2xl">
           Búsqueda de Jurisprudencia
         </p>
-        <div className="flex flex-col bg-gray-100">
-          <div className="bg-[#2C8BC5] p-4 text-white font-bold rounded-t-lg">
+        <div className="flex flex-col bg-neutral-200">
+          <div className="bg-[#450920] p-4 text-white font-bold rounded-t-lg">
             <p>Campos de busqueda</p>
           </div>
           <div className="p-4 m-4 custom:m-0 rounded-b-lg" id="search-box">
             <input
               id="search-bar"
               type="text"
+              value={texto}
               onChange={actualizarInput}
               className="form-control p-1 rounded-l-lg"
               placeholder="Buscar..."
@@ -139,7 +161,7 @@ const JurisprudenciaBusqueda = () => {
               <div className="row-select">
                 <div className="select-form">
                   <p>Ordenar por:</p>
-                  <select className="form-control" onChange={cambiarYear}>
+                  <select className="form-control" value={orden}  onChange={cambiarOrden}>
                     <option value="Recientes">Recientes</option>
                     <option value="Antiguos">Antiguos</option>
                   </select>
@@ -148,6 +170,7 @@ const JurisprudenciaBusqueda = () => {
                 <div className="select-form">
                   <p>Filtrar por Departamento:</p>
                   <select
+                  value={selectedDepartamento}
                     className="form-control"
                     onChange={cambiarDepartamento}
                   >
@@ -162,7 +185,7 @@ const JurisprudenciaBusqueda = () => {
 
                 <div className="select-form">
                   <p>Filtrar por Sala:</p>
-                  <select className="form-control" onChange={cambiarSala}>
+                  <select className="form-control" onChange={cambiarSala} value={selectedSala}>
                     <option value="todas">Todas</option>
                     {salas.map((item, index) => (
                       <option value={item.nombre} key={index}>
@@ -175,34 +198,33 @@ const JurisprudenciaBusqueda = () => {
               <div className="row-select">
                 <div className="select-form">
                   <p>Fecha Exacta</p>
-                  <input className="form-control" type="date"></input>
+                  <input value={fechaExacta} className="form-control" type="date" onChange={cambiarFechaExacta}></input>
                 </div>
 
                 <div className="select-form">
                   <p>Fecha Desde</p>
-                  <input className="form-control" type="date"></input>
+                  <input value={fechaDesde}  className="form-control" type="date" onChange={cambiarFechaDesde}></input>
                 </div>
 
                 <div className="select-form">
                   <p>Fecha Hasta</p>
-                  <input className="form-control" type="date"></input>
+                  <input value={fechaHasta}  className="form-control" type="date" onChange={cambiarFechaHasta}></input>
                 </div>
               </div>
             </div>
           </div>
           <div className="p-4 my-4 flex justify-end content-end gap-4">
             <button
-              className="rounded-lg bg-blue-500 hover:bg-blue-800 p-4 text-white"
+              className="rounded-lg bg-blue-500 hover:bg-blue-800 p-3 text-white"
               onClick={() => obtenerResoluciones(1)}
             >
               Buscar
             </button>
             <button
-              className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-4"
-              onClick={() => limpiarFiltros}
+              className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-3"
+              onClick={limpiarFiltros}
             >
-              {" "}
-              Limpiar{" "}
+              Limpiar
             </button>
           </div>
         </div>
@@ -231,7 +253,7 @@ const JurisprudenciaBusqueda = () => {
             containerClassName="flex items-center justify-center mt-8 mb-4 gap-2"
             pageClassName="block border border-solid w-10 h-10 flex items-center justify-center 
                 rounded-md mr-4 hover:bg-slate-100"
-            activeClassName="bg-purple-500 text-white"
+            activeClassName="bg-[#450920] text-white"
             renderOnZeroPageCount={null}
           />
         </div>

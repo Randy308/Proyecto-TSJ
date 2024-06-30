@@ -18,9 +18,13 @@ import { useLocation } from 'react-router-dom';
 function App() {
 
   const location = useLocation();
-  const noNavbarFooterRoutes = ['/Jurisprudencia/Resolucion/:id']; // Agrega más rutas según sea necesario
+  const noNavbarRoutes = ['/Jurisprudencia/Resolucion/:id']; // Agrega más rutas según sea necesario
+  const noFooterRoutes = ['/Jurisprudencia/Resolucion/:id', '/Jurisprudencia/Busqueda','/Jurisprudencia/Cronologias'];
+  const shouldShowNavbar = !noNavbarRoutes.some((route) =>
+    location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
+  );
 
-  const shouldShowNavbarFooter = !noNavbarFooterRoutes.some((route) =>
+  const shouldShowFooter = !noFooterRoutes.some((route) =>
     location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
   );
 
@@ -28,7 +32,7 @@ function App() {
     <ThemeProvider>
     <main>
       <React.Fragment>
-        {shouldShowNavbarFooter && <Navbar />}
+        {shouldShowNavbar && <Navbar />}
         <Routes>
           <Route path="/" element={<Navigate to="/Inicio" />} />
           <Route path="/Analisis" element={<Analisis />} />
@@ -43,7 +47,7 @@ function App() {
           <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
           <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
         </Routes>
-        {shouldShowNavbarFooter && <Footer />}
+        {shouldShowFooter && <Footer />}
       </React.Fragment>
     </main>
   </ThemeProvider>

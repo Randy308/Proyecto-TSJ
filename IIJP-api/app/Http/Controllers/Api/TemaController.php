@@ -3,12 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Departamentos;
+use App\Models\FormaResolucions;
 use App\Models\Resolutions;
 use App\Models\Salas;
 use App\Models\Temas;
+use App\Models\TipoResolucions;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+function validarModelo($modelClassName, $field, $value)
+{
+    $errorMessage = null;
+    $modelo = $modelClassName::where($field, $value)->first();
+
+    if (!$modelo) {
+        $defaultErrorMessage = "No se encontró el modelo '$modelClassName' con '$field' igual a '$value'.";
+        throw new ModelNotFoundException($errorMessage ?: $defaultErrorMessage);
+    }
+
+    return $modelo;
+}
 class TemaController extends Controller
 {
 
@@ -29,25 +45,108 @@ class TemaController extends Controller
         return $hijos->toJson();
     }
 
+
+    public function obtenerParametrosCronologia(Request $request)
+    {
+        // Validar el descriptor
+        $request->validate([
+            'descriptor' => 'required|string',
+        ]);
+
+        $descriptor = $request->input('descriptor');
+
+        // Función auxiliar para evitar la repetición de código
+        $getDistinctValues = function ($joinTable, $nameTable, $joinColumn, $selectColumn) use ($descriptor) {
+            return DB::table('temas_complementarios as tc')
+                ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
+                ->join($joinTable, "$nameTable.id", '=', $joinColumn)
+                ->where('tc.descriptor', 'like', '%' . $descriptor . '%')
+                ->distinct()
+                ->pluck($selectColumn);
+        };
+
+        // Obtener los valores únicos
+        $forma_resolucions = $getDistinctValues('forma_resolucions as fr', "fr", 'r.forma_resolucion_id', 'fr.name');
+        $departamentos = $getDistinctValues('departamentos as d', "d", 'r.departamento_id', 'd.name');
+        $tipo_resolucions = $getDistinctValues('tipo_resolucions as tr', "tr", 'r.tipo_resolucion_id', 'tr.name');
+
+        // Preparar la respuesta
+        $data = [
+            'departamentos' => $departamentos,
+            'forma_resolucions' => $forma_resolucions,
+            'tipo_resolucions' => $tipo_resolucions,
+        ];
+
+        return response()->json($data);
+    }
+
+
+
     public function obtenerCronologias(Request $request)
     {
 
         $tema_id = $request['tema_id'];
         $descriptor = $request['descriptor'];
+        $departamento = $request["departamento"];
+        $tipo_resolucion = $request["tipo_resolucion"];
+        $forma_resolucion = $request["forma_resolucion"];
+        $fecha_exacta = $request["fecha_exacta"];
+        $fecha_desde = $request["fecha_desde"];
+        $fecha_hasta = $request["fecha_hasta"];
+        $cantidad = $request["cantidad"];
+
+        $mi_departamento = null;
+        $mi_tipo_resolucion = null;
+        $mi_forma_resolucion = null; // Valor por defecto si forma_resolucion es "Todas"
+
+
+        if ($forma_resolucion !== "Todas") {
+            $mi_forma_resolucion = validarModelo(FormaResolucions::class, 'name', $forma_resolucion);
+        }
+        if ($forma_resolucion !== "Todas") {
+            $mi_forma_resolucion = validarModelo(TipoResolucions::class, 'name', $tipo_resolucion);
+        }
+        if ($forma_resolucion !== "Todas") {
+            $mi_forma_resolucion = validarModelo(Departamentos::class, 'name', $departamento);
+        }
         // Encuentra el tema por ID
         $tema = Temas::where('id', $tema_id)->first();
 
         if (!$tema) {
-            return response()->json(['error' => 'Sala no encontrada a ' . $tema_id], 404);
+            return response()->json(['error' => 'Tema no encontrado'], 404);
         }
 
-        $results = DB::table('temas_complementarios as tc')
+        $query = DB::table('temas_complementarios as tc')
             ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->select('tc.resolution_id', 'tc.ratio', 'tc.descriptor', 'tc.restrictor', 'tc.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.name as tipo_resolucion', 'r.proceso', 'fr.name as forma_resolucion')
-            ->where('tc.descriptor', 'like', '%' . $descriptor . '%')->limit(25)->orderBy('tc.descriptor')
-            ->get();
+            ->where('tc.descriptor', 'like', '%' . $descriptor . '%');
+
+        if ($mi_tipo_resolucion) {
+            $query->where('r.tipo_resolucion_id', $mi_tipo_resolucion->id);
+        }
+        if ($mi_forma_resolucion) {
+            $query->where('r.forma_resolucion_id', $mi_forma_resolucion->id);
+        }
+
+        if ($mi_departamento) {
+            $query->where('r.departamento_id', $mi_departamento->id);
+        }
+
+        if ($fecha_exacta) {
+            $query->where('r.fecha_emision', $fecha_exacta);
+        }
+        if ($fecha_desde && $fecha_hasta) {
+            $query->whereBetween('r.fecha_emision', [$fecha_desde, $fecha_hasta]);
+        }
+        if ($cantidad) {
+            $query->limit($cantidad);
+        } else {
+            $query->limit(25);
+        }
+        $results = $query->orderBy('tc.descriptor')->get();
+
         if (!$results) {
             return response()->json(['error' => 'Sala no encontrada'], 404);
         }

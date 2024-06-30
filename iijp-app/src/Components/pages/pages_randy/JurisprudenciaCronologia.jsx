@@ -4,7 +4,7 @@ import ShowTemas from './ShowTemas'
 
 const JurisprudenciaCronologia = () => {
   return (
-    <div><ShowTemas/></div>
+    <div id="cronologia-container"><ShowTemas/></div>
     
   )
 };

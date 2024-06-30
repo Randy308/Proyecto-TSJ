@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../../Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { TiArrowBack } from "react-icons/ti";
 const ResolucionTSJ = () => {
   const { id } = useParams();
-  
+  const navigate = useNavigate();
   const [resolucion, setResolucion] = useState(null);
   useEffect(() => {
     const endpoint = `http://localhost:8000/api/resolucion/${id}`;
@@ -55,7 +55,8 @@ const ResolucionTSJ = () => {
           <div className="bg-[#F0F0F0] m-4 " style={{ width: 500 }}>
             <div className="p-4 text-center bg-[#561427] text-white ">
               <p className="flex flex-row gap-4 justify-center items-center">
-                <TiArrowBack className="text-3xl" />
+               
+                <button onClick={() => navigate("/Jurisprudencia/Busqueda")} className="hover:text-gray-400"> <TiArrowBack className="text-3xl" /></button>
                 Analisis Documental{" "}
               </p>
             </div>

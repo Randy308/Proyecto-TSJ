@@ -10,6 +10,9 @@ const PaginationData = ({ data }) => {
               Fecha
             </th>
             <th scope="col" class="px-6 py-3">
+            Tipo de resolucion
+            </th>
+            <th scope="col" class="px-6 py-3">
               Nro de resolucion
             </th>
             <th scope="col" class="px-6 py-3">
@@ -32,9 +35,10 @@ const PaginationData = ({ data }) => {
               >
                 {item.fecha_emision}
               </th>
+              <td class="px-6 py-4">{item.tipo_resolucion}</td>
               <td class="px-6 py-4">{item.nro_resolucion}</td>
-              <td class="px-6 py-4">{item.departamento_id}</td>
-              <td class="px-6 py-4">{item.sala_id}</td>
+              <td class="px-6 py-4">{item.departamento}</td>
+              <td class="px-6 py-4">{item.sala}</td>
               <td class="px-6 py-4">
                 <a
                   href={`http://localhost:3000/Jurisprudencia/Resolucion/${item.id}`}

@@ -103,46 +103,62 @@ class ResolutionController extends Controller
         $departamento = $request['departamento'];
         $sala = $request['selectedSala'];
         $mi_sala = null;
+        $orden = $request["orden"];
         $mi_departamento = null;
+        $fecha_exacta = $request["fecha_exacta"];
+        $fecha_desde = $request["fecha_desde"];
+        $fecha_hasta = $request["fecha_hasta"];
 
-        if ($sala) {
-            if ($sala != "todas") {
-                $mi_sala = Salas::where("sala", $sala)->first();
-                if (!$mi_sala) {
-                    return response()->json(['error' => 'Sala no encontrada'], 404);
-                }
+        if ($sala && $sala !== "todas") {
+            $mi_sala = Salas::where("sala", $sala)->first();
+            if (!$mi_sala) {
+                return response()->json(['error' => 'Sala no encontrada'], 404);
             }
-        } else {
+        } elseif (!$sala) {
             return response()->json(['error' => 'Campo sala no encontrado'], 404);
         }
 
-        if ($departamento) {
-            if ($departamento != "todos") {
-                $mi_departamento = Departamentos::where("name", $departamento)->first();
-                if (!$mi_departamento) {
-                    return response()->json(['error' => 'Departamento no encontrado'], 404);
-                }
+        if ($departamento && $departamento !== "todos") {
+            $mi_departamento = Departamentos::where("name", $departamento)->first();
+            if (!$mi_departamento) {
+                return response()->json(['error' => 'Departamento no encontrado'], 404);
             }
-        } else {
+        } elseif (!$departamento) {
             return response()->json(['error' => 'Campo departamento no encontrado'], 404);
         }
 
-        $resoluciones = Contents::where("contenido", "like", "%" . $texto . "%")->pluck('resolution_id');
-
-        $query = Resolutions::query()->whereIn('id', $resoluciones);
+        $query = DB::table('resolutions as r')
+            ->join('contents as c', 'r.id', '=', 'c.resolution_id')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->select('r.nro_resolucion',"r.id", "r.fecha_emision", 'tr.name as tipo_resolucion', 'd.name as departamento', "s.sala as sala")
+            ->where('c.contenido', 'like', '%' . $texto . '%');
 
         if ($mi_sala) {
-            $query->where("sala_id", $mi_sala->id);
+            $query->where('r.sala_id', $mi_sala->id);
         }
 
         if ($mi_departamento) {
-            $query->where("departamento_id", $mi_departamento->id);
+            $query->where('r.departamento_id', $mi_departamento->id);
         }
 
-        $paginatedData = $query->paginate(10); // Adjust the number of items per page as needed
+        if($fecha_exacta){
+            $query->where('r.fecha_emision',$fecha_exacta);
+        }
+        if($fecha_desde && $fecha_hasta){
+            $query->whereBetween('r.fecha_emision', [$fecha_desde, $fecha_hasta]);
+        }
+        if($orden == "Recientes"){
+            $query->orderByDesc('r.fecha_emision');
+        }else{
+            $query->orderBy('r.fecha_emision');
+        }
+        $paginatedData = $query->orderBy('tipo_resolucion')->paginate(10);
 
         return response()->json($paginatedData);
     }
+
 
     public function obtenerAvg(Request $request)
     {
