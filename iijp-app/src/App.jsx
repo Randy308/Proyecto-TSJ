@@ -8,13 +8,16 @@ import Footer from "./Components/Footer";
 import Preguntas from "./Components/pages/Preguntas";
 import Jurisprudencia from "./Components/pages/pages_randy/Jurisprudencia";
 import JurisprudenciaBusqueda from "./Components/pages/pages_randy/JurisprudenciaBusqueda";
-import JurisprudenciaAnalisis from "./Components/pages/pages_randy/JurisprudenciaAnalisis";
+import AnalisisMateria from "./Components/pages/pages_randy/AnalisisMateria";
 import JurisprudenciaCronologia from "./Components/pages/pages_randy/JurisprudenciaCronologia";
 import ResultadoAnalisis from "./Components/pages/pages_randy/ResultadoAnalisis";
 import { ThemeProvider } from "./Components/ThemeProvider";
 import ResolucionTSJ from "./Components/pages/pages_randy/resoluciones/ResolucionTSJ";
 import CronologiasResultados from "./Components/pages/pages_randy/CronologiasResultados";
 import { useLocation } from 'react-router-dom';
+import JurisprudenciaLista from "./Components/pages/pages_randy/JurisprudenciaLista";
+import AnalisisMagistrados from "./Components/pages/pages_randy/AnalisisMagistrados";
+import MagistradoTSJ from "./Components/pages/pages_randy/magistrados/MagistradoTSJ";
 function App() {
 
   const location = useLocation();
@@ -40,10 +43,13 @@ function App() {
           <Route path="/Novedades" element={<Novedades />} />
           <Route path="/Preguntas" element={<Preguntas />} />
           <Route path="/Jurisprudencia" element={<Jurisprudencia />} />
-          <Route path="/Jurisprudencia/Analisis" element={<JurisprudenciaAnalisis />} />
+          <Route path="/Jurisprudencia/Analisis-Materia" element={<AnalisisMateria />} />
+          <Route path="/Jurisprudencia/Analisis-Magistrados" element={<AnalisisMagistrados />} />
+          <Route path="/Jurisprudencia/Lista-de-analisis" element={<JurisprudenciaLista />} />
           <Route path="/Jurisprudencia/Resultados" element={<ResultadoAnalisis />} />
           <Route path="/Jurisprudencia/Busqueda" element={<JurisprudenciaBusqueda />} />
           <Route path="/Jurisprudencia/Cronologias" element={<JurisprudenciaCronologia />} />
+          <Route path="/Jurisprudencia/Magistrado/:id" element={<MagistradoTSJ />} />
           <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
           <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
         </Routes>

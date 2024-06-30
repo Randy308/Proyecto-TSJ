@@ -6,7 +6,7 @@ const LineChart = ({ option }) => {
       option={option}
       style={{
         height: "500px",
-        width: "1200px",
+        width: "1000px",
       }}
     />
   );

@@ -4,7 +4,7 @@ export const jurisprudenciaItems = [
   {
     id: 1,
     title: "Analisis",
-    path: "/Jurisprudencia/Analisis",
+    path: "/Jurisprudencia/Lista-de-analisis",
     cName: "tool-item",
     icon: <FaChartLine className="icon-style"/> ,
     color: "f86c6b"

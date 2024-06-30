@@ -6,7 +6,7 @@ import { departamentos } from "./Mapa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const JurisprudenciaAnalisis = () => {
+const AnalisisMateria = () => {
   const endpoint = "http://localhost:8000/api";
 
   const [activo, setActivo] = useState(null);
@@ -74,7 +74,7 @@ const JurisprudenciaAnalisis = () => {
   };
 
   return (
-    <div className="py-4 my-4">
+    <div className="py-4 my-4" id="analisis-materia">
       <form onSubmit={obtenerConteo}>
         <h1 className="text-center font-bold text-lg py-4">Opciones</h1>
         <div className="form-juris">
@@ -252,4 +252,4 @@ const JurisprudenciaAnalisis = () => {
   );
 };
 
-export default JurisprudenciaAnalisis;
+export default AnalisisMateria;

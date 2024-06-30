@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
 use App\Http\Controllers\Api\TemaController;
+
+use App\Http\Controllers\MagistradosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,3 +41,6 @@ Route::get('/obtener-parametros', [ResolutionController::class, 'obtenerParametr
 Route::get('/filtrar-resoluciones', [ResolutionController::class, 'filtrarResoluciones'])->name('filtrar-resoluciones');
 Route::get('/obtener-parametros-cronologia', [TemaController::class, 'obtenerParametrosCronologia'])->name('obtener-parametros-cronologia');
 
+Route::get('/magistrados', [MagistradosController::class, 'index'])->name('obtener-magistrados');
+
+Route::get('/magistrado-estadisticas/{id}', [MagistradosController::class, 'obtenerEstadisticas'])->name('obtener-estadisticas-magistrado');
