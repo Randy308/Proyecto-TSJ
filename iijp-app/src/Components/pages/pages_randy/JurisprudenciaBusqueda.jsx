@@ -5,6 +5,7 @@ import { FaFilter } from "react-icons/fa";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import PaginationData from "./slider/PaginationData";
 
 const JurisprudenciaBusqueda = () => {
   const endpoint = "http://localhost:8000/api";
@@ -17,7 +18,7 @@ const JurisprudenciaBusqueda = () => {
   const [resoluciones, setResoluciones] = useState([]);
   useEffect(() => {
     getParams();
-    console.log(process.env.REACT_APP_BACKEND)
+    console.log(process.env.REACT_APP_BACKEND);
   }, []);
 
   const getParams = async () => {
@@ -196,35 +197,21 @@ const JurisprudenciaBusqueda = () => {
             >
               Buscar
             </button>
-            <button className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-4" onClick={()=> limpiarFiltros}> Limpiar </button>
+            <button
+              className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-4"
+              onClick={() => limpiarFiltros}
+            >
+              {" "}
+              Limpiar{" "}
+            </button>
           </div>
         </div>
       </div>
 
       <div className="row p-4">
-        <div className="p-4 m-4">Resultados</div>
-        {resoluciones.map((item, index) => (
-          <div
-            className="flex flex-row gap-1 p-4 m-4 content-between justify-between bg-white rounded-lg"
-            key={index}
-          >
-            <div>Numero de Resolucion: {item.nro_resolucion}</div>
-            <div>Fecha de Emision: {item.fecha_emision}</div>
-            <div>{item.sala_id}</div>
 
-            <div>Departamento: {item.departamento_id}</div>
-          <span>{process.env.REACT_APP_SECRET_NAME}</span>
-            <div>
-              <button className="p-4 bg-blue-400 text-white rounded-lg">
-                <a
-                  href={`http://localhost:3000/Jurisprudencia/Resolucion/${item.id}`}
-                >
-                  Ver resolucion
-                </a>
-              </button>
-            </div>
-          </div>
-        ))}
+
+        {resoluciones.length > 0 && <PaginationData data={resoluciones}/>}
         <div>
           <ReactPaginate
             breakLabel={<span className="mr-4">...</span>}

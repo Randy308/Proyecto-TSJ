@@ -35,7 +35,7 @@ class ResolutionController extends Controller
                 ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
                 ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
                 ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-                ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+                ->leftJoin('departamentos as d', 'd.id', '=', 'r.departamento_id')
                 ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
                 ->select(
                     'c.contenido',
