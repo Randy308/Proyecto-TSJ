@@ -132,7 +132,7 @@ class ResolutionController extends Controller
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
-            ->select('r.nro_resolucion',"r.id", "r.fecha_emision", 'tr.name as tipo_resolucion', 'd.name as departamento', "s.sala as sala")
+            ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.name as tipo_resolucion', 'd.name as departamento', "s.sala as sala")
             ->where('c.contenido', 'like', '%' . $texto . '%');
 
         if ($mi_sala) {
@@ -143,15 +143,15 @@ class ResolutionController extends Controller
             $query->where('r.departamento_id', $mi_departamento->id);
         }
 
-        if($fecha_exacta){
-            $query->where('r.fecha_emision',$fecha_exacta);
+        if ($fecha_exacta) {
+            $query->where('r.fecha_emision', $fecha_exacta);
         }
-        if($fecha_desde && $fecha_hasta){
+        if ($fecha_desde && $fecha_hasta) {
             $query->whereBetween('r.fecha_emision', [$fecha_desde, $fecha_hasta]);
         }
-        if($orden == "Recientes"){
+        if ($orden == "Recientes") {
             $query->orderByDesc('r.fecha_emision');
-        }else{
+        } else {
             $query->orderBy('r.fecha_emision');
         }
         $paginatedData = $query->orderBy('tipo_resolucion')->paginate(10);
@@ -166,43 +166,81 @@ class ResolutionController extends Controller
         $departamento = $request['departamento'];
         $sala = $request['selectedSala'];
 
-        $mi_sala = Salas::where('sala', $sala)->first();
-        $mi_departamento = Departamentos::where("name", $departamento)->first();
-        if (!$mi_sala) {
-            return response()->json(['error' => 'Sala no encontrada a' . $sala], 404);
+        $mi_sala = null;
+        $mi_departamento = null;
+
+        if ($sala && $sala !== "Todas") {
+            $mi_sala = Salas::where("sala", $sala)->first();
+            if (!$mi_sala) {
+                return response()->json(['error' => 'Sala no encontrada'], 404);
+            }
+        } elseif (!$sala) {
+            return response()->json(['error' => 'Campo sala no encontrado'], 404);
         }
 
-        if (!$mi_departamento) {
-            return response()->json(['error' => 'Departamento no encontrado ' . $departamento], 404);
+        if ($departamento && $departamento !== "Todos") {
+            $mi_departamento = Departamentos::where("name", $departamento)->first();
+            if (!$mi_departamento) {
+                return response()->json(['error' => 'Departamento no encontrado'], 404);
+            }
+        } elseif (!$departamento) {
+            return response()->json(['error' => 'Campo departamento no encontrado'], 404);
         }
-
-
 
         $data = [];
-        $forma_resolucion = FormaResolucions::distinct()->get();
+        $formaResoluciones = DB::table('forma_resolucions as fr')
+            ->join('resolutions as r', 'r.forma_resolucion_id', '=', 'fr.id')
+            ->select('fr.name', 'fr.id', DB::raw('count(r.id) as resolucion_count'))
+            ->groupBy('fr.id')
+            ->orderBy('resolucion_count', 'desc')
+            ->limit(10)
+            ->get();
 
-        foreach ($forma_resolucion as $res) {
-            $resolutions = Resolutions::whereYear('fecha_emision', $year)
-                ->where('departamento_id', $mi_departamento->id)
-                ->where('sala_id', $mi_sala->id)
-                ->where('forma_resolucion_id', $res->id)
-                ->select(
-                    DB::raw('DATE_PART(\'month\', fecha_emision) as mes'),
+        foreach ($formaResoluciones as $res) {
+            $query = Resolutions::where('forma_resolucion_id', $res->id);
+
+            if ($year && $year !== "Todos") {
+                $query->whereYear('fecha_emision', $year)
+                    ->select(
+                        DB::raw('DATE_PART(\'month\', fecha_emision) as periodo'),
+                        DB::raw('count(*) as cantidad')
+                    )
+                    ->groupBy('periodo')
+                    ->orderBy('periodo');
+                $periodo = "month";
+            } else {
+                $query->select(
+                    DB::raw('DATE_PART(\'year\', fecha_emision) as periodo'),
                     DB::raw('count(*) as cantidad')
                 )
-                ->groupBy('mes')
-                ->orderBy('mes')
-                ->get();
+                    ->groupBy('periodo')
+                    ->orderBy('periodo');
+                $periodo = "year";
+            }
+
+            if ($mi_sala) {
+                $query->where('sala_id', $mi_sala->id);
+            }
+
+            if ($mi_departamento) {
+                $query->where('departamento_id', $mi_departamento->id);
+            }
+
+            $resolutions = $query->get();
+
             if ($resolutions->isNotEmpty()) {
                 $data[] = [
                     'id' => $res->name,
-                    'color' => 'hsl(118, 70%, 50%)',
                     'data' => $resolutions->toArray()
                 ];
             }
         }
 
+        return response()->json([
 
-        return $data;
+            'tipo_periodo' => $periodo,
+            'data' => $data,
+        ]);
     }
+
 }

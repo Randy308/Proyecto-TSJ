@@ -28,7 +28,7 @@ const AnalisisMateria = () => {
     }
   };
 
-  const [departamento, setDepartamento] = useState("");
+  const [departamento, setDepartamento] = useState("Todos");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedSala, setSelectedSala] = useState("");
   const cambiarActivo = (id, name) => {
@@ -45,6 +45,7 @@ const AnalisisMateria = () => {
     setActivo(null);
     setSelectedYear("");
     setSelectedSala("");
+    setDepartamento("Todos")
   };
 
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ const AnalisisMateria = () => {
         },
       });
       console.log(response.data);
-      if(response.data.length > 0){
+      if(response.data.data.length > 0){
         navigate("/Jurisprudencia/Resultados", {
           state: { data: response.data },
         });
