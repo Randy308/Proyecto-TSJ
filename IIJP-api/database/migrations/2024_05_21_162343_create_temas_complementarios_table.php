@@ -16,10 +16,10 @@ class CreateTemasComplementariosTable extends Migration
         Schema::create('temas_complementarios', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('resolution_id');
-            $table->string('restrictor');
-            $table->string('tipo_jurisprudencia');
-            $table->string('ratio');
-            $table->string('descriptor');
+            $table->text('restrictor')->nullable();
+            $table->text('tipo_jurisprudencia')->nullable();
+            $table->text('ratio')->nullable();;
+            $table->text('descriptor');
             $table->foreign('resolution_id')->references('id')->on('resolutions')->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
         });

@@ -3,60 +3,65 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Resolutions;
+use App\Models\Salas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SalaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
-        //
+        $data = [
+            'salas' => [],
+            'years' => []
+        ];
+
+        try {
+            $resultado = Salas::orderBy('id')->get(["sala as nombre"]);
+            $salas = $resultado->toArray();
+            array_unshift($salas, ['nombre' => 'Todas']);
+            $data['salas'] = $salas;
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Ocurrió un error al intentar obtener las salas'
+            ], 500);
+        }
+
+        try {
+            $resultado_years = Resolutions::select(DB::raw('DISTINCT DATE_PART(\'year\', fecha_emision) AS year'))->pluck('year');
+            $years = $resultado_years->toArray();
+            //array_unshift($years, 'Todos');
+            $data['years'] = $years;
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Ocurrió un error al intentar obtener los years'
+            ], 500);
+        }
+
+        return response()->json($data, 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function show($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
         //

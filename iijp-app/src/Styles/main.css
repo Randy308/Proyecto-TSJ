@@ -13,18 +13,15 @@
   --secondaryFontColor: #eaf8bf;
 }
 
-#nav-container {
-  display: flex;
-  flex-direction: column;
+#parent-container.dark-theme{
+  background-color: #242E42;
 }
-#nav-content-1 {
-  display: flex;
-  justify-content: space-between;
-  height: 150px;
-}
-#nav-content-1 img {
-  height: 100%;
-  padding: 0.5rem;
+
+
+nav img.first-logo {
+  height: fit-content;
+  padding: 0;
+  width: 150px;
 }
 .active {
   background-color: var(--secondaryFontColor);
@@ -35,7 +32,13 @@ nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--mainColor);
+  background: rgb(169, 97, 112);
+  background: linear-gradient(
+    107deg,
+    rgba(169, 97, 112, 1) 0%,
+    rgba(137, 41, 67, 1) 24%,
+    rgb(111, 57, 72) 100%
+  );
   color: var(--secondaryColor);
   position: sticky;
   top: 0;
@@ -126,10 +129,25 @@ nav ul li.submenu a:not(.active):hover {
   flex-direction: column;
 }
 
-.blank-space{
+.second-logo{
+  display: none;
+}
+.blank-space {
   width: 100%;
   height: 500px;
 }
+
+
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 60px;
+  aspect-ratio: 4;
+  background: radial-gradient(circle closest-side,#000 90%,#0000) 0/calc(100%/3) 100% space;
+  clip-path: inset(0 100% 0 0);
+  animation: l1 1s steps(4) infinite;
+}
+@keyframes l1 {to{clip-path: inset(0 -34% 0 0)}}
+
 @media (max-width: 720px) {
   nav .menu {
     display: flex;
@@ -138,6 +156,16 @@ nav ul li.submenu a:not(.active):hover {
   }
   #observatorio-menu {
     position: relative;
+  }
+  div 
+  .second-logo{
+    display: block;
+    height: fit-content;
+    padding: 0;
+    width: 60px;
+  }
+  .first-logo{
+    display: none;
   }
   nav {
     flex-direction: column;
@@ -155,9 +183,12 @@ nav ul li.submenu a:not(.active):hover {
     display: flex;
     padding: 0;
   }
-
+  #bars{
+    transform: scale(2);
+  }
   #close {
     display: none;
+    transform: scale(2);
   }
   #close.open {
     display: flex;
@@ -169,7 +200,6 @@ nav ul li.submenu a:not(.active):hover {
   nav ul li {
     width: 100%;
     height: 100%;
-    
   }
 
   nav ul li a {
@@ -198,4 +228,12 @@ nav ul li.submenu a:not(.active):hover {
   nav ul li.submenu a.active {
     color: var(--mainColor);
   }
+}
+div#parent-container.dark-theme main header nav{
+  background: rgb(53,78,126);
+background: linear-gradient(90deg, rgba(53,78,126,1) 0%, rgba(47,61,88,1) 100%);
+
+}
+.hidden{
+  display: none;
 }

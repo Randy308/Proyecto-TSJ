@@ -1,36 +1,62 @@
 import React from "react";
 import Navbar from "./Components/Navbar";
-import { Route, Routes } from "react-router-dom";
-import Analisis from "./Components/pages/Analisis";
+import { Navigate, Route, Routes } from "react-router-dom";
+import Analisis from "./Components/pages/Preguntas";
 import Novedades from "./Components/pages/Novedades";
 import Inicio from "./Components/pages/Inicio";
 import Footer from "./Components/Footer";
-import Generalidades from "./Components/pages/Generalidades";
-import Jurisprudencia from "./Components/pages/Jurisprudencia";
-import JurisprudenciaBusqueda from "./Components/pages/Jurisprudencia/JurisprudenciaBusqueda";
-import JurisprudenciaAnalisis from "./Components/pages/Jurisprudencia/JurisprudenciaAnalisis";
-import JurisprudenciaCronologia from "./Components/pages/Jurisprudencia/JurisprudenciaCronologia";
+import Preguntas from "./Components/pages/Preguntas";
+import Jurisprudencia from "./Components/pages/pages_randy/Jurisprudencia";
+import JurisprudenciaBusqueda from "./Components/pages/pages_randy/JurisprudenciaBusqueda";
+import AnalisisMateria from "./Components/pages/pages_randy/AnalisisMateria";
+import JurisprudenciaCronologia from "./Components/pages/pages_randy/JurisprudenciaCronologia";
+import ResultadoAnalisis from "./Components/pages/pages_randy/ResultadoAnalisis";
+import { ThemeProvider } from "./Components/ThemeProvider";
+import ResolucionTSJ from "./Components/pages/pages_randy/resoluciones/ResolucionTSJ";
+import CronologiasResultados from "./Components/pages/pages_randy/CronologiasResultados";
+import { useLocation } from 'react-router-dom';
+import JurisprudenciaLista from "./Components/pages/pages_randy/JurisprudenciaLista";
+import AnalisisMagistrados from "./Components/pages/pages_randy/AnalisisMagistrados";
+import MagistradoTSJ from "./Components/pages/pages_randy/magistrados/MagistradoTSJ";
 function App() {
+
+  const location = useLocation();
+  const noNavbarRoutes = ['/Jurisprudencia/Resolucion/:id']; // Agrega más rutas según sea necesario
+  const noFooterRoutes = ['/Jurisprudencia/Resolucion/:id', '/Jurisprudencia/Busqueda','/Jurisprudencia/Cronologias'];
+  const shouldShowNavbar = !noNavbarRoutes.some((route) =>
+    location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
+  );
+
+  const shouldShowFooter = !noFooterRoutes.some((route) =>
+    location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
+  );
+
   return (
+    <ThemeProvider>
     <main>
       <React.Fragment>
-        <Navbar></Navbar>
+        {shouldShowNavbar && <Navbar />}
         <Routes>
-          <Route path="/Analisis" element={<Analisis />}></Route>
-          <Route path="/Inicio" element={<Inicio />}></Route>
-          <Route path="/Novedades" element={<Novedades />}></Route>
-          <Route path="/Generalidades" element={<Generalidades />}></Route>
-          <Route path="/Jurisprudencia" element={<Jurisprudencia />}></Route>
-
-
-          <Route path="/Jurisprudencia/Analisis" element={<JurisprudenciaAnalisis />}></Route>
-          <Route path="/Jurisprudencia/Busqueda" element={<JurisprudenciaBusqueda />}></Route>
-          <Route path="/Jurisprudencia/Cronologias" element={<JurisprudenciaCronologia />}></Route>
+          <Route path="/" element={<Navigate to="/Inicio" />} />
+          <Route path="/Analisis" element={<Analisis />} />
+          <Route path="/Inicio" element={<Inicio />} />
+          <Route path="/Novedades" element={<Novedades />} />
+          <Route path="/Preguntas" element={<Preguntas />} />
+          <Route path="/Jurisprudencia" element={<Jurisprudencia />} />
+          <Route path="/Jurisprudencia/Analisis-Materia" element={<AnalisisMateria />} />
+          <Route path="/Jurisprudencia/Analisis-Magistrados" element={<AnalisisMagistrados />} />
+          <Route path="/Jurisprudencia/Lista-de-analisis" element={<JurisprudenciaLista />} />
+          <Route path="/Jurisprudencia/Resultados" element={<ResultadoAnalisis />} />
+          <Route path="/Jurisprudencia/Busqueda" element={<JurisprudenciaBusqueda />} />
+          <Route path="/Jurisprudencia/Cronologias" element={<JurisprudenciaCronologia />} />
+          <Route path="/Jurisprudencia/Magistrado/:id" element={<MagistradoTSJ />} />
+          <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
+          <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
         </Routes>
-        <Footer></Footer>
+        {shouldShowFooter && <Footer />}
       </React.Fragment>
     </main>
-    
+  </ThemeProvider>
   );
 }
 

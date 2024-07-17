@@ -1,8 +1,7 @@
-:root{
-
-    --mainColor:#450920;
-    --secondaryColor: #fff;
-    --secondaryFontColor: #EAF8BF;
+:root {
+  --mainColor: #450920;
+  --secondaryColor: #fff;
+  --secondaryFontColor: #eaf8bf;
 }
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
 
@@ -13,17 +12,21 @@
   font-family: "Roboto Flex", sans-serif;
 }
 
-
 .footer {
-  /* position: absolute; */
   left: 0;
   bottom: 0;
+  right: 0;
   width: 100%;
-  background-color:var(--mainColor);
+  background: rgb(169, 97, 112);
+  background: linear-gradient(
+    107deg,
+    rgba(169, 97, 112, 1) 0%,
+    rgba(137, 41, 67, 1) 24%,
+    rgba(86, 20, 39, 1) 100%
+  );
   color: white;
   text-align: center;
 }
-
 
 .footer-icon {
   height: 1.3rem;
@@ -35,13 +38,19 @@
 #footer-icons {
   display: flex;
   justify-content: center;
-  padding: 1.2rem; 
+  padding: 1.2rem;
 }
 
 #footer-icons * {
-  margin: 0.6rem; 
+  margin: 0.6rem;
 }
 
 .footer-icon:hover {
   transform: scale(1.5);
+}
+
+div#parent-container.dark-theme main .footer{
+  background: rgb(53,78,126);
+background: linear-gradient(90deg, rgba(53,78,126,1) 0%, rgba(47,61,88,1) 100%);
+
 }
