@@ -29,7 +29,7 @@ class MagistradosController extends Controller
             ->select(
                 DB::raw('DATE_PART(\'year\', fecha_emision) as year'),
                 DB::raw('count(*) as cantidad')
-            )
+            )->whereNotNull("fecha_emision")
             ->groupBy('year')
             ->orderBy('year')
             ->get();

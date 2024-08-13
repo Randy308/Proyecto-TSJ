@@ -1,11 +1,9 @@
 import React from "react";
 import Navbar from "./Components/Navbar";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Analisis from "./Components/pages/Preguntas";
 import Novedades from "./Components/pages/Novedades";
 import Inicio from "./Components/pages/Inicio";
 import Footer from "./Components/Footer";
-import Preguntas from "./Components/pages/Preguntas";
 import Jurisprudencia from "./Components/pages/pages_randy/Jurisprudencia";
 import JurisprudenciaBusqueda from "./Components/pages/pages_randy/JurisprudenciaBusqueda";
 import AnalisisMateria from "./Components/pages/pages_randy/AnalisisMateria";
@@ -38,10 +36,8 @@ function App() {
         {shouldShowNavbar && <Navbar />}
         <Routes>
           <Route path="/" element={<Navigate to="/Inicio" />} />
-          <Route path="/Analisis" element={<Analisis />} />
           <Route path="/Inicio" element={<Inicio />} />
           <Route path="/Novedades" element={<Novedades />} />
-          <Route path="/Preguntas" element={<Preguntas />} />
           <Route path="/Jurisprudencia" element={<Jurisprudencia />} />
           <Route path="/Jurisprudencia/Analisis-Materia" element={<AnalisisMateria />} />
           <Route path="/Jurisprudencia/Analisis-Magistrados" element={<AnalisisMagistrados />} />

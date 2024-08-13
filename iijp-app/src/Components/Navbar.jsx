@@ -21,7 +21,7 @@ function Navbar() {
           />
           <img
             src="https://www.umss.edu.bo/wp-content/uploads/2022/08/Logo_umss.png"
-            alt="firt-logo"
+            alt="first-logo"
             className="first-logo"
           />
         </div>
