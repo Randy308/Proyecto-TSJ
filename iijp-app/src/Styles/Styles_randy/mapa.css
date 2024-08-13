@@ -3,6 +3,12 @@
   stroke: black;
 }
 
+#label_points  circle {
+  fill: #B2E6D4;
+  stroke: black;
+}
+
+
 #features path:not(.activo):hover {
   fill: #87CEAA;
 }

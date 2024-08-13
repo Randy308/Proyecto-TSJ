@@ -35,7 +35,7 @@ class MagistradosController extends Controller
             ->get();
         if ($resolutions->isNotEmpty()) {
             $data = [
-                'id' => $magistrado->name,
+                'magistrado' => $magistrado->name,
                 'color' => 'hsl(118, 70%, 50%)',
                 'data' => $resolutions->toArray()
             ];

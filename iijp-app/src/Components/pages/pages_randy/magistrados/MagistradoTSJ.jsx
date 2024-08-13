@@ -17,7 +17,7 @@ const MagistradoTSJ = () => {
           `${endpoint}/magistrado-estadisticas/${id}`
         );
 
-        setXAxis(response.data.data.id);
+        setXAxis(response.data.data.magistrado);
         //console.log(response.data.data);
         setData(response.data.data.data);
       } catch (error) {
