@@ -1,50 +1,40 @@
-#features  path {
-  fill: #B2E6D4;
+#features path {
+  fill: #b2e6d4;
   stroke: black;
 }
-
-#label_points  circle {
-  fill: #B2E6D4;
-  stroke: black;
-}
-
 
 #features path:not(.activo):hover {
-  fill: #87CEAA;
+  fill: #87ceaa;
 }
 
-#features  path.activo {
-    fill: #9FDAB6;
-  }
-
-g#features {
-  transform: scale(0.55);
+#features path.activo {
+  fill: #9fdab6;
 }
 
-g#points {
-  transform: scale(0.55);
+
+#points .point {
+  fill: red;
+  stroke: black;
+  stroke-width: 1;
 }
-g#label_points {
-  transform: scale(0.55);
+
+#label_points .label {
+  fill: black; /* Use 'fill' instead of 'color' for SVG text */
+  font-size: x-large;
+  font-weight: bolder;
+  font-family: Arial, sans-serif; /* You can specify the font family */
 }
+
 #svg_bolivia {
   width: 550px;
   height: 550px;
 }
 
-title{
-    z-index: 999;
-}
 @media (max-width: 720px) {
-  g#features {
-    transform: scale(0.35);
-  }
-
-  g#points {
-    transform: scale(0.35);
-  }
+  g#features,
+  g#points,
   g#label_points {
-    transform: scale(0.35);
+    transform: scale(0.95);
   }
 
   #svg_bolivia {

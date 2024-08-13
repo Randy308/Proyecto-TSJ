@@ -45,7 +45,7 @@ const AnalisisMateria = () => {
     setActivo(null);
     setSelectedYear("");
     setSelectedSala("");
-    setDepartamento("Todos")
+    setDepartamento("Todos");
   };
 
   const navigate = useNavigate();
@@ -61,14 +61,13 @@ const AnalisisMateria = () => {
         },
       });
       console.log(response.data);
-      if(response.data.data.length > 0){
+      if (response.data.data.length > 0) {
         navigate("/Jurisprudencia/Resultados", {
           state: { data: response.data },
         });
-      }else{
-        alert("No existen datos")
+      } else {
+        alert("No existen datos");
       }
-      
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -136,97 +135,64 @@ const AnalisisMateria = () => {
               strokeLinejoin="round"
               strokeWidth=".5"
               version="1.2"
-              viewbox="0 0 1000 1000"
+              viewBox="0 0 1000 1000"
               xmlns="http://www.w3.org/2000/svg"
             >
               <g id="features">
-                {departamentos.map((departamento, index) => {
-                  return (
-                    <path
-                      key={departamento.id}
-                      d={departamento.d}
-                      id={departamento.id}
-                      name={departamento.name}
-                      className={` ${
-                        activo === departamento.id ? "activo" : ""
-                      }`}
-                      onClick={() =>
-                        cambiarActivo(departamento.id, departamento.name)
-                      }
-                    ></path>
-                  );
-                })}
+                {departamentos.map((departamento) => (
+                  <path
+                    key={departamento.id}
+                    d={departamento.d}
+                    id={departamento.id}
+                    name={departamento.name}
+                    className={activo === departamento.id ? "activo" : ""}
+                    onClick={() =>
+                      cambiarActivo(departamento.id, departamento.name)
+                    }
+                  >
+                    <title>{departamento.name}</title>
+                  </path>
+                ))}
               </g>
               <g id="points">
-                <circle
-                  className="-22.23638588765449|-69.05645068916371"
-                  cx="138.5"
-                  cy="907.4"
-                  id="0"
-                ></circle>
-                <circle
-                  className="-16.94941142777493|-62.95603494700188"
-                  cx="540.2"
-                  cy="537.7"
-                  id="1"
-                ></circle>
-                <circle
-                  className="-10.34069335292549|-58.07570235327242"
-                  cx="861.5"
-                  cy="89.6"
-                  id="2"
-                ></circle>
+                <circle cx="196.4" cy="443.6" r="5" id="1" className="point"></circle>
+                <circle cx="226.1" cy="663.5" r="5" id="2" className="point"></circle>
+                <circle cx="282.5" cy="805.4" r="5" id="3" className="point"></circle>
+                <circle cx="481.2" cy="855.3" r="5" id="4" className="point"></circle>
+                <circle cx="607.2" cy="577" r="5" id="5" className="point"></circle>
+                <circle cx="449" cy="770.1" r="5" id="6" className="point"></circle>
+                <circle cx="249" cy="152.4" r="5" id="7" className="point"></circle>
+                <circle cx="376.9" cy="328.7" r="5" id="8" className="point"></circle>
+                <circle cx="372.7" cy="555.3" r="5" id="9" className="point"></circle>
               </g>
               <g id="label_points">
-                <circle
-                  className="La Paz"
-                  cx="196.4"
-                  cy="443.6"
-                  id="BOL"
-                ></circle>
-                <circle
-                  className="Oruro"
-                  cx="226.1"
-                  cy="663.5"
-                  id="BOO"
-                ></circle>
-                <circle
-                  className="Potosí"
-                  cx="282.5"
-                  cy="805.4"
-                  id="BOP"
-                ></circle>
-                <circle
-                  className="Tarija"
-                  cx="481.2"
-                  cy="855.3"
-                  id="BOT"
-                ></circle>
-                <circle
-                  className="Santa Cruz"
-                  cx="607.2"
-                  cy="577"
-                  id="BOS"
-                ></circle>
-                <circle
-                  className="Chuquisaca"
-                  cx="449"
-                  cy="770.1"
-                  id="BOH"
-                ></circle>
-                <circle className="Pando" cx="249" cy="152.4" id="BON"></circle>
-                <circle
-                  className="El Beni"
-                  cx="376.9"
-                  cy="328.7"
-                  id="BOB"
-                ></circle>
-                <circle
-                  className="Cochabamba"
-                  cx="372.7"
-                  cy="555.3"
-                  id="BOC"
-                ></circle>
+                <text x="156.4" y="423.6" className="label">
+                  La Paz
+                </text>
+                <text x="186.1" y="643.5" className="label">
+                  Oruro
+                </text>
+                <text x="242.5" y="785.4" className="label">
+                  Potosí
+                </text>
+                <text x="451.2" y="885.3" className="label">
+                  Tarija
+                </text>
+                <text x="547.2" y="557" className="label">
+                  Santa Cruz
+                </text>
+                <text x="399" y="800.1" className="label">
+                  Chuquisaca
+                </text>
+                <text x="215" y="138.4" className="label">
+                  Pando
+                </text>
+                <text x="346.9" y="308.7" className="label">
+                  Beni
+                </text>
+                <text x="287.7" y="585.3" className="label">
+                  Cochabamba
+                </text>
               </g>
             </svg>
           </div>
