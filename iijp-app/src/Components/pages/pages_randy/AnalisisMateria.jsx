@@ -155,7 +155,7 @@ const AnalisisMateria = () => {
                 ))}
               </g>
               <g id="points">
-                <circle cx="196.4" cy="443.6" r="5" id="1" className="point"></circle>
+                <circle cx="196.4" cy="443.6" r={5} id="1" className="point"></circle>
                 <circle cx="226.1" cy="663.5" r="5" id="2" className="point"></circle>
                 <circle cx="282.5" cy="805.4" r="5" id="3" className="point"></circle>
                 <circle cx="481.2" cy="855.3" r="5" id="4" className="point"></circle>

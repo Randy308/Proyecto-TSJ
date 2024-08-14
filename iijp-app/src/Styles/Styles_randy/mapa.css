@@ -19,10 +19,10 @@
 }
 
 #label_points .label {
-  fill: black; /* Use 'fill' instead of 'color' for SVG text */
+  fill: black; 
   font-size: x-large;
   font-weight: bolder;
-  font-family: Arial, sans-serif; /* You can specify the font family */
+  font-family: Arial, sans-serif; 
 }
 
 #svg_bolivia {

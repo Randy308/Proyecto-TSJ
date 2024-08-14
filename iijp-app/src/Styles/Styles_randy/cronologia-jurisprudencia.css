@@ -27,11 +27,11 @@
 .arrow-steps .step:before {
   content: "";
   position: absolute;
-  top: 10px;
+  top: calc(50% - 17px);
   right: -15px;
   width: 0;
   height: 0;
-  border-top: 19px solid transparent;
+  border-top: 17px solid transparent;
   border-bottom: 17px solid transparent;
   border-left: 17px solid #ddd;
   z-index: 2;

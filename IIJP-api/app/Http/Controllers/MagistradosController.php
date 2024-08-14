@@ -33,10 +33,26 @@ class MagistradosController extends Controller
             ->groupBy('year')
             ->orderBy('year')
             ->get();
+        $completed_res = Resolutions::where('magistrado_id', $magistrado->id)->whereNotNull("fecha_emision")->count();
+        $total_res = Resolutions::where('magistrado_id', $magistrado->id)->count();
+
+        $res_departamentos = DB::table('resolutions as r')
+            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+            ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
+            ->select(
+                'd.name as departamento',
+                DB::raw('count(*) as cantidad')
+            )
+            ->where('r.magistrado_id', '=', $magistrado->id)
+            ->groupBy('departamento')
+            ->orderBy('departamento')
+            ->get();
         if ($resolutions->isNotEmpty()) {
             $data = [
                 'magistrado' => $magistrado->name,
-                'color' => 'hsl(118, 70%, 50%)',
+                'res completas' => $completed_res,
+                'total_res' => $total_res,
+                'departamentos' => $res_departamentos,
                 'data' => $resolutions->toArray()
             ];
         }
