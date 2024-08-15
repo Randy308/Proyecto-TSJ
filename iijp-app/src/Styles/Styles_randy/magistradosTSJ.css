@@ -79,3 +79,10 @@ margin-right: 1rem;
 .variable:after{
   content: "▼";
 }
+
+@media (max-width: 1250px) {
+  .magistrado-contenedor{
+    width: auto;
+    height: auto;
+  }
+}

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { sliderData } from "../slider/SliderData";
 
+import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowForward } from "react-icons/io";
 import "../../../../Styles/Styles_randy/slider.css";
 const Slider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -38,8 +40,9 @@ const Slider = () => {
 
   return (
     <div className="slider">
-      <AiOutlineArrowLeft className="arrow prev" onClick={prevSlide} />
-      <AiOutlineArrowRight className="arrow next" onClick={nextSlide} />
+    <div className="arrow-container"></div>
+      <IoIosArrowBack className="arrow prev" onClick={prevSlide} />
+      <IoIosArrowForward className="arrow next" onClick={nextSlide} />
       {sliderData.map((slide, index) => {
         return (
           <div

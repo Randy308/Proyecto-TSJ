@@ -5,7 +5,6 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: center;
 }
 * {
   padding: 0;
@@ -47,7 +46,8 @@
 }
 .slider{
   border-radius: 1.5rem;
-  background-color: #DCDCDD;
+  background-color: rgba(255, 255, 255,0.7);
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
   margin: 1.4rem;
   padding: 0 1.4rem;
   position: relative;
@@ -86,25 +86,29 @@
   position: absolute;
   z-index: 999;
   left: 0%;
-  top: calc( 50% - 1.4rem);
+  top: calc( 50% - 2.4rem);
 }
 
 .novedades-container .next{
   position: absolute;
   z-index: 999;
-  left: calc( 100% - 1.4rem);
-  top: calc( 50% - 1.4rem);
+  left: calc( 100% - 2.4rem);
+  top: calc( 50% - 2.4rem);
 }
 
 .arrow {
   cursor: pointer;
-  fill: rgba(0, 0, 0, 0.5);
-  height: 1.4rem;
-  width: 1.4rem;
+  fill: rgba(255, 255, 255,1);
+  background-color: rgba(0, 0, 0, 0.15);
+  height: 2.4rem;
+  border-radius: 0.5rem;
+  padding: 0.6rem;
+  width: 2.4rem;
 }
 .arrow:hover {
-  fill: rgba(0, 0, 0);
+  background-color: rgba(0, 0, 0);
 }
+
 
 #image-card{
   display: flex;
