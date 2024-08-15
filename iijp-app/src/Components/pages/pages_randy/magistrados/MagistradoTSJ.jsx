@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../../Loading";
-
 import LineChart from "../LineChart";
+import { IoIosPerson } from "react-icons/io";
+import "../../../../Styles/Styles_randy/magistradosTSJ.css";
 const MagistradoTSJ = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -117,8 +118,21 @@ const MagistradoTSJ = () => {
   };
 
   return (
-    <div style={{ height: 800 }} className="p-4 m-4">
-      <h1 className="text-center font-bold text-4xl">Cantidad de resoluciones por año</h1>
+    <div className="p-4 m-4 magistrado-contenedor">
+      <div className="contenedor-datos">
+        <div className="contenedor-foto">
+          <IoIosPerson className="foto-perfil" />
+        </div>
+        <div className="detalles-magistrado">
+          <span className="etiqueta-magistrado">Magistrado</span>
+          <h1 className="nombre-magistrado">{xAxis}</h1>
+        </div>
+      </div>
+    <div className="selector-variables text-center p-4 m-4">
+    <p >Seleccionar Variable :  <span className=" bg-gray-300 p-2 rounded-md text-gray-700 variable">Cantidad de resoluciones por año</span></p>
+    </div>
+    <div className="text-center bg-blue-400 p-4 m-4 text-white">Resumen Estadístico</div>
+     
       <div className="p-4 m-4 flex flex-row flex-wrap gap-4 justify-center">
         <div className="p-4 m-4 flex items-center justify-center">
           {data.length > 0 ? (
@@ -129,38 +143,40 @@ const MagistradoTSJ = () => {
             </div>
           )}
         </div>
-        <div className="p-4 m-4 bg-gray-200 flex flex-col">
+        <div className="p-2 m-2 bg-gray-200 flex flex-col">
           <span className="text-center font-bold text-lg">Herramientas</span>
-          <div className="p-4 m-4 flex flex-col gap-4">
+          <div className="p-2 m-2 flex flex-col gap-4">
             <div className="flex flex-col gap-4 bg-white p-4 rounded-lg">
-              <span className="text-center">Tipo de Grafico</span>
-              <label>
-                <input
-                  type="radio"
-                  value="line"
-                  checked={chartType === "line"}
-                  onChange={handleRadioChange}
-                />
-                Líneas
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="bar"
-                  checked={chartType === "bar"}
-                  onChange={handleRadioChange}
-                />
-                Barras
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  value="pie"
-                  checked={chartType === "pie"}
-                  onChange={handleRadioChange}
-                />
-                Pastel
-              </label>
+              <span className="text-center">Tipo de Gráfico</span>
+              <div className="selector-graph">
+                <label>
+                  <input
+                    type="radio"
+                    value="line"
+                    checked={chartType === "line"}
+                    onChange={handleRadioChange}
+                  />
+                  <span className="radio-label">Líneas</span>
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    value="bar"
+                    checked={chartType === "bar"}
+                    onChange={handleRadioChange}
+                  />
+                  <span className="radio-label">Barras</span>
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    value="pie"
+                    checked={chartType === "pie"}
+                    onChange={handleRadioChange}
+                  />
+                  <span className="radio-label">Pastel</span>
+                </label>
+              </div>
             </div>
             {chartType === "line" ? (
               <div className="flex flex-col gap-4 bg-white p-4 rounded-lg">

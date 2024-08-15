@@ -74,7 +74,7 @@
 .slide:not(.current) {
   display: none;
 }
-.slide.current:not(.second-slide) {
+#cronologia-container .slide.current:not(.second-slide) {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;

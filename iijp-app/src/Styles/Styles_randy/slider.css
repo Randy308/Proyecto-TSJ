@@ -1,6 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
 
-
+.novedades-container{
+  height: calc(100% - 170px);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
 * {
   padding: 0;
   margin: 0;
@@ -45,6 +51,7 @@
   margin: 1.4rem;
   padding: 0 1.4rem;
   position: relative;
+  width: 1200px;
   
 }
 
@@ -108,7 +115,7 @@
 	-webkit-transition: .3s ease-in-out;
 	transition: .3s ease-in-out;
 }
-figure {
+.novedades-container figure {
 	width: 600px;
 	margin: 0;
 	padding: 0;
@@ -140,7 +147,12 @@ figure {
 }
 
 @media (max-width: 1020px) {
-  figure {
+
+  .novedades-container{
+    height: auto;
+  }
+
+  .novedades-container figure {
     width: auto;
   }
   #grid-content{
