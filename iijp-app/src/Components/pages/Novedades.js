@@ -1,8 +1,11 @@
 import React from 'react'
+import Slider from './pages_randy/slider/Slider'
 
 const Novedades = () => {
   return (
-    <div className='blank-space'>Novedades</div>
+    <div className='novedades-container'>
+      <Slider></Slider>
+    </div>
   )
 }
 

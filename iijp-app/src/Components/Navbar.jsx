@@ -59,8 +59,10 @@ function Navbar() {
           className="p-2 hover:bg-white hover:text-black rounded-lg m-2"
         >
           <button onClick={cambiarTema} className="p-2">
-                       <IoSunny className={["text-lg", isDark ? "hidden" : ""].join(' ')}/>
-                       <FaMoon className={["text-lg", isDark ? "" : "hidden"].join(' ')}/>
+            <IoSunny
+              className={["text-lg", isDark ? "hidden" : ""].join(" ")}
+            />
+            <FaMoon className={["text-lg", isDark ? "" : "hidden"].join(" ")} />
           </button>
         </div>
       </nav>

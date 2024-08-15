@@ -1,20 +1,56 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
 
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-family: "Roboto Flex", sans-serif;
 }
+
+@keyframes fadeInY {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+@keyframes fadeInX {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInXR {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+}
 .slider{
   border-radius: 1.5rem;
   background-color: #DCDCDD;
-  margin: 2rem;
+  margin: 1.4rem;
+  padding: 0 1.4rem;
+  position: relative;
   
 }
 
 .slide:not(:current){
   display: none;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
 }
 .current{
   padding: 2rem;
@@ -22,61 +58,91 @@
 }
 
 .titulo-card {
-  background-color: white;
-  padding: 1rem;
-  margin: 1rem;
-  border-radius: 1.3rem;
+  padding: 0 1rem;
+  margin: 0 1rem;
   font-weight: bold;
+  font-size: 2rem;
 }
 .desc-card{
-  background-color: white;
+
   padding: 1rem;
   margin: 1rem;
+  color: rgba(0, 0, 0, 0.5);
   height: auto;
-  border-radius: 1.3rem;
+  font-weight: 400;
 }
 .content{
   display: grid;
   grid-template-rows: auto 1fr;
 }
-.prev{
+.novedades-container .prev{
   position: absolute;
   z-index: 999;
-  left: 2rem;
-  top: 60%;
+  left: 0%;
+  top: calc( 50% - 1.4rem);
 }
 
-.next{
+.novedades-container .next{
   position: absolute;
   z-index: 999;
-  right: 2rem;
-  top: 60%;
+  left: calc( 100% - 1.4rem);
+  top: calc( 50% - 1.4rem);
 }
 
 .arrow {
   cursor: pointer;
+  fill: rgba(0, 0, 0, 0.5);
   height: 1.4rem;
   width: 1.4rem;
 }
 .arrow:hover {
-  color: #777;
+  fill: rgba(0, 0, 0);
 }
 
 #image-card{
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-transform: scale(1);
+	transform: scale(1);
+	-webkit-transition: .3s ease-in-out;
+	transition: .3s ease-in-out;
 }
+figure {
+	width: 600px;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
 #image-card img{
   height: fit-content;
+  animation: 1.5s fadeInY;
+  transition: width 5ms, height 4ms;
 }
+#image-card img:hover{
+  -webkit-transform: scale(1.3);
+	transform: scale(1.3);
+}
+
+.titulo-card {
+  animation: 1.5s fadeInX;
+  transition: width 5ms, height 4ms;
+}
+.desc-card{
+  animation: 1s fadeInXR;
+  transition: width 5ms, height 4ms;
+}
+
 #grid-content{
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
 
-@media (max-width: 720px) {
-  
+@media (max-width: 1020px) {
+  figure {
+    width: auto;
+  }
   #grid-content{
     grid-template-rows: auto auto;
     grid-template-columns: 1fr;

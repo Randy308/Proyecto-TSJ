@@ -1,8 +1,8 @@
-import imagen1 from '../../images/edificio.jpg';
+//import imagen1 from '../../images/edificio.jpg';
 
 export const sliderData = [
     {
-      image: imagen1,
+      image: "https://www.umss.edu.bo/wp-content/uploads/2019/09/DSCN8510.jpg",
       heading: "Antecedentes históricos",
       desc: "El Instituto de Investigaciones Jurídicas y Políticas (IIJP) fue creado el 21 de marzo de 1958, en sesión extraordinaria del Honorable Consejo Universitario. Inició actividades el 12 de septiembre del mismo año y, desde entonces, junto al trabajo que realiza al interior de la Facultad de Ciencias Jurídicas y Políticas, desarrolla también significativos estudios de alcance institucional y de interés nacional",
     },
