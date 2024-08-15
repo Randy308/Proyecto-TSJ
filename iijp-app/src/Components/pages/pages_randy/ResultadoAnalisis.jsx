@@ -84,9 +84,9 @@ const ResultadoAnalisis = () => {
   };
 
   return (
-    <div style={{ height: 800 }}>
+    <div style={{ height: "fit-content" }}>
       <h1 className="text-center text-2xl font-bold p-4 m-4">Forma de Resoluciones por mes</h1>
-      <div className="p-4 m-4 flex items-center justify-center">
+      <div id="container-graph" style={{ height: 500 }} className="p-4 m-4 flex items-center justify-center">
         {transformedData.length > 0 ? (
           <LineChart option={option} />
         ) : (

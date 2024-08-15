@@ -5,8 +5,8 @@ const LineChart = ({ option }) => {
     <ReactECharts
       option={option}
       style={{
-        //height: "500px",
-        width: "700px",
+        height: "100%",
+        width: "100%",
       }}
     />
   );

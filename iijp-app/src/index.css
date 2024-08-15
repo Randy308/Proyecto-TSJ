@@ -13,7 +13,7 @@ body{
 #parent-container{
   height: 100%;
 }
-#parent-container > *{
+main{
   height: 100%;
 }
 

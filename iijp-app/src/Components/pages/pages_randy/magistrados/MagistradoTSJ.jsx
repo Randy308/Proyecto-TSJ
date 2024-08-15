@@ -128,13 +128,20 @@ const MagistradoTSJ = () => {
           <h1 className="nombre-magistrado">{xAxis}</h1>
         </div>
       </div>
-    <div className="selector-variables text-center p-4 m-4">
-    <p >Seleccionar Variable :  <span className=" bg-gray-300 p-2 rounded-md text-gray-700 variable">Cantidad de resoluciones por año</span></p>
-    </div>
-    <div className="text-center bg-blue-700 p-4 m-4 text-white">Resumen Estadístico</div>
-     
-      <div className="p-4 m-4 flex flex-row flex-wrap gap-4 justify-center">
-        <div className="p-4 m-4 flex items-center justify-center">
+      <div className="selector-variables text-center p-4 m-4">
+        <p>
+          Seleccionar Variable :{" "}
+          <span className=" bg-gray-300 p-2 rounded-md text-gray-700 variable">
+            Cantidad de resoluciones por año
+          </span>
+        </p>
+      </div>
+      <div className="text-center bg-blue-700 p-4 m-4 text-white">
+        Resumen Estadístico
+      </div>
+
+      <div className="p-2 m-2 flex flex-row flex-wrap gap-2 justify-center">
+        <div className="grafica-contenedor">
           {data.length > 0 ? (
             <LineChart option={option} />
           ) : (

@@ -5,7 +5,7 @@ const JurisprudenciaLista = () => {
   const jurisprudenciaItems = [
     {
       id: 1,
-      title: "Analisis por materia",
+      title: "Análisis por Resoluciones",
       descripcion: "Quis commodo deserunt pariatur eu ea ut.",
       path: "/Jurisprudencia/Analisis-Materia",
       cName: "tool-item",
@@ -13,7 +13,7 @@ const JurisprudenciaLista = () => {
     },
     {
       id: 2,
-      title: "Analisis por magistrados",
+      title: "Análisis por Magistrados",
       descripcion:
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
       path: "/Jurisprudencia/Analisis-Magistrados",

@@ -1,6 +1,5 @@
-.magistrado-contenedor{
-
-  height: 100%;
+.magistrado-contenedor {
+  height: fit-content;
 }
 .nombre-magistrado {
   text-align: center;
@@ -21,68 +20,79 @@
 }
 .contenedor-foto {
   display: flex;
-  background-color:rgb(0, 0, 0,0.08);
+  background-color: rgb(0, 0, 0, 0.08);
   border-radius: 1rem;
 }
-.detalles-magistrado{
-    display: flex;
-    align-self: stretch;
-    flex-direction: column;
-    gap: 1rem;
+.detalles-magistrado {
+  display: flex;
+  align-self: stretch;
+  flex-direction: column;
+  gap: 1rem;
 }
-.etiqueta-magistrado{
-    background-color: rgb(17, 176, 122);
-    width:fit-content;
-    padding: 0.5rem;
-    border-radius: 0.75rem;
-    color: white;
+.etiqueta-magistrado {
+  background-color: rgb(17, 176, 122);
+  width: fit-content;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  color: white;
 }
 .selector-graph {
-    display: flex;
-    gap: 0.2rem;
+  display: flex;
+  gap: 0.2rem;
 }
 
-.selector-graph label {  
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    
+.selector-graph label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
-.radio-label{
-    background-color: rgb(233, 240, 247);
-    padding: 0.55rem;
-    border-radius: 0.55rem;
-    transition: background-color 0.3s, color 0.3s;
+.radio-label {
+  background-color: rgb(233, 240, 247);
+  padding: 0.55rem;
+  border-radius: 0.55rem;
+  transition: background-color 0.3s, color 0.3s;
 }
 .radio-label:hover {
-    background-color: rgba(26, 130, 235, 0.75);
-    color: white;
+  background-color: rgba(26, 130, 235, 0.75);
+  color: white;
 }
 
 .selector-graph input[type="radio"] {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 .selector-graph input[type="radio"]:checked + .radio-label {
-    background-color: rgba(26, 130, 235, 1);
-    color: white;
-    border-radius: 0.55rem;
-    padding: 0.55rem;
-    display: block;
-    font-weight: bold;
+  background-color: rgba(26, 130, 235, 1);
+  color: white;
+  border-radius: 0.55rem;
+  padding: 0.55rem;
+  display: block;
+  font-weight: bold;
 }
-input[type="checkbox"]{
-margin-right: 1rem;
+input[type="checkbox"] {
+  margin-right: 1rem;
 }
 
-.variable:after{
+.variable:after {
   content: "▼";
 }
 
+.grafica-contenedor {
+  height: 500px;
+  width: 900px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 @media (max-width: 1250px) {
-  .magistrado-contenedor{
+  .magistrado-contenedor {
     width: auto;
     height: auto;
+  }
+
+  .grafica-contenedor {
+    height: 400px;
+    width: 300px;
   }
 }
