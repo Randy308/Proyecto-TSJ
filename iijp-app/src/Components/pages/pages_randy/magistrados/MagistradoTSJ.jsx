@@ -131,7 +131,7 @@ const MagistradoTSJ = () => {
     <div className="selector-variables text-center p-4 m-4">
     <p >Seleccionar Variable :  <span className=" bg-gray-300 p-2 rounded-md text-gray-700 variable">Cantidad de resoluciones por año</span></p>
     </div>
-    <div className="text-center bg-blue-400 p-4 m-4 text-white">Resumen Estadístico</div>
+    <div className="text-center bg-blue-700 p-4 m-4 text-white">Resumen Estadístico</div>
      
       <div className="p-4 m-4 flex flex-row flex-wrap gap-4 justify-center">
         <div className="p-4 m-4 flex items-center justify-center">

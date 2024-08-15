@@ -211,7 +211,7 @@ const ShowTemas = () => {
           <div className="flex flex-row gap-1 flex-wrap arrow-steps clearfix my-4">
             {arbol.map((tema, index) => (
               <div
-                className={`step  hover:cursor-pointer hover:bg-red-500 hover:text-white custom:text-xs ${
+                className={`step custom:text-xs ${
                   tema.id === arbol[arbol.length - 1].id ? "current" : ""
                 }`}
                 key={tema.id}
@@ -266,7 +266,7 @@ const ShowTemas = () => {
                   </div>
 
                   <div className="select-form">
-                    <p>Forma de Resolucion</p>
+                    <p>Forma de Resolución</p>
                     <select
                       className="form-control"
                       onChange={cambiarForma}

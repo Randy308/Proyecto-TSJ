@@ -23,6 +23,7 @@
   user-select: none;
 }
 
+
 .arrow-steps .step:after,
 .arrow-steps .step:before {
   content: "";
@@ -74,6 +75,7 @@
 .slide:not(.current) {
   display: none;
 }
+
 #cronologia-container .slide.current:not(.second-slide) {
   display: flex;
   flex-wrap: wrap;
@@ -146,6 +148,16 @@ select.form-control {
 input.form-control {
   padding: 1rem;
   border-radius: 0.5rem;
+}
+
+
+.arrow-steps .step:hover{
+  background-color: red;
+  color: white;
+  cursor: pointer;
+}
+.arrow-steps .step:hover:after {
+  border-left: 17px solid red;
 }
 
 @media (max-width: 720px) {
