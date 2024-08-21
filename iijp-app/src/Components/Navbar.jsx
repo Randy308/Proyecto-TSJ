@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { IoSunny } from "react-icons/io5";
 import { FaMoon } from "react-icons/fa";
-import { navItems } from "./NavItems";
+import { navItems } from "../data/NavItems";
 import "../Styles/main.css";
 import { useToggleContext, useThemeContext } from "../Components/ThemeProvider";
 function Navbar() {
