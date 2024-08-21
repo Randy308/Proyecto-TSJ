@@ -43,6 +43,19 @@ const MagistradoTSJ = () => {
   };
   const handleRadioChange = (event) => {
     setChartType(event.target.value);
+    if (event.target.value === "pie") {
+      delete option.xAxis;
+      delete option.yAxis;
+    } else {
+      option.xAxis = {
+        type: "category",
+        boundaryGap: chartType === "line" ? false : true,
+        data: x,
+      };
+      option.yAxis = {
+        type: "value",
+      };
+    }
   };
 
   const cambiarArea = (event) => {
@@ -94,28 +107,28 @@ const MagistradoTSJ = () => {
     tooltip: {
       trigger: chartType === "pie" ? "item" : "axis",
     },
-    legend: { data: [leyenda] },
+
+    legend: {
+      orient: "vertical",
+      left: "left",
+    },
+    xAxis : {
+      type: "category",
+      boundaryGap: chartType === "line" ? false : true,
+      data: x,
+    },
+    yAxis : {
+      type: "value",
+    },
     toolbox: {
       feature: {
         saveAsImage: {},
       },
     },
-    xAxis:
-      chartType === "pie"
-        ? null
-        : {
-            type: "category",
-            boundaryGap: chartType === "line" ? false : true,
-            data: x,
-          },
-    yAxis:
-      chartType === "pie"
-        ? null
-        : {
-            type: "value",
-          },
+
     series: getSeries(),
   };
+  console.log(option);
 
   return (
     <div className="p-4 m-4 magistrado-contenedor">

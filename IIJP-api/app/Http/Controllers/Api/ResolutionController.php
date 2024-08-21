@@ -166,11 +166,11 @@ class ResolutionController extends Controller
         $departamento = $request['departamento'];
         $sala = $request['selectedSala'];
 
-        $mi_sala = null;
-        $mi_departamento = null;
+        $mi_sala = "NULL";
+        $mi_departamento = "NULL";
 
         if ($sala && $sala !== "Todas") {
-            $mi_sala = Salas::where("sala", $sala)->first();
+            $mi_sala = Salas::where("sala", $sala)->first()->id;
             if (!$mi_sala) {
                 return response()->json(['error' => 'Sala no encontrada'], 404);
             }
@@ -179,7 +179,7 @@ class ResolutionController extends Controller
         }
 
         if ($departamento && $departamento !== "Todos") {
-            $mi_departamento = Departamentos::where("name", $departamento)->first();
+            $mi_departamento = Departamentos::where("name", $departamento)->first()->id;
             if (!$mi_departamento) {
                 return response()->json(['error' => 'Departamento no encontrado'], 404);
             }
@@ -196,51 +196,56 @@ class ResolutionController extends Controller
             ->limit(10)
             ->get();
 
+        $xAxis = [];
         foreach ($formaResoluciones as $res) {
-            $query = Resolutions::where('forma_resolucion_id', $res->id);
 
             if ($year && $year !== "Todos") {
-                $query->whereYear('fecha_emision', $year)
-                    ->select(
-                        DB::raw('DATE_PART(\'month\', fecha_emision) as periodo'),
-                        DB::raw('count(*) as cantidad')
-                    )
-                    ->groupBy('periodo')
-                    ->orderBy('periodo');
-                $periodo = "month";
+
+                $resolutions = DB::select("
+                                            SELECT *
+                                            FROM public.obtenerporforma_resolucion(
+                                                '" . $year . "-01-01',
+                                                '" . $year . "-12-01'," . $res->id . ",
+                                                " . $mi_departamento . ",
+                                                " . $mi_sala . "
+                                            )
+                                        ");
+
+                $periodo = "mes";
             } else {
-                $query->select(
-                    DB::raw('DATE_PART(\'year\', fecha_emision) as periodo'),
-                    DB::raw('count(*) as cantidad')
-                )
-                    ->groupBy('periodo')
-                    ->orderBy('periodo');
+
+
+                $resolutions = DB::select("
+                                            SELECT *
+                                            FROM public.ObtenerResAnual(
+                                                " . $res->id . ",
+                                                " . $mi_departamento . ",
+                                                " . $mi_sala . "
+                                            )
+                                        ");
                 $periodo = "year";
             }
-
-            if ($mi_sala) {
-                $query->where('sala_id', $mi_sala->id);
+            if(count($resolutions) > count($xAxis)){
+                $xAxis = $resolutions;
             }
 
-            if ($mi_departamento) {
-                $query->where('departamento_id', $mi_departamento->id);
-            }
-
-            $resolutions = $query->get();
-
-            if ($resolutions->isNotEmpty()) {
+            if ($resolutions) {
                 $data[] = [
                     'id' => $res->name,
-                    'data' => $resolutions->toArray()
+                    'data' => $resolutions
                 ];
             }
         }
-
+        $array = [];
+        foreach( $xAxis as $element ){
+            $valor = $element->$periodo;
+            $array[] =$valor;
+        }
         return response()->json([
 
             'tipo_periodo' => $periodo,
+            'xAxis' => $array,
             'data' => $data,
         ]);
     }
-
 }

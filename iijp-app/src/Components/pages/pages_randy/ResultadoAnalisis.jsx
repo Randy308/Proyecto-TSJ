@@ -2,47 +2,27 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import LineChart from "./LineChart";
 
-const fillMissingMonths = (data) => {
-  const months = Array.from({ length: 12 }, (_, i) => (i + 1).toString());
-  const filledData = months.map((month) => {
-    const foundMonth = data.find((item) => item.periodo === month);
-    return foundMonth ? foundMonth : { periodo: month, cantidad: 0 };
-  });
-  return filledData;
-};
-
 const ResultadoAnalisis = () => {
   const location = useLocation();
   const { data } = location.state || [];
 
   const tipo = data.tipo_periodo;
-  console.log(tipo);
-  console.log(data.data);
-  
+
   const leyenda = data.data.map((item) => item.id);
 
-  const meses = [
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-  ];
+  const meses = data.xAxis;
   const transformedData = data.data.map((item) => ({
     name: item.id,
     type: "line",
-    data: fillMissingMonths(item.data).map((subItem) => subItem.cantidad),
-  }));
-  console.log(meses);
+    stack: "Total",
+    smooth: true,
+    areaStyle: {},
+    emphasis: {
+      focus: "series",
+    },
 
-  console.log(leyenda);
+    data: item.data.map((subItem) => subItem.cantidad),
+  }));
 
   console.log(transformedData);
 
@@ -54,6 +34,12 @@ const ResultadoAnalisis = () => {
     },
     tooltip: {
       trigger: "axis",
+      axisPointer: {
+        type: "cross",
+        label: {
+          backgroundColor: "#6a7985",
+        },
+      },
     },
     legend: {
       data: leyenda,
@@ -85,8 +71,14 @@ const ResultadoAnalisis = () => {
 
   return (
     <div style={{ height: "fit-content" }}>
-      <h1 className="text-center text-2xl font-bold p-4 m-4">Forma de Resoluciones por mes</h1>
-      <div id="container-graph" style={{ height: 500 }} className="p-4 m-4 flex items-center justify-center">
+      <h1 className="text-center text-2xl font-bold p-4 m-4">
+        Forma de Resoluciones por mes
+      </h1>
+      <div
+        id="container-graph"
+        style={{ height: 500 }}
+        className="p-4 m-4 flex items-center justify-center"
+      >
         {transformedData.length > 0 ? (
           <LineChart option={option} />
         ) : (

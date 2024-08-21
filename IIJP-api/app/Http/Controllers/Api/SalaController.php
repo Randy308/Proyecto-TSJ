@@ -30,9 +30,9 @@ class SalaController extends Controller
         }
 
         try {
-            $resultado_years = Resolutions::select(DB::raw('DISTINCT DATE_PART(\'year\', fecha_emision) AS year'))->pluck('year');
+            $resultado_years = Resolutions::select(DB::raw('DISTINCT DATE_PART(\'year\', fecha_emision) AS year'))->whereNotNull('fecha_emision')->orderBy("year")->pluck('year');
             $years = $resultado_years->toArray();
-            //array_unshift($years, 'Todos');
+            array_unshift($years, 'Todos');
             $data['years'] = $years;
         } catch (\Exception $e) {
             return response()->json([
