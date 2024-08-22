@@ -3,15 +3,15 @@ import boliviaJson from "../../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from 'd3-geo';
-const EChart = () => {
+const EChart = ({ data }) => {
   registerMap("Bolivia", boliviaJson);
   const projection = geoMercator();
   return (
     <ReactECharts
       option={{
         title: {
-          text: "Estimaciones de Población de Bolivia",
-          subtext: "Datos de INE Bolivia",
+          text: "Cantidad de resoluciones por departamento",
+          subtext: "Datos de TSJ Bolivia",
           left: "right",
         },
         tooltip: {
@@ -21,8 +21,8 @@ const EChart = () => {
         },
         visualMap: {
           left: "right",
-          min: 500000,
-          max: 10000000,
+          min:0,
+          max: 500,
           inRange: {
             color: [
               "#313695",
@@ -53,7 +53,7 @@ const EChart = () => {
         },
         series: [
           {
-            name: "Población",
+            name: "Resoluciones",
             type: "map",
             roam: true,
             map: "Bolivia",
@@ -73,17 +73,7 @@ const EChart = () => {
                 show: true,
               },
             },
-            data: [
-              { name: "Cochabamba", value: 2000000 },
-              { name: "Oruro", value: 500000 },
-              { name: "Chuquisaca", value: 1200000 },
-              { name: "Tarija", value: 600000 },
-              { name: "La Paz", value: 2800000 },
-              { name: "Beni", value: 500000 },
-              { name: "Pando", value: 200000 },
-              { name: "Santa Cruz", value: 3000000 },
-              { name: "Potosí", value: 800000 },
-            ],
+            data: data,
           },
         ],
       }}

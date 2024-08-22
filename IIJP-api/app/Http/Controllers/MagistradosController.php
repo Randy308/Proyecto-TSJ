@@ -40,12 +40,12 @@ class MagistradosController extends Controller
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
             ->select(
-                'd.name as departamento',
-                DB::raw('count(*) as cantidad')
+                'd.name as name',
+                DB::raw('count(*) as value')
             )
             ->where('r.magistrado_id', '=', $magistrado->id)
-            ->groupBy('departamento')
-            ->orderBy('departamento')
+            ->groupBy('d.name')
+            ->orderBy('d.name')
             ->get();
         if ($resolutions->isNotEmpty()) {
             $data = [

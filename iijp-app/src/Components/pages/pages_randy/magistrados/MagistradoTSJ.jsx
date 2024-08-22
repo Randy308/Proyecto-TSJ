@@ -5,10 +5,12 @@ import Loading from "../../../Loading";
 import LineChart from "../LineChart";
 import { IoIosPerson } from "react-icons/io";
 import "../../../../Styles/Styles_randy/magistradosTSJ.css";
+import EChart from "../EChart";
 const MagistradoTSJ = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [departamentos, setDepartamentos] = useState([]);
   const [xAxis, setXAxis] = useState([]);
   useEffect(() => {
     const endpoint = "http://localhost:8000/api";
@@ -21,6 +23,7 @@ const MagistradoTSJ = () => {
         setXAxis(response.data.data.magistrado);
         //console.log(response.data.data);
         setData(response.data.data.data);
+        setDepartamentos(response.data.data.departamentos);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
       }
@@ -112,12 +115,12 @@ const MagistradoTSJ = () => {
       orient: "vertical",
       left: "left",
     },
-    xAxis : {
+    xAxis: {
       type: "category",
       boundaryGap: chartType === "line" ? false : true,
       data: x,
     },
-    yAxis : {
+    yAxis: {
       type: "value",
     },
     toolbox: {
@@ -201,23 +204,23 @@ const MagistradoTSJ = () => {
             {chartType === "line" ? (
               <div className="flex flex-col gap-4 bg-white p-4 rounded-lg">
                 <span className="text-center">Opciones </span>
-                <label>
+                <label class="switch">
                   <input
                     type="checkbox"
                     value="Suavizar"
                     checked={suavizar}
                     onChange={cambiarSuavizar}
                   />
-                  Suavizar
+                  <span class="round">Suavizar</span>
                 </label>
-                <label>
+                <label class="switch">
                   <input
                     type="checkbox"
                     value="Area"
                     checked={area}
                     onChange={cambiarArea}
                   />
-                  Agregar area
+                  <span class="round">Agregar area</span>
                 </label>
               </div>
             ) : (
@@ -225,6 +228,9 @@ const MagistradoTSJ = () => {
             )}
           </div>
         </div>
+      </div>
+      <div className="mapa-bolivia">
+        <EChart data={departamentos}></EChart>
       </div>
     </div>
   );
