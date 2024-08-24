@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "../../Styles/Styles_randy/jurisprudencia-busqueda.css";
+import "../../styles/styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
 //import 'bootstrap/dist/css/bootstrap.css';
 import axios from "axios";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import "../../Styles/Styles_randy/mapa.css";
-import "../../Styles/Styles_randy/analisis-jurisprudencia.css";
+import "../../styles/styles_randy/mapa.css";
+import "../../styles/styles_randy/analisis-jurisprudencia.css";
 import { departamentos } from "../../data/Mapa";
 
 import axios from "axios";

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../../Components/Loading";
+import Loading from "../../components/Loading";
 import LineChart from "../analisis/LineChart";
 import { IoIosPerson } from "react-icons/io";
-import "../../Styles/Styles_randy/magistradosTSJ.css";
+import "../../styles/styles_randy/magistradosTSJ.css";
 import EChart from "../analisis/EChart";
 const MagistradoTSJ = () => {
   const { id } = useParams();

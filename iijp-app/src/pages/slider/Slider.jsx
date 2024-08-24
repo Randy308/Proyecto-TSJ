@@ -4,7 +4,7 @@ import { sliderData } from "../../data/SliderData";
 
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
-import "../../Styles/Styles_randy/slider.css";
+import "../../styles/styles_randy/slider.css";
 const Slider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const slideLength = sliderData.length;

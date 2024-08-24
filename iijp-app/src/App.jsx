@@ -1,15 +1,15 @@
 import React from "react";
-import Navbar from "./Components/Navbar";
+import Navbar from "./components/Navbar";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Novedades from "./pages/Novedades";
 import Inicio from "./pages/Inicio";
-import Footer from "./Components/Footer";
+import Footer from "./components/Footer";
 import Jurisprudencia from "./pages/Jurisprudencia";
 import JurisprudenciaBusqueda from "./pages/busqueda/JurisprudenciaBusqueda";
 import AnalisisMateria from "./pages/analisis/AnalisisMateria";
 import JurisprudenciaCronologia from "./pages/cronologia/JurisprudenciaCronologia";
 import ResultadoAnalisis from "./pages/analisis/ResultadoAnalisis";
-import { ThemeProvider } from "./Components/ThemeProvider";
+import { ThemeProvider } from "./components/ThemeProvider";
 import ResolucionTSJ from "./pages/resoluciones/ResolucionTSJ";
 import CronologiasResultados from "./pages/cronologia/CronologiasResultados";
 import { useLocation } from 'react-router-dom';

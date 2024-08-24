@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import "../../Styles/Styles_randy/analisis-magistrados.css";
+import "../../styles/styles_randy/analisis-magistrados.css";
 import { useNavigate } from "react-router-dom";
 
 const AnalisisMagistrados = () => {

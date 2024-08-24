@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Loading from "../../Components/Loading";
-import "../../Styles/Styles_randy/cronologia-jurisprudencia.css";
+import Loading from "../../components/Loading";
+import "../../styles/styles_randy/cronologia-jurisprudencia.css";
 import { useNavigate } from "react-router-dom";
 const endpoint = "http://localhost:8000/api";
 const ShowTemas = () => {
