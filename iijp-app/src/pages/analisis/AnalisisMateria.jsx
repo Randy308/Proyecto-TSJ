@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import "../../../Styles/Styles_randy/mapa.css";
-import "../../../Styles/Styles_randy/analisis-jurisprudencia.css";
-import { departamentos } from "./Mapa";
+import "../../Styles/Styles_randy/mapa.css";
+import "../../Styles/Styles_randy/analisis-jurisprudencia.css";
+import { departamentos } from "../../data/Mapa";
 
 import axios from "axios";
 import { useNavigate } from "react-router-dom";

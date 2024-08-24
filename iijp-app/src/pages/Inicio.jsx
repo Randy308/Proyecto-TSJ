@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaMagnifyingGlassChart } from "react-icons/fa6";
 import { FaChartPie } from "react-icons/fa";
-import "../../Styles/inicio.css";
+import "../Styles/inicio.css";
 const Inicio = () => {
   const tarjetas = [
     {

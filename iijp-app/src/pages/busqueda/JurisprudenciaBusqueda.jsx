@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import "../../../Styles/Styles_randy/jurisprudencia-busqueda.css";
+import "../../Styles/Styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
 //import 'bootstrap/dist/css/bootstrap.css';
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
-import PaginationData from "./slider/PaginationData";
+import PaginationData from "../slider/PaginationData";
 
 const JurisprudenciaBusqueda = () => {
   const endpoint = "http://localhost:8000/api";

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../../../Loading";
-import LineChart from "../LineChart";
+import Loading from "../../Components/Loading";
+import LineChart from "../analisis/LineChart";
 import { IoIosPerson } from "react-icons/io";
-import "../../../../Styles/Styles_randy/magistradosTSJ.css";
-import EChart from "../EChart";
+import "../../Styles/Styles_randy/magistradosTSJ.css";
+import EChart from "../analisis/EChart";
 const MagistradoTSJ = () => {
   const { id } = useParams();
   const navigate = useNavigate();

@@ -1,6 +1,5 @@
 import React from "react";
-import Slider from "./pages_randy/slider/Slider";
-import EChart from "./pages_randy/EChart";
+import Slider from "../pages/slider/Slider";
 
 const Novedades = () => {
   return (

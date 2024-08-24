@@ -1,5 +1,5 @@
 import React from "react";
-import boliviaJson from "../../../data/Bolivia.json";
+import boliviaJson from "../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from 'd3-geo';

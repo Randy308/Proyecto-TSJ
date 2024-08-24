@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import Loading from "../../../Loading";
+import Loading from "../../Components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { TiArrowBack } from "react-icons/ti";
 const ResolucionTSJ = () => {

@@ -8,9 +8,9 @@ import {
   Link,
 } from "@react-pdf/renderer";
 import { Font } from "@react-pdf/renderer";
-import OpenSansRegular from "../../../fonts/OpenSans-Regular.ttf";
-import OpenSansBold from "../../../fonts/OpenSans-Bold.ttf";
-import OpenSansItalic from "../../../fonts/OpenSans-Italic.ttf";
+import OpenSansRegular from "../../fonts/OpenSans-Regular.ttf";
+import OpenSansBold from "../../fonts/OpenSans-Bold.ttf";
+import OpenSansItalic from "../../fonts/OpenSans-Italic.ttf";
 
 Font.register({
   family: "OpenSans",

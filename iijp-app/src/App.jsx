@@ -1,21 +1,21 @@
 import React from "react";
 import Navbar from "./Components/Navbar";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Novedades from "./Components/pages/Novedades";
-import Inicio from "./Components/pages/Inicio";
+import Novedades from "./pages/Novedades";
+import Inicio from "./pages/Inicio";
 import Footer from "./Components/Footer";
-import Jurisprudencia from "./Components/pages/pages_randy/Jurisprudencia";
-import JurisprudenciaBusqueda from "./Components/pages/pages_randy/JurisprudenciaBusqueda";
-import AnalisisMateria from "./Components/pages/pages_randy/AnalisisMateria";
-import JurisprudenciaCronologia from "./Components/pages/pages_randy/JurisprudenciaCronologia";
-import ResultadoAnalisis from "./Components/pages/pages_randy/ResultadoAnalisis";
+import Jurisprudencia from "./pages/Jurisprudencia";
+import JurisprudenciaBusqueda from "./pages/busqueda/JurisprudenciaBusqueda";
+import AnalisisMateria from "./pages/analisis/AnalisisMateria";
+import JurisprudenciaCronologia from "./pages/cronologia/JurisprudenciaCronologia";
+import ResultadoAnalisis from "./pages/analisis/ResultadoAnalisis";
 import { ThemeProvider } from "./Components/ThemeProvider";
-import ResolucionTSJ from "./Components/pages/pages_randy/resoluciones/ResolucionTSJ";
-import CronologiasResultados from "./Components/pages/pages_randy/CronologiasResultados";
+import ResolucionTSJ from "./pages/resoluciones/ResolucionTSJ";
+import CronologiasResultados from "./pages/cronologia/CronologiasResultados";
 import { useLocation } from 'react-router-dom';
-import JurisprudenciaLista from "./Components/pages/pages_randy/JurisprudenciaLista";
-import AnalisisMagistrados from "./Components/pages/pages_randy/AnalisisMagistrados";
-import MagistradoTSJ from "./Components/pages/pages_randy/magistrados/MagistradoTSJ";
+import JurisprudenciaLista from "./pages/analisis/JurisprudenciaLista";
+import AnalisisMagistrados from "./pages/analisis/AnalisisMagistrados";
+import MagistradoTSJ from "./pages/magistrados/MagistradoTSJ";
 function App() {
 
   const location = useLocation();
