@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const AnalisisMagistrados = () => {
 
-  const endpoint = "http://localhost:8000/api";
+  const endpoint = process.env.REACT_APP_BACKEND;
   const [activo, setActivo] = useState(null);
   const navigate = useNavigate();
   const [magistrados, setMagistrados] = useState([]);

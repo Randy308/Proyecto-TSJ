@@ -8,7 +8,7 @@ import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import PaginationData from "../slider/PaginationData";
 
 const JurisprudenciaBusqueda = () => {
-  const endpoint = "http://localhost:8000/api";
+  const endpoint = process.env.REACT_APP_BACKEND;
 
   const [activo, setActivo] = useState(null);
 

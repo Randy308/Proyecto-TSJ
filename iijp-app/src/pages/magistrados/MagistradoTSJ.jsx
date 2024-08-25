@@ -13,7 +13,7 @@ const MagistradoTSJ = () => {
   const [departamentos, setDepartamentos] = useState([]);
   const [xAxis, setXAxis] = useState([]);
   useEffect(() => {
-    const endpoint = "http://localhost:8000/api";
+    const endpoint = process.env.REACT_APP_BACKEND;
     const getEstadisticas = async () => {
       try {
         const response = await axios.get(

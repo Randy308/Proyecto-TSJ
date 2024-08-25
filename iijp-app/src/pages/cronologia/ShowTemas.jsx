@@ -3,7 +3,7 @@ import axios from "axios";
 import Loading from "../../components/Loading";
 import "../../styles/styles_randy/cronologia-jurisprudencia.css";
 import { useNavigate } from "react-router-dom";
-const endpoint = "http://localhost:8000/api";
+const endpoint = process.env.REACT_APP_BACKEND;
 const ShowTemas = () => {
   const navigate = useNavigate();
 

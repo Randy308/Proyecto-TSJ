@@ -9,7 +9,7 @@ const ResolucionTSJ = () => {
   const navigate = useNavigate();
   const [resolucion, setResolucion] = useState(null);
   useEffect(() => {
-    const endpoint = `http://localhost:8000/api/resolucion/${id}`;
+    const endpoint = `${process.env.REACT_APP_BACKEND}/resolucion/${id}`;
     const getResolution = async () => {
       try {
         const response = await axios.get(endpoint);
