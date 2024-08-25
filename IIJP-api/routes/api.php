@@ -44,3 +44,6 @@ Route::get('/obtener-parametros-cronologia', [TemaController::class, 'obtenerPar
 Route::get('/magistrados', [MagistradosController::class, 'index'])->name('obtener-magistrados');
 
 Route::get('/magistrado-estadisticas/{id}', [MagistradosController::class, 'obtenerEstadisticas'])->name('obtener-estadisticas-magistrado');
+
+
+Route::get('/all-resoluciones', [ResolutionController::class, 'index'])->name('all-resolutions');

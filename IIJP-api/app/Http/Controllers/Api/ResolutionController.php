@@ -19,6 +19,42 @@ class ResolutionController extends Controller
     public function index()
     {
         //
+        $all_res = DB::table('resolutions as r')
+            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
+            ->groupBy("year")
+            ->orderBy("year")
+            ->get();
+
+        $all_jurisprudencia = DB::table('resolutions as r')
+            ->join('temas_complementarios as tc', 'r.id', '=', 'tc.resolution_id')
+            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
+            ->groupBy("year")
+            ->orderBy("year")
+            ->get();
+
+        $all_auto_supremos = Resolutions::from('resolutions as r')
+            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
+            ->whereNull("r.ratio")
+            ->whereNull("r.sintesis")
+            ->whereNull("r.maxima")
+            ->whereNull("r.descriptor")
+            ->whereNull("r.restrictor")
+            ->whereNull("r.precedente")
+            ->whereNotIn('r.id', function ($query) {
+                $query->select('tc.resolution_id')
+                    ->from('temas_complementarios as tc');
+            })
+            ->groupBy("year")
+            ->orderBy("year")
+            ->get();
+
+
+
+        return response()->json([
+            'all' => $all_res,
+            'auto_supremos' => $all_auto_supremos,
+            'jurisprudencia' => $all_jurisprudencia,
+        ]);
     }
 
     public function store(Request $request)
@@ -225,7 +261,7 @@ class ResolutionController extends Controller
                                         ");
                 $periodo = "year";
             }
-            if(count($resolutions) > count($xAxis)){
+            if (count($resolutions) > count($xAxis)) {
                 $xAxis = $resolutions;
             }
 
@@ -237,9 +273,9 @@ class ResolutionController extends Controller
             }
         }
         $array = [];
-        foreach( $xAxis as $element ){
+        foreach ($xAxis as $element) {
             $valor = $element->$periodo;
-            $array[] =$valor;
+            $array[] = $valor;
         }
         return response()->json([
 
