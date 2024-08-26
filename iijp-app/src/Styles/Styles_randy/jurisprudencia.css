@@ -62,7 +62,7 @@
 
 .main {
   width: 100%;
-  height: 78.8vh;
+  height: calc(100dvh - 170px);
 }
 
 

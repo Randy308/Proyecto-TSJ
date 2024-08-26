@@ -21,11 +21,12 @@ function App() {
   const location = useLocation();
   const noNavbarRoutes = ['/Jurisprudencia/Resolucion/:id']; // Agrega más rutas según sea necesario
   const noFooterRoutes = ['/Jurisprudencia/Resolucion/:id', '/Jurisprudencia/Busqueda','/Jurisprudencia/Cronologias'];
+  const FooterRoutes = ['/Inicio', '/Novedades','/Jurisprudencia'];
   const shouldShowNavbar = !noNavbarRoutes.some((route) =>
     location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
   );
 
-  const shouldShowFooter = !noFooterRoutes.some((route) =>
+  const shouldShowFooter = FooterRoutes.some((route) =>
     location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
   );
 
