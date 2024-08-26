@@ -5,7 +5,7 @@ import { IoSunny } from "react-icons/io5";
 import { FaMoon } from "react-icons/fa";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
-import { useToggleContext, useThemeContext } from "../components/ThemeProvider";
+import { useToggleContext, useThemeContext } from "./ThemeProvider";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const isDark = useThemeContext();
