@@ -40,7 +40,7 @@ const AnalisisMagistrados = () => {
 };
 
   return (
-    <div id="magistrados-analisis" className="p-4 m-4">
+    <div id="magistrados-analisis" className="p-4 m-4 h-full w-3/5 custom:h-auto mx-auto custom:mx-0">
       <div className="flex justify-center">
         <span className="text-center font-bold text-2xl p-4">
           Lista de magistrados

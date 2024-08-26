@@ -27,12 +27,13 @@ class ResolutionController extends Controller
 
         $all_jurisprudencia = DB::table('resolutions as r')
             ->join('temas_complementarios as tc', 'r.id', '=', 'tc.resolution_id')
-            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
+            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(DISTINCT(r.id)), 0) AS cantidad")
             ->groupBy("year")
             ->orderBy("year")
             ->get();
 
         $all_auto_supremos = Resolutions::from('resolutions as r')
+            ->leftJoin('temas_complementarios as tc', 'r.id', '=', 'tc.resolution_id')
             ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
             ->whereNull("r.ratio")
             ->whereNull("r.sintesis")
@@ -40,14 +41,10 @@ class ResolutionController extends Controller
             ->whereNull("r.descriptor")
             ->whereNull("r.restrictor")
             ->whereNull("r.precedente")
-            ->whereNotIn('r.id', function ($query) {
-                $query->select('tc.resolution_id')
-                    ->from('temas_complementarios as tc');
-            })
+            ->whereNull('tc.resolution_id') // Filtra resoluciones que no tienen asociación en temas_complementarios
             ->groupBy("year")
             ->orderBy("year")
             ->get();
-
 
 
         return response()->json([

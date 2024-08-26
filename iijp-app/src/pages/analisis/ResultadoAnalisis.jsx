@@ -70,7 +70,7 @@ const ResultadoAnalisis = () => {
   };
 
   return (
-    <div style={{ height: "fit-content" }}>
+    <div className="h-full w-3/4 mx-auto custom:mx-0 custom:w-auto custom:h-auto">
       <h1 className="text-center text-2xl font-bold p-4 m-4">
         Forma de Resoluciones por mes
       </h1>

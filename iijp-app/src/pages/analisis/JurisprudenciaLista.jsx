@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import LineChart from "./LineChart";
+import { HiDocumentReport } from "react-icons/hi";
+import { GrDocumentUser } from "react-icons/gr";
 const JurisprudenciaLista = () => {
   const jurisprudenciaItems = [
     {
@@ -10,7 +12,7 @@ const JurisprudenciaLista = () => {
       descripcion: "Quis commodo deserunt pariatur eu ea ut.",
       path: "/Jurisprudencia/Analisis-Materia",
       cName: "tool-item",
-      color: "f86c6b",
+      icon: <HiDocumentReport className="h-8 w-8" />,
     },
     {
       id: 2,
@@ -19,7 +21,7 @@ const JurisprudenciaLista = () => {
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
       path: "/Jurisprudencia/Analisis-Magistrados",
       cName: "tool-item",
-      color: "ffc107",
+      icon: <GrDocumentUser className="h-8 w-8" />,
     },
   ];
   const endpoint = process.env.REACT_APP_BACKEND;
@@ -53,7 +55,7 @@ const JurisprudenciaLista = () => {
       height: "85vh",
     },
     pages: {
-      height: "700px",
+      height: "600px",
     },
   };
   const option = {
@@ -91,7 +93,7 @@ const JurisprudenciaLista = () => {
         min: 0,
         max: Math.max(...resoluciones),
         axisLabel: {
-          formatter: "{value} ml",
+          formatter: "{value}",
         },
       },
       {
@@ -100,7 +102,7 @@ const JurisprudenciaLista = () => {
         min: 0,
         max: Math.max(...jurisprudencia),
         axisLabel: {
-          formatter: "{value} ml",
+          formatter: "{value}",
         },
       },
     ],
@@ -109,7 +111,7 @@ const JurisprudenciaLista = () => {
         name: "auto_supremos",
         type: "bar",
         tooltip: {
-          valueFormatter: (value) => `${value} ml`,
+          valueFormatter: (value) => `${value}`,
         },
         data: autos,
       },
@@ -117,7 +119,7 @@ const JurisprudenciaLista = () => {
         name: "jurisprudencia",
         type: "bar",
         tooltip: {
-          valueFormatter: (value) => `${value} ml`,
+          valueFormatter: (value) => `${value}`,
         },
         data: jurisprudencia,
       },
@@ -127,7 +129,7 @@ const JurisprudenciaLista = () => {
         type: "line",
         yAxisIndex: 0,
         tooltip: {
-          valueFormatter: (value) => `${value} ml`,
+          valueFormatter: (value) => `${value} `,
         },
         data: resoluciones,
       },
@@ -135,26 +137,28 @@ const JurisprudenciaLista = () => {
   };
 
   return (
-    <div className="lista-analisis">
-      <div className="p-4 my-4 mx-40 flex  flex-col flex-wrap gap-4">
-        <div className="p-4 flex justify-center">
-          <span className="font-bold text-center text-lg">
-            Lista de Analisis
-          </span>
-        </div>
-        {jurisprudenciaItems.map((item) => (
-          <Link to={item.path} key={item.id}>
-            <div
-              key={item.id}
-              className="p-4 rounded-lg bg-slate-200 hover:cursor-pointer hover:bg-slate-700 hover:text-white"
-            >
-              <span className="font-bold"> {item.title}</span>
-            </div>
-          </Link>
-        ))}
+    <div className="lista-analisis flex flex-col items-center justify-center py-4">
+      <div className="flex justify-center">
+        <span className="font-bold text-center text-lg">Historico de Resoluciones</span>
       </div>
-      <div style={styles.pages}>
+      <div style={styles.pages} className="p-4 m-4 w-3/6 custom:w-full">
         <LineChart option={option}></LineChart>
+      </div>
+      <div className="flex p-4 m-4 flex-col w-4/5 gap-2">
+        <div className="flex flex-row gap-2 items-center justify-center ">
+          {jurisprudenciaItems.map((item) => (
+            <Link to={item.path} key={item.id}>
+              <div
+                key={item.id}
+                className="py-4 px-2 rounded-lg bg-slate-200 hover:cursor-pointer hover:bg-slate-700 hover:text-white flex flex-row justify-center items-center gap-2"
+              >
+                {" "}
+                {item.icon}
+                <span className="font-bold"> {item.title}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
