@@ -4,7 +4,9 @@ import Slider from "../pages/slider/Slider";
 const Novedades = () => {
   return (
     <div className="novedades-container">
-      <Slider></Slider>
+      <div>
+        <Slider></Slider>
+      </div>
     </div>
   );
 };
