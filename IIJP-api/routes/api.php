@@ -47,3 +47,7 @@ Route::get('/magistrado-estadisticas/{id}', [MagistradosController::class, 'obte
 
 
 Route::get('/all-resoluciones', [ResolutionController::class, 'index'])->name('all-resolutions');
+
+Route::get('/obtener-datos-magistrado/{id}', [MagistradosController::class, 'obtenerDatos'])->name('obtener-datos-magistrado');
+
+Route::get('/obtener-resoluciones-magistrado', [MagistradosController::class, 'obtenerResoluciones'])->name('obtener-resoluciones-magistrado');

@@ -48,9 +48,9 @@ class ResolutionController extends Controller
 
 
         return response()->json([
-            'all' => $all_res,
-            'auto_supremos' => $all_auto_supremos,
-            'jurisprudencia' => $all_jurisprudencia,
+            'Todos' => $all_res,
+            'Auto_Supremos' => $all_auto_supremos,
+            'Jurisprudencia' => $all_jurisprudencia,
         ]);
     }
 

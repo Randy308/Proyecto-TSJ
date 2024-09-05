@@ -22,8 +22,37 @@ class MagistradosController extends Controller
             'magistrados' => $magistrados
         ]);
     }
+    public function obtenerDatos($id)
+    {
+
+        $magistrado = Magistrados::where("id", $id)->first();
+        return $magistrado;
+    }
+    public function obtenerResoluciones(Request $request)
+    {
+        $id = $request["id"];
+        $magistrado = Magistrados::where("id", $id)->first();
+        if ($magistrado) {
+
+            $query = DB::table('resolutions as r')
+                ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+                ->join('salas as s', 's.id', '=', 'r.sala_id')
+                ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+                ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.name as tipo_resolucion', 'd.name as departamento', "s.sala as sala")
+                ->where('r.magistrado_id', $magistrado->id);
+            $paginatedData = $query->orderBy('fecha_emision')->paginate(20);
+
+            return response()->json($paginatedData);
+        } else {
+
+            return response()->json([
+                'error' => 'Magistrado no encontrado'
+            ], 404);
+        }
+    }
     public function obtenerEstadisticas($id)
     {
+
         $magistrado = Magistrados::where('id', $id)->first();
         $resolutions = Resolutions::where('magistrado_id', $magistrado->id)
             ->select(
@@ -62,67 +91,37 @@ class MagistradosController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Magistrados  $magistrados
-     * @return \Illuminate\Http\Response
-     */
+
     public function show(Magistrados $magistrados)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Magistrados  $magistrados
-     * @return \Illuminate\Http\Response
-     */
+
     public function edit(Magistrados $magistrados)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Magistrados  $magistrados
-     * @return \Illuminate\Http\Response
-     */
+
     public function update(Request $request, Magistrados $magistrados)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Magistrados  $magistrados
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy(Magistrados $magistrados)
     {
         //
