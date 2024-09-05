@@ -1,9 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import boliviaJson from "../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
-import { geoMercator } from 'd3-geo';
+import { geoMercator } from "d3-geo";
 const EChart = ({ data }) => {
+  const [departamentos, setDepartamentos] = useState([]);
+  useEffect(() => {
+    if (data) {
+      setDepartamentos(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    // Check for NaN or invalid values
+    if (departamentos.some(item => isNaN(item.value))) {
+      setDepartamentos(data); // Reset to original data
+    }
+  }, [departamentos]);
   registerMap("Bolivia", boliviaJson);
   const projection = geoMercator();
   return (
@@ -21,7 +34,7 @@ const EChart = ({ data }) => {
         },
         visualMap: {
           left: "right",
-          min:0,
+          min: 0,
           max: 500,
           inRange: {
             color: [
@@ -73,7 +86,7 @@ const EChart = ({ data }) => {
                 show: true,
               },
             },
-            data: data,
+            data: departamentos,
           },
         ],
       }}

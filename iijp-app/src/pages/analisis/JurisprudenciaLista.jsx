@@ -38,13 +38,13 @@ const JurisprudenciaLista = () => {
     try {
       const response = await axios.get(`${endpoint}/all-resoluciones`);
       setLegend(Object.keys(response.data));
-      setXAxis(response.data.all.map((item) => item.year));
-      setResoluciones(response.data.all.map((item) => item.cantidad));
+      setXAxis(response.data.Todos.map((item) => item.year));
+      setResoluciones(response.data.Todos.map((item) => item.cantidad));
 
       setJurisprudencia(
-        response.data.jurisprudencia.map((item) => item.cantidad)
+        response.data.Jurisprudencia.map((item) => item.cantidad)
       );
-      setAutos(response.data.auto_supremos.map((item) => item.cantidad));
+      setAutos(response.data.Auto_Supremos.map((item) => item.cantidad));
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
     }
@@ -89,7 +89,7 @@ const JurisprudenciaLista = () => {
     yAxis: [
       {
         type: "value",
-        name: "all",
+        name: "Todos",
         min: 0,
         max: Math.max(...resoluciones),
         axisLabel: {
@@ -98,7 +98,7 @@ const JurisprudenciaLista = () => {
       },
       {
         type: "value",
-        name: "jurisprudencia",
+        name: "Jurisprudencia",
         min: 0,
         max: Math.max(...jurisprudencia),
         axisLabel: {
@@ -108,7 +108,7 @@ const JurisprudenciaLista = () => {
     ],
     series: [
       {
-        name: "auto_supremos",
+        name: "Auto_Supremos",
         type: "bar",
         tooltip: {
           valueFormatter: (value) => `${value}`,
@@ -116,7 +116,7 @@ const JurisprudenciaLista = () => {
         data: autos,
       },
       {
-        name: "jurisprudencia",
+        name: "Jurisprudencia",
         type: "bar",
         tooltip: {
           valueFormatter: (value) => `${value}`,
@@ -125,7 +125,7 @@ const JurisprudenciaLista = () => {
       },
 
       {
-        name: "all",
+        name: "Todos",
         type: "line",
         yAxisIndex: 0,
         tooltip: {
