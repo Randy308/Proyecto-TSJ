@@ -1,7 +1,6 @@
 #magistrados-analisis {
   display: grid;
   grid-template-columns: 1fr;
-  height: 100dvh;
   grid-template-rows: auto 1fr auto;
   
 }
