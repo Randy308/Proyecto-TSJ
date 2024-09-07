@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useState } from "react";
 import axios from "axios";
 
 import Loading from "../../components/Loading";
 import LineChart from "../analisis/LineChart";
 import "../../styles/styles_randy/magistradosTSJ.css";
 import EChart from "../analisis/EChart";
+import { variables } from "../../data/VariablesMagistradoItems";
 const EstadisticasMagistrado = ({ id }) => {
   const [data, setData] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
@@ -127,21 +128,31 @@ const EstadisticasMagistrado = ({ id }) => {
 
     series: getSeries(),
   };
+  const [ activo , setActivo] = useState("primero");
+  const actualizar =( id) =>{
+    setActivo(id)
+    console.log(activo)
+  }
   return (
     <div>
-      <div className="selector-variables text-center p-4 m-4">
-        <p>
-          Seleccionar Variable :{" "}
-          <span className=" bg-gray-300 p-2 rounded-md text-gray-700 variable">
-            Cantidad de resoluciones por año
-          </span>
-        </p>
+      <div className="flex flex-row items-center justify-center">
+        <p>Seleccionar Variable :</p>
+        <select
+          name="variablesMagistrado"
+          id="variablesMagistrado"
+          className="p-4 m-4"
+          onChange={(e) => actualizar(e.target.value)}
+        >
+          {variables.map((item) => (
+            <option value={item.id}  key={item.id}>{item.nombre}</option>
+          ))}
+        </select>
       </div>
       <div className="text-center bg-blue-700 p-4 m-4 text-white">
         Resumen Estadístico
       </div>
       <div id="container-estadistica">
-        <div className="p-2 m-2 flex flex-row flex-wrap gap-2 justify-center">
+        <div className={`p-2 m-2 flex flex-row flex-wrap gap-2 justify-center ${"primero" === activo ? "" : "hidden"}`}>
           <div className="grafica-contenedor">
             {data.length > 0 ? (
               <LineChart option={option} />
@@ -214,7 +225,7 @@ const EstadisticasMagistrado = ({ id }) => {
             </div>
           </div>
         </div>
-        <div className="mapa-bolivia hidden">
+        <div className={`mapa-bolivia ${"segundo" === activo ? "" : "hidden"}`}>
           <EChart data={departamentos}></EChart>
         </div>
       </div>
