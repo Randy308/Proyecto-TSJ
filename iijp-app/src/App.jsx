@@ -16,6 +16,7 @@ import { useLocation } from 'react-router-dom';
 import JurisprudenciaLista from "./pages/analisis/JurisprudenciaLista";
 import AnalisisMagistrados from "./pages/analisis/AnalisisMagistrados";
 import MagistradoTSJ from "./pages/magistrados/MagistradoTSJ";
+import Principal from "./pages/analisis/resoluciones/Principal";
 function App() {
 
   const location = useLocation();
@@ -49,6 +50,7 @@ function App() {
           <Route path="/Jurisprudencia/Magistrado/:id" element={<MagistradoTSJ />} />
           <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
           <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
+          <Route path="/Jurisprudencia/Estadistica/Resoluciones" element={<Principal/>} />
         </Routes>
         {shouldShowFooter && <Footer />}
       </React.Fragment>

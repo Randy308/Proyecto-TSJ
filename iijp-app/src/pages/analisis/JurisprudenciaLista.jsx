@@ -10,7 +10,7 @@ const JurisprudenciaLista = () => {
       id: 1,
       title: "Análisis por Resoluciones",
       descripcion: "Quis commodo deserunt pariatur eu ea ut.",
-      path: "/Jurisprudencia/Analisis-Materia",
+      path: "/Jurisprudencia/Estadistica/Resoluciones",
       cName: "tool-item",
       icon: <HiDocumentReport className="h-8 w-8" />,
     },

@@ -51,3 +51,6 @@ Route::get('/all-resoluciones', [ResolutionController::class, 'index'])->name('a
 Route::get('/obtener-datos-magistrado/{id}', [MagistradosController::class, 'obtenerDatos'])->name('obtener-datos-magistrado');
 
 Route::get('/obtener-resoluciones-magistrado', [MagistradosController::class, 'obtenerResoluciones'])->name('obtener-resoluciones-magistrado');
+
+
+Route::get('/obtener-filtradores', [ResolutionController::class, 'obtenerFiltradores'])->name('obtener-filtradores');

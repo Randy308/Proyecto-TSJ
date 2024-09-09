@@ -211,7 +211,7 @@ const ShowTemas = () => {
           <div className="flex flex-row gap-1 flex-wrap arrow-steps clearfix my-4">
             {arbol.map((tema, index) => (
               <div
-                className={`step custom:text-xs ${
+                className={`step custom:text-xs roboto-medium ${
                   tema.id === arbol[arbol.length - 1].id ? "current" : ""
                 }`}
                 key={tema.id}

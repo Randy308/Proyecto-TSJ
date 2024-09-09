@@ -8,6 +8,7 @@ use App\Models\Departamentos;
 use App\Models\FormaResolucions;
 use App\Models\Resolutions;
 use App\Models\Salas;
+use App\Models\TipoResolucions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
@@ -59,7 +60,27 @@ class ResolutionController extends Controller
         //
     }
 
+    public function obtenerFiltradores(){
 
+        $departamentos = Departamentos::all("name");
+
+        $forma = FormaResolucions::all("name");
+
+        $salas = Salas::all("sala as name");
+
+        $tipo = TipoResolucions::all("name");
+
+
+        $data = [
+            'departamentos' => $departamentos->toArray(),
+            'formas' => $forma->toArray(),
+            'tipos' => $tipo->toArray(),
+            'salas' => $salas->toArray(),
+        ];
+
+        return response()->json($data);
+
+    }
     public function show($id): JsonResponse
     {
         try {
