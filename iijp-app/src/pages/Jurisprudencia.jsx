@@ -6,7 +6,7 @@ const Jurisprudencia = () => {
   return (
     <main className="main py-4 my-4">
       <div>
-        <h2 className="text-center py-4 text-3xl font-bold">Herramientas</h2>
+        <h2 className="text-center py-4 text-3xl font-bold titulo">Herramientas</h2>
         <div className="cards-container flex p-4 m-4 justify-center items-center custom:flex-col">
           {jurisprudenciaItems.map((item) => {
             return (

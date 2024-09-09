@@ -40,7 +40,7 @@ class MagistradosController extends Controller
                 ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
                 ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.name as tipo_resolucion', 'd.name as departamento', "s.sala as sala")
                 ->where('r.magistrado_id', $magistrado->id);
-            $paginatedData = $query->orderBy('fecha_emision')->paginate(20);
+            $paginatedData = $query->orderBy('fecha_emision')->paginate(10);
 
             return response()->json($paginatedData);
         } else {

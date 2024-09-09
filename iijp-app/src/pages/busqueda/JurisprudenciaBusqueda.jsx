@@ -5,7 +5,7 @@ import { FaFilter } from "react-icons/fa";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
-import PaginationData from "../slider/PaginationData";
+import PaginationData from "./PaginationData";
 
 const JurisprudenciaBusqueda = () => {
   const endpoint = process.env.REACT_APP_BACKEND;

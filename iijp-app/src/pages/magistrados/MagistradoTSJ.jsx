@@ -38,7 +38,7 @@ const MagistradoTSJ = () => {
         </div>
         <div className="detalles-magistrado">
           <span className="etiqueta-magistrado">Magistrado</span>
-          <h1 className="nombre-magistrado">{magistrado}</h1>
+          <h1 className="nombre-magistrado titulo">{magistrado}</h1>
         </div>
       </div>
       <Tabs>

@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
-import PaginationData from "../slider/PaginationData";
+import TablaResumen from "./tabla/TablaResumen";
 const ResumenMagistrado = ({ id, magistrado }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState([]);
 
   const [lastPage, setLastPage] = useState(1);
-
+  const [totalRes ,setTotalRes] = useState(0);
   useEffect(() => {
     obtenerResoluciones(1);
   }, []);
@@ -35,6 +35,8 @@ const ResumenMagistrado = ({ id, magistrado }) => {
         setResoluciones(response.data.data);
         setLastPage(response.data.last_page);
         setPageCount(response.data.last_page);
+        setTotalRes(response.data.total)
+        console.log(response.data)
       } else {
         alert("No existen datos");
       }
@@ -49,7 +51,7 @@ const ResumenMagistrado = ({ id, magistrado }) => {
       id="jurisprudencia-busqueda"
     >
       <div className="row p-4">
-        {resoluciones.length > 0 && <PaginationData data={resoluciones} />}
+        {resoluciones.length > 0 && <TablaResumen data={resoluciones} total={totalRes} />}
         <div>
           <ReactPaginate
             breakLabel={<span className="mr-4">...</span>}

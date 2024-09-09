@@ -4,7 +4,6 @@ import "../../styles/styles_randy/analisis-magistrados.css";
 import { useNavigate } from "react-router-dom";
 
 const AnalisisMagistrados = () => {
-
   const endpoint = process.env.REACT_APP_BACKEND;
   const [activo, setActivo] = useState(null);
   const navigate = useNavigate();
@@ -20,7 +19,7 @@ const AnalisisMagistrados = () => {
 
   const limpiarFiltros = () => {
     setSelectedMagistrado(1);
-  }
+  };
   const getAllMagistrados = async () => {
     try {
       const response = await axios.get(`${endpoint}/magistrados`);
@@ -31,25 +30,24 @@ const AnalisisMagistrados = () => {
     }
   };
 
-  const navegar = () => {
-    if (selectedMagistrado) {
-        navigate(`/Jurisprudencia/Magistrado/${selectedMagistrado}`);
-    } else {
-        alert("Por favor seleccione un magistrado.");
-    }
-};
+  const navegar = (id) => {
+    navigate(`/Jurisprudencia/Magistrado/${id}`);
+  };
 
   return (
-    <div id="magistrados-analisis" className="p-4 m-4 w-3/5 custom:h-auto mx-auto custom:mx-0">
+    <div
+      id="magistrados-analisis"
+      className="py-4 my-4 w-3/5 custom:w-auto mx-auto custom:mx-0"
+    >
       <div className="flex justify-center">
-        <span className="text-center font-bold text-2xl p-4">
+        <span className="text-center font-bold text-3xl titulo py-4">
           Lista de magistrados
         </span>
       </div>
-      <div className="magistrados-col">
+      <div className="grid grid-cols-4 custom:grid-cols-2">
         {magistrados.map((item) => {
           return (
-            <div className="card" key={item.id}>
+            /* <div className="card" key={item.id}>
               <input
                 type="radio"
                 value={item.nombre}
@@ -61,13 +59,17 @@ const AnalisisMagistrados = () => {
               <label htmlFor={item.nombre}>
                 <h5>{item.nombre}</h5>
               </label>
+            </div> */
+            <div
+              key={item.id}
+              className="bg-blue-500 hover:bg-blue-700 p-4 m-4 cursor-pointer text-white rounded-lg text-center flex items-center justify-center"
+              onClick={() => navegar(item.id)}
+            >
+              
+              {item.nombre}
             </div>
           );
         })}
-      </div>
-      <div className="btn-container flex flex-row gap-4 justify-end">
-        <button className="bg-blue-500 text-white text-center p-3 rounded-lg hover:bg-blue-800" onClick={navegar}>Generar</button>
-        <button className="bg-blue-500 text-white text-center p-3 rounded-lg hover:bg-blue-800" onClick={limpiarFiltros}>Limpiar</button>
       </div>
     </div>
   );

@@ -27,7 +27,8 @@
 
 .card-container {
   align-items: center;
-  height: calc(100dvh - 170px);
+  height: calc(100dvh - 200px);
+  overflow: hidden;
 }
 
 .card-container .card:hover .tarjetas-icon-style {
