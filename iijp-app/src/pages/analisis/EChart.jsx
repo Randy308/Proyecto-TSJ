@@ -3,6 +3,8 @@ import boliviaJson from "../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
+import '../../data/dark.js'; // Import the dark theme
+import { useThemeContext } from "../../components/ThemeProvider";
 const EChart = ({ data }) => {
   const [departamentos, setDepartamentos] = useState([]);
   useEffect(() => {
@@ -10,7 +12,7 @@ const EChart = ({ data }) => {
       setDepartamentos(data);
     }
   }, [data]);
-
+  const isDarkMode = useThemeContext();
   useEffect(() => {
     // Check for NaN or invalid values
     if (departamentos.some(item => isNaN(item.value))) {
@@ -20,7 +22,7 @@ const EChart = ({ data }) => {
   registerMap("Bolivia", boliviaJson);
   const projection = geoMercator();
   return (
-    <ReactECharts
+    <ReactECharts theme={isDarkMode ? 'dark' : null} 
       option={{
         title: {
           text: "Cantidad de resoluciones por departamento",

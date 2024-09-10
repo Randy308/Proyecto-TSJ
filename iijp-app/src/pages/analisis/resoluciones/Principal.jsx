@@ -124,7 +124,7 @@ const Principal = () => {
         <div className="flex flex-col items-center justify-center">
           <div className="flex flex-wrap p-4">
             <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0">
+              <span className="italic font-bold m-4 mb-0 subtitulo">
                 {" "}
                 Tipo de Resolución
               </span>
@@ -144,7 +144,7 @@ const Principal = () => {
               </select>
             </div>
             <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0"> Tipo de Sala</span>
+              <span className="italic font-bold m-4 mb-0 subtitulo"> Tipo de Sala</span>
               <select
                 multiple
                 value={selectedSalas}
@@ -161,7 +161,7 @@ const Principal = () => {
               </select>
             </div>
             <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0">
+              <span className="italic font-bold m-4 mb-0 subtitulo">
                 {" "}
                 Forma de Resolución
               </span>
@@ -185,7 +185,7 @@ const Principal = () => {
               </select>
             </div>
             <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0"> Departamentos</span>
+              <span className="italic font-bold m-4 mb-0 subtitulo"> Departamentos</span>
               <select
                 multiple
                 value={selectedDepartamentos}

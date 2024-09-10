@@ -32,6 +32,10 @@ code {
   font-optical-sizing: auto;
   font-style: normal;
 }
+div#parent-container.dark-theme .titulo,
+div#parent-container.dark-theme .subtitulo {
+  color: white;
+}
 
 .roboto-thin {
   font-family: "Roboto", sans-serif;
