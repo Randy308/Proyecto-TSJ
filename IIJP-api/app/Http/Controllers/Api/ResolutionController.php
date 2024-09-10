@@ -59,16 +59,54 @@ class ResolutionController extends Controller
     {
         //
     }
+    public function obtenerEstadisticasRes(Request $request)
+    {
 
-    public function obtenerFiltradores(){
 
-        $departamentos = Departamentos::all("name");
 
-        $forma = FormaResolucions::all("name");
+        // $data = [
+        //     'departamentos' => $lista_tipo,
+        //     'formas' => $lista_departamentos,
+        //     'tipos' => $lista_salas,
+        //     'salas' => $lista_formas,
+        // ];
+        $all_res = DB::table('resolutions as r')
+            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COUNT(r.id) AS cantidad");
 
-        $salas = Salas::all("sala as name");
+        // Apply filters based on the request input, checking if arrays exist and are not empty.
+        if (!empty($request["tipos"])) {
+            $all_res->whereIn("r.tipo_resolucion_id", $request["tipos"]);
+        }
+        if (!empty($request["departamentos"])) {
+            $all_res->whereIn("r.departamento_id", $request["departamentos"]);
+        }
+        if (!empty($request["salas"])) {
+            $all_res->whereIn("r.sala_id", $request["salas"]);
+        }
+        if (!empty($request["formas"])) {
+            $all_res->whereIn("r.forma_resolucion_id", $request["formas"]);
+        }
 
-        $tipo = TipoResolucions::all("name");
+        // Group by year and order the results
+        $query = $all_res->groupBy("year")
+            ->orderBy("year")
+            ->get();
+        $data = [
+             'data' => $query,
+        ];
+        return response()->json($data);
+    }
+
+    public function obtenerFiltradores()
+    {
+
+        $departamentos = Departamentos::select('name', 'id')->get();
+
+        $forma = FormaResolucions::select('name', 'id')->get();
+
+        $salas = Salas::select('sala as name', 'id')->get();
+
+        $tipo = TipoResolucions::select('name', 'id')->get();
 
 
         $data = [
@@ -79,7 +117,6 @@ class ResolutionController extends Controller
         ];
 
         return response()->json($data);
-
     }
     public function show($id): JsonResponse
     {

@@ -205,7 +205,7 @@ const ShowTemas = () => {
     <div className="m-4 p-4 custom:p-0 custom:m-0" id="temas-container">
       <div className="header-container">
         <div>
-          <p className="text-bold text-3xl text-center my-4">
+          <p className="text-bold text-3xl text-center my-4 titulo">
             Seleccione Materia
           </p>
           <div className="flex flex-row gap-1 flex-wrap arrow-steps clearfix my-4">
@@ -228,7 +228,7 @@ const ShowTemas = () => {
         <div className={`slide ${currentSlide === 0 ? "current" : ""}`}>
           {temas.map((tema) => (
             <div
-              className="p-4 text-white  custom:text-xs text-center rounded-lg materia-div bg-green-400 hover:bg-green-700 hover:cursor-pointer"
+              className="p-4 text-white  custom:text-xs text-center titulo rounded-lg materia-div bg-green-400 hover:bg-green-700 hover:cursor-pointer"
               key={tema.id}
               id={tema.id}
               onClick={() => setActivo(tema.id)}

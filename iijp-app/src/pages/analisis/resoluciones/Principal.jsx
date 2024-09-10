@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Grafica from "./Grafica";
+import { IoPlaySharp } from "react-icons/io5";
+import { AiOutlineClear } from "react-icons/ai";
 const Principal = () => {
-  const [lista, setLista] = useState([]);
-
+  const [data, setData] = useState([]);
   const [salas, setSalas] = useState([]);
   const [formas, setFormas] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
@@ -83,12 +85,33 @@ const Principal = () => {
     }
     setSelectedFormas(selected);
   };
+  const limpiarSelect = () => {
+    setSelectedDepartamentos([]);
+    setSelectedFormas([]);
+    setSelectedSalas([]);
+    setSelectedTipos([]);
+  };
 
-  const generarGrafica = () => {
-    console.log(selectedDepartamentos);
-    console.log(selectedFormas);
-    console.log(selectedSalas);
-    console.log(selectedTipos);
+  const generarGrafica = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.get(`${endpoint}/obtener-estadisticas-res`, {
+        params: {
+          departamentos: selectedDepartamentos,
+          tipos: selectedTipos,
+          salas: selectedSalas,
+          formas: selectedFormas,
+        },
+      });
+
+      if (response.data.data.length > 0) {
+        setData(response.data.data);
+      } else {
+        alert("No existen datos");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   return (
@@ -107,12 +130,13 @@ const Principal = () => {
               </span>
               <select
                 multiple
+                value={selectedTipos}
                 onChange={obtenerTipos}
                 className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
               >
                 {tipos && tipos.length > 0
                   ? tipos.map((item, index) => (
-                      <option key={index} value={item.name}>
+                      <option key={index} value={item.id}>
                         {item.name}
                       </option>
                     ))
@@ -123,12 +147,13 @@ const Principal = () => {
               <span className="italic font-bold m-4 mb-0"> Tipo de Sala</span>
               <select
                 multiple
+                value={selectedSalas}
                 onChange={obtenerSalas}
                 className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
               >
                 {salas && salas.length > 0
                   ? salas.map((item, index) => (
-                      <option key={index} value={item.name}>
+                      <option key={index} value={item.id}>
                         {item.name}
                       </option>
                     ))
@@ -142,6 +167,7 @@ const Principal = () => {
               </span>
               <select
                 multiple
+                value={selectedFormas}
                 onChange={obtenerFormas}
                 className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
               >
@@ -149,7 +175,7 @@ const Principal = () => {
                   ? formas.map((item, index) => (
                       <option
                         key={index}
-                        value={item.name}
+                        value={item.id}
                         className="custom:text-[0.7rem]"
                       >
                         {item.name}
@@ -162,12 +188,13 @@ const Principal = () => {
               <span className="italic font-bold m-4 mb-0"> Departamentos</span>
               <select
                 multiple
+                value={selectedDepartamentos}
                 onChange={obtenerDepartamentos}
                 className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
               >
                 {departamentos && departamentos.length > 0
                   ? departamentos.map((item, index) => (
-                      <option key={index} value={item.name}>
+                      <option key={index} value={item.id}>
                         {item.name}
                       </option>
                     ))
@@ -177,11 +204,19 @@ const Principal = () => {
           </div>
         </div>
 
-        <div className="flex justify-end p-4">
+        <div className="flex justify-end p-4 gap-4">
           <button
-            className="p-3 bg-blue-500 rounded-xl text-white text-center hover:bg-blue-800 cursor-pointer"
-            onClick={() => generarGrafica()}
+            className="p-3 bg-blue-500 rounded-xl text-white text-center hover:bg-blue-800 cursor-pointer flex flex-row justify-center items-center"
+            onClick={() => limpiarSelect()}
           >
+            <AiOutlineClear />
+            Limpiar
+          </button>
+          <button
+            className="p-3 bg-blue-500 rounded-xl text-white text-center hover:bg-blue-800 cursor-pointer flex flex-row justify-center items-center"
+            onClick={(e) => generarGrafica(e)}
+          >
+            <IoPlaySharp />
             Generar
           </button>
         </div>
@@ -190,15 +225,8 @@ const Principal = () => {
             Resumen Estadístico
           </div>
           <div className="flex flex-wrap gap-4">
-            {lista && lista.length > 0 ? (
-              lista.map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-[#EAF8BF] p-4 rounded-xl cursor-pointer text-[#450920] border border-[#450920]"
-                >
-                  {item.nombre}
-                </div>
-              ))
+            {data && data.length > 0 ? (
+              <Grafica content={data}></Grafica>
             ) : (
               <p>No hay datos disponibles</p>
             )}

@@ -54,3 +54,6 @@ Route::get('/obtener-resoluciones-magistrado', [MagistradosController::class, 'o
 
 
 Route::get('/obtener-filtradores', [ResolutionController::class, 'obtenerFiltradores'])->name('obtener-filtradores');
+
+Route::get('/obtener-estadisticas-res', [ResolutionController::class, 'obtenerEstadisticasRes'])->name('obtener-filtradores');
+

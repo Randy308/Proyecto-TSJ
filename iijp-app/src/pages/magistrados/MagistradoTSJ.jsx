@@ -44,7 +44,7 @@ const MagistradoTSJ = () => {
       <Tabs>
         <TabList>
           <Tab>Resumen</Tab>
-          <Tab>Estadisticas</Tab>
+          <Tab>Estadísticas</Tab>
         </TabList>
 
         <TabPanel>
