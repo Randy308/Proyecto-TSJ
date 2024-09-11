@@ -110,8 +110,7 @@ const Grafica = ({ content }) => {
     series: getSeries(),
   };
   return (
-    <div id="container-estadistica" className="w-full flex justify-center items-center">
-      <div className={`p-2 m-2 flex flex-row flex-wrap gap-2 justify-center`}>
+    <div id="container-estadistica" className="w-full m-4 p-4 flex custom:flex-wrap">
         <div className="grafica-contenedor">
           {data.length > 0 ? (
             <LineChart option={option} />
@@ -121,9 +120,9 @@ const Grafica = ({ content }) => {
             </div>
           )}
         </div>
-        <div className="p-2 m-2 bg-gray-200 flex flex-col">
+        <div className="p-2 bg-gray-200 flex flex-col">
           <span className="text-center font-bold text-lg">Herramientas</span>
-          <div className="p-2 m-2 flex flex-col gap-4">
+          <div className="p-2 flex flex-col gap-4">
             <div className="flex flex-col gap-4 bg-white p-4 rounded-lg">
               <span className="text-center">Tipo de Gráfico</span>
               <div className="selector-graph">
@@ -183,7 +182,6 @@ const Grafica = ({ content }) => {
             )}
           </div>
         </div>
-      </div>
     </div>
   );
 };

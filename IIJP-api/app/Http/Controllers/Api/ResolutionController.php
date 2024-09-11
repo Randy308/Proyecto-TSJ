@@ -62,18 +62,9 @@ class ResolutionController extends Controller
     public function obtenerEstadisticasRes(Request $request)
     {
 
-
-
-        // $data = [
-        //     'departamentos' => $lista_tipo,
-        //     'formas' => $lista_departamentos,
-        //     'tipos' => $lista_salas,
-        //     'salas' => $lista_formas,
-        // ];
         $all_res = DB::table('resolutions as r')
             ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COUNT(r.id) AS cantidad");
 
-        // Apply filters based on the request input, checking if arrays exist and are not empty.
         if (!empty($request["tipos"])) {
             $all_res->whereIn("r.tipo_resolucion_id", $request["tipos"]);
         }
@@ -87,15 +78,50 @@ class ResolutionController extends Controller
             $all_res->whereIn("r.forma_resolucion_id", $request["formas"]);
         }
 
-        // Group by year and order the results
+
         $query = $all_res->groupBy("year")
             ->orderBy("year")
             ->get();
+
+
+        $cantidades = $query->pluck('cantidad')->toArray();
+        
+        $min = min($cantidades);
+        $max = max($cantidades);
+        $total = array_sum($cantidades);
+        $promedio = $total / count($cantidades);
+
+
+        $sumDesviacion = array_reduce($cantidades, function ($carry, $cantidad) use ($promedio) {
+            return $carry + pow($cantidad - $promedio, 2);
+        }, 0);
+        $desviacionEstandar = sqrt($sumDesviacion / count($cantidades));
+
+
+        $yearMin = $query->firstWhere('cantidad', $min)->year;
+        $yearMax = $query->firstWhere('cantidad', $max)->year;
+
+
         $data = [
-             'data' => $query,
+            'data' => $query,
+            'estadisticas' => [
+                'minimo' => [
+                    'year' => $yearMin,
+                    'cantidad' => $min
+                ],
+                'maximo' => [
+                    'year' => $yearMax,
+                    'cantidad' => $max
+                ],
+                'total' => $total,
+                'promedio' => $promedio,
+                'desviacion_estandar' => $desviacionEstandar
+            ]
         ];
+
         return response()->json($data);
     }
+
 
     public function obtenerFiltradores()
     {

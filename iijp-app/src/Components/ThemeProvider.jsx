@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { useLocalStorage } from "./useLocalStorage";
 
 const themeContext = React.createContext();
 const themeToggleContext = React.createContext();
@@ -11,7 +12,7 @@ export function useToggleContext() {
   return useContext(themeToggleContext);
 }
 export function ThemeProvider(props) {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useLocalStorage( 'theme', false);
 
   const toggleTheme = () => {
     console.log(isDark)

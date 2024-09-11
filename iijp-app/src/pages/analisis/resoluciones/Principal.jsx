@@ -9,6 +9,7 @@ const Principal = () => {
   const [formas, setFormas] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
   const [tipos, setTipos] = useState([]);
+  const [estadisticas, setEstadisticas] = useState(null);
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const obtenerParametros = async () => {
@@ -106,6 +107,8 @@ const Principal = () => {
 
       if (response.data.data.length > 0) {
         setData(response.data.data);
+        setEstadisticas(response.data.estadisticas);
+        console.log(response.data.estadisticas);
       } else {
         alert("No existen datos");
       }
@@ -122,7 +125,7 @@ const Principal = () => {
       <p className="titulo text-3xl font-bold text-center">Resoluciones</p>
       <div>
         <div className="flex flex-col items-center justify-center">
-          <div className="flex flex-wrap p-4">
+          <div className="flex flex-wrap p-4 items-center justify-center">
             <div className="flex flex-col">
               <span className="italic font-bold m-4 mb-0 subtitulo">
                 {" "}
@@ -144,7 +147,10 @@ const Principal = () => {
               </select>
             </div>
             <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0 subtitulo"> Tipo de Sala</span>
+              <span className="italic font-bold m-4 mb-0 subtitulo">
+                {" "}
+                Tipo de Sala
+              </span>
               <select
                 multiple
                 value={selectedSalas}
@@ -185,7 +191,10 @@ const Principal = () => {
               </select>
             </div>
             <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0 subtitulo"> Departamentos</span>
+              <span className="italic font-bold m-4 mb-0 subtitulo">
+                {" "}
+                Departamentos
+              </span>
               <select
                 multiple
                 value={selectedDepartamentos}
@@ -223,6 +232,43 @@ const Principal = () => {
         <div>
           <div className="text-center bg-blue-700 p-4 text-white rounded-lg">
             Resumen Estadístico
+          </div>
+          <div>
+            {estadisticas && estadisticas.total ? (
+              <div className="flex  flex-row flex-wrap justify-between m-4 rounde">
+                <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
+                  <span className="titulo font-bold">Total</span>
+                  <span className="subtitulo font-italic">{estadisticas.total}</span>
+                </div>
+                <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
+                <span className="titulo font-bold">Promedio </span>
+                   <span className="subtitulo font-italic">{estadisticas.promedio}</span>
+                </div>
+                <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
+                
+                  <span className="titulo font-bold">Desviación Estándar</span> 
+                  <span className="subtitulo font-italic">{estadisticas.desviacion_estandar}</span>
+                </div>
+                <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
+                <span className="titulo font-bold">Mínimo</span> 
+
+                  <span className="subtitulo font-italic">
+                    {estadisticas.minimo.year} con{" "}
+                    {estadisticas.minimo.cantidad}
+                  </span>
+                </div>
+                <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
+                <span className="titulo font-bold"> Máximo</span> 
+
+                  <span className="subtitulo font-italic">
+                    {estadisticas.maximo.year} con{" "}
+                    {estadisticas.maximo.cantidad}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              " "
+            )}
           </div>
           <div className="flex flex-wrap gap-4">
             {data && data.length > 0 ? (

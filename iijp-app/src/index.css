@@ -36,7 +36,9 @@ div#parent-container.dark-theme .titulo,
 div#parent-container.dark-theme .subtitulo {
   color: white;
 }
-
+html:has(div#parent-container.dark-theme) {
+  background-color: #242e42;
+}
 .roboto-thin {
   font-family: "Roboto", sans-serif;
   font-weight: 100;
@@ -107,4 +109,16 @@ div#parent-container.dark-theme .subtitulo {
   font-family: "Roboto", sans-serif;
   font-weight: 900;
   font-style: italic;
+}
+select[multiple] {
+  background:none;
+  width:auto;
+  height:auto;
+  padding:0;
+  margin:0;
+  border-width: 2px;
+  border-style: inset;
+  -moz-appearance: menulist;
+  -webkit-appearance: menulist;
+  appearance: menulist;
 }
