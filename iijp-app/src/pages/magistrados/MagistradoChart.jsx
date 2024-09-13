@@ -2,18 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react"; // import reactecharts
 import "../../data/dark.js"; // Import the dark theme
 import { useThemeContext } from "../../components/ThemeProvider";
-const LineChart = ({ option }) => {
+import axios from "axios";
+const MagistradoChart = ({ option, setData }) => {
   const isDarkMode = useThemeContext();
-
   const chartRef = useRef(null);
-  useEffect(() => {
-    console.log(estado);
-  }, [estado]);
+
 
   useEffect(() => {
     let instance = chartRef.current.getEchartsInstance();
     instance.on("click", (params) => {
-      setEstado(params.name);
+        setData(params.name);
     });
   }, []);
 
@@ -30,4 +28,4 @@ const LineChart = ({ option }) => {
   );
 };
 
-export default LineChart;
+export default MagistradoChart;

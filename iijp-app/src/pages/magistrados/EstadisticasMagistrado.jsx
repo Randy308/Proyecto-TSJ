@@ -2,14 +2,20 @@ import React, { act, useEffect, useState } from "react";
 import axios from "axios";
 
 import Loading from "../../components/Loading";
-import LineChart from "../analisis/LineChart";
 import "../../styles/styles_randy/magistradosTSJ.css";
 import EChart from "../analisis/EChart";
 import { variables } from "../../data/VariablesMagistradoItems";
+
+import { FaPlus } from "react-icons/fa";
+import { FaMinus } from "react-icons/fa";
+import MagistradoChart from "./MagistradoChart";
+
 const EstadisticasMagistrado = ({ id }) => {
-  const [data, setData] = useState([]);
+  const [resoluciones, setResoluciones] = useState([]);
+
   const [departamentos, setDepartamentos] = useState([]);
-  const [xAxis, setXAxis] = useState([]);
+
+  const [leyenda, setLeyenda] = useState([]);
   useEffect(() => {
     const endpoint = process.env.REACT_APP_BACKEND;
     const getEstadisticas = async () => {
@@ -18,8 +24,8 @@ const EstadisticasMagistrado = ({ id }) => {
           `${endpoint}/magistrado-estadisticas/${id}`
         );
 
-        setXAxis(response.data.data.magistrado);
-        setData(response.data.data.data);
+        setLeyenda(response.data.magistrado);
+        setResoluciones(response.data.data);
         setDepartamentos(response.data.data.departamentos);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
@@ -28,19 +34,18 @@ const EstadisticasMagistrado = ({ id }) => {
     getEstadisticas();
   }, [id]);
 
-  const x = data.map((item) => item.year);
-  const leyenda = xAxis;
+  const [abscisas, setAbscisas] = useState([]);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    setAbscisas(resoluciones.map((item) => item.year));
+    setData(resoluciones.map((item) => item.cantidad));
+  }, [resoluciones]);
+
   const [chartType, setChartType] = useState("line");
   const [suavizar, setSuavizar] = useState(false);
   const [area, setArea] = useState(false);
 
-  const toggleChartType = () => {
-    setChartType((prevType) => {
-      if (prevType === "line") return "bar";
-      if (prevType === "bar") return "pie";
-      return "line";
-    });
-  };
   const handleRadioChange = (event) => {
     setChartType(event.target.value);
     if (event.target.value === "pie") {
@@ -50,7 +55,7 @@ const EstadisticasMagistrado = ({ id }) => {
       option.xAxis = {
         type: "category",
         boundaryGap: chartType === "line" ? false : true,
-        data: x,
+        data: abscisas,
       };
       option.yAxis = {
         type: "value",
@@ -72,7 +77,7 @@ const EstadisticasMagistrado = ({ id }) => {
       setSuavizar(true);
     }
   };
-  // Configuración de la serie basada en el tipo de gráfico seleccionado
+
   const getSeries = () => {
     if (chartType === "pie") {
       return [
@@ -94,11 +99,11 @@ const EstadisticasMagistrado = ({ id }) => {
 
     return [
       {
-        data: data.map((item) => item.cantidad),
+        data: data,
         name: leyenda,
         type: chartType,
-        smooth: chartType === "line" && suavizar ? true : false, // Smooth solo se aplica a líneas
-        areaStyle: chartType === "line" && area ? {} : null, // areaStyle solo se aplica a líneas
+        smooth: chartType === "line" && suavizar ? true : false,
+        areaStyle: chartType === "line" && area ? {} : null,
       },
     ];
   };
@@ -115,7 +120,7 @@ const EstadisticasMagistrado = ({ id }) => {
     xAxis: {
       type: "category",
       boundaryGap: chartType === "line" ? false : true,
-      data: x,
+      data: abscisas,
     },
     yAxis: {
       type: "value",
@@ -128,11 +133,36 @@ const EstadisticasMagistrado = ({ id }) => {
 
     series: getSeries(),
   };
-  const [ activo , setActivo] = useState("primero");
-  const actualizar =( id) =>{
-    setActivo(id)
-    console.log(activo)
-  }
+  const [activo, setActivo] = useState("primero");
+  const actualizar = (id) => {
+    setActivo(id);
+    console.log(activo);
+  };
+
+  const imprimir = (value) => {
+    console.log(value);
+  };
+
+  const [valor, setValor] = useState(null);
+
+  useEffect(() => {
+    if (valor) {
+      console.log(valor);
+      const endpoint = process.env.REACT_APP_BACKEND;
+      const getEstadisticas = async () => {
+        try {
+          const response = await axios.get(
+            `${endpoint}/magistrado-estadisticas/3`
+          );
+          setResoluciones(response.data.data);
+        } catch (error) {
+          console.error("Error al realizar la solicitud:", error);
+        }
+      };
+      getEstadisticas();
+    }
+  }, [valor]);
+
   return (
     <div>
       <div className="flex flex-row items-center justify-center">
@@ -144,7 +174,9 @@ const EstadisticasMagistrado = ({ id }) => {
           onChange={(e) => actualizar(e.target.value)}
         >
           {variables.map((item) => (
-            <option value={item.id}  key={item.id}>{item.nombre}</option>
+            <option value={item.id} key={item.id}>
+              {item.nombre}
+            </option>
           ))}
         </select>
       </div>
@@ -152,15 +184,29 @@ const EstadisticasMagistrado = ({ id }) => {
         Resumen Estadístico
       </div>
       <div id="container-estadistica">
-        <div className={`p-2 m-2 flex flex-row flex-wrap gap-2 justify-center ${"primero" === activo ? "" : "hidden"}`}>
+        <div
+          className={`p-2 m-2 flex flex-row flex-wrap gap-2 justify-center ${
+            "primero" === activo ? "" : "hidden"
+          }`}
+        >
           <div className="grafica-contenedor">
             {data.length > 0 ? (
-              <LineChart option={option} />
+              <MagistradoChart option={option} setData={setValor} />
             ) : (
-              <div style={{ width: 700 }} className="flex justify-center">
-                <Loading />
-              </div>
+              <Loading />
             )}
+            <div
+              className="flex flex-col bg-white gap-2 rounded-lg border"
+              id="boton-navegar"
+            >
+              <div className="flex-grow flex justify-center items-center">
+                <FaPlus className="cursor-pointer" />
+              </div>
+              <div className="flex-grow flex justify-center items-center">
+                {" "}
+                <FaMinus className="cursor-pointer" />
+              </div>
+            </div>
           </div>
           <div className="p-2 m-2 bg-gray-200 flex flex-col">
             <span className="text-center font-bold text-lg">Herramientas</span>

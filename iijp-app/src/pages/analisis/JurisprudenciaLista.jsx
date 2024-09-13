@@ -4,6 +4,7 @@ import axios from "axios";
 import LineChart from "./LineChart";
 import { HiDocumentReport } from "react-icons/hi";
 import { GrDocumentUser } from "react-icons/gr";
+import Loading from "../../components/Loading";
 const JurisprudenciaLista = () => {
   const jurisprudenciaItems = [
     {
@@ -139,10 +140,16 @@ const JurisprudenciaLista = () => {
   return (
     <div className="lista-analisis flex flex-col items-center justify-center py-4 my-4">
       <div className="flex justify-center">
-        <span className="font-bold text-center text-2xl titulo">Historico de Resoluciones</span>
+        <span className="font-bold text-center text-2xl titulo">
+          Historico de Resoluciones
+        </span>
       </div>
       <div style={styles.pages} className="p-4 m-4 w-3/6 custom:w-full">
-        <LineChart option={option}></LineChart>
+        {resoluciones && resoluciones.length > 0 ? (
+          <LineChart option={option}></LineChart>
+        ) : (
+          <Loading></Loading>
+        )}
       </div>
       <div className="flex p-4 m-4 flex-col w-4/5 gap-2">
         <div className="flex flex-row gap-2 items-center justify-center ">

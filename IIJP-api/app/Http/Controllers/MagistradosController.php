@@ -86,9 +86,7 @@ class MagistradosController extends Controller
             ];
         }
 
-        return response()->json([
-            'data' => $data
-        ]);
+        return response()->json($data);
     }
 
 

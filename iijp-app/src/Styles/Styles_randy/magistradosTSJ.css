@@ -89,6 +89,22 @@ input[type="checkbox"] {
 }
 
 
+
+
+
+
+
+.grafica-contenedor{
+  position: relative;
+}
+
+#boton-navegar{
+  position: absolute;
+  top: calc( 99% - 56px);
+  left: calc(99% - 32px);
+  width: 32px;
+  height: 56px;
+}
 @media (max-width: 1250px) {
   .magistrado-contenedor {
     width: auto;
