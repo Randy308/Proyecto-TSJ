@@ -109,11 +109,19 @@ const Grafica = ({ content }) => {
 
     series: getSeries(),
   };
+
+  const [valor, setValor] = useState(null);
+  useEffect(() => {
+    if (valor) {
+      console.log(valor);
+    }
+  }, [valor]);
+
   return (
     <div id="container-estadistica" className="w-full m-4 p-4 flex custom:flex-wrap">
         <div className="grafica-contenedor">
           {data.length > 0 ? (
-            <LineChart option={option} />
+            <LineChart option={option} setData={setValor}/>
           ) : (
             <div style={{ width: 700 }} className="flex justify-center">
               <Loading />

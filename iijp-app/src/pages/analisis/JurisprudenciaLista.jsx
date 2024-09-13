@@ -136,7 +136,12 @@ const JurisprudenciaLista = () => {
       },
     ],
   };
-
+  const [valor, setValor] = useState(null);
+  useEffect(() => {
+    if (valor) {
+      console.log(valor);
+    }
+  }, [valor]);
   return (
     <div className="lista-analisis flex flex-col items-center justify-center py-4 my-4">
       <div className="flex justify-center">
@@ -146,7 +151,7 @@ const JurisprudenciaLista = () => {
       </div>
       <div style={styles.pages} className="p-4 m-4 w-3/6 custom:w-full">
         {resoluciones && resoluciones.length > 0 ? (
-          <LineChart option={option}></LineChart>
+          <LineChart option={option} setData={setValor}></LineChart>
         ) : (
           <Loading></Loading>
         )}

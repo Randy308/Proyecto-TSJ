@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
-import ReactECharts from "echarts-for-react"; // import reactecharts
-import "../../data/dark.js"; // Import the dark theme
+import React, { useEffect, useRef } from "react";
+import ReactECharts from "echarts-for-react"; 
+import "../../data/dark.js"; 
 import { useThemeContext } from "../../components/ThemeProvider";
-import axios from "axios";
 const MagistradoChart = ({ option, setData }) => {
   const isDarkMode = useThemeContext();
   const chartRef = useRef(null);

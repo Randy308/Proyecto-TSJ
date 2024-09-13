@@ -1,19 +1,16 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import ReactECharts from "echarts-for-react"; // import reactecharts
 import "../../data/dark.js"; // Import the dark theme
 import { useThemeContext } from "../../components/ThemeProvider";
-const LineChart = ({ option }) => {
+const LineChart = ({ option, setData }) => {
   const isDarkMode = useThemeContext();
 
   const chartRef = useRef(null);
-  useEffect(() => {
-    console.log(estado);
-  }, [estado]);
 
   useEffect(() => {
     let instance = chartRef.current.getEchartsInstance();
     instance.on("click", (params) => {
-      setEstado(params.name);
+      setData(params.name);
     });
   }, []);
 

@@ -16,7 +16,9 @@ class MagistradosController extends Controller
      */
     public function index()
     {
+
         $magistrados = Magistrados::select('id', 'name as nombre')->get();
+
 
         return response()->json([
             'magistrados' => $magistrados
@@ -50,19 +52,78 @@ class MagistradosController extends Controller
             ], 404);
         }
     }
-    public function obtenerEstadisticas($id)
+    public function obtenerEstadisticas($id, Request $request)
     {
 
         $magistrado = Magistrados::where('id', $id)->first();
-        $resolutions = Resolutions::where('magistrado_id', $magistrado->id)
-            ->select(
-                DB::raw('DATE_PART(\'year\', fecha_emision) as year'),
-                DB::raw('count(*) as cantidad')
-            )->whereNotNull("fecha_emision")
-            ->groupBy('year')
-            ->orderBy('year')
-            ->get();
-        $completed_res = Resolutions::where('magistrado_id', $magistrado->id)->whereNotNull("fecha_emision")->count();
+        $superior = $request['superior'];
+        $dato = $request['dato'];
+        $resolutions = [];
+        if ($dato && $superior) {
+            switch ($superior) {
+                case 'year':
+                    $query = "
+                        SELECT
+                            TO_CHAR(series::date, 'TMMonth') AS fecha,
+                            series::date AS full,
+                            COALESCE(COUNT(r.id), 0) AS cantidad
+                        FROM
+                            generate_series(:fechaInicial::date, :fechaFinal::date, '1 month'::INTERVAL) AS series
+                        LEFT JOIN resolutions r
+                            ON date_trunc('month', r.fecha_emision) = series::date
+                            AND r.magistrado_id = :magistradoId
+                        GROUP BY
+                            TO_CHAR(series::date, 'TMMonth'), series::date
+                        ORDER BY
+                            series::date;
+                    ";
+                    $fecha_final = date('Y-m-d', strtotime("+11 months", strtotime($dato)));
+                    $siguiente = "mes";
+                    break;
+                case 'mes':
+                    $query = "
+                        SELECT
+                            series::date AS fecha,
+                            COALESCE(COUNT(r.id), 0) AS cantidad
+                        FROM
+                            generate_series(:fechaInicial::date, :fechaFinal::date, '1 day'::INTERVAL) AS series
+                        LEFT JOIN resolutions r
+                            ON r.fecha_emision = series::date
+                            AND r.magistrado_id = :magistradoId
+                        GROUP BY
+                            series::date
+                        ORDER BY
+                            series::date;
+                    ";
+                    $fecha_final = date("Y-m-t", strtotime($dato));
+                    $siguiente = "day";
+                    break;
+                default:
+                    break;
+            }
+
+            $resolutions = DB::select($query, [
+                'fechaInicial' => $dato,
+                'fechaFinal' => $fecha_final,
+                'magistradoId' => $magistrado->id
+            ]);
+        } else {
+            $resolutions = Resolutions::where('magistrado_id', $magistrado->id)
+                ->select(
+                    DB::raw('DATE_PART(\'year\', fecha_emision) as fecha'),
+                    DB::raw('count(*) as cantidad')
+                )
+                ->whereNotNull("fecha_emision")
+                ->groupBy('fecha') // Incluye full en el groupBy si quieres mostrar ambas
+                ->orderBy('fecha')
+                ->get();
+
+            $siguiente = "year";
+        }
+
+
+
+
         $total_res = Resolutions::where('magistrado_id', $magistrado->id)->count();
 
         $res_departamentos = DB::table('resolutions as r')
@@ -76,13 +137,13 @@ class MagistradosController extends Controller
             ->groupBy('d.name')
             ->orderBy('d.name')
             ->get();
-        if ($resolutions->isNotEmpty()) {
+        if (count($resolutions)) {
             $data = [
                 'magistrado' => $magistrado->name,
-                'res completas' => $completed_res,
                 'total_res' => $total_res,
+                "siguiente" => $siguiente,
                 'departamentos' => $res_departamentos,
-                'data' => $resolutions->toArray()
+                'data' => $resolutions
             ];
         }
 

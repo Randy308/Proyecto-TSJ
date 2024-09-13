@@ -16,16 +16,25 @@ const EstadisticasMagistrado = ({ id }) => {
   const [departamentos, setDepartamentos] = useState([]);
 
   const [leyenda, setLeyenda] = useState([]);
+
+  const [valor, setValor] = useState(null);
+  const [superior, setSuperior] = useState(null);
   useEffect(() => {
     const endpoint = process.env.REACT_APP_BACKEND;
     const getEstadisticas = async () => {
       try {
         const response = await axios.get(
-          `${endpoint}/magistrado-estadisticas/${id}`
+          `${endpoint}/magistrado-estadisticas/${id}`,
+          {
+            params: {
+              superior: superior,
+              dato: valor,
+            },
+          }
         );
-
         setLeyenda(response.data.magistrado);
         setResoluciones(response.data.data);
+        setSuperior(response.data.siguiente);
         setDepartamentos(response.data.data.departamentos);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
@@ -36,10 +45,16 @@ const EstadisticasMagistrado = ({ id }) => {
 
   const [abscisas, setAbscisas] = useState([]);
   const [data, setData] = useState([]);
+  const [dataPie, setDataPie] = useState([]);
 
   useEffect(() => {
-    setAbscisas(resoluciones.map((item) => item.year));
+    setAbscisas(resoluciones.map((item) => item.fecha));
     setData(resoluciones.map((item) => item.cantidad));
+    setDataPie(
+      resoluciones
+        .filter((item) => item.cantidad > 0)
+        .map((item) => ({ value: item.cantidad, name: item.fecha }))
+    );
   }, [resoluciones]);
 
   const [chartType, setChartType] = useState("line");
@@ -85,7 +100,7 @@ const EstadisticasMagistrado = ({ id }) => {
           name: leyenda,
           type: "pie",
           radius: "50%",
-          data: data.map((item) => ({ value: item.cantidad, name: item.year })),
+          data: dataPie,
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
@@ -143,22 +158,76 @@ const EstadisticasMagistrado = ({ id }) => {
     console.log(value);
   };
 
-  const [valor, setValor] = useState(null);
+  const generarFecha = () => {
+    if (valor !== null) {
+      switch (superior) {
+        case "year":
+          return new Date(valor, 0, 1);
+
+        case "mes":
+          const selectedData = resoluciones.find(
+            (item) => item.fecha === valor
+          );
+          return selectedData ? selectedData.full : null;
+        case "day":
+          // Si el caso "day" es relevante, implementa la lógica aquí
+          setValor(null);
+          break;
+        default:
+          break;
+      }
+    }
+    return null;
+  };
+
+  const reducirFecha = () => {
+    switch (superior) {
+      case "year":
+        console.log("limite superior");
+        break;
+      case "mes":
+        var minDate = resoluciones.map((item) => item.full)[0];
+        setSuperior(null);
+        setValor(minDate);
+
+        break;
+      case "day":
+        var minDate = resoluciones.map((item) => item.fecha)[0];
+        setSuperior("year");
+        setValor(minDate.split("-")[0]);
+
+        break;
+      default:
+        break;
+    }
+  };
+  const endpoint = process.env.REACT_APP_BACKEND;
+  const getEstadisticas = async () => {
+    try {
+      setResoluciones([]);
+      const response = await axios.get(
+        `${endpoint}/magistrado-estadisticas/${id}`,
+        {
+          params: {
+            superior: superior,
+            dato: generarFecha(),
+          },
+        }
+      );
+      setResoluciones(response.data.data);
+      setSuperior(response.data.siguiente);
+    } catch (error) {
+      console.error("Error al realizar la solicitud:", error);
+    }
+  };
 
   useEffect(() => {
-    if (valor) {
+    console.log(valor);
+    if (superior == "day") {
+      setValor(null);
+    }
+    if (valor && superior !== "day") {
       console.log(valor);
-      const endpoint = process.env.REACT_APP_BACKEND;
-      const getEstadisticas = async () => {
-        try {
-          const response = await axios.get(
-            `${endpoint}/magistrado-estadisticas/3`
-          );
-          setResoluciones(response.data.data);
-        } catch (error) {
-          console.error("Error al realizar la solicitud:", error);
-        }
-      };
       getEstadisticas();
     }
   }, [valor]);
@@ -204,7 +273,10 @@ const EstadisticasMagistrado = ({ id }) => {
               </div>
               <div className="flex-grow flex justify-center items-center">
                 {" "}
-                <FaMinus className="cursor-pointer" />
+                <FaMinus
+                  className="cursor-pointer"
+                  onClick={() => reducirFecha()}
+                />
               </div>
             </div>
           </div>
