@@ -57,3 +57,6 @@ Route::get('/obtener-filtradores', [ResolutionController::class, 'obtenerFiltrad
 
 Route::get('/obtener-estadisticas-res', [ResolutionController::class, 'obtenerEstadisticasRes'])->name('obtener-filtradores');
 
+Route::get('/obtener-coautores/{id}', [MagistradosController::class, 'obtenerCoAutores'])->name('obtener-coautores');
+
+

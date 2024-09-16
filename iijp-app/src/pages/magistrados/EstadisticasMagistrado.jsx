@@ -34,7 +34,7 @@ const EstadisticasMagistrado = ({ id }) => {
         setLeyenda(response.data.magistrado);
         setResoluciones(response.data.data);
         setSuperior(response.data.siguiente);
-        setDepartamentos(response.data.data.departamentos);
+        setDepartamentos(response.data.departamentos);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
       }

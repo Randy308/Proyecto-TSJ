@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Contents;
 use App\Models\Magistrados;
 use App\Models\Resolutions;
 use Illuminate\Http\Request;
@@ -30,13 +31,40 @@ class MagistradosController extends Controller
         $magistrado = Magistrados::where("id", $id)->first();
         return $magistrado;
     }
-    public function obtenerCoAutores()
+    public function obtenerCoAutores($id)
     {
+        $magistrado = Magistrados::where('id', $id)->first();
 
-        $variable = "select c.id,substring(c.contenido , 'Firmado.+|Firmando.+|Reg[ií]strese.+[.]\r\n(.+)')
-from contents c
-where c.id < 2700 and c.id > 2000
-";
+        $query = DB::table('contents as c')
+            ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
+            ->select(DB::raw("substring(c.contenido from 'Firmado(.+)|Firmando(.+)|Reg[ií]strese.+[.]\r\n(.+)') as extracted_text"), 'r.id')
+            ->where("r.magistrado_id", $magistrado->id)->orderByDesc("r.fecha_emision")->limit(200)
+            ->get();
+
+        // Filtering the array
+        $result = array_filter($query->toArray(), function ($item) {
+
+            return strlen($item->extracted_text) > 0;
+        });
+        foreach ($result as $item) {
+
+            $item->array = explode("\r\n", $item->extracted_text);
+
+            $item->array = MagistradosController::reemplazarPatron($item->array, "/[mM].+[Rr][aA][dD][OoaA]\s?/");
+            $item->array = array_filter($item->array, function ($value) {
+                return !empty($value);
+            });
+            unset($item->extracted_text);
+        }
+
+
+        return response()->json($result);
+    }
+    public function reemplazarPatron($array , $pattern){
+        $array = array_map(function ($value) use ($pattern)  {
+            return preg_replace($pattern, '', $value);
+        }, $array);
+        return $array;
     }
     public function obtenerResoluciones(Request $request)
     {
