@@ -6,8 +6,7 @@ import "../../styles/styles_randy/magistradosTSJ.css";
 import EChart from "../analisis/EChart";
 import { variables } from "../../data/VariablesMagistradoItems";
 
-import { FaPlus } from "react-icons/fa";
-import { FaMinus } from "react-icons/fa";
+import { MdOutlineZoomOut } from "react-icons/md";
 import MagistradoChart from "./MagistradoChart";
 
 const EstadisticasMagistrado = ({ id }) => {
@@ -268,13 +267,10 @@ const EstadisticasMagistrado = ({ id }) => {
               className="flex flex-col bg-white gap-2 rounded-lg border"
               id="boton-navegar"
             >
+              
               <div className="flex-grow flex justify-center items-center">
-                <FaPlus className="cursor-pointer" />
-              </div>
-              <div className="flex-grow flex justify-center items-center">
-                {" "}
-                <FaMinus
-                  className="cursor-pointer"
+                <MdOutlineZoomOut
+                  className="cursor-pointer text-xl"
                   onClick={() => reducirFecha()}
                 />
               </div>

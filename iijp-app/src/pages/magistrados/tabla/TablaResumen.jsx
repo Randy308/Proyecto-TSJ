@@ -1,24 +1,26 @@
 import React from "react";
 
+import "../../../styles/tabla.css";
+
 const TablaResumen = ({ data, total }) => {
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-[#DDD]">
-      <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-black uppercase bg-[#DDD] border-b">
+      <table id="tbody-res"  className="w-full text-sm text-left rtl:text-right">
+        <thead id="tabla-resoluciones" className="text-x uppercase border-b">
           <tr>
             <th scope="col" className="px-6 py-3">
               Cantidad de Resoluciones: <span className="titulo">{total}</span>
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody >
           {data.map((item, index) => (
             <tr
               key={index}
-              className="border-b border-gray-200 text-black bg-white"
+              className="border-b border-gray-200"
             >
               <div className="flex flex-col gap-4 p-4">
-                <div className="flex flex-row gap-4 justify-between text-gray-500">
+                <div className="flex flex-row gap-4 justify-between">
                   <div >{item.fecha_emision}</div>
                   <div>{item.nro_resolucion}</div>
                 </div>

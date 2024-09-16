@@ -85,7 +85,7 @@ class ResolutionController extends Controller
 
 
         $cantidades = $query->pluck('cantidad')->toArray();
-        
+
         $min = min($cantidades);
         $max = max($cantidades);
         $total = array_sum($cantidades);
@@ -101,7 +101,7 @@ class ResolutionController extends Controller
         $yearMin = $query->firstWhere('cantidad', $min)->year;
         $yearMax = $query->firstWhere('cantidad', $max)->year;
 
-
+        
         $data = [
             'data' => $query,
             'estadisticas' => [

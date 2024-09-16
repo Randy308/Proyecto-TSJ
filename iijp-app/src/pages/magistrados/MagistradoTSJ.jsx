@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import Loading from "../../components/Loading";
-import LineChart from "../analisis/LineChart";
 import { IoIosPerson } from "react-icons/io";
 import "../../styles/styles_randy/magistradosTSJ.css";
-import EChart from "../analisis/EChart";
 import EstadisticasMagistrado from "./EstadisticasMagistrado";
 
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
-import "react-tabs/style/react-tabs.css";
+
+import "../../styles/tabs.css";
 import ResumenMagistrado from "./ResumenMagistrado";
 
 const MagistradoTSJ = () => {

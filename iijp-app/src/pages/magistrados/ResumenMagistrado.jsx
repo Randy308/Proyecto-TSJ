@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import { HiDotsHorizontal } from "react-icons/hi";
 import TablaResumen from "./tabla/TablaResumen";
+import "../../styles/paginate.css";
 const ResumenMagistrado = ({ id, magistrado }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -54,9 +56,9 @@ const ResumenMagistrado = ({ id, magistrado }) => {
         {resoluciones.length > 0 && <TablaResumen data={resoluciones} total={totalRes} />}
         <div>
           <ReactPaginate
-            breakLabel={<span className="mr-4">...</span>}
+            breakLabel={<span className="mr-4 w-10 h-10 flex items-center justify-center pagina rounded-md"><HiDotsHorizontal /></span>}
             nextLabel={
-              <span className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-md">
+              <span className="w-10 h-10 flex items-center justify-center pagina rounded-md">
                 <BsChevronRight />
               </span>
             }
@@ -64,14 +66,14 @@ const ResumenMagistrado = ({ id, magistrado }) => {
             pageRangeDisplayed={5}
             pageCount={pageCount}
             previousLabel={
-              <span className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-md mr-4">
+              <span className="w-10 h-10 flex items-center justify-center pagina rounded-md mr-4">
                 <BsChevronLeft />
               </span>
             }
             containerClassName="flex items-center justify-center mt-8 mb-4 gap-2"
-            pageClassName="block border border-solid w-10 h-10 flex items-center justify-center 
-                  rounded-md mr-4 hover:bg-slate-100"
-            activeClassName="bg-[#450920] text-white"
+            pageClassName="block w-10 h-10 flex items-center justify-center 
+                  rounded-md mr-4 pagina"
+            activeClassName="pagina-activa"
             renderOnZeroPageCount={null}
           />
         </div>

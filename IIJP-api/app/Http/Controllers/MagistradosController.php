@@ -30,6 +30,14 @@ class MagistradosController extends Controller
         $magistrado = Magistrados::where("id", $id)->first();
         return $magistrado;
     }
+    public function obtenerCoAutores()
+    {
+
+        $variable = "select c.id,substring(c.contenido , 'Firmado.+|Firmando.+|Reg[ií]strese.+[.]\r\n(.+)')
+from contents c
+where c.id < 2700 and c.id > 2000
+";
+    }
     public function obtenerResoluciones(Request $request)
     {
         $id = $request["id"];
