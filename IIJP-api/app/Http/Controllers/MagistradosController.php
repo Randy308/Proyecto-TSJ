@@ -37,8 +37,8 @@ class MagistradosController extends Controller
 
         $query = DB::table('contents as c')
             ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
-            ->select(DB::raw("substring(c.contenido from 'Firmado(.+)|Firmando(.+)|Reg[ií]strese.+[.]\r\n(.+)') as extracted_text"), 'r.id')
-            ->where("r.magistrado_id", $magistrado->id)->orderByDesc("r.fecha_emision")->limit(200)
+            ->select(DB::raw("substring(c.contenido from 'Reg[ií]strese.+') as extracted_text"), 'r.id')
+            ->where("r.magistrado_id", $magistrado->id)->orderByDesc("r.fecha_emision")->limit(150)
             ->get();
 
         // Filtering the array
@@ -49,14 +49,25 @@ class MagistradosController extends Controller
         foreach ($result as $item) {
 
             $item->array = explode("\r\n", $item->extracted_text);
+            array_shift( $item->array);
 
+            $item->array = MagistradosController::reemplazarPatron($item->array, "/[Ff][Ii][Rr][Mm][Aa][Nn]?[Dd][Oo][:]?\s?/");
+            $item->array = MagistradosController::reemplazarPatron($item->array, "/[Rr]elator[a]?[:]?\s?/");
             $item->array = MagistradosController::reemplazarPatron($item->array, "/[mM].+[Rr][aA][dD][OoaA]\s?/");
+            $item->array = MagistradosController::reemplazarPatron($item->array, "/Mgdo\.?\s?Dr\.?|Mgda\.?\s?Dra\.?|Mgdo\.?\s?|Mgda\.?\s?/");
             $item->array = array_filter($item->array, function ($value) {
                 return !empty($value);
             });
+            $item->array = array_values($item->array);
             unset($item->extracted_text);
         }
 
+        $result = array_filter($result, function ($item) {
+
+            return count($item->array) > 0;
+        });
+
+        $result = array_values($result);
 
         return response()->json($result);
     }
