@@ -53,12 +53,18 @@ class MagistradosController extends Controller
 
             $item->array = MagistradosController::reemplazarPatron($item->array, "/[Ff][Ii][Rr][Mm][Aa][Nn]?[Dd][Oo][:]?\s?/");
             $item->array = MagistradosController::reemplazarPatron($item->array, "/[Rr]elator[a]?[:]?\s?/");
-            $item->array = MagistradosController::reemplazarPatron($item->array, "/[mM].+[Rr][aA][dD][OoaA]\s?/");
+            $item->array = MagistradosController::reemplazarPatron($item->array, "/[mM].+[Rr][aA][dD][OoaA]\s?[:]?\s?/");
+            $item->array = MagistradosController::reemplazarPatron($item->array, "/[Pp].+[Dd][eE][Nn][Tt][EeaA][:]?\s?/");
+
+            $item->array = MagistradosController::reemplazarPatron($item->array, "/(?i)\bante mi\s*:\s+/");
             $item->array = MagistradosController::reemplazarPatron($item->array, "/Mgdo\.?\s?Dr\.?|Mgda\.?\s?Dra\.?|Mgdo\.?\s?|Mgda\.?\s?/");
             $item->array = array_filter($item->array, function ($value) {
                 return !empty($value);
             });
+            $item->array = array_map('trim',  $item->array);
             $item->array = array_values($item->array);
+
+
             unset($item->extracted_text);
         }
 
