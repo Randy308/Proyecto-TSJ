@@ -36,9 +36,11 @@ div#parent-container.dark-theme .titulo,
 div#parent-container.dark-theme .subtitulo {
   color: white;
 }
+
 html:has(div#parent-container.dark-theme) {
   background-color: #242e42;
 }
+
 .roboto-thin {
   font-family: "Roboto", sans-serif;
   font-weight: 100;
@@ -111,14 +113,28 @@ html:has(div#parent-container.dark-theme) {
   font-style: italic;
 }
 select[multiple] {
-  background:none;
-  width:auto;
-  height:auto;
-  padding:0;
-  margin:0;
+  background: none;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
   border-width: 2px;
   border-style: inset;
   -moz-appearance: menulist;
   -webkit-appearance: menulist;
   appearance: menulist;
+}
+
+.loader {
+  width: 60px;
+  aspect-ratio: 4;
+  background: radial-gradient(circle closest-side, #000 90%, #0000) 0 /
+    calc(100% / 3) 100% space;
+  clip-path: inset(0 100% 0 0);
+  animation: l1 1s steps(4) infinite;
+}
+@keyframes l1 {
+  to {
+    clip-path: inset(0 -34% 0 0);
+  }
 }

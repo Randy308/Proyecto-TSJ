@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "../../components/Loading";
 import "../../styles/styles_randy/cronologia-jurisprudencia.css";
+import { FaHouse } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 const endpoint = process.env.REACT_APP_BACKEND;
 const ShowTemas = () => {
@@ -65,19 +66,28 @@ const ShowTemas = () => {
       console.error("Error al realizar la solicitud:", error);
     }
   };
-  const eliminarNodo = (tema) => {
-    const index = arbol.indexOf(tema);
-    const nuevoArbol = arbol.slice(0, index);
-    console.log(nuevoArbol);
-    setArbol(nuevoArbol);
-
-    if (nuevoArbol.length <= 0) {
-      getAllTemas();
-    } else {
-      var lastItem = nuevoArbol[nuevoArbol.length - 1];
-      getAllHijos(lastItem.id);
+  const eliminarNodo = (idBuscado) => {
+    if (currentSlide === 0) {
+      const indice = arbol.findIndex((elemento) => elemento.id === idBuscado);
+      const nuevoArbol = arbol.slice(0, indice + 1);
+      console.log(nuevoArbol);
+      setArbol(nuevoArbol);
     }
   };
+  const vaciarNodo = () => {
+    if(currentSlide === 0){
+      setArbol([]);
+    }
+  }
+
+  useEffect(() => {
+    if (arbol.length <= 0) {
+      getAllTemas();
+    } else {
+      var lastItem = arbol[arbol.length - 1];
+      getAllHijos(lastItem.id);
+    }
+  }, [arbol]);
 
   const obtenerCronologia = async (e) => {
     e.preventDefault();
@@ -208,15 +218,23 @@ const ShowTemas = () => {
           <p className="text-bold text-3xl text-center my-4 titulo">
             Seleccione Materia
           </p>
-          <div className="flex flex-row gap-1 flex-wrap arrow-steps clearfix my-4">
-            {arbol.map((tema, index) => (
+          <div className="flex flex-row gap-1 flex-wrap arrow-steps my-4">
+            <div
+              className={`step custom:text-xs roboto-medium`}
+              key={0}
+              id={0}
+              onClick={() => vaciarNodo()}
+            >
+              <FaHouse></FaHouse>
+            </div>
+            {arbol.map((tema) => (
               <div
                 className={`step custom:text-xs roboto-medium ${
                   tema.id === arbol[arbol.length - 1].id ? "current" : ""
                 }`}
                 key={tema.id}
                 id={tema.id}
-                onClick={() => eliminarNodo(tema)}
+                onClick={() => eliminarNodo(tema.id)}
               >
                 {tema.nombre}
               </div>

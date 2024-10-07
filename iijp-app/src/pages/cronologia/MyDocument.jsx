@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   },
   descriptor0: {
     fontFamily: "OpenSans",
-    fontWeight: "normal",
+    fontWeight: "bold",
     fontSize: 37,
     textAlign: "center",
   },
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   ratio: {
     fontWeight: "normal",
-    fontSize: 12,
+    fontSize: 11,
   },
   resolution: {
     fontWeight: "normal",
