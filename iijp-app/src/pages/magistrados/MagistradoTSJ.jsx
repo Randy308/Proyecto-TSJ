@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { IoIosPerson } from "react-icons/io";
@@ -20,13 +20,22 @@ const MagistradoTSJ = () => {
         const response = await axios.get(
           `${endpoint}/obtener-datos-magistrado/${id}`
         );
-        setMagistrado(response.data.name)
+        setMagistrado(response.data.name);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
       }
     };
     getEstadisticas();
   }, [id]);
+  const [renderedPanels, setRenderedPanels] = useState([0]);
+
+  const onSelect = useCallback((index) => {
+    setRenderedPanels((renderedPanels) =>
+      renderedPanels.includes(index)
+        ? renderedPanels
+        : renderedPanels.concat(index)
+    );
+  }, []);
 
   return (
     <div className="p-4 m-4 magistrado-contenedor">
@@ -39,16 +48,16 @@ const MagistradoTSJ = () => {
           <h1 className="nombre-magistrado titulo">{magistrado}</h1>
         </div>
       </div>
-      <Tabs>
+      <Tabs onSelect={onSelect}>
         <TabList>
           <Tab>Resumen</Tab>
           <Tab>Estadísticas</Tab>
         </TabList>
 
-        <TabPanel>
-          <ResumenMagistrado id={id} name={magistrado}></ResumenMagistrado>
+        <TabPanel forceRender={renderedPanels.includes(0)}>
+          <ResumenMagistrado id={id}></ResumenMagistrado>
         </TabPanel>
-        <TabPanel>
+        <TabPanel forceRender={renderedPanels.includes(1)}>
           <EstadisticasMagistrado id={id}></EstadisticasMagistrado>
         </TabPanel>
       </Tabs>

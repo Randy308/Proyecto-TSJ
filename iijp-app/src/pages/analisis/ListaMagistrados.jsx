@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "../../styles/styles_randy/analisis-magistrados.css";
 import { useNavigate } from "react-router-dom";
 
-const AnalisisMagistrados = () => {
+const ListaMagistrados = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
   const [activo, setActivo] = useState(null);
   const navigate = useNavigate();
@@ -47,25 +47,11 @@ const AnalisisMagistrados = () => {
       <div className="grid grid-cols-4 custom:grid-cols-2">
         {magistrados.map((item) => {
           return (
-            /* <div className="card" key={item.id}>
-              <input
-                type="radio"
-                value={item.nombre}
-                name="magistrado"
-                id={item.nombre}
-                checked={selectedMagistrado === item.id}
-                onChange={() => cambiarMagistrado(item)}
-              />
-              <label htmlFor={item.nombre}>
-                <h5>{item.nombre}</h5>
-              </label>
-            </div> */
             <div
               key={item.id}
               className="bg-blue-500 hover:bg-blue-700 p-4 m-4 cursor-pointer text-white rounded-lg text-center flex items-center justify-center"
               onClick={() => navegar(item.id)}
             >
-              
               {item.nombre}
             </div>
           );
@@ -75,4 +61,4 @@ const AnalisisMagistrados = () => {
   );
 };
 
-export default AnalisisMagistrados;
+export default ListaMagistrados;

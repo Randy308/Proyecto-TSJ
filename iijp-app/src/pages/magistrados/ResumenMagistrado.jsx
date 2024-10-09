@@ -5,7 +5,7 @@ import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import { HiDotsHorizontal } from "react-icons/hi";
 import TablaResumen from "./tabla/TablaResumen";
 import "../../styles/paginate.css";
-const ResumenMagistrado = ({ id, magistrado }) => {
+const ResumenMagistrado = ({ id }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState([]);

@@ -20,7 +20,7 @@ const JurisprudenciaLista = () => {
       title: "Análisis por Magistrados",
       descripcion:
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
-      path: "/Jurisprudencia/Analisis-Magistrados",
+      path: "/Jurisprudencia/Lista-Magistrados",
       cName: "tool-item",
       icon: <GrDocumentUser className="h-8 w-8" />,
     },
@@ -45,7 +45,7 @@ const JurisprudenciaLista = () => {
       setJurisprudencia(
         response.data.Jurisprudencia.map((item) => item.cantidad)
       );
-      setAutos(response.data.Auto_Supremos.map((item) => item.cantidad));
+      setAutos(response.data["Auto supremos"].map((item) => item.cantidad));
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
     }
@@ -109,7 +109,7 @@ const JurisprudenciaLista = () => {
     ],
     series: [
       {
-        name: "Auto_Supremos",
+        name: "Auto supremos",
         type: "bar",
         tooltip: {
           valueFormatter: (value) => `${value}`,
@@ -149,14 +149,14 @@ const JurisprudenciaLista = () => {
           Historico de Resoluciones
         </span>
       </div>
-      <div style={styles.pages} className="p-4 m-4 w-3/6 custom:w-full">
+      <div style={styles.pages} className="p-4 m-4 mb-0 pb-0 w-3/6 custom:w-full">
         {resoluciones && resoluciones.length > 0 ? (
           <LineChart option={option} setData={setValor}></LineChart>
         ) : (
           <Loading></Loading>
         )}
       </div>
-      <div className="flex p-4 m-4 flex-col w-4/5 gap-2">
+      <div className="flex p-4 m-4 mt-0 pt-0 flex-col w-4/5 gap-2">
         <div className="flex flex-row gap-2 items-center justify-center ">
           {jurisprudenciaItems.map((item) => (
             <Link to={item.path} key={item.id}>

@@ -42,7 +42,7 @@ class ResolutionController extends Controller
             ->whereNull("r.descriptor")
             ->whereNull("r.restrictor")
             ->whereNull("r.precedente")
-            ->whereNull('tc.resolution_id') // Filtra resoluciones que no tienen asociación en temas_complementarios
+            ->whereNull('tc.resolution_id')
             ->groupBy("year")
             ->orderBy("year")
             ->get();
@@ -50,7 +50,7 @@ class ResolutionController extends Controller
 
         return response()->json([
             'Todos' => $all_res,
-            'Auto_Supremos' => $all_auto_supremos,
+            'Auto supremos' => $all_auto_supremos,
             'Jurisprudencia' => $all_jurisprudencia,
         ]);
     }
@@ -101,7 +101,7 @@ class ResolutionController extends Controller
         $yearMin = $query->firstWhere('cantidad', $min)->year;
         $yearMax = $query->firstWhere('cantidad', $max)->year;
 
-        
+
         $data = [
             'data' => $query,
             'estadisticas' => [

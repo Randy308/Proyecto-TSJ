@@ -14,7 +14,7 @@ import ResolucionTSJ from "./pages/resoluciones/ResolucionTSJ";
 import CronologiasResultados from "./pages/cronologia/CronologiasResultados";
 import { useLocation } from 'react-router-dom';
 import JurisprudenciaLista from "./pages/analisis/JurisprudenciaLista";
-import AnalisisMagistrados from "./pages/analisis/AnalisisMagistrados";
+import ListaMagistrados from "./pages/analisis/ListaMagistrados";
 import MagistradoTSJ from "./pages/magistrados/MagistradoTSJ";
 import Principal from "./pages/analisis/resoluciones/Principal";
 function App() {
@@ -42,7 +42,7 @@ function App() {
           <Route path="/Novedades" element={<Novedades />} />
           <Route path="/Jurisprudencia" element={<Jurisprudencia />} />
           <Route path="/Jurisprudencia/Analisis-Materia" element={<AnalisisMateria />} />
-          <Route path="/Jurisprudencia/Analisis-Magistrados" element={<AnalisisMagistrados />} />
+          <Route path="/Jurisprudencia/Lista-Magistrados" element={<ListaMagistrados />} />
           <Route path="/Jurisprudencia/Lista-de-analisis" element={<JurisprudenciaLista />} />
           <Route path="/Jurisprudencia/Resultados" element={<ResultadoAnalisis />} />
           <Route path="/Jurisprudencia/Busqueda" element={<JurisprudenciaBusqueda />} />
