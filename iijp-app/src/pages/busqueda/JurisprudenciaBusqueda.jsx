@@ -7,7 +7,7 @@ import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import PaginationData from "./PaginationData";
 import { TbMathFunction } from "react-icons/tb";
-
+import { CiSearch } from "react-icons/ci";
 const JurisprudenciaBusqueda = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -20,7 +20,6 @@ const JurisprudenciaBusqueda = () => {
 
   useEffect(() => {
     getParams();
-    console.log(process.env.REACT_APP_BACKEND);
   }, []);
 
   const getParams = async () => {
@@ -127,21 +126,24 @@ const JurisprudenciaBusqueda = () => {
     >
       <div className="row p-4">
         <p className="m-4 p-4 text-center font-bold text-2xl">
-          Analisis de Jurisprudencia Avanzada
+          Análisis de Jurisprudencia Avanzada
         </p>
-        <div className="flex flex-col">
-          <div className="bg-[#450920] p-4 text-white font-bold rounded-t-lg">
-            <p>Campos de filtrado</p>
+        <div className="flex flex-col bg-white rounded-lg border border-slate-400">
+          <div className="bg-[#450920] p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
+            <FaFilter></FaFilter> <p>Campos de filtrado</p>
           </div>
-          <div className="p-4 m-4 custom:m-0 rounded-b-lg flex flex-row" >
-            <div className="p-2 flex justify-center items-center">
+          <div className="p-4 m-4 custom:m-0 rounded-b-lg flex flex-row flex-wrap ">
+            <div className="p-2 flex justify-center items-center border border-black border-r-0 rounded-l-lg">
               <TbMathFunction></TbMathFunction>
             </div>
-            <select>
-              <option>Hola mundo</option>
-            </select>
+            <div className="flex border border-black border-r-0">
+              <select>
+                <option disabled>Variable</option>
+                <option>Hola mundo</option>
+              </select>
+            </div>
 
-            <div className="flex-grow flex input-group-append border border-slate-500">
+            <div className="flex-grow flex input-group-append border rounded-lg rounded-l-none border-slate-500">
               <input
                 id="search-bar"
                 type="text"

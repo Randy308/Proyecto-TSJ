@@ -131,7 +131,31 @@ nav ul li.submenu a:not(.active):hover {
 }
 
 
-/* HTML: <div class="loader"></div> */
+#lista-ajustes{
+  visibility: hidden;
+  position: absolute;
+  border-radius: 5px 0 5px 5px;
+}
+
+#lista-ajustes.show{  
+  visibility: visible;
+  background-color: #eaf8bf;
+  color: #450920;
+  width: auto;
+  padding: 10px;
+}
+
+#lista-ajustes::after {
+  content: "";
+  position: absolute;
+  top: -10px; /* Positioning the arrow above the dropdown */
+  left: calc(100% - 10px) ; /* Adjust this to align the arrow */
+  border-width: 10px 10px 0 0;
+  border-style: solid;
+  border-color:  transparent #eaf8bf transparent transparent; /* Creates a downward-facing arrow */
+}
+
+
 
 
 @media (max-width: 720px) {

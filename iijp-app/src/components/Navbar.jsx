@@ -1,15 +1,39 @@
 import { FaBars, FaTimes } from "react-icons/fa";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { IoSunny } from "react-icons/io5";
 import { FaMoon } from "react-icons/fa";
+import { FaGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
 import { useToggleContext, useThemeContext } from "./ThemeProvider";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const isDark = useThemeContext();
+  const ajustesRef = useRef(null);
+  const listaRef = useRef(null);
   const cambiarTema = useToggleContext();
+
+  const actualizarAjustes = () => {
+    setSettingsOpen((prevState) => !prevState);
+    handleShowList();
+  };
+
+  const handleShowList = () => {
+    if (ajustesRef.current && listaRef.current) {
+      const rect = ajustesRef.current.getBoundingClientRect();
+      const listaHeight = ajustesRef.current.offsetHeight;
+      const listaWidth = listaRef.current.offsetWidth;
+      listaRef.current.style.top = `${rect.bottom + listaHeight + 10}px`;
+      listaRef.current.style.left = `${rect.left - listaWidth -10 }px`;
+    }
+  };
+
+    useEffect(() => {
+      handleShowList();
+    }, [])
+    
   return (
     <header>
       <nav>
@@ -64,6 +88,22 @@ function Navbar() {
             />
             <FaMoon className={["text-lg", isDark ? "" : "hidden"].join(" ")} />
           </button>
+        </div>
+        <div className="p-2 m-2 hover:bg-white hover:text-black rounded-lg">
+          <a ref={ajustesRef} onClick={() => actualizarAjustes(true)}>
+            <FaGear></FaGear>
+          </a>
+          <div
+            ref={listaRef}
+            id="lista-ajustes"
+            className={settingsOpen ? "show" : ""}
+          >
+            <ul className="flex flex-col">
+              <li>Hola mundo</li>
+              <li>Hola mundo</li>
+              <li>Hola mundo</li>
+            </ul>
+          </div>
         </div>
       </nav>
     </header>
