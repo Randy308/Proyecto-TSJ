@@ -156,7 +156,7 @@ const JurisprudenciaLista = () => {
           <Loading></Loading>
         )}
       </div>
-      <div className="flex p-4 m-4 mt-0 pt-0 flex-col w-4/5 gap-2">
+      <div className="flex p-2 m-2 flex-col w-4/5 gap-2">
         <div className="flex flex-row gap-2 items-center justify-center ">
           {jurisprudenciaItems.map((item) => (
             <Link to={item.path} key={item.id}>

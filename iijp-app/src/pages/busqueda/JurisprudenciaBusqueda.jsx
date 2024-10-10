@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
-//import 'bootstrap/dist/css/bootstrap.css';
+
 import axios from "axios";
 import ReactPaginate from "react-paginate";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import PaginationData from "./PaginationData";
+import { TbMathFunction } from "react-icons/tb";
 
 const JurisprudenciaBusqueda = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
@@ -16,7 +17,7 @@ const JurisprudenciaBusqueda = () => {
   const [salas, setSalas] = useState([]);
   const [departamentos, setDepartamentos] = useState([]);
   const [resoluciones, setResoluciones] = useState([]);
-  
+
   useEffect(() => {
     getParams();
     console.log(process.env.REACT_APP_BACKEND);
@@ -35,12 +36,11 @@ const JurisprudenciaBusqueda = () => {
   const [selectedDepartamento, setSelectedDepartamento] = useState("todos");
   const [texto, setTexto] = useState("");
   const [selectedSala, setSelectedSala] = useState("todas");
-  const [orden , setOrden] = useState("Recientes");
-  const [fechaExacta , setFechaExacta] = useState("");
-  const [fechaDesde , setFechaDesde] = useState("");
-  const [fechaHasta , setFechaHasta] = useState("");
+  const [orden, setOrden] = useState("Recientes");
+  const [fechaExacta, setFechaExacta] = useState("");
+  const [fechaDesde, setFechaDesde] = useState("");
+  const [fechaHasta, setFechaHasta] = useState("");
   const [pageCount, setPageCount] = useState(1);
-  
 
   const cambiarSala = (event) => {
     setSelectedSala(event.target.value);
@@ -92,10 +92,10 @@ const JurisprudenciaBusqueda = () => {
           texto: texto,
           departamento: selectedDepartamento,
           selectedSala: selectedSala,
-          orden:orden,
+          orden: orden,
           fecha_exacta: fechaExacta,
           fecha_desde: fechaDesde,
-          fecha_hasta:fechaHasta,
+          fecha_hasta: fechaHasta,
           page: page,
         },
       });
@@ -127,22 +127,29 @@ const JurisprudenciaBusqueda = () => {
     >
       <div className="row p-4">
         <p className="m-4 p-4 text-center font-bold text-2xl">
-          Búsqueda de Jurisprudencia
+          Analisis de Jurisprudencia Avanzada
         </p>
-        <div className="flex flex-col bg-neutral-200">
+        <div className="flex flex-col">
           <div className="bg-[#450920] p-4 text-white font-bold rounded-t-lg">
-            <p>Campos de busqueda</p>
+            <p>Campos de filtrado</p>
           </div>
-          <div className="p-4 m-4 custom:m-0 rounded-b-lg" id="search-box">
-            <input
-              id="search-bar"
-              type="text"
-              value={texto}
-              onChange={actualizarInput}
-              className="form-control p-1 rounded-l-lg"
-              placeholder="Buscar..."
-            />
-            <div className="input-group-append">
+          <div className="p-4 m-4 custom:m-0 rounded-b-lg flex flex-row" >
+            <div className="p-2 flex justify-center items-center">
+              <TbMathFunction></TbMathFunction>
+            </div>
+            <select>
+              <option>Hola mundo</option>
+            </select>
+
+            <div className="flex-grow flex input-group-append border border-slate-500">
+              <input
+                id="search-bar"
+                type="text"
+                value={texto}
+                onChange={actualizarInput}
+                className="form-control p-1 rounded-l-lg rounded-t-lg rounded-b-lg flex-grow"
+                placeholder="Buscar..."
+              />
               <button
                 type="button"
                 id="BottonFiltrado"
@@ -161,7 +168,11 @@ const JurisprudenciaBusqueda = () => {
               <div className="row-select">
                 <div className="select-form">
                   <p>Ordenar por:</p>
-                  <select className="form-control" value={orden}  onChange={cambiarOrden}>
+                  <select
+                    className="form-control"
+                    value={orden}
+                    onChange={cambiarOrden}
+                  >
                     <option value="Recientes">Recientes</option>
                     <option value="Antiguos">Antiguos</option>
                   </select>
@@ -170,7 +181,7 @@ const JurisprudenciaBusqueda = () => {
                 <div className="select-form">
                   <p>Filtrar por Departamento:</p>
                   <select
-                  value={selectedDepartamento}
+                    value={selectedDepartamento}
                     className="form-control"
                     onChange={cambiarDepartamento}
                   >
@@ -185,7 +196,11 @@ const JurisprudenciaBusqueda = () => {
 
                 <div className="select-form">
                   <p>Filtrar por Sala:</p>
-                  <select className="form-control" onChange={cambiarSala} value={selectedSala}>
+                  <select
+                    className="form-control"
+                    onChange={cambiarSala}
+                    value={selectedSala}
+                  >
                     <option value="todas">Todas</option>
                     {salas.map((item, index) => (
                       <option value={item.nombre} key={index}>
@@ -198,17 +213,32 @@ const JurisprudenciaBusqueda = () => {
               <div className="row-select">
                 <div className="select-form">
                   <p>Fecha Exacta</p>
-                  <input value={fechaExacta} className="form-control" type="date" onChange={cambiarFechaExacta}></input>
+                  <input
+                    value={fechaExacta}
+                    className="form-control"
+                    type="date"
+                    onChange={cambiarFechaExacta}
+                  ></input>
                 </div>
 
                 <div className="select-form">
                   <p>Fecha Desde</p>
-                  <input value={fechaDesde}  className="form-control" type="date" onChange={cambiarFechaDesde}></input>
+                  <input
+                    value={fechaDesde}
+                    className="form-control"
+                    type="date"
+                    onChange={cambiarFechaDesde}
+                  ></input>
                 </div>
 
                 <div className="select-form">
                   <p>Fecha Hasta</p>
-                  <input value={fechaHasta}  className="form-control" type="date" onChange={cambiarFechaHasta}></input>
+                  <input
+                    value={fechaHasta}
+                    className="form-control"
+                    type="date"
+                    onChange={cambiarFechaHasta}
+                  ></input>
                 </div>
               </div>
             </div>
@@ -231,9 +261,7 @@ const JurisprudenciaBusqueda = () => {
       </div>
 
       <div className="row p-4">
-
-
-        {resoluciones.length > 0 && <PaginationData data={resoluciones}/>}
+        {resoluciones.length > 0 && <PaginationData data={resoluciones} />}
         <div>
           <ReactPaginate
             breakLabel={<span className="mr-4">...</span>}

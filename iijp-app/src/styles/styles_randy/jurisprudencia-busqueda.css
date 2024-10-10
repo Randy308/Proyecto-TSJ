@@ -62,11 +62,7 @@ body {
   color: white;
   text-align: center;
 }
-#jurisprudencia-busqueda #search-box {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: 1fr;
-}
+
 select.form-control {
   padding: 1rem;
   border-radius: 0.5rem;
