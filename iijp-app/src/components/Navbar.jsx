@@ -14,6 +14,13 @@ function Navbar() {
   const ajustesRef = useRef(null);
   const listaRef = useRef(null);
   const cambiarTema = useToggleContext();
+  const eventoBoton = () => {
+    cambiarTema(); 
+    setSettingsOpen(false);
+    if (window.innerWidth <= 720 && menuOpen) {
+      setMenuOpen(false)
+    }
+  };
 
   const actualizarAjustes = () => {
     setSettingsOpen((prevState) => !prevState);
@@ -25,15 +32,21 @@ function Navbar() {
       const rect = ajustesRef.current.getBoundingClientRect();
       const listaHeight = ajustesRef.current.offsetHeight;
       const listaWidth = listaRef.current.offsetWidth;
-      listaRef.current.style.top = `${rect.bottom + listaHeight + 10}px`;
-      listaRef.current.style.left = `${rect.left - listaWidth -10 }px`;
+  
+      if (window.innerWidth <= 720) {
+        listaRef.current.style.top = `auto`; 
+        listaRef.current.style.left = `auto`; 
+      } else {
+        listaRef.current.style.top = `${rect.bottom + (listaHeight / 2)}px`;
+        listaRef.current.style.left = `${rect.left - (listaWidth/2)}px`;
+      }
     }
   };
 
-    useEffect(() => {
-      handleShowList();
-    }, [])
-    
+  useEffect(() => {
+    handleShowList();
+  }, []);
+
   return (
     <header>
       <nav>
@@ -78,30 +91,33 @@ function Navbar() {
             );
           })}
         </ul>
-        <div
-          id="settings"
-          className="p-2 hover:bg-white hover:text-black rounded-lg m-2"
-        >
-          <button onClick={cambiarTema} className="p-2">
-            <IoSunny
-              className={["text-lg", isDark ? "hidden" : ""].join(" ")}
-            />
-            <FaMoon className={["text-lg", isDark ? "" : "hidden"].join(" ")} />
-          </button>
-        </div>
-        <div className="p-2 m-2 hover:bg-white hover:text-black rounded-lg">
-          <a ref={ajustesRef} onClick={() => actualizarAjustes(true)}>
+        <div id="gear" className={`rounded-lg ${menuOpen ? "open" : ""}`}>
+          <button
+            id="boton-ajustes"
+            ref={ajustesRef}
+            className="flex items-center justify-center"
+            onClick={() => actualizarAjustes(true)}
+          >
             <FaGear></FaGear>
-          </a>
+          </button>
           <div
             ref={listaRef}
             id="lista-ajustes"
             className={settingsOpen ? "show" : ""}
           >
             <ul className="flex flex-col">
-              <li>Hola mundo</li>
-              <li>Hola mundo</li>
-              <li>Hola mundo</li>
+              <li>
+                <button onClick={(eventoBoton)} type="button" className="p-2 flex flex-row justify-between gap-4 w-full">
+                Tema
+                  <IoSunny
+                    className={["text-lg", isDark ? "hidden" : ""].join(" ")}
+                  />
+                  <FaMoon
+                    className={["text-lg", isDark ? "" : "hidden"].join(" ")}
+                  />
+                </button>
+              </li>
+              <li className="p-2">Ajustes</li>
             </ul>
           </div>
         </div>

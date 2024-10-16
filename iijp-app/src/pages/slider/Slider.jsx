@@ -40,7 +40,7 @@ const Slider = () => {
 
   return (
     <div className="slider">
-    <div className="arrow-container"></div>
+      
       <IoIosArrowBack className="arrow prev" onClick={prevSlide} />
       <IoIosArrowForward className="arrow next" onClick={nextSlide} />
       {sliderData.map((slide, index) => {
