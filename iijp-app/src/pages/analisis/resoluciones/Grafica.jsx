@@ -118,7 +118,7 @@ const Grafica = ({ content }) => {
   }, [valor]);
 
   return (
-    <div id="container-estadistica" className="w-full m-4 p-4 flex custom:flex-wrap">
+    <div id="container-estadistica" className="w-full m-4 p-4 flex custom:p-0 gap-4 justify-between custom:flex-wrap">
         <div className="grafica-contenedor">
           {data.length > 0 ? (
             <LineChart option={option} setData={setValor}/>
@@ -131,7 +131,7 @@ const Grafica = ({ content }) => {
         <div className="p-2 bg-gray-200 flex flex-col">
           <span className="text-center font-bold text-lg">Herramientas</span>
           <div className="p-2 flex flex-col gap-4">
-            <div className="flex flex-col gap-4 bg-white p-4 rounded-lg">
+            <div className="flex flex-col gap-4 bg-white p-4 custom:p-0 rounded-lg">
               <span className="text-center">Tipo de Gráfico</span>
               <div className="selector-graph">
                 <label>

@@ -139,9 +139,8 @@ const ShowTemas = () => {
   });
 
   useEffect(() => {
-    console.log(formData)
+    console.log(formData);
   }, [formData]);
-
 
   const [resultado, setResultado] = useState([]);
 
@@ -230,7 +229,7 @@ const ShowTemas = () => {
             currentSlide === 1 ? "current" : ""
           }`}
         >
-          <div className="bg-blue-100 p-4">
+          <div className="p-4">
             <div></div>
             {resultado != null > 0 ? (
               <InputEscenciales

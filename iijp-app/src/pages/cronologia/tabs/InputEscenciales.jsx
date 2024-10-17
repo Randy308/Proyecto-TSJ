@@ -1,6 +1,6 @@
 import React from "react";
 
-const InputEscenciales = ({ formData,setFormData, resultado }) => {
+const InputEscenciales = ({ formData, setFormData, resultado }) => {
   const cambiarFechaExacta = (e) => {
     setParametros("fecha_exacta", e.target.value);
     setParametros("fecha_desde", "");
@@ -16,7 +16,6 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
     setParametros("fecha_hasta", e.target.value);
   };
 
-
   const setParametros = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -24,26 +23,20 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
     }));
   };
 
-
-
-
-
   return (
     <div className="p-4">
       <div className="text-b font-bold text-lg text-center rounded-t-lg">
-        <p>Campos de Filtrado</p>
+        <p className="titulo">Campos de Filtrado</p>
       </div>
       <div className="p-4 m-4">
         <div className="grid grid-row-2 gap-4">
           <div className="row-select">
             <div className="select-form">
-              <p>Departamentos:</p>
+              <p className="titulo">Departamentos:</p>
               <select
                 value={formData.departamento}
                 className="form-control"
-                onChange={(e) =>
-                  setParametros("departamento", e.target.value)
-                }
+                onChange={(e) => setParametros("departamento", e.target.value)}
               >
                 <option value="todos">Todos</option>
                 {resultado.departamentos.map((item, index) => (
@@ -55,10 +48,12 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
             </div>
 
             <div className="select-form">
-              <p>Forma de Resolución</p>
+              <p className="titulo">Forma de Resolución</p>
               <select
                 className="form-control"
-                onChange={(e) => setParametros("forma_resolucion", e.target.value)}
+                onChange={(e) =>
+                  setParametros("forma_resolucion", e.target.value)
+                }
                 value={formData.forma_resolucion}
               >
                 <option value="todas">Todas</option>
@@ -70,10 +65,12 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
               </select>
             </div>
             <div className="select-form">
-              <p>Tipo de resoluciones</p>
+              <p className="titulo">Tipo de resoluciones</p>
               <select
                 className="form-control"
-                onChange={(e) => setParametros("tipo_resolucion", e.target.value)}
+                onChange={(e) =>
+                  setParametros("tipo_resolucion", e.target.value)
+                }
                 value={formData.tipo_resolucion}
               >
                 <option value="todas">Todas</option>
@@ -88,7 +85,7 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
 
           <div className="row-select">
             <div className="select-form">
-              <p>Fecha Exacta</p>
+              <p className="titulo">Fecha Exacta</p>
               <input
                 value={formData.fecha_exacta}
                 className="form-control"
@@ -98,7 +95,7 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
             </div>
 
             <div className="select-form">
-              <p>Fecha Desde</p>
+              <p className="titulo">Fecha Desde</p>
               <input
                 value={formData.fecha_desde}
                 className="form-control"
@@ -107,7 +104,7 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
               ></input>
             </div>
             <div className="select-form">
-              <p>Fecha Hasta</p>
+              <p className="titulo">Fecha Hasta</p>
               <input
                 value={formData.fecha_hasta}
                 className="form-control"
@@ -126,7 +123,7 @@ const InputEscenciales = ({ formData,setFormData, resultado }) => {
               step="1"
               onChange={(e) => setParametros("cantidad", e.target.value)}
             />
-            <p>
+            <p className="titulo">
               Cantidad: <output id="value">{formData.cantidad}</output>
             </p>
           </div>
