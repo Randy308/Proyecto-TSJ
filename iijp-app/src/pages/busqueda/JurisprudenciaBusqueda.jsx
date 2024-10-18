@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
-
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import PaginationData from "./PaginationData";
 import { TbMathFunction } from "react-icons/tb";
 import { CiSearch } from "react-icons/ci";
+import Paginate from "../../components/Paginate";
+import "../../styles/paginate.css";
 const JurisprudenciaBusqueda = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -136,20 +135,20 @@ const JurisprudenciaBusqueda = () => {
             <div className="p-2 flex justify-center items-center border border-black border-r-0 rounded-l-lg">
               <TbMathFunction></TbMathFunction>
             </div>
-            <div className="flex border border-black border-r-0">
+            <div className="flex border border-black border-r-0 max-lg:border-r max-lg:rounded-r-md max-lg:flex-grow">
               <select>
                 <option disabled>Variable</option>
-                <option>Hola mundo</option>
+                <option>contenido</option>
               </select>
             </div>
 
-            <div className="flex-grow flex input-group-append border rounded-lg rounded-l-none border-slate-500">
+            <div className="flex-grow flex input-group-append border rounded-lg rounded-l-none border-slate-500 custom:rounded-l-md">
               <input
                 id="search-bar"
                 type="text"
                 value={texto}
                 onChange={actualizarInput}
-                className="form-control p-1 rounded-l-lg rounded-t-lg rounded-b-lg flex-grow"
+                className="form-control p-3 rounded-l-lg rounded-t-lg rounded-b-lg flex-grow"
                 placeholder="Buscar..."
               />
               <button
@@ -171,7 +170,7 @@ const JurisprudenciaBusqueda = () => {
                 <div className="select-form">
                   <p>Ordenar por:</p>
                   <select
-                    className="form-control"
+                    className="form-control border border-gray-300"
                     value={orden}
                     onChange={cambiarOrden}
                   >
@@ -184,7 +183,7 @@ const JurisprudenciaBusqueda = () => {
                   <p>Filtrar por Departamento:</p>
                   <select
                     value={selectedDepartamento}
-                    className="form-control"
+                    className="form-control p-2 border border-gray-300"
                     onChange={cambiarDepartamento}
                   >
                     <option value="todos">Todos</option>
@@ -199,7 +198,7 @@ const JurisprudenciaBusqueda = () => {
                 <div className="select-form">
                   <p>Filtrar por Sala:</p>
                   <select
-                    className="form-control"
+                    className="form-control p-2 border border-gray-300"
                     onChange={cambiarSala}
                     value={selectedSala}
                   >
@@ -217,7 +216,7 @@ const JurisprudenciaBusqueda = () => {
                   <p>Fecha Exacta</p>
                   <input
                     value={fechaExacta}
-                    className="form-control"
+                    className="form-control p-2 border border-gray-300"
                     type="date"
                     onChange={cambiarFechaExacta}
                   ></input>
@@ -227,7 +226,7 @@ const JurisprudenciaBusqueda = () => {
                   <p>Fecha Desde</p>
                   <input
                     value={fechaDesde}
-                    className="form-control"
+                    className="form-control p-2 border border-gray-300"
                     type="date"
                     onChange={cambiarFechaDesde}
                   ></input>
@@ -237,7 +236,7 @@ const JurisprudenciaBusqueda = () => {
                   <p>Fecha Hasta</p>
                   <input
                     value={fechaHasta}
-                    className="form-control"
+                    className="form-control p-2 border border-gray-300"
                     type="date"
                     onChange={cambiarFechaHasta}
                   ></input>
@@ -264,29 +263,10 @@ const JurisprudenciaBusqueda = () => {
 
       <div className="row p-4">
         {resoluciones.length > 0 && <PaginationData data={resoluciones} />}
-        <div>
-          <ReactPaginate
-            breakLabel={<span className="mr-4">...</span>}
-            nextLabel={
-              <span className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-md">
-                <BsChevronRight />
-              </span>
-            }
-            onPageChange={handlePageClick}
-            pageRangeDisplayed={5}
-            pageCount={pageCount}
-            previousLabel={
-              <span className="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-md mr-4">
-                <BsChevronLeft />
-              </span>
-            }
-            containerClassName="flex items-center justify-center mt-8 mb-4 gap-2"
-            pageClassName="block border border-solid w-10 h-10 flex items-center justify-center 
-                rounded-md mr-4 hover:bg-slate-100"
-            activeClassName="bg-[#450920] text-white"
-            renderOnZeroPageCount={null}
-          />
-        </div>
+        <Paginate
+          handlePageClick={handlePageClick}
+          pageCount={pageCount}
+        ></Paginate>
       </div>
     </div>
   );

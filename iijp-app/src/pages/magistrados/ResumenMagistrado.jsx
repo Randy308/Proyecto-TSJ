@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import ReactPaginate from "react-paginate";
-import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
-import { HiDotsHorizontal } from "react-icons/hi";
 import TablaResumen from "./tabla/TablaResumen";
 import "../../styles/paginate.css";
+import Paginate from "../../components/Paginate";
 const ResumenMagistrado = ({ id }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState([]);
 
   const [lastPage, setLastPage] = useState(1);
-  const [totalRes ,setTotalRes] = useState(0);
+  const [totalRes, setTotalRes] = useState(0);
   useEffect(() => {
     obtenerResoluciones(1);
   }, []);
@@ -37,8 +35,7 @@ const ResumenMagistrado = ({ id }) => {
         setResoluciones(response.data.data);
         setLastPage(response.data.last_page);
         setPageCount(response.data.last_page);
-        setTotalRes(response.data.total)
-        console.log(response.data)
+        setTotalRes(response.data.total);
       } else {
         alert("No existen datos");
       }
@@ -53,30 +50,13 @@ const ResumenMagistrado = ({ id }) => {
       id="jurisprudencia-busqueda"
     >
       <div className="row p-4">
-        {resoluciones.length > 0 && <TablaResumen data={resoluciones} total={totalRes} />}
-        <div>
-          <ReactPaginate
-            breakLabel={<span className="mr-4 w-10 h-10 flex items-center justify-center pagina rounded-md"><HiDotsHorizontal /></span>}
-            nextLabel={
-              <span className="w-10 h-10 flex items-center justify-center pagina rounded-md">
-                <BsChevronRight />
-              </span>
-            }
-            onPageChange={handlePageClick}
-            pageRangeDisplayed={5}
-            pageCount={pageCount}
-            previousLabel={
-              <span className="w-10 h-10 flex items-center justify-center pagina rounded-md mr-4">
-                <BsChevronLeft />
-              </span>
-            }
-            containerClassName="flex items-center justify-center mt-8 mb-4 gap-2"
-            pageClassName="block w-10 h-10 flex items-center justify-center 
-                  rounded-md mr-4 pagina"
-            activeClassName="pagina-activa"
-            renderOnZeroPageCount={null}
-          />
-        </div>
+        {resoluciones.length > 0 && (
+          <TablaResumen data={resoluciones} total={totalRes} />
+        )}
+        <Paginate
+          handlePageClick={handlePageClick}
+          pageCount={pageCount}
+        ></Paginate>
       </div>
     </div>
   );

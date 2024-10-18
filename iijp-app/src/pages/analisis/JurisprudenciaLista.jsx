@@ -146,7 +146,7 @@ const JurisprudenciaLista = () => {
     <div className="lista-analisis flex flex-col items-center justify-center py-4 my-4">
       <div className="flex justify-center">
         <span className="font-bold text-center text-2xl titulo">
-          Historico de Resoluciones
+          Histórico de Resoluciones
         </span>
       </div>
       <div style={styles.pages} className="p-4 m-4 mb-0 pb-0 w-3/6 custom:w-full">

@@ -8,16 +8,43 @@ import {
   Link,
 } from "@react-pdf/renderer";
 import { Font } from "@react-pdf/renderer";
-import OpenSansRegular from "../../fonts/OpenSans-Regular.ttf";
-import OpenSansBold from "../../fonts/OpenSans-Bold.ttf";
-import OpenSansItalic from "../../fonts/OpenSans-Italic.ttf";
+
+import TimesNewRomanRegular from "../../fonts/times new roman.ttf";
+import TimesNewRomanBold from "../../fonts/times new roman bold.ttf";
+import TimesNewRomanItalic from "../../fonts/times new roman italic.ttf";
+
+import TrebuchetMSRegular from "../../fonts/trebuc.ttf";
+import TrebuchetMSBold from "../../fonts/trebucbd.ttf";
+import TrebuchetMSItalic from "../../fonts/trebucit.ttf";
+
+import CambriaRegular from "../../fonts/Cambriax.ttf";
+import CambriaBold from "../../fonts/Cambria Bold.ttf";
+import CambriaItalic from "../../fonts/Cambria Italic.ttf";
 
 Font.register({
-  family: "OpenSans",
+  family: "Times New Roman",
   fonts: [
-    { src: OpenSansRegular, fontWeight: 400 },
-    { src: OpenSansBold, fontWeight: 700 },
-    { src: OpenSansItalic, fontStyle: "italic" },
+    { src: TimesNewRomanRegular, fontWeight: 400 },
+    { src: TimesNewRomanBold, fontWeight: 700 },
+    { src: TimesNewRomanItalic, fontStyle: "italic" },
+  ],
+});
+
+Font.register({
+  family: "Trebuchet MS",
+  fonts: [
+    { src: TrebuchetMSRegular, fontWeight: 400 },
+    { src: TrebuchetMSBold, fontWeight: 700 },
+    { src: TrebuchetMSItalic, fontStyle: "italic" },
+  ],
+});
+
+Font.register({
+  family: "Cambria",
+  fonts: [
+    { src: CambriaRegular, fontWeight: 400 },
+    { src: CambriaBold, fontWeight: 700 },
+    { src: CambriaItalic, fontStyle: "italic" },
   ],
 });
 
@@ -43,73 +70,78 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   label: {
-    fontFamily: "OpenSans",
+    fontFamily: "Times New Roman",
     fontWeight: 700,
     fontSize: 13,
   },
   descriptor: {
-    fontFamily: "OpenSans",
+    fontFamily: "Cambria",
     fontStyle: "italic",
     fontWeight: "normal",
     fontSize: 15,
     padding: 4,
   },
   descriptor0: {
-    fontFamily: "OpenSans",
-    fontWeight: "bold",
-    fontSize: 37,
+    fontFamily: "Cambria",
+    fontWeight: "normal",
+    fontSize: 26,
     textAlign: "center",
   },
   descriptor1: {
-    fontFamily: "OpenSans",
-    fontStyle: "italic",
+    fontFamily: "Cambria",
     fontWeight: "normal",
-    fontSize: 34,
+    fontSize: 22,
     textAlign: "center",
   },
   descriptor2: {
-    fontFamily: "OpenSans",
-    fontStyle: "italic",
+    fontFamily: "Trebuchet MS",
     fontWeight: "normal",
-    fontSize: 30,
+    fontSize: 16,
     marginLeft: 2,
+    paddingBottom: 5,
   },
   descriptor3: {
-    fontFamily: "OpenSans",
-    fontStyle: "italic",
-    fontWeight: "normal",
-    fontSize: 25,
-    marginLeft: 15,
-  },
-  descriptor4: {
-    fontFamily: "OpenSans",
-    fontStyle: "italic",
-    fontWeight: "normal",
-    fontSize: 20,
-    marginLeft: 30,
-  },
-  descriptor5: {
-    fontFamily: "OpenSans",
-    fontStyle: "italic",
+    fontFamily: "Trebuchet MS",
     fontWeight: "normal",
     fontSize: 15,
+    marginLeft: 15,
+    paddingBottom: 5,
+  },
+  descriptor4: {
+    fontFamily: "Trebuchet MS",
+    fontWeight: "normal",
+    fontSize: 14,
+    marginLeft: 30,
+    paddingBottom: 5,
+  },
+  descriptor5: {
+    fontFamily: "Trebuchet MS",
+    fontWeight: "normal",
+    fontSize: 13,
     marginLeft: 55,
+    paddingBottom: 5,
   },
   descriptor6: {
-    fontFamily: "OpenSans",
-    fontStyle: "italic",
+    fontFamily: "Trebuchet MS",
     fontWeight: "normal",
-    fontSize: 10,
+    fontSize: 12,
     marginLeft: 75,
+    paddingBottom: 5,
   },
   ratio: {
+    fontFamily: "Times New Roman",
     fontWeight: "normal",
-    fontSize: 11,
+    fontSize: 12,
+    marginTop: 10, 
+    textAlign: "justify",
   },
   resolution: {
+    fontFamily: "Times New Roman",
     fontWeight: "normal",
-    fontSize: 11,
-    paddingBottom: 10,
+    fontSize: 12,
+    paddingBottom: 15,
+    marginTop: 10, 
+    textAlign: "justify",
   },
   resolucion: {
     marginLeft: 75,
