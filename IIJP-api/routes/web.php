@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\ExcelController;
 use App\Http\Controllers\Api\TemaController;
 use App\Http\Controllers\TemasController;
 use Illuminate\Support\Facades\Route;
@@ -16,5 +17,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('prueba');
 });
+Route::post('/excel/upload', [ExcelController::class, 'upload'])->name('excel.upload');
