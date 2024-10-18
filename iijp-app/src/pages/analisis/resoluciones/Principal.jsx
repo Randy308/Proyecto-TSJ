@@ -139,7 +139,7 @@ const Principal = () => {
               >
                 {tipos && tipos.length > 0
                   ? tipos.map((item, index) => (
-                      <option key={index} value={item.id}>
+                      <option key={index} value={item.id} className="subtitulo">
                         {item.name}
                       </option>
                     ))
@@ -159,7 +159,7 @@ const Principal = () => {
               >
                 {salas && salas.length > 0
                   ? salas.map((item, index) => (
-                      <option key={index} value={item.id}>
+                      <option key={index} value={item.id} className="subtitulo">
                         {item.name}
                       </option>
                     ))
@@ -182,7 +182,7 @@ const Principal = () => {
                       <option
                         key={index}
                         value={item.id}
-                        className="custom:text-[0.7rem]"
+                        className="custom:text-[0.7rem] subtitulo"
                       >
                         {item.name}
                       </option>
@@ -203,7 +203,7 @@ const Principal = () => {
               >
                 {departamentos && departamentos.length > 0
                   ? departamentos.map((item, index) => (
-                      <option key={index} value={item.id}>
+                      <option key={index} value={item.id} className="subtitulo">
                         {item.name}
                       </option>
                     ))

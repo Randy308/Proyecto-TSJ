@@ -119,4 +119,10 @@ input[type="checkbox"] {
     height: 400px;
     width: 300px;
   }
+
+  .selector-graph {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
 }

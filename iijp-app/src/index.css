@@ -41,6 +41,27 @@ html:has(div#parent-container.dark-theme) {
   background-color: #242e42;
 }
 
+#herramientas-grafico {
+  background-color: rgb(239, 239, 239);
+}
+
+div#parent-container.dark-theme #herramientas-grafico {
+  background-color: #100c2a;
+}
+
+
+#herramientas-opciones,
+#herramientas-tipos {
+  background-color: white;
+
+}
+
+div#parent-container.dark-theme #herramientas-opciones,
+div#parent-container.dark-theme #herramientas-tipos {
+  background-color: #242e42;
+
+}
+
 .roboto-thin {
   font-family: "Roboto", sans-serif;
   font-weight: 100;

@@ -125,7 +125,7 @@ const JurisprudenciaBusqueda = () => {
       id="jurisprudencia-busqueda"
     >
       <div className="row p-4">
-        <p className="m-4 p-4 text-center font-bold text-2xl">
+        <p className="m-4 p-4 text-center font-bold text-2xl titulo">
           Análisis de Jurisprudencia Avanzada
         </p>
         <div className="flex flex-col bg-white rounded-lg border border-slate-400">

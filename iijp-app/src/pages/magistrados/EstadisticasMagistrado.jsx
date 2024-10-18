@@ -234,7 +234,7 @@ const EstadisticasMagistrado = ({ id }) => {
   return (
     <div>
       <div className="flex flex-row items-center justify-center">
-        <p>Seleccionar Variable :</p>
+        <p className="titulo">Seleccionar Variable :</p>
         <select
           name="variablesMagistrado"
           id="variablesMagistrado"
@@ -253,11 +253,11 @@ const EstadisticasMagistrado = ({ id }) => {
       </div>
       <div id="container-estadistica">
         <div
-          className={`p-2 m-2 flex flex-row flex-wrap gap-2 justify-center ${
+          className={`p-2 m-2 flex flex-row flex-wrap justify-around gap-4 custom:justify-center ${
             "primero" === activo ? "" : "hidden"
           }`}
         >
-          <div className="grafica-contenedor">
+          <div className="grafica-contenedor  rounded-md border border-gray-400 p-0.5">
             {data.length > 0 ? (
               <MagistradoChart option={option} setData={setValor} />
             ) : (
@@ -276,11 +276,11 @@ const EstadisticasMagistrado = ({ id }) => {
               </div>
             </div>
           </div>
-          <div className="p-2 m-2 bg-gray-200 flex flex-col">
-            <span className="text-center font-bold text-lg">Herramientas</span>
+          <div id="herramientas-grafico" className="p-2 m-2 flex flex-col rounded-md border border-gray-400">
+            <span className="text-center font-bold text-lg subtitulo">Herramientas</span>
             <div className="p-2 m-2 flex flex-col gap-4">
-              <div className="flex flex-col gap-4 bg-white p-4 rounded-lg">
-                <span className="text-center">Tipo de Gráfico</span>
+              <div id="herramientas-tipos"  className="flex flex-col gap-4 p-4 rounded-lg border border-slate-300">
+                <span className="text-center subtitulo">Tipo de Gráfico</span>
                 <div className="selector-graph">
                   <label>
                     <input
@@ -312,8 +312,8 @@ const EstadisticasMagistrado = ({ id }) => {
                 </div>
               </div>
               {chartType === "line" ? (
-                <div className="flex flex-col gap-4 bg-white p-4 rounded-lg">
-                  <span className="text-center">Opciones </span>
+                <div id="herramientas-opciones" className="flex flex-col gap-4 p-4 rounded-lg border border-slate-300">
+                  <span className="text-center subtitulo">Opciones </span>
                   <label className="switch">
                     <input
                       type="checkbox"
@@ -321,7 +321,7 @@ const EstadisticasMagistrado = ({ id }) => {
                       checked={suavizar}
                       onChange={cambiarSuavizar}
                     />
-                    <span className="round">Suavizar</span>
+                    <span className="round subtitulo">Suavizar</span>
                   </label>
                   <label className="switch">
                     <input
@@ -330,7 +330,7 @@ const EstadisticasMagistrado = ({ id }) => {
                       checked={area}
                       onChange={cambiarArea}
                     />
-                    <span className="round">Agregar area</span>
+                    <span className="round subtitulo">Agregar area</span>
                   </label>
                 </div>
               ) : (
