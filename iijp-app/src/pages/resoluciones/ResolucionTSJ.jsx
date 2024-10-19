@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { TiArrowBack } from "react-icons/ti";
+import styles  from "./ResolucionTSJ.module.css"
 const ResolucionTSJ = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -43,11 +44,11 @@ const ResolucionTSJ = () => {
             >
               {resolucion.contenido.split("\r\n").map((line, index) =>
                 line === line.toUpperCase() ? (
-                  <div className="text-center font-black" key={index}>
+                  <div className={`${styles.tinosBold} text-center`} key={index}>
                     {line}
                   </div>
                 ) : (
-                  <div key={index}>{line}</div>
+                  <div key={index} className={styles.tinosRegular}>{line}</div>
                 )
               )}
             </div>

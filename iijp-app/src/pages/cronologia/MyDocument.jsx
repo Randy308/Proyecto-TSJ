@@ -222,12 +222,6 @@ const MyDocument = ({ data }) => (
       </Text>
 
       <View style={styles.section}>
-        {/* {data.current.map((item, index) => (
-          <Text key={index} style={styles.titulo}>
-            {item}
-          </Text>
-        ))} */}
-
         {data ? (
           data.data.map((item, index) => (
             <View key={index} style={styles.row}>

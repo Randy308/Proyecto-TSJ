@@ -1,0 +1,29 @@
+@import url("https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+.tinosRegular {
+  font-family: "Tinos", serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 13pt;
+  text-align: justify;
+  text-justify: inter-word;
+}
+
+.tinosBold {
+  font-family: "Tinos", serif;
+  font-weight: 700;
+  font-size: 16pt;
+  font-style: normal;
+}
+
+.tinosRegularItalic {
+  font-family: "Tinos", serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.tinosBoldItalic {
+  font-family: "Tinos", serif;
+  font-weight: 700;
+  font-style: italic;
+}
