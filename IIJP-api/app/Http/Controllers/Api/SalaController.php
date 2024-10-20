@@ -19,7 +19,7 @@ class SalaController extends Controller
         ];
 
         try {
-            $resultado = Salas::orderBy('id')->get(["sala as nombre"]);
+            $resultado = Salas::orderBy('id')->get(["nombre"]);
             $salas = $resultado->toArray();
             array_unshift($salas, ['nombre' => 'Todas']);
             $data['salas'] = $salas;

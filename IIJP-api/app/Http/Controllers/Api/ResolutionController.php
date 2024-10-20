@@ -126,13 +126,13 @@ class ResolutionController extends Controller
     public function obtenerFiltradores()
     {
 
-        $departamentos = Departamentos::select('name', 'id')->get();
+        $departamentos = Departamentos::select('nombre as name', 'id')->get();
 
-        $forma = FormaResolucions::select('name', 'id')->get();
+        $forma = FormaResolucions::select('nombre as name', 'id')->get();
 
-        $salas = Salas::select('sala as name', 'id')->get();
+        $salas = Salas::select('nombre as name', 'id')->get();
 
-        $tipo = TipoResolucions::select('name', 'id')->get();
+        $tipo = TipoResolucions::select('nombre as name', 'id')->get();
 
 
         $data = [
@@ -159,10 +159,10 @@ class ResolutionController extends Controller
                     'r.nro_resolucion',
                     'r.nro_expediente',
                     'r.fecha_emision',
-                    'tr.name as tipo_resolucion',
-                    'd.name as departamento',
-                    'm.name as magistrado',
-                    'fr.name as forma_resolucion',
+                    'tr.nombre as tipo_resolucion',
+                    'd.nombre as departamento',
+                    'm.nombre as magistrado',
+                    'fr.nombre as forma_resolucion',
                     'r.proceso',
                     'r.demandante',
                     'r.demandado'
@@ -199,8 +199,8 @@ class ResolutionController extends Controller
     }
     public function obtenerParametros()
     {
-        $departamentos = Departamentos::all("name as nombre");
-        $salas = Salas::all("sala as nombre");
+        $departamentos = Departamentos::all();
+        $salas = Salas::all();
 
         if (!$salas || !$departamentos) {
             return response()->json(['error' => 'Solicitud no encontrada'], 404);
@@ -227,7 +227,7 @@ class ResolutionController extends Controller
         $fecha_hasta = $request["fecha_hasta"];
 
         if ($sala && $sala !== "todas") {
-            $mi_sala = Salas::where("sala", $sala)->first();
+            $mi_sala = Salas::where("nombre", $sala)->first();
             if (!$mi_sala) {
                 return response()->json(['error' => 'Sala no encontrada'], 404);
             }
@@ -236,7 +236,7 @@ class ResolutionController extends Controller
         }
 
         if ($departamento && $departamento !== "todos") {
-            $mi_departamento = Departamentos::where("name", $departamento)->first();
+            $mi_departamento = Departamentos::where("nombre", $departamento)->first();
             if (!$mi_departamento) {
                 return response()->json(['error' => 'Departamento no encontrado'], 404);
             }
@@ -249,7 +249,7 @@ class ResolutionController extends Controller
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
-            ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.name as tipo_resolucion', 'd.name as departamento', "s.sala as sala")
+            ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', "s.nombre as sala")
             ->where('c.contenido', 'like', '%' . $texto . '%');
 
         if ($mi_sala) {
@@ -287,7 +287,7 @@ class ResolutionController extends Controller
         $mi_departamento = "NULL";
 
         if ($sala && $sala !== "Todas") {
-            $mi_sala = Salas::where("sala", $sala)->first()->id;
+            $mi_sala = Salas::where("nombre", $sala)->first()->id;
             if (!$mi_sala) {
                 return response()->json(['error' => 'Sala no encontrada'], 404);
             }
@@ -296,7 +296,7 @@ class ResolutionController extends Controller
         }
 
         if ($departamento && $departamento !== "Todos") {
-            $mi_departamento = Departamentos::where("name", $departamento)->first()->id;
+            $mi_departamento = Departamentos::where("nombre", $departamento)->first()->id;
             if (!$mi_departamento) {
                 return response()->json(['error' => 'Departamento no encontrado'], 404);
             }
@@ -307,7 +307,7 @@ class ResolutionController extends Controller
         $data = [];
         $formaResoluciones = DB::table('forma_resolucions as fr')
             ->join('resolutions as r', 'r.forma_resolucion_id', '=', 'fr.id')
-            ->select('fr.name', 'fr.id', DB::raw('count(r.id) as resolucion_count'))
+            ->select('fr.nombre', 'fr.id', DB::raw('count(r.id) as resolucion_count'))
             ->groupBy('fr.id')
             ->orderBy('resolucion_count', 'desc')
             ->limit(10)
@@ -348,7 +348,7 @@ class ResolutionController extends Controller
 
             if ($resolutions) {
                 $data[] = [
-                    'id' => $res->name,
+                    'id' => $res->nombre,
                     'data' => $resolutions
                 ];
             }

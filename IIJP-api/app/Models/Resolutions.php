@@ -17,7 +17,7 @@ class Resolutions extends Model
         'tipo_resolucion_id',
         'departamento_id',
         'sala_id',
-        'magistrado',
+        'magistrado_id',
         'forma_resolucion_id',
         'restrictor',
         'descriptor',
@@ -36,9 +36,9 @@ class Resolutions extends Model
     {
         return $this->belongsTo(Salas::class);
     }
-    public function temas_complementarios()
+    public function jurisprudencias()
     {
-        return $this->belongsToMany(TemasComplementarios::class);
+        return $this->belongsToMany(Jurisprudencias::class);
     }
 
     public function tema()

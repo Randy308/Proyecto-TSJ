@@ -14,7 +14,7 @@ class MagistradosController extends Controller
     public function index()
     {
 
-        $magistrados = Magistrados::select('id', 'name as nombre')->get();
+        $magistrados = Magistrados::select('id', 'nombre')->get();
 
 
         return response()->json([
@@ -89,7 +89,7 @@ class MagistradosController extends Controller
                 ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
                 ->join('salas as s', 's.id', '=', 'r.sala_id')
                 ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
-                ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.name as tipo_resolucion', 'd.name as departamento', "s.sala as sala")
+                ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', "s.sala as sala")
                 ->where('r.magistrado_id', $magistrado->id);
             $paginatedData = $query->orderBy('fecha_emision')->paginate(10);
 
@@ -179,16 +179,16 @@ class MagistradosController extends Controller
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
             ->select(
-                'd.name as name',
+                'd.nombre',
                 DB::raw('count(*) as value')
             )
             ->where('r.magistrado_id', '=', $magistrado->id)
-            ->groupBy('d.name')
-            ->orderBy('d.name')
+            ->groupBy('d.nombre')
+            ->orderBy('d.nombre')
             ->get();
         if (count($resolutions)) {
             $data = [
-                'magistrado' => $magistrado->name,
+                'magistrado' => $magistrado->nombre,
                 'total_res' => $total_res,
                 "siguiente" => $siguiente,
                 'departamentos' => $res_departamentos,

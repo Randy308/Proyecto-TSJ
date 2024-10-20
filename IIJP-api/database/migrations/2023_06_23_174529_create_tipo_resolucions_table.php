@@ -15,7 +15,7 @@ class CreateTipoResolucionsTable extends Migration
     {
         Schema::create('tipo_resolucions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('nombre');
             $table->timestamps();
         });
     }

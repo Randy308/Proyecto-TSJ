@@ -38,19 +38,19 @@ class ExcelController extends Controller
 
 
             if (!isset($tipoResolucionMap[$tipoResolucionNombre])) {
-                $tipoResolucion = TipoResolucions::firstOrCreate(['name' => $tipoResolucionNombre]);
+                $tipoResolucion = TipoResolucions::firstOrCreate(['nombre' => $tipoResolucionNombre]);
                 $tipoResolucionMap[$tipoResolucionNombre] = $tipoResolucion->id;
             }
 
 
             if (!isset($salaMap[$salaId])) {
-                $sala = Salas::firstOrCreate(['sala' => $salaId]);
+                $sala = Salas::firstOrCreate(['nombre' => $salaId]);
                 $salaMap[$salaId] = $sala->id;
             }
 
             if (!isset($departamentoMap[$departamentoNombre])) {
 
-                $departamento = Departamentos::firstOrCreate(['name' =>  $departamentoNombre]);
+                $departamento = Departamentos::firstOrCreate(['nombre' =>  $departamentoNombre]);
                 $departamentoMap[$departamentoNombre] = $departamento->id;
             }
             $resolucion = [

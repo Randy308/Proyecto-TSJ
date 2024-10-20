@@ -10,7 +10,7 @@ class Salas extends Model
     use HasFactory;
 
     protected $fillable = [
-        'sala'
+        'nombre'
     ];
 
     public function resolutions()

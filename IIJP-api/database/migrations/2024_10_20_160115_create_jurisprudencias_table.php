@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTemasComplementariosTable extends Migration
+class CreateJurisprudenciasTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateTemasComplementariosTable extends Migration
      */
     public function up()
     {
-        Schema::create('temas_complementarios', function (Blueprint $table) {
+        Schema::create('jurisprudencias', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('resolution_id');
             $table->text('restrictor')->nullable();
@@ -32,6 +32,6 @@ class CreateTemasComplementariosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('temas_complementarios');
+        Schema::dropIfExists('jurisprudencias');
     }
 }

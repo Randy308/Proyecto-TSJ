@@ -9,7 +9,7 @@ class FormaResolucions extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name',
+        'nombre',
     ];
     public function resolutions()
     {

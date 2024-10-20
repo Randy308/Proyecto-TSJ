@@ -66,9 +66,9 @@ class TemaController extends Controller
         };
 
         // Obtener los valores únicos
-        $forma_resolucions = $getDistinctValues('forma_resolucions as fr', "fr", 'r.forma_resolucion_id', 'fr.name');
-        $departamentos = $getDistinctValues('departamentos as d', "d", 'r.departamento_id', 'd.name');
-        $tipo_resolucions = $getDistinctValues('tipo_resolucions as tr', "tr", 'r.tipo_resolucion_id', 'tr.name');
+        $forma_resolucions = $getDistinctValues('forma_resolucions as fr', "fr", 'r.forma_resolucion_id', 'fr.nombre');
+        $departamentos = $getDistinctValues('departamentos as d', "d", 'r.departamento_id', 'd.nombre');
+        $tipo_resolucions = $getDistinctValues('tipo_resolucions as tr', "tr", 'r.tipo_resolucion_id', 'tr.nombre');
 
         // Preparar la respuesta
         $data = [
@@ -101,13 +101,13 @@ class TemaController extends Controller
 
 
         if ($forma_resolucion !== "Todas") {
-            $mi_forma_resolucion = validarModelo(FormaResolucions::class, 'name', $forma_resolucion);
+            $mi_forma_resolucion = validarModelo(FormaResolucions::class, 'nombre', $forma_resolucion);
         }
         if ($forma_resolucion !== "Todas") {
-            $mi_forma_resolucion = validarModelo(TipoResolucions::class, 'name', $tipo_resolucion);
+            $mi_forma_resolucion = validarModelo(TipoResolucions::class, 'nombre', $tipo_resolucion);
         }
         if ($forma_resolucion !== "Todas") {
-            $mi_forma_resolucion = validarModelo(Departamentos::class, 'name', $departamento);
+            $mi_forma_resolucion = validarModelo(Departamentos::class, 'nombre', $departamento);
         }
         // Encuentra el tema por ID
         $tema = Temas::where('id', $tema_id)->first();
@@ -120,7 +120,7 @@ class TemaController extends Controller
             ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-            ->select('tc.resolution_id', 'tc.ratio', 'tc.descriptor', 'tc.restrictor', 'tc.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.name as tipo_resolucion', 'r.proceso', 'fr.name as forma_resolucion')
+            ->select('tc.resolution_id', 'tc.ratio', 'tc.descriptor', 'tc.restrictor', 'tc.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion')
             ->where('tc.descriptor', 'like', '%' . $descriptor . '%');
 
         if ($mi_tipo_resolucion) {
@@ -203,7 +203,7 @@ class TemaController extends Controller
         $departamento = $request['nombreMateria'];
 
 
-        $mi_sala = Salas::where('sala', $sala)->first();
+        $mi_sala = Salas::where('nombre', $sala)->first();
 
         if (!$mi_sala) {
             return response()->json(['error' => 'Sala no encontrada a' . $sala], 404);

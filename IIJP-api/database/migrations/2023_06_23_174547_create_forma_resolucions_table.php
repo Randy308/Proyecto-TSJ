@@ -15,7 +15,7 @@ class CreateFormaResolucionsTable extends Migration
     {
         Schema::create('forma_resolucions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('nombre');
             $table->timestamps();
         });
     }
