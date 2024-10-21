@@ -28,7 +28,6 @@ const JurisprudenciaLista = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
   const [resoluciones, setResoluciones] = useState([]);
   const [jurisprudencia, setJurisprudencia] = useState([]);
-  const [autos, setAutos] = useState([]);
   const [xAxis, setXAxis] = useState([]);
   const [legend, setLegend] = useState([]);
   useEffect(() => {
@@ -39,8 +38,8 @@ const JurisprudenciaLista = () => {
     try {
       const response = await axios.get(`${endpoint}/all-resoluciones`);
       setLegend(Object.keys(response.data));
-      setXAxis(response.data.Todos.map((item) => item.year));
-      setResoluciones(response.data.Todos.map((item) => item.cantidad));
+      setXAxis(response.data.Resoluciones.map((item) => item.year));
+      setResoluciones(response.data.Resoluciones.map((item) => item.cantidad));
 
       setJurisprudencia(
         response.data.Jurisprudencia.map((item) => item.cantidad)
@@ -109,14 +108,6 @@ const JurisprudenciaLista = () => {
     ],
     series: [
       {
-        name: "Auto supremos",
-        type: "bar",
-        tooltip: {
-          valueFormatter: (value) => `${value}`,
-        },
-        data: autos,
-      },
-      {
         name: "Jurisprudencia",
         type: "bar",
         tooltip: {
@@ -126,7 +117,7 @@ const JurisprudenciaLista = () => {
       },
 
       {
-        name: "Todos",
+        name: "Resoluciones",
         type: "line",
         yAxisIndex: 0,
         tooltip: {

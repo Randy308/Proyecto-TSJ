@@ -11,6 +11,7 @@ use App\Models\Magistrados;
 use App\Models\Mapeos;
 use App\Models\Resolutions;
 use App\Models\Salas;
+use App\Models\Temas;
 use App\Models\TipoResolucions;
 use Illuminate\Http\Request;
 use Spatie\SimpleExcel\SimpleExcelReader;
@@ -88,13 +89,14 @@ class ExcelController extends Controller
         $tipoResolucionMap = [];
         $magistradoMap = [];
         $formaResolucionMap = [];
-        $rows->each(function (array $row) use (&$departamentoMap, &$tipoResolucionMap, &$salaMap, &$magistradoMap, &$formaResolucionMap, &$data) {
+        $temasMap = [];
+        $rows->each(function (array $row) use (&$departamentoMap, &$tipoResolucionMap, &$salaMap, &$magistradoMap, &$temasMap, &$formaResolucionMap, &$data) {
             $salaId = $row['sala'];
             $tipoResolucionNombre = $row['tipo_resolucion'];
             $departamentoNombre = $row['departamento'];
             $formaResolucionNombre = $row['forma_resolucion'];
             $magistradoNombre = $row['magistrado'];
-
+            $temaID = $row['tema_id'];
 
             if (!isset($tipoResolucionMap[$tipoResolucionNombre])) {
                 $tipoResolucion = TipoResolucions::firstOrCreate(['nombre' => $tipoResolucionNombre]);
@@ -126,7 +128,7 @@ class ExcelController extends Controller
 
             $resolucion = new Resolutions([
                 'magistrado_id' => $magistradoMap[$magistradoNombre] ?? null,
-                'forma_resolucion' => $formaResolucionMap[$formaResolucionNombre] ?? null,
+                'forma_resolucion_id' => $formaResolucionMap[$formaResolucionNombre] ?? null,
                 'sala_id' => $salaMap[$salaId] ?? null,
                 'departamento_id' => $departamentoMap[$departamentoNombre] ?? null,
                 'tipo_resolucion_id' => $tipoResolucionMap[$tipoResolucionNombre] ?? null,
@@ -141,6 +143,19 @@ class ExcelController extends Controller
                 'maxima' => !empty($row['maxima']) ? $row['maxima'] : null,
                 'sintesis' => !empty($row['sintesis']) ? $row['sintesis'] : null,
             ]);
+
+
+
+            if ($temaID) {
+                if (isset($temasMap[$temaID]) || ($tema = Temas::where('id', $temaID)->first())) {
+
+                    if (!isset($temaID[$temaID])) {
+                        $temasMap[$temaID] = $tema->id;
+                    }
+
+                    $resolucion->tema_id = $temasMap[$temaID];
+                }
+            }
 
 
             $resolucion->save();

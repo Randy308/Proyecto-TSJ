@@ -18,6 +18,10 @@ const EstadisticasMagistrado = ({ id }) => {
 
   const [valor, setValor] = useState(null);
   const [superior, setSuperior] = useState(null);
+  const [cantidad, setCantidad] = useState({
+    minimo: 0,
+    maximo: 0,
+  });
   useEffect(() => {
     const endpoint = process.env.REACT_APP_BACKEND;
     const getEstadisticas = async () => {
@@ -35,6 +39,7 @@ const EstadisticasMagistrado = ({ id }) => {
         setResoluciones(response.data.data);
         setSuperior(response.data.siguiente);
         setDepartamentos(response.data.departamentos);
+        setCantidad(response.data.cantidad);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
       }
@@ -267,7 +272,6 @@ const EstadisticasMagistrado = ({ id }) => {
               className="flex flex-col bg-white gap-2 rounded-lg border"
               id="boton-navegar"
             >
-              
               <div className="flex-grow flex justify-center items-center">
                 <MdOutlineZoomOut
                   className="cursor-pointer text-xl"
@@ -276,10 +280,18 @@ const EstadisticasMagistrado = ({ id }) => {
               </div>
             </div>
           </div>
-          <div id="herramientas-grafico" className="p-2 m-2 flex flex-col rounded-md border border-gray-400">
-            <span className="text-center font-bold text-lg subtitulo">Herramientas</span>
+          <div
+            id="herramientas-grafico"
+            className="p-2 m-2 flex flex-col rounded-md border border-gray-400"
+          >
+            <span className="text-center font-bold text-lg subtitulo">
+              Herramientas
+            </span>
             <div className="p-2 m-2 flex flex-col gap-4">
-              <div id="herramientas-tipos"  className="flex flex-col gap-4 p-4 rounded-lg border border-slate-300">
+              <div
+                id="herramientas-tipos"
+                className="flex flex-col gap-4 p-4 rounded-lg border border-slate-300"
+              >
                 <span className="text-center subtitulo">Tipo de Gráfico</span>
                 <div className="selector-graph">
                   <label>
@@ -312,7 +324,10 @@ const EstadisticasMagistrado = ({ id }) => {
                 </div>
               </div>
               {chartType === "line" ? (
-                <div id="herramientas-opciones" className="flex flex-col gap-4 p-4 rounded-lg border border-slate-300">
+                <div
+                  id="herramientas-opciones"
+                  className="flex flex-col gap-4 p-4 rounded-lg border border-slate-300"
+                >
                   <span className="text-center subtitulo">Opciones </span>
                   <label className="switch">
                     <input
@@ -340,7 +355,7 @@ const EstadisticasMagistrado = ({ id }) => {
           </div>
         </div>
         <div className={`mapa-bolivia ${"segundo" === activo ? "" : "hidden"}`}>
-          <EChart data={departamentos}></EChart>
+          <EChart data={departamentos} cantidad={cantidad}></EChart>
         </div>
       </div>
     </div>

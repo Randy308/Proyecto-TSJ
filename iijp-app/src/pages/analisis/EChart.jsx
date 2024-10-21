@@ -5,13 +5,14 @@ import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
 import '../../data/dark.js'; // Import the dark theme
 import { useThemeContext } from "../../components/ThemeProvider";
-const EChart = ({ data }) => {
+const EChart = ({ data , cantidad }) => {
   const [departamentos, setDepartamentos] = useState([]);
   useEffect(() => {
     if (data) {
       setDepartamentos(data);
     }
   }, [data]);
+  console.log(cantidad)
   const isDarkMode = useThemeContext();
   useEffect(() => {
     // Check for NaN or invalid values
@@ -36,8 +37,8 @@ const EChart = ({ data }) => {
         },
         visualMap: {
           left: "right",
-          min: 0,
-          max: 500,
+          min: cantidad.minimo,
+          max: cantidad.maximo,
           inRange: {
             color: [
               "#313695",
@@ -82,7 +83,7 @@ const EChart = ({ data }) => {
             },
             emphasis: {
               itemStyle: {
-                areaColor: "rgb(255, 215, 0, 0.4)", // Cambia a cualquier color que desees para el hover
+                areaColor: "rgb(255, 215, 0, 0.4)", 
               },
               label: {
                 show: true,

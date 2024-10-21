@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Contents;
 use App\Models\Magistrados;
 use App\Models\Resolutions;
@@ -14,7 +15,7 @@ class MagistradosController extends Controller
     public function index()
     {
 
-        $magistrados = Magistrados::select('id', 'nombre')->get();
+        $magistrados = Magistrados::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
 
 
         return response()->json([
@@ -186,20 +187,28 @@ class MagistradosController extends Controller
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
             ->select(
-                'd.nombre',
+                'd.nombre as name',
                 DB::raw('count(*) as value')
             )
-            ->where('r.magistrado_id', '=', $magistrado->id)
+            ->where('r.magistrado_id', '=', $magistrado->id)->where('d.nombre','!=', 'Desconocido')
             ->groupBy('d.nombre')
             ->orderBy('d.nombre')
             ->get();
+
+
+        $cantidades = $res_departamentos->pluck('value')->toArray();
 
         $data = [
             'magistrado' => $magistrado->nombre,
             'total_res' => $total_res,
             "siguiente" => $siguiente,
             'departamentos' => $res_departamentos,
-            'data' => $resolutions
+            'data' => $resolutions,
+            'cantidad' => [
+                'maximo' => max($cantidades),
+                'minimo' => min($cantidades)
+            ],
+
         ];
 
         return response()->json($data);

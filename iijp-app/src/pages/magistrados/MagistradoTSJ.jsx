@@ -20,7 +20,7 @@ const MagistradoTSJ = () => {
         const response = await axios.get(
           `${endpoint}/obtener-datos-magistrado/${id}`
         );
-        setMagistrado(response.data.name);
+        setMagistrado(response.data.nombre);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
       }

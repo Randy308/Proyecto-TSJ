@@ -57,10 +57,10 @@ class TemaController extends Controller
 
         // Función auxiliar para evitar la repetición de código
         $getDistinctValues = function ($joinTable, $nameTable, $joinColumn, $selectColumn) use ($descriptor) {
-            return DB::table('temas_complementarios as tc')
-                ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
+            return DB::table('jurisprudencias as j')
+                ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
                 ->join($joinTable, "$nameTable.id", '=', $joinColumn)
-                ->where('tc.descriptor', 'like', '%' . $descriptor . '%')
+                ->where('j.descriptor', 'like', '%' . $descriptor . '%')
                 ->distinct()
                 ->pluck($selectColumn);
         };
@@ -116,12 +116,13 @@ class TemaController extends Controller
             return response()->json(['error' => 'Tema no encontrado'], 404);
         }
 
-        $query = DB::table('temas_complementarios as tc')
-            ->join('resolutions as r', 'r.id', '=', 'tc.resolution_id')
+        $query = DB::table('jurisprudencias as j')
+            ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-            ->select('tc.resolution_id', 'tc.ratio', 'tc.descriptor', 'tc.restrictor', 'tc.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion')
-            ->where('tc.descriptor', 'like', '%' . $descriptor . '%');
+            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'j.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion')
+            ->where('j.descriptor', 'like', '%' . $descriptor . '%');
+
 
         if ($mi_tipo_resolucion) {
             $query->where('r.tipo_resolucion_id', $mi_tipo_resolucion->id);
@@ -145,7 +146,7 @@ class TemaController extends Controller
         } else {
             $query->limit(25);
         }
-        $results = $query->orderBy('tc.descriptor')->get();
+        $results = $query->orderBy('j.descriptor')->get();
 
         if (!$results) {
             return response()->json(['error' => 'Sala no encontrada'], 404);
@@ -157,6 +158,7 @@ class TemaController extends Controller
 
         $data = [];
         $current = [];
+        //return $results;
 
         foreach ($results as $element) {
             $pieces = explode(" / ", $element->descriptor);

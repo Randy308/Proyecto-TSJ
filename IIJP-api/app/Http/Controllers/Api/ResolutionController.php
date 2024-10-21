@@ -33,17 +33,9 @@ class ResolutionController extends Controller
             ->orderBy("year")
             ->get();
 
-        $all_auto_supremos = Resolutions::from('resolutions as r')
-            ->leftJoin('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
-            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
-            ->groupBy("year")
-            ->orderBy("year")
-            ->get();
-
 
         return response()->json([
-            'Todos' => $all_res,
-            'Auto supremos' => $all_auto_supremos,
+            'Resoluciones' => $all_res,
             'Jurisprudencia' => $all_jurisprudencia,
         ]);
     }

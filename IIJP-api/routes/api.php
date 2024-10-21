@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\Api\MagistradosController;
 use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
 use App\Http\Controllers\Api\TemaController;
 
-use App\Http\Controllers\MagistradosController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
