@@ -27,22 +27,15 @@ class ResolutionController extends Controller
             ->get();
 
         $all_jurisprudencia = DB::table('resolutions as r')
-            ->join('temas_complementarios as tc', 'r.id', '=', 'tc.resolution_id')
+            ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
             ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(DISTINCT(r.id)), 0) AS cantidad")
             ->groupBy("year")
             ->orderBy("year")
             ->get();
 
         $all_auto_supremos = Resolutions::from('resolutions as r')
-            ->leftJoin('temas_complementarios as tc', 'r.id', '=', 'tc.resolution_id')
+            ->leftJoin('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
             ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
-            ->whereNull("r.ratio")
-            ->whereNull("r.sintesis")
-            ->whereNull("r.maxima")
-            ->whereNull("r.descriptor")
-            ->whereNull("r.restrictor")
-            ->whereNull("r.precedente")
-            ->whereNull('tc.resolution_id')
             ->groupBy("year")
             ->orderBy("year")
             ->get();
@@ -144,16 +137,20 @@ class ResolutionController extends Controller
 
         return response()->json($data);
     }
+
+
     public function show($id): JsonResponse
     {
+
+
         try {
 
             $resolucion = DB::table('contents as c')
                 ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
-                ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
-                ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+                ->leftJoin('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+                ->leftJoin('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
                 ->leftJoin('departamentos as d', 'd.id', '=', 'r.departamento_id')
-                ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
+                ->leftJoin('magistrados as m', 'm.id', '=', 'r.magistrado_id')
                 ->select(
                     'c.contenido',
                     'r.nro_resolucion',

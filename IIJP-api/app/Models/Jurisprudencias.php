@@ -11,6 +11,7 @@ class Jurisprudencias extends Model
 
    protected $fillable = [
         'restrictor',
+        'resolution_id',
         'descriptor',
         'tipo_jurisprudencia',
         'ratio',

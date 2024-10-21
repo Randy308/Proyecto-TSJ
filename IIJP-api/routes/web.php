@@ -20,3 +20,7 @@ Route::get('/', function () {
     return view('prueba');
 });
 Route::post('/excel/upload', [ExcelController::class, 'upload'])->name('excel.upload');
+
+
+Route::post('/excel/upload-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
+

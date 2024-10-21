@@ -21,12 +21,15 @@ class MagistradosController extends Controller
             'magistrados' => $magistrados
         ]);
     }
+
     public function obtenerDatos($id)
     {
 
         $magistrado = Magistrados::where("id", $id)->first();
         return $magistrado;
     }
+
+
     public function obtenerCoAutores($id)
     {
         $magistrado = Magistrados::where('id', $id)->first();
@@ -45,7 +48,7 @@ class MagistradosController extends Controller
         foreach ($result as $item) {
 
             $item->array = explode("\r\n", $item->extracted_text);
-            array_shift( $item->array);
+            array_shift($item->array);
 
             $item->array = MagistradosController::reemplazarPatron($item->array, "/[Ff][Ii][Rr][Mm][Aa][Nn]?[Dd][Oo][:]?\s?/");
             $item->array = MagistradosController::reemplazarPatron($item->array, "/[Rr]elator[a]?[:]?\s?/");
@@ -73,12 +76,17 @@ class MagistradosController extends Controller
 
         return response()->json($result);
     }
-    public function reemplazarPatron($array , $pattern){
-        $array = array_map(function ($value) use ($pattern)  {
+
+
+    public function reemplazarPatron($array, $pattern)
+    {
+        $array = array_map(function ($value) use ($pattern) {
             return preg_replace($pattern, '', $value);
         }, $array);
         return $array;
     }
+
+
     public function obtenerResoluciones(Request $request)
     {
         $id = $request["id"];
@@ -89,7 +97,7 @@ class MagistradosController extends Controller
                 ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
                 ->join('salas as s', 's.id', '=', 'r.sala_id')
                 ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
-                ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', "s.sala as sala")
+                ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', "s.nombre as sala")
                 ->where('r.magistrado_id', $magistrado->id);
             $paginatedData = $query->orderBy('fecha_emision')->paginate(10);
 
@@ -163,10 +171,9 @@ class MagistradosController extends Controller
                     DB::raw('count(*) as cantidad')
                 )
                 ->whereNotNull("fecha_emision")
-                ->groupBy('fecha') // Incluye full en el groupBy si quieres mostrar ambas
+                ->groupBy('fecha')
                 ->orderBy('fecha')
                 ->get();
-
             $siguiente = "year";
         }
 
@@ -186,15 +193,14 @@ class MagistradosController extends Controller
             ->groupBy('d.nombre')
             ->orderBy('d.nombre')
             ->get();
-        if (count($resolutions)) {
-            $data = [
-                'magistrado' => $magistrado->nombre,
-                'total_res' => $total_res,
-                "siguiente" => $siguiente,
-                'departamentos' => $res_departamentos,
-                'data' => $resolutions
-            ];
-        }
+
+        $data = [
+            'magistrado' => $magistrado->nombre,
+            'total_res' => $total_res,
+            "siguiente" => $siguiente,
+            'departamentos' => $res_departamentos,
+            'data' => $resolutions
+        ];
 
         return response()->json($data);
     }

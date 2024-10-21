@@ -19,12 +19,8 @@ class Resolutions extends Model
         'sala_id',
         'magistrado_id',
         'forma_resolucion_id',
-        'restrictor',
-        'descriptor',
-        'tipo_jurisprudencia',
         'proceso',
         'precedente',
-        'ratio',
         'demandante',
         'demandado',
         'tema_id',
@@ -48,6 +44,11 @@ class Resolutions extends Model
     public function magistrado()
     {
         return $this->belongsTo(Magistrados::class);
+    }
+
+    public function mapeo()
+    {
+        return $this->belongsTo(Mapeos::class);
     }
 
     public function forma_resolucion()

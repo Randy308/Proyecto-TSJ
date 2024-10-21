@@ -24,12 +24,8 @@ class CreateResolutionsTable extends Migration
             $table->unsignedBigInteger('sala_id')->nullable();
             $table->unsignedBigInteger('magistrado_id')->nullable();
             $table->unsignedBigInteger('forma_resolucion_id')->nullable();
-            $table->string('restrictor')->nullable();
-            $table->string('descriptor')->nullable();
-            $table->text('tipo_jurisprudencia')->nullable();
             $table->text('proceso')->nullable();
             $table->text('precedente')->nullable();
-            $table->text('ratio')->nullable();
             $table->text('demandante')->nullable();
             $table->text('demandado')->nullable();
             $table->unsignedBigInteger('tema_id')->nullable();

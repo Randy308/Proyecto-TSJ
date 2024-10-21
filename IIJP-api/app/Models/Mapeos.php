@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Contents extends Model
+class Mapeos extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'contenido',
+        'external_id',
         'resolution_id'
     ];
     public function resolution()
