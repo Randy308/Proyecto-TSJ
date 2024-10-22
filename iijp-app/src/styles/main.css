@@ -221,22 +221,10 @@ nav ul li.submenu a:not(.active):hover {
     width: 100%;
     padding: 0.5rem;
   }
-  #lista-ajustes {
-    visibility: hidden;
-    display: none;
-    position: relative;
-  }
   #boton-ajustes{
     width: fit-content;
   }
-  
-  #lista-ajustes.show {
-    display: flex;
-    width: 100%;
-    visibility: visible;
 
-  }
-  
   #bars {
     transform: scale(2);
   }

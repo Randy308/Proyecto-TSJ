@@ -1,43 +1,53 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import "../../../styles/tabla.css";
 
 const TablaResumen = ({ data, total }) => {
+
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-[#DDD]">
-      <table id="tbody-res"  className="w-full text-sm text-left rtl:text-right">
-        <thead id="tabla-resoluciones" className="text-x uppercase border-b">
-          <tr>
-            <th scope="col" className="px-6 py-3">
-              Cantidad de Resoluciones: <span className="titulo">{total}</span>
-            </th>
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg m-4">
+      <div className="p-4 titulo">
+        Cantidad de Resoluciones: <span>{total}</span>
+      </div>
+      <table
+        id="tbody-res"
+        className="w-full text-sm text-left rtl:text-right p-4"
+      >
+        <thead
+          id="tabla-resoluciones"
+          className="text-x uppercase border-b p-4"
+        >
+          <tr className="p-4 m-4">
+            <th className="text-center p-4 m-4">nro resolución</th>
+            <th className="text-center p-4 m-4">fecha emisión</th> 
+            <th className="text-center p-4 m-4">tipo resolución</th>
+            <th className="text-center p-4 m-4">departamento</th>
+            <th className="text-center p-4 m-4">sala</th>
+            <th className="text-center p-4 m-4"></th>
           </tr>
         </thead>
-        <tbody >
+        <tbody>
           {data.map((item, index) => (
-            <tr
-              key={index}
-              className="border-b border-gray-200"
-            >
-              <div className="flex flex-col gap-4 p-4">
-                <div className="flex flex-row gap-4 justify-between">
-                  <div >{item.fecha_emision}</div>
-                  <div>{item.nro_resolucion}</div>
-                </div>
-                <div>
-                  <div>Tipo: <span className="font-bold titulo">{item.tipo_resolucion}</span></div>
-                  <div>Departamento: <span className="font-bold titulo">{item.departamento}</span></div>
-                  <div>Sala: <span className="font-bold titulo">{item.sala}</span></div>
-                </div>
-                <div className="flex justify-end border-t border-blue-400">
-                  <a
-                    href={`http://localhost:3000/Jurisprudencia/Resolucion/${item.id}`}
-                    className="font-medium text-blue-600 dark:text-blue-500 hover:bg-gray-200 bg-white rounded-lg  border border-blue-600 mt-2 p-2"
-                  >
-                    Ver resolucion
-                  </a>
-                </div>
-              </div>
+            <tr key={index} className="border-b border-gray-200 p-4">
+              <th className="text-center">{item.nro_resolucion}</th>
+              <th className="text-center">{item.fecha_emision}</th>
+
+              <th className="font-bold titulo text-center">
+                {item.tipo_resolucion}
+              </th>
+              <th className="font-bold titulo text-center">
+                {item.departamento}
+              </th>
+              <th className="font-bold titulo text-center">{item.sala}</th>
+              <th className="text-center">
+                {" "}
+                <button
+                  href={`http://localhost:3000/Jurisprudencia/Resolucion/${item.id}`}
+                  className="font-medium text-blue-600 dark:text-blue-500 hover:bg-gray-200 bg-white rounded-lg  border border-blue-600 mt-2 p-2"
+                >
+                  Ver resolución
+                </button>
+              </th>
             </tr>
           ))}
         </tbody>

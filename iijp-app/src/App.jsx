@@ -17,6 +17,7 @@ import JurisprudenciaLista from "./pages/analisis/JurisprudenciaLista";
 import ListaMagistrados from "./pages/analisis/ListaMagistrados";
 import MagistradoTSJ from "./pages/magistrados/MagistradoTSJ";
 import Principal from "./pages/analisis/resoluciones/Principal";
+import TablaCSV from "./pages/datos/TablaCSV";
 function App() {
 
   const location = useLocation();
@@ -51,6 +52,7 @@ function App() {
           <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
           <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
           <Route path="/Jurisprudencia/Estadistica/Resoluciones" element={<Principal/>} />
+          <Route path="/insertar-datos" element={<TablaCSV/>}/>
         </Routes>
         {shouldShowFooter && <Footer />}
       </React.Fragment>

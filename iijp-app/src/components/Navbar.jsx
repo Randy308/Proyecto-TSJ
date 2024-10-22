@@ -14,14 +14,22 @@ function Navbar() {
   const ajustesRef = useRef(null);
   const listaRef = useRef(null);
   const cambiarTema = useToggleContext();
+
+
   const eventoBoton = () => {
-    cambiarTema(); 
+    cambiarTema();
     setSettingsOpen(false);
     if (window.innerWidth <= 720 && menuOpen) {
-      setMenuOpen(false)
+      setMenuOpen(false);
     }
   };
+  const actualizarBoton=()=>{
 
+    setMenuOpen((prevState) => !prevState)
+    if(settingsOpen){
+      setSettingsOpen(false);
+    }
+  }
   const actualizarAjustes = () => {
     setSettingsOpen((prevState) => !prevState);
     handleShowList();
@@ -32,13 +40,13 @@ function Navbar() {
       const rect = ajustesRef.current.getBoundingClientRect();
       const listaHeight = ajustesRef.current.offsetHeight;
       const listaWidth = listaRef.current.offsetWidth;
-  
+
       if (window.innerWidth <= 720) {
-        listaRef.current.style.top = `auto`; 
-        listaRef.current.style.left = `auto`; 
+        listaRef.current.style.top = `auto`;
+        listaRef.current.style.left = `auto`;
       } else {
-        listaRef.current.style.top = `${rect.bottom + (listaHeight / 2)}px`;
-        listaRef.current.style.left = `${rect.left - (listaWidth/2)}px`;
+        listaRef.current.style.top = `${rect.bottom + listaHeight / 2}px`;
+        listaRef.current.style.left = `${rect.left - listaWidth / 2}px`;
       }
     }
   };
@@ -62,7 +70,7 @@ function Navbar() {
             className="first-logo"
           />
         </div>
-        <div className="menu" onClick={() => setMenuOpen(!menuOpen)}>
+        <div className="menu" onClick={() => actualizarBoton()}>
           <FaBars
             id="bars"
             key="first"
@@ -81,7 +89,7 @@ function Navbar() {
               <li key={item.id || index}>
                 <NavLink
                   to={item.path}
-                  onClick={() => setMenuOpen(!menuOpen)}
+                  onClick={() => actualizarBoton()}
                   className={isFirstItem ? "flex text-center items-center" : ""}
                 >
                   {isFirstItem && item.icon && <>{item.icon}&nbsp;</>}
@@ -100,28 +108,32 @@ function Navbar() {
           >
             <FaGear></FaGear>
           </button>
-          <div
-            ref={listaRef}
-            id="lista-ajustes"
-            className={settingsOpen ? "show" : ""}
-          >
-            <ul className="flex flex-col">
-              <li>
-                <button onClick={(eventoBoton)} type="button" className="p-2 flex flex-row justify-between gap-4 w-full">
-                Tema
-                  <IoSunny
-                    className={["text-lg", isDark ? "hidden" : ""].join(" ")}
-                  />
-                  <FaMoon
-                    className={["text-lg", isDark ? "" : "hidden"].join(" ")}
-                  />
-                </button>
-              </li>
-              <li className="p-2">Ajustes</li>
-            </ul>
-          </div>
         </div>
       </nav>
+      <div
+        ref={listaRef}
+        id="lista-ajustes"
+        className={settingsOpen ? "show" : ""}
+      >
+        <ul className="flex flex-col">
+          <li>
+            <button
+              onClick={eventoBoton}
+              type="button"
+              className="p-2 flex flex-row justify-between gap-4 w-full"
+            >
+              Tema
+              <IoSunny
+                className={["text-lg", isDark ? "hidden" : ""].join(" ")}
+              />
+              <FaMoon
+                className={["text-lg", isDark ? "" : "hidden"].join(" ")}
+              />
+            </button>
+          </li>
+          <li className="p-2">Ajustes</li>
+        </ul>
+      </div>
     </header>
   );
 }

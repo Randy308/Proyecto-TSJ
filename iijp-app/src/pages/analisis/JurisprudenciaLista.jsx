@@ -44,7 +44,6 @@ const JurisprudenciaLista = () => {
       setJurisprudencia(
         response.data.Jurisprudencia.map((item) => item.cantidad)
       );
-      setAutos(response.data["Auto supremos"].map((item) => item.cantidad));
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
     }

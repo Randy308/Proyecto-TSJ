@@ -3,11 +3,12 @@ import axios from "axios";
 import TablaResumen from "./tabla/TablaResumen";
 import "../../styles/paginate.css";
 import Paginate from "../../components/Paginate";
+import AgTabla from "../../components/AgTabla";
 const ResumenMagistrado = ({ id }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState([]);
-
+  const [columnDefs, setColumnDefs] = useState([]);
   const [lastPage, setLastPage] = useState(1);
   const [totalRes, setTotalRes] = useState(0);
   useEffect(() => {
@@ -22,7 +23,7 @@ const ResumenMagistrado = ({ id }) => {
   };
   const obtenerResoluciones = async (page) => {
     try {
-      const response = await axios.get(
+      const {data} = await axios.get(
         `${endpoint}/obtener-resoluciones-magistrado`,
         {
           params: {
@@ -31,11 +32,17 @@ const ResumenMagistrado = ({ id }) => {
           },
         }
       );
-      if (response.data.data.length > 0) {
-        setResoluciones(response.data.data);
-        setLastPage(response.data.last_page);
-        setPageCount(response.data.last_page);
-        setTotalRes(response.data.total);
+      if (data.data.length > 0) {
+        setResoluciones(data.data);
+        setLastPage(data.last_page);
+        setPageCount(data.last_page);
+        setTotalRes(data.total);
+        const headers = Object.keys(data.data[0]).map((header) => ({
+          field: header,
+          sortable: true,
+          resizable: true,
+        }));
+        setColumnDefs(headers);
       } else {
         alert("No existen datos");
       }
@@ -51,7 +58,8 @@ const ResumenMagistrado = ({ id }) => {
     >
       <div className="row p-4">
         {resoluciones.length > 0 && (
-          <TablaResumen data={resoluciones} total={totalRes} />
+          <AgTabla rowData={resoluciones} columnDefs={columnDefs} />
+          //<TablaResumen data={resoluciones} total={totalRes} />
         )}
         <Paginate
           handlePageClick={handlePageClick}
