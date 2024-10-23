@@ -10,20 +10,18 @@ import { MdOutlineZoomOut } from "react-icons/md";
 import MagistradoChart from "./MagistradoChart";
 
 const EstadisticasMagistrado = ({ id }) => {
+
+  const listaPeriodos = ['year', 'month', 'day'];
   const [resoluciones, setResoluciones] = useState([]);
-
-  const [departamentos, setDepartamentos] = useState([]);
-
   const [leyenda, setLeyenda] = useState([]);
-
   const [valor, setValor] = useState(null);
   const [superior, setSuperior] = useState(null);
-  const [cantidad, setCantidad] = useState({
-    minimo: 0,
-    maximo: 0,
-  });
+
+  const endpoint = process.env.REACT_APP_BACKEND;
+  const url = `${endpoint}/magistrado-estadisticas-departamentos/${id}`
+
   useEffect(() => {
-    const endpoint = process.env.REACT_APP_BACKEND;
+    
     const getEstadisticas = async () => {
       try {
         const response = await axios.get(
@@ -38,8 +36,6 @@ const EstadisticasMagistrado = ({ id }) => {
         setLeyenda(response.data.magistrado);
         setResoluciones(response.data.data);
         setSuperior(response.data.siguiente);
-        setDepartamentos(response.data.departamentos);
-        setCantidad(response.data.cantidad);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
       }
@@ -205,7 +201,6 @@ const EstadisticasMagistrado = ({ id }) => {
         break;
     }
   };
-  const endpoint = process.env.REACT_APP_BACKEND;
   const getEstadisticas = async () => {
     try {
       setResoluciones([]);
@@ -355,7 +350,7 @@ const EstadisticasMagistrado = ({ id }) => {
           </div>
         </div>
         <div className={`mapa-bolivia ${"segundo" === activo ? "" : "hidden"}`}>
-          <EChart data={departamentos} cantidad={cantidad}></EChart>
+          <EChart url={url}></EChart>
         </div>
       </div>
     </div>

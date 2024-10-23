@@ -64,3 +64,8 @@ Route::get('/obtener-coautores/{id}', [MagistradosController::class, 'obtenerCoA
 
 Route::get('/all-salas', [SalaController::class, 'getSalas'])->name('all-salas');
 Route::get('/obtener-datos-sala/{id}', [SalaController::class, 'show'])->name('obtener-datos-sala');
+
+
+//rutas magistrados
+
+Route::get('/magistrado-estadisticas-departamentos/{id}', [MagistradosController::class, 'obtenerResolucionesDepartamento'])->name('estadisticas-magistrado-departamentos');

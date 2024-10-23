@@ -7,7 +7,7 @@ export function useHeaders() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const crearHeaders = async () => {
+    const crearHeaders = () => {
       setIsLoading(true);
       try {
         const headers = Object.keys(item.data[0]).map((header) => ({

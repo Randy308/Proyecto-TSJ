@@ -3,27 +3,28 @@ import boliviaJson from "../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
-import '../../data/dark.js'; // Import the dark theme
+import "../../data/dark.js"; // Import the dark theme
 import { useThemeContext } from "../../components/ThemeProvider";
-const EChart = ({ data , cantidad }) => {
-  const [departamentos, setDepartamentos] = useState([]);
-  useEffect(() => {
-    if (data) {
-      setDepartamentos(data);
-    }
-  }, [data]);
-  console.log(cantidad)
+import { useFreeApi } from "../../hooks/api/useFreeApi";
+import Loading from "../../components/Loading";
+const EChart = ({ url }) => {
+  const { contenido, isLoading, error } = useFreeApi(url);
+
   const isDarkMode = useThemeContext();
-  useEffect(() => {
-    // Check for NaN or invalid values
-    if (departamentos.some(item => isNaN(item.value))) {
-      setDepartamentos(data); // Reset to original data
-    }
-  }, [departamentos]);
+
   registerMap("Bolivia", boliviaJson);
+
   const projection = geoMercator();
+  if (isLoading) return <Loading />;
+  if (error) return <p>{error}</p>;
+
+  if (!Array.isArray(contenido) || contenido.length === 0) {
+    return <p>No hay datos disponibles.</p>;
+  }
+
   return (
-    <ReactECharts theme={isDarkMode ? 'dark' : null} 
+    <ReactECharts
+      theme={isDarkMode ? "dark" : null}
       option={{
         title: {
           text: "Cantidad de resoluciones por departamento",
@@ -37,8 +38,8 @@ const EChart = ({ data , cantidad }) => {
         },
         visualMap: {
           left: "right",
-          min: cantidad.minimo,
-          max: cantidad.maximo,
+          min: Math.min(...contenido.map( item => (item.value))),
+          max: Math.max(...contenido.map( item => (item.value))),
           inRange: {
             color: [
               "#313695",
@@ -83,13 +84,13 @@ const EChart = ({ data , cantidad }) => {
             },
             emphasis: {
               itemStyle: {
-                areaColor: "rgb(255, 215, 0, 0.4)", 
+                areaColor: "rgb(255, 215, 0, 0.4)",
               },
               label: {
                 show: true,
               },
             },
-            data: departamentos,
+            data: contenido,
           },
         ],
       }}
