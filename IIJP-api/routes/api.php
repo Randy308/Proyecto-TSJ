@@ -60,3 +60,7 @@ Route::get('/obtener-estadisticas-res', [ResolutionController::class, 'obtenerEs
 Route::get('/obtener-coautores/{id}', [MagistradosController::class, 'obtenerCoAutores'])->name('obtener-coautores');
 
 
+//rutas de salas
+
+Route::get('/all-salas', [SalaController::class, 'getSalas'])->name('all-salas');
+Route::get('/obtener-datos-sala/{id}', [SalaController::class, 'show'])->name('obtener-datos-sala');
