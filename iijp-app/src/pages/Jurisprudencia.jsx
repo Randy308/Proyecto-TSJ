@@ -20,7 +20,7 @@ const Jurisprudencia = () => {
                   </div>
                   <p className="text-center text-lg font-bold text-white">{item.title}</p>
 
-                  <p className="p-4 text-xs text-white">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis rerum repudiandae, unde accusamus laboriosam, in tempore voluptas corrupti temporibus fuga, animi veniam quas exercitationem quae odit non dolorem iusto nihil!</p>
+                  <p className="p-4 text-xs text-white">{item.resumen}</p>
 
                 </div>
               </Link>

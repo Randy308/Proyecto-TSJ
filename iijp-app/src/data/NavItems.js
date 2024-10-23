@@ -23,7 +23,7 @@ export const navItems = [
   },
   {
     id: 4,
-    title: "Inserción",
+    title: "Administracion",
     path: "/insertar-datos",
     cName: "nav-item",
     icon: <FaHome className="icon-style"/> 

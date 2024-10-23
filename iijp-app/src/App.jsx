@@ -18,6 +18,8 @@ import ListaMagistrados from "./pages/analisis/ListaMagistrados";
 import MagistradoTSJ from "./pages/magistrados/MagistradoTSJ";
 import Principal from "./pages/analisis/resoluciones/Principal";
 import TablaCSV from "./pages/datos/TablaCSV";
+import ListaSalas from "./pages/analisis/ListaSalas";
+import Sala from "./pages/analisis/salas/Sala";
 function App() {
 
   const location = useLocation();
@@ -50,8 +52,10 @@ function App() {
           <Route path="/Jurisprudencia/Cronologias" element={<JurisprudenciaCronologia />} />
           <Route path="/Jurisprudencia/Magistrado/:id" element={<MagistradoTSJ />} />
           <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
+          <Route path="/Jurisprudencia/Estadistica/sala/:id" element={<Sala />} />
           <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
           <Route path="/Jurisprudencia/Estadistica/Resoluciones" element={<Principal/>} />
+          <Route path="//Jurisprudencia/lista-salas" element={<ListaSalas/>}/>
           <Route path="/insertar-datos" element={<TablaCSV/>}/>
         </Routes>
         {shouldShowFooter && <Footer />}

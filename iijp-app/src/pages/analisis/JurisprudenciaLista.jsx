@@ -24,6 +24,15 @@ const JurisprudenciaLista = () => {
       cName: "tool-item",
       icon: <GrDocumentUser className="h-8 w-8" />,
     },
+    {
+      id: 2,
+      title: "Análisis por Salas",
+      descripcion:
+        "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
+      path: "/Jurisprudencia/lista-salas",
+      cName: "tool-item",
+      icon: <GrDocumentUser className="h-8 w-8" />,
+    },
   ];
   const endpoint = process.env.REACT_APP_BACKEND;
   const [resoluciones, setResoluciones] = useState([]);
@@ -57,6 +66,11 @@ const JurisprudenciaLista = () => {
       height: "600px",
     },
   };
+
+
+
+
+  /** 
   const option = {
     tooltip: {
       trigger: "axis",
@@ -126,6 +140,87 @@ const JurisprudenciaLista = () => {
       },
     ],
   };
+  **/
+  const option = {
+    // Make gradient line here
+    visualMap: [
+      {
+        show: false,
+        type: 'continuous',
+        seriesIndex: 0,
+        min: 0,
+        max: Math.max(...resoluciones)
+      },
+      {
+        show: false,
+        type: 'continuous',
+        seriesIndex: 1,
+        dimension: 0,
+        min: 0,
+        max: jurisprudencia.length -1
+      }
+    ],
+    toolbox: {
+      feature: {
+        magicType: { show: true, type: ['line', 'bar'] },
+        saveAsImage: { show: true }
+      }
+    },
+    title: [
+      {
+        left: 'center',
+        text: 'Cantidad de resoluciones por periodo'
+      },
+      {
+        top: '55%',
+        left: 'center',
+        text: 'Cantidad de jurisprudencia por periodo'
+      }
+    ],
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: [
+      {
+        data: xAxis,
+      },
+      {
+        data: xAxis,
+        gridIndex: 1
+      }
+    ],
+    yAxis: [
+      {},
+      {
+        gridIndex: 1
+      }
+    ],
+    grid: [
+      {
+        bottom: '60%'
+      },
+      {
+        top: '60%'
+      }
+    ],
+    series: [
+      {
+        type: 'line',
+        showSymbol: false,
+
+        data: resoluciones
+      },
+      {
+        type: 'line',
+        showSymbol: false,
+        data: jurisprudencia,
+
+        xAxisIndex: 1,
+        yAxisIndex: 1
+      }
+    ]
+  };
+  
   const [valor, setValor] = useState(null);
   useEffect(() => {
     if (valor) {

@@ -10,7 +10,7 @@ const TablaCSV = () => {
   const [columnDefs, setColumnDefs] = useState([]);
   const [rowData, setRowData] = useState([]);
   const [error, setError] = useState(null);
-
+  const [archivo , setArchivo]= useState(null);
   const handleString = (CSVString) => {
     readString(CSVString, {
       worker: true,
@@ -28,6 +28,7 @@ const TablaCSV = () => {
               field: header,
               sortable: true,
               resizable: true,
+              flex: 1
             }));
             setColumnDefs(headers);
           }
@@ -48,15 +49,16 @@ const TablaCSV = () => {
         setError("No se pudo leer el archivo CSV");
       };
       reader.readAsText(file);
+      setArchivo(file);
     } else {
       setError("No se seleccionó ningún archivo");
     }
   };
   const isDarkMode = useThemeContext();
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex flex-col justify-center items-center">
       <div className={isDarkMode ? 'ag-theme-alpine-dark' : 'ag-theme-alpine'}   style={{ height: 500, width: "95%" }}>
-        <input type="file" accept=".csv" onChange={cargarArchivo} />
+        <input className="p-4" type="file" accept=".csv" onChange={cargarArchivo} />
         {error && <p style={{ color: "red" }}>{error}</p>}
         {rowData.length > 0 && (
           <AgGridReact
@@ -68,7 +70,13 @@ const TablaCSV = () => {
             domLayout="autoHeight"
           />
         )}
+
+        <div className="p-4 m-4 flex justify-end">
+        <button type="button" className="p-2 m-4 rounded-md text-white bg-blue-500 hover:bg-blue-800">Enviar</button>
       </div>
+      </div>
+
+      
     </div>
   );
 };

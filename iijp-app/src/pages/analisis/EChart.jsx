@@ -62,8 +62,8 @@ const EChart = ({ data , cantidad }) => {
           left: "left",
           top: "top",
           feature: {
-            dataView: { readOnly: false },
-            restore: {},
+            //dataView: { readOnly: false },
+            //restore: {},
             saveAsImage: {},
           },
         },

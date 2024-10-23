@@ -22,35 +22,36 @@
     107deg,
     rgba(169, 97, 112, 1) 0%,
     rgba(137, 41, 67, 1) 24%,
-    rgba(86, 20, 39, 1) 100%
+    rgb(111, 57, 72) 100%
   );
   color: white;
   text-align: center;
 }
 
 .footer-icon {
-  height: 1.3rem;
-  width: 1.3rem;
   cursor: pointer;
   color: white;
-}
-
-#footer-icons {
+  border-radius: 1rem;
   display: flex;
   justify-content: center;
-  padding: 1.2rem;
-}
-
-#footer-icons * {
-  margin: 0.6rem;
+  align-items: center;
+  border-radius: 2rem;
+  border: solid 1px white;
 }
 
 .footer-icon:hover {
-  transform: scale(1.5);
+  transform: scale(1.2);
 }
 
-div#parent-container.dark-theme main .footer{
-  background: rgb(53,78,126);
-background: linear-gradient(90deg, rgba(53,78,126,1) 0%, rgba(47,61,88,1) 100%);
+div#parent-container.dark-theme main .footer {
+  background: rgb(53, 78, 126);
+  background: linear-gradient(
+    90deg,
+    rgba(53, 78, 126, 1) 0%,
+    rgba(47, 61, 88, 1) 100%
+  );
+}
 
+#imagen-footer {
+  width: 4rem;
 }

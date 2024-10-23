@@ -4,6 +4,7 @@ import TablaResumen from "./tabla/TablaResumen";
 import "../../styles/paginate.css";
 import Paginate from "../../components/Paginate";
 import AgTabla from "../../components/AgTabla";
+import PaginationData from "../busqueda/PaginationData";
 const ResumenMagistrado = ({ id }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -58,7 +59,8 @@ const ResumenMagistrado = ({ id }) => {
     >
       <div className="row p-4">
         {resoluciones.length > 0 && (
-          <AgTabla rowData={resoluciones} columnDefs={columnDefs} />
+          //<AgTabla rowData={resoluciones} columnDefs={columnDefs} />
+          <PaginationData data={resoluciones} total={totalRes} />
           //<TablaResumen data={resoluciones} total={totalRes} />
         )}
         <Paginate
