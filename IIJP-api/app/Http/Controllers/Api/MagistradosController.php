@@ -40,7 +40,7 @@ class MagistradosController extends Controller
         // Modificar la consulta para usar paginate en lugar de limit
         $query = DB::table('contents as c')
             ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
-            ->select(DB::raw("substring(c.contenido from 'POR TANTO[\s\S]+(Reg[ií]strese[\s\S]+)') as participantes"), 'r.id as resolution_id')
+            ->select(DB::raw("substring(c.contenido from 'POR TANTO[[:space:][:print:]]+(Reg[ií]strese[[:space:][:print:]]+)') as participantes"), 'r.id as resolution_id')
             ->where("r.magistrado_id", $magistrado->id)
             ->orderByDesc("r.fecha_emision")
             ->paginate(40); // Cambiar a paginate(40)
@@ -123,18 +123,30 @@ class MagistradosController extends Controller
 
     public function obtenerResoluciones(Request $request)
     {
+
         $id = $request["id"];
+        $variable = $request["variable"];
+        $orden = $request["orden"];
+
         $magistrado = Magistrados::where("id", $id)->first();
+
         if ($magistrado) {
+            // Lista de columnas válidas para la ordenación
+            $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
+
+            // Validar variable y orden
+            $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
+            $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
 
             $query = DB::table('resolutions as r')
                 ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
                 ->join('salas as s', 's.id', '=', 'r.sala_id')
                 ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
-                ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', "s.nombre as sala")
+                ->select('r.nro_resolucion', 'r.id', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala')
                 ->where('r.magistrado_id', $magistrado->id);
-            $paginatedData = $query->orderBy('fecha_emision')->paginate(20);
 
+            // Aplicar ordenación según los parámetros de entrada
+            $paginatedData = $query->orderBy($variable, $orden)->paginate(20);
             return response()->json($paginatedData);
         } else {
 

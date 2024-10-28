@@ -295,7 +295,7 @@ const CompararDatos = () => {
           : ""}
       </div>
 
-      <div className={styles.graficoContenedor} id="grafico-contenedor">
+      <div className={`${styles.graficoContenedor} border border-gray-200 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]`} id="grafico-contenedor">
         {resoluciones && resoluciones.length > 0 ? (
           <LineChart option={option} setData={setValor}></LineChart>
         ) : (

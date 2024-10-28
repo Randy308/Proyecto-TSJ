@@ -23,6 +23,16 @@ const ResumenMagistrado = ({ id }) => {
     const selectedPage = Math.min(e.selected + 1, lastPage);
     obtenerResoluciones(selectedPage);
   };
+
+  const [formData, setFormData] = useState({
+    variable: "fecha_emision",
+    orden: "desc",
+  });
+
+  useEffect(() => {
+    obtenerResoluciones(1);
+  }, [formData]);
+
   const obtenerResoluciones = async (page) => {
     try {
       const {data} = await axios.get(
@@ -30,7 +40,10 @@ const ResumenMagistrado = ({ id }) => {
         {
           params: {
             id: id,
+            variable : formData.variable,
+            orden:formData.orden,
             page: page,
+
           },
         }
       );
@@ -61,7 +74,7 @@ const ResumenMagistrado = ({ id }) => {
       <div className="row p-4">
       {resoluciones.length > 0 && (
         <div className="flex flex-row flex-wrap justify-around">
-        <PaginationData data={resoluciones} total={totalRes} />
+        <PaginationData data={resoluciones} total={totalRes} setFormData={setFormData} />
         <Menciones id={id}></Menciones>
         </div>
           

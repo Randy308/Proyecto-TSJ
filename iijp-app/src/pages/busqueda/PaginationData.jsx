@@ -1,17 +1,37 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/tabla.css";
 import Cabecera from "../../components/Cabecera";
-const PaginationData = ({ data }) => {
-  const [formData, setFormData] = useState({
-    variable: "",
-    orden: "",
-  });
-  const [estadoInicial, setEstadoInicial] = useState(1);
+const PaginationData = ({ data ,setFormData}) => {
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
 
+ const listaCabeceras = [
+    {
+      id: 1,
+      title: "Fecha Emisión",
+      nombre: "fecha_emision"
+    }, {
+      id: 2,
+      title: "Tipo de resolucion",
+      nombre: "tipo_resolucion"
+    },
+    {
+      id: 3,
+      title: "Nro de resolucion",
+      nombre: "nro_resolucion"
+    },
+    {
+      id: 4,
+      title: "Departamento",
+      nombre: "departamento"
+    },
+    {
+      id: 5,
+      title: "Sala",
+      nombre: "sala"
+    },
+
+  ];
+  const [visible, setVisible] = useState(false);
   return (
     <div className="relative overflow-x-auto">
       <table
@@ -21,32 +41,15 @@ const PaginationData = ({ data }) => {
       >
         <thead className="text-xs text-black uppercase bg-[#F8F8F8] border-b dark:bg-[#222628] dark:text-white">
           <tr>
-            <Cabecera
-              titulo={"Fecha"}
-              setFormData={setFormData}
-              estadoInicial={estadoInicial}
-            ></Cabecera>
-            <Cabecera
-              titulo={"Tipo de resolucion"}
-              setFormData={setFormData}
-              estadoInicial={estadoInicial}
-            ></Cabecera>
-            <Cabecera
-              titulo={"Nro de resolucion"}
-              setFormData={setFormData}
-              estadoInicial={estadoInicial}
-            ></Cabecera>
-            <Cabecera
-              titulo={"Departamento"}
-              setFormData={setFormData}
-              estadoInicial={estadoInicial}
-            ></Cabecera>
-            <Cabecera
-              titulo={"Sala"}
-              setFormData={setFormData}
-              estadoInicial={estadoInicial}
-            ></Cabecera>
-            <th scope="col" className="px-6 py-3">
+
+            {listaCabeceras.map((item) => (
+              <Cabecera
+                titulo={item.title} id={item.id} key={item.id} valor={item.nombre}
+                setFormData={setFormData} setVisible={setVisible}
+                visible={visible}
+              ></Cabecera>
+            ))}
+            <th scope="col" key={6} className="px-6 py-3">
               Accion
             </th>
           </tr>

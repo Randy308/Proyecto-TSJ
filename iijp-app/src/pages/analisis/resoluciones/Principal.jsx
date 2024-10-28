@@ -125,91 +125,70 @@ const Principal = () => {
       <p className="titulo text-3xl font-bold text-center">Resoluciones</p>
       <div>
         <div className="flex flex-col items-center justify-center">
-          <div className="flex flex-wrap p-4 items-center justify-center">
-            <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0 subtitulo">
-                {" "}
-                Tipo de Resolución
-              </span>
-              <select
-                multiple
-                value={selectedTipos}
-                onChange={obtenerTipos}
-                className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
-              >
+          <div className="flex flex-wrap gap-4 p-4 items-center justify-center">
+            <div class="max-w-sm mx-auto">
+              <label for="countries_multiple" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> Tipo de Resolución</label>
+              <select multiple value={selectedTipos}
+                onChange={obtenerTipos} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 {tipos && tipos.length > 0
                   ? tipos.map((item, index) => (
-                      <option key={index} value={item.id} className="subtitulo">
-                        {item.name}
-                      </option>
-                    ))
+                    <option key={index} value={item.id} className="subtitulo">
+                      {item.name}
+                    </option>
+                  ))
                   : ""}
               </select>
             </div>
-            <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0 subtitulo">
-                {" "}
-                Tipo de Sala
-              </span>
-              <select
-                multiple
+
+            <div class="max-w-sm mx-auto">
+              <label for="countries_multiple" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> Tipo de Sala</label>
+              <select multiple
                 value={selectedSalas}
-                onChange={obtenerSalas}
-                className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
-              >
+                onChange={obtenerSalas} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 {salas && salas.length > 0
                   ? salas.map((item, index) => (
-                      <option key={index} value={item.id} className="subtitulo">
-                        {item.name}
-                      </option>
-                    ))
+                    <option key={index} value={item.id} className="subtitulo">
+                      {item.name}
+                    </option>
+                  ))
                   : ""}
               </select>
             </div>
-            <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0 subtitulo">
-                {" "}
-                Forma de Resolución
-              </span>
-              <select
-                multiple
+
+            <div class="max-w-sm mx-auto">
+              <label for="countries_multiple" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> Forma de Resolución</label>
+              <select multiple
                 value={selectedFormas}
-                onChange={obtenerFormas}
-                className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
-              >
+                onChange={obtenerFormas} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 {formas && formas.length > 0
                   ? formas.map((item, index) => (
-                      <option
-                        key={index}
-                        value={item.id}
-                        className="custom:text-[0.7rem] subtitulo"
-                      >
-                        {item.name}
-                      </option>
-                    ))
+                    <option
+                      key={index}
+                      value={item.id}
+                      className="custom:text-[0.7rem] subtitulo"
+                    >
+                      {item.name}
+                    </option>
+                  ))
                   : ""}
               </select>
             </div>
-            <div className="flex flex-col">
-              <span className="italic font-bold m-4 mb-0 subtitulo">
-                {" "}
-                Departamentos
-              </span>
-              <select
-                multiple
+
+            <div class="max-w-sm mx-auto">
+              <label for="countries_multiple" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"> Departamentos</label>
+              <select multiple
                 value={selectedDepartamentos}
-                onChange={obtenerDepartamentos}
-                className="p-4 m-4 mt-0 border border-gray-500 rounded-sm"
-              >
+                onChange={obtenerDepartamentos} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                 {departamentos && departamentos.length > 0
                   ? departamentos.map((item, index) => (
-                      <option key={index} value={item.id} className="subtitulo">
-                        {item.name}
-                      </option>
-                    ))
+                    <option key={index} value={item.id} className="subtitulo">
+                      {item.name}
+                    </option>
+                  ))
                   : ""}
               </select>
             </div>
+
           </div>
         </div>
 
@@ -241,16 +220,16 @@ const Principal = () => {
                   <span className="subtitulo font-italic">{estadisticas.total}</span>
                 </div>
                 <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
-                <span className="titulo font-bold">Promedio </span>
-                   <span className="subtitulo font-italic">{estadisticas.promedio}</span>
+                  <span className="titulo font-bold">Promedio </span>
+                  <span className="subtitulo font-italic">{estadisticas.promedio}</span>
                 </div>
                 <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
-                
-                  <span className="titulo font-bold">Desviación Estándar</span> 
+
+                  <span className="titulo font-bold">Desviación Estándar</span>
                   <span className="subtitulo font-italic">{estadisticas.desviacion_estandar}</span>
                 </div>
                 <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
-                <span className="titulo font-bold">Mínimo</span> 
+                  <span className="titulo font-bold">Mínimo</span>
 
                   <span className="subtitulo font-italic">
                     {estadisticas.minimo.year} con{" "}
@@ -258,7 +237,7 @@ const Principal = () => {
                   </span>
                 </div>
                 <div className="p-4 flex-grow flex flex-col flex-wrap justify-center items-center border border-black">
-                <span className="titulo font-bold"> Máximo</span> 
+                  <span className="titulo font-bold"> Máximo</span>
 
                   <span className="subtitulo font-italic">
                     {estadisticas.maximo.year} con{" "}

@@ -80,19 +80,18 @@ const Estadisticas = ({ id }) => {
   return (
     <div>
       <div className="flex flex-row items-center justify-center">
-        <p className="titulo">Seleccionar Variable :</p>
-        <select
-          name="variablesMagistrado"
-          id="variablesMagistrado"
-          className="p-4 m-4"
-          onChange={(e) => actualizar(e.target.value)}
-        >
-          {variables.map((item) => (
-            <option value={item.id} key={item.id}>
-              {item.nombre}
-            </option>
-          ))}
-        </select>
+
+        <div class="max-w-sm mx-auto flex flex-col flex-wrap justify-center items-center">
+          <p className="titulo">Seleccionar Variable</p>
+          <select name="variablesMagistrado" onChange={(e) => actualizar(e.target.value)}
+            id="variablesMagistrado" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            {variables.map((item) => (
+              <option value={item.id} key={item.id}>
+                {item.nombre}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="text-center bg-blue-700 p-4 m-4 text-white">
         Resumen Estadístico
@@ -107,15 +106,15 @@ const Estadisticas = ({ id }) => {
             recorrerLista={recorrerLista}
           ></Graficas>
         </div>
-        <div className={`mapa-bolivia ${"segundo" === activo ? "" : "hidden"}`}>
+        <div className={` h-[600px] border border-gray-300 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A] ${"segundo" === activo ? "" : "hidden"}`}>
           <EChart url={url}></EChart>
         </div>
 
-        <div className={` mapa-bolivia ${"tercero" === activo ? "" : "hidden"}`}>
+        <div className={`border border-gray-300 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]  h-[600px] ${"tercero" === activo ? "" : "hidden"}`}>
           <GraficoMultiple url={enlace}></GraficoMultiple>
         </div>
 
-        <div className={` mapa-bolivia ${"cuarto" === activo ? "" : "hidden"}`}>
+        <div className={`border border-gray-300 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A] h-[600px] ${"cuarto" === activo ? "" : "hidden"}`}>
           <GraficoMultiple url={enlaceV2}></GraficoMultiple>
         </div>
       </div>

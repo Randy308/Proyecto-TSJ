@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { TiArrowBack } from "react-icons/ti";
-import styles  from "./ResolucionTSJ.module.css"
+import styles from "./ResolucionTSJ.module.css"
 const ResolucionTSJ = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,6 +23,15 @@ const ResolucionTSJ = () => {
     getResolution();
   }, [id]);
 
+  const [visible, setVisible] = useState(false);
+
+  const cambiarEstado = (id) => {
+    setVisible(prev => (prev ===id ? null : id));
+
+  }
+
+  const lista = ['Datos Generales', 'Datos del proceso'];
+
   if (resolucion === null) {
     return (
       <div className="flex items-center justify-center" style={{ height: 800 }}>
@@ -30,6 +39,8 @@ const ResolucionTSJ = () => {
       </div>
     );
   }
+
+
   return (
     <div className="bg-[#333333]">
       {
@@ -56,50 +67,40 @@ const ResolucionTSJ = () => {
           <div className="bg-[#F0F0F0] m-4 " style={{ width: 500 }}>
             <div className="p-4 text-center bg-[#561427] text-white ">
               <p className="flex flex-row gap-4 justify-center items-center">
-               
+
                 <button onClick={() => navigate("/Jurisprudencia/Busqueda")} className="hover:text-gray-400"> <TiArrowBack className="text-3xl" /></button>
                 Analisis Documental{" "}
               </p>
             </div>
-            <div className="bg-white rounded-lg p-4 m-4 flex flex-row justify-around">
-              {" "}
-              <p>Datos Generales</p>
-              <IoMdArrowDropdown className="text-2xl" />
-            </div>
-            <div className=" bg-white p-4 m-4 rounded-lg oculto">
-              <p>
-                <strong>Nro de Resolucion:</strong> {resolucion.nro_resolucion}
-              </p>
-              <p>
-                <strong>Nro de Expediente:</strong> {resolucion.nro_expediente}
-              </p>
-              <p>
-                <strong>Fecha de Emision:</strong> {resolucion.fecha_emision}
-              </p>
-              <p>
-                <strong>Tipo de Resolucion:</strong>{" "}
-                {resolucion.tipo_resolucion}
-              </p>
-              <p>
-                <strong>Departamento:</strong> {resolucion.departamento}
-              </p>
-              <p>
-                <strong>Magistrado:</strong> {resolucion.magistrado}
-              </p>
-              <p>
-                <strong>Forma de Resolucion:</strong>{" "}
-                {resolucion.forma_resolucion}
-              </p>
-              <p>
-                <strong>Proceso:</strong> {resolucion.proceso}
-              </p>
-              <p>
-                <strong>Demandante:</strong> {resolucion.demandante}
-              </p>
-              <p>
-                <strong>Demandado:</strong> {resolucion.demandado}
-              </p>
-            </div>
+            {lista.map((item, index) => (
+              <div key={index}>
+                {/* Título del dropdown */}
+                <div
+                  className="bg-white rounded-lg p-4 m-4 flex flex-row justify-around hover:cursor-pointer"
+                  onClick={() => cambiarEstado(index)}
+                >
+                  <p>{item}</p>
+                  <IoMdArrowDropdown className="text-2xl" />
+                </div>
+
+                {/* Contenido del dropdown, visible solo si está activo */}
+                {visible === index && (
+                  <div className="border border-gray-200 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]">
+                    <p><strong>Nro de Resolucion:</strong> {resolucion.nro_resolucion}</p>
+                    <p><strong>Nro de Expediente:</strong> {resolucion.nro_expediente}</p>
+                    <p><strong>Fecha de Emision:</strong> {resolucion.fecha_emision}</p>
+                    <p><strong>Tipo de Resolucion:</strong> {resolucion.tipo_resolucion}</p>
+                    <p><strong>Departamento:</strong> {resolucion.departamento}</p>
+                    <p><strong>Magistrado:</strong> {resolucion.magistrado}</p>
+                    <p><strong>Forma de Resolucion:</strong> {resolucion.forma_resolucion}</p>
+                    <p><strong>Proceso:</strong> {resolucion.proceso}</p>
+                    <p><strong>Demandante:</strong> {resolucion.demandante}</p>
+                    <p><strong>Demandado:</strong> {resolucion.demandado}</p>
+                  </div>
+                )}
+              </div>
+            ))};
+
           </div>
         </div>
       }

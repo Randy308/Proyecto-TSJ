@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { FaArrowDownAZ, FaArrowUpAZ } from "react-icons/fa6";
 
-const Cabecera = ({ titulo, setFormData, estadoInicial }) => {
+const Cabecera = ({ titulo,valor, setFormData, id, setVisible , visible }) => {
   const identificador = `cabecera-${titulo}`;
-  const [activo, setActivo] = useState(estadoInicial); // Initial state
+  const [activo, setActivo] = useState(1); // Initial state
 
   useEffect(() => {
-    console.log("Current state (activo):", activo);
-  }, [activo]);
+    if( visible != id){
+      setActivo(1);
+    }
+  }, [visible]);
   const setParametros = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -21,19 +23,24 @@ const Cabecera = ({ titulo, setFormData, estadoInicial }) => {
   ];
 
   const handleClick = () => {
-    const nextState = activo === 3 ? 1 : activo + 1;
-    setActivo(nextState);
+    
+      const nextState = activo === 3 ? 1 : activo + 1;
+      setActivo(nextState);
 
-    const variable = variables.find((item) => item.id === nextState);
+      const variable = variables.find((item) => item.id === nextState);
 
-    // Update parameters based on sorting state
-    if (variable && variable.nombre !== "none") {
-      setParametros("variable", titulo);
-      setParametros("orden", variable.nombre);
-    } else {
-      setParametros("variable", null); // Reset sorting
-      setParametros("orden", null);
-    }
+
+      if (variable && variable.nombre !== "none") {
+        setParametros("variable", valor);
+        setParametros("orden", variable.nombre);
+        setVisible(id);
+      } else {
+        //setParametros("variable", null); // Reset sorting
+        //setParametros("orden", null);
+        setVisible(null);
+      }
+      
+    
   };
 
   return (

@@ -4,6 +4,7 @@ import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
 import "../../data/dark.js"; // Import the dark theme
+import "../../data/vintage.js"; // Import the dark theme
 import { useThemeContext } from "../../components/ThemeProvider";
 import { useFreeApi } from "../../hooks/api/useFreeApi";
 import Loading from "../../components/Loading";
@@ -24,7 +25,7 @@ const EChart = ({ url }) => {
 
   return (
     <ReactECharts
-      theme={isDarkMode ? "dark" : null}
+      theme={isDarkMode ? "dark" : "vintage"}
       option={{
         title: {
           text: "Cantidad de resoluciones por departamento",

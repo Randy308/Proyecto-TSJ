@@ -64,7 +64,7 @@ const Menciones = ({ id }) => {
                 resoluciones.map((id) => (
                   <a
                     href={`http://localhost:3000/Jurisprudencia/Resolucion/${id}`}
-                    className="text-xs text-blue-600 dark:text-blue-500 hover:underline"
+                    className="text-xs text-blue-600 dark:text-blue-500 hover:underline" key={id}
                   >
                     {id}
                   </a>

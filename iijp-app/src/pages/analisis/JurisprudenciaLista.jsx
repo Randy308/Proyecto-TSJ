@@ -157,7 +157,7 @@ const JurisprudenciaLista = () => {
         seriesIndex: 1,
         dimension: 0,
         min: 0,
-        max: jurisprudencia.length -1
+        max: jurisprudencia.length - 1
       }
     ],
     toolbox: {
@@ -169,6 +169,7 @@ const JurisprudenciaLista = () => {
     title: [
       {
         left: 'center',
+        top: '5%',
         text: 'Cantidad de resoluciones por periodo'
       },
       {
@@ -197,29 +198,34 @@ const JurisprudenciaLista = () => {
     ],
     grid: [
       {
-        bottom: '60%'
+        bottom: '60%',
+        left: '5%',  // Agrega padding izquierdo
+        right: '5%', // Agrega padding derecho
+        containLabel: true
       },
       {
-        top: '60%'
+        top: '60%',
+        left: '5%',  // Agrega padding izquierdo
+        right: '5%', // Agrega padding derecho
+        containLabel: true
       }
     ],
     series: [
       {
         type: 'line',
         showSymbol: false,
-
         data: resoluciones
       },
       {
         type: 'line',
         showSymbol: false,
         data: jurisprudencia,
-
         xAxisIndex: 1,
         yAxisIndex: 1
       }
     ]
   };
+
   
   const [valor, setValor] = useState(null);
   useEffect(() => {
@@ -234,7 +240,7 @@ const JurisprudenciaLista = () => {
           Histórico de Resoluciones
         </span>
       </div>
-      <div style={styles.pages} className="p-4 m-4 mb-0 pb-0 w-3/6 custom:w-full">
+      <div style={styles.pages} className="p-4 m-4 w-3/6 custom:w-full rounded-xl shadow-lg bg-white dark:bg-[#100C2A]">
         {resoluciones && resoluciones.length > 0 ? (
           <LineChart option={option} setData={setValor}></LineChart>
         ) : (
