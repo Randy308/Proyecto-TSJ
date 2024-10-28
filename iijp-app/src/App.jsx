@@ -20,6 +20,7 @@ import Principal from "./pages/analisis/resoluciones/Principal";
 import TablaCSV from "./pages/datos/TablaCSV";
 import ListaSalas from "./pages/analisis/ListaSalas";
 import Sala from "./pages/analisis/salas/Sala";
+import CompararDatos from "./pages/comparar/CompararDatos";
 function App() {
 
   const location = useLocation();
@@ -53,6 +54,7 @@ function App() {
           <Route path="/Jurisprudencia/Magistrado/:id" element={<MagistradoTSJ />} />
           <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
           <Route path="/Jurisprudencia/Estadistica/sala/:id" element={<Sala />} />
+          <Route path="/comparar-datos" element={<CompararDatos />} />
           <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
           <Route path="/Jurisprudencia/Estadistica/Resoluciones" element={<Principal/>} />
           <Route path="//Jurisprudencia/lista-salas" element={<ListaSalas/>}/>

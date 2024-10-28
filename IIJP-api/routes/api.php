@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\Api\MagistradosController;
 use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
@@ -69,3 +70,9 @@ Route::get('/obtener-datos-sala/{id}', [SalaController::class, 'show'])->name('o
 //rutas magistrados
 
 Route::get('/magistrado-estadisticas-departamentos/{id}', [MagistradosController::class, 'obtenerResolucionesDepartamento'])->name('estadisticas-magistrado-departamentos');
+
+
+//rutas de comparación de datos
+Route::get('/obtener-elemento', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');
+Route::get('/get-params', [CompareController::class, 'getParams'])->name('get-params');
+

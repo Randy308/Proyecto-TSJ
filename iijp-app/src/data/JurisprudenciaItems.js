@@ -20,7 +20,7 @@ export const jurisprudenciaItems = [
   },{
     id: 3,
     title: "Analisis Avanzado",
-    path: "/Jurisprudencia/Busqueda",
+    path: "/comparar-datos",
     cName: "tool-item",
     resumen : "El Módulo de Análisis Avanzado está diseñado para proporcionar a los usuarios herramientas poderosas para la comparación y el análisis profundo de datos.",
     icon: <FaClock className="icon-style"/> ,
