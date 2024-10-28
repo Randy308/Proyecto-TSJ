@@ -25,7 +25,7 @@ const JurisprudenciaLista = () => {
       icon: <GrDocumentUser className="h-8 w-8" />,
     },
     {
-      id: 2,
+      id: 3,
       title: "Análisis por Salas",
       descripcion:
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",

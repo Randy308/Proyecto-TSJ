@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import TablaResumen from "./tabla/TablaResumen";
+import TablaResumen from "./analisis/TablaResumen";
 import "../../styles/paginate.css";
 import Paginate from "../../components/Paginate";
 import AgTabla from "../../components/AgTabla";
 import PaginationData from "../busqueda/PaginationData";
+import Menciones from "./analisis/Menciones";
 const ResumenMagistrado = ({ id }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -54,19 +55,22 @@ const ResumenMagistrado = ({ id }) => {
 
   return (
     <div
-      className="md:container mx-auto px-40 custom:px-0"
+      className="p-4"
       id="jurisprudencia-busqueda"
     >
       <div className="row p-4">
-        {resoluciones.length > 0 && (
-          //<AgTabla rowData={resoluciones} columnDefs={columnDefs} />
-          <PaginationData data={resoluciones} total={totalRes} />
-          //<TablaResumen data={resoluciones} total={totalRes} />
+      {resoluciones.length > 0 && (
+        <div className="flex flex-row flex-wrap justify-around">
+        <PaginationData data={resoluciones} total={totalRes} />
+        <Menciones id={id}></Menciones>
+        </div>
+          
         )}
         <Paginate
           handlePageClick={handlePageClick}
           pageCount={pageCount}
         ></Paginate>
+     
       </div>
     </div>
   );

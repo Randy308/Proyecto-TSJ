@@ -1,26 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../../styles/tabla.css";
+import Cabecera from "../../components/Cabecera";
 const PaginationData = ({ data }) => {
+  const [formData, setFormData] = useState({
+    variable: "",
+    orden: "",
+  });
+  const [estadoInicial, setEstadoInicial] = useState(1);
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
+
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-[#DDD]">
-      <table id="tabla-resoluciones" className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-        <thead className="text-xs text-black uppercase bg-[#DDD] border-b">
+    <div className="relative overflow-x-auto">
+      <table
+        id="tabla-resoluciones"
+        className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border
+         border-gray-300 dark:border-white rounded-lg p-4"
+      >
+        <thead className="text-xs text-black uppercase bg-[#F8F8F8] border-b dark:bg-[#222628] dark:text-white">
           <tr>
-            <th scope="col" className="px-6 py-3">
-              Fecha
-            </th>
-            <th scope="col" className="px-6 py-3">
-            Tipo de resolucion
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Nro de resolucion
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Departamento
-            </th>
-            <th scope="col" className="px-6 py-3">
-              Sala
-            </th>
+            <Cabecera
+              titulo={"Fecha"}
+              setFormData={setFormData}
+              estadoInicial={estadoInicial}
+            ></Cabecera>
+            <Cabecera
+              titulo={"Tipo de resolucion"}
+              setFormData={setFormData}
+              estadoInicial={estadoInicial}
+            ></Cabecera>
+            <Cabecera
+              titulo={"Nro de resolucion"}
+              setFormData={setFormData}
+              estadoInicial={estadoInicial}
+            ></Cabecera>
+            <Cabecera
+              titulo={"Departamento"}
+              setFormData={setFormData}
+              estadoInicial={estadoInicial}
+            ></Cabecera>
+            <Cabecera
+              titulo={"Sala"}
+              setFormData={setFormData}
+              estadoInicial={estadoInicial}
+            ></Cabecera>
             <th scope="col" className="px-6 py-3">
               Accion
             </th>
@@ -28,10 +53,14 @@ const PaginationData = ({ data }) => {
         </thead>
         <tbody>
           {data.map((item, index) => (
-            <tr key={index} className="border-b border-gray-200 text-black bg-white">
+            <tr
+              key={index}
+              className="border-b border-gray-200 text-black odd:bg-white even:bg-gray-100 dark:text-white
+              dark:odd:bg-[#222628] dark:even:bg-[#181D1F]"
+            >
               <th
                 scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
               >
                 {item.fecha_emision}
               </th>

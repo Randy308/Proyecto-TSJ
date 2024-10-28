@@ -152,6 +152,12 @@ const CompararDatos = () => {
           type: "value",
         },
         series: resoluciones.map((item) => item),
+        grid: {
+          top: "10%", // Adjust top padding
+          bottom: "10%", // Adjust bottom padding
+          left: "10%", // Adjust left padding
+          right: "10%", // Adjust right padding
+        },
       });
     }
   }, [resoluciones, cabeceras]);
@@ -214,15 +220,15 @@ const CompararDatos = () => {
             <div className="grid grid-row-2 gap-4">
               <div className="row-select">
                 <div className="select-form">
-                  <p>Filtrar por Departamento:</p>
+                  <p>Filtrar por tipo de resolución:</p>
                   <select
                     id="tipo_resolucion_id"
                     value={selectedTipo}
                     className="form-control p-2 border border-gray-300"
                     onChange={cambiarDepartamento}
                   >
-                    <option value="todos" disabled>
-                      Todos
+                    <option value="todas" disabled>
+                      Selecciona una opcion
                     </option>
                     {tipoResolucion.map((item, index) => (
                       <option value={item.id} key={index}>
@@ -241,7 +247,7 @@ const CompararDatos = () => {
                     value={selectedSala}
                   >
                     <option value="todas" disabled>
-                      Todas
+                    Selecciona una opcion
                     </option>
                     {salas.map((item, index) => (
                       <option value={item.id} key={index}>
@@ -271,17 +277,17 @@ const CompararDatos = () => {
         </div>
       </div>
 
-      <div className="flex flex-row flex-wrap p-4 m-4 gap-4">
+      <div className="flex flex-row flex-wrap py-4 m-4 gap-4">
         {terminos && terminos.length > 0
           ? terminos.map((item, index) => (
-              <div className="bg-white text-black rounded-md p-4 flex flex-row justify-center items-center gap-4">
+              <div className="bg-white dark:bg-[#100C2A] text-black rounded-md p-4 flex flex-row justify-center items-center gap-4">
                 <div className="p-2">
                   <div className="titulo text-xl">
                   {toTitleCase(item.name.replace(/_/g, ' '))} : <span>{item.value}</span>{" "}
                   </div>
                   <div className="text-gray-400">Termino de busqueda</div>
                 </div>
-                <div>
+                <div className="titulo">
                   <RxDotsVertical />
                 </div>
               </div>

@@ -29,20 +29,20 @@ const TablaResumen = ({ data, total }) => {
         <tbody>
           {data.map((item, index) => (
             <tr key={index} className="border-b border-gray-200 p-4">
-              <th className="text-center">{item.nro_resolucion}</th>
-              <th className="text-center">{item.fecha_emision}</th>
+              <th className="roboto-regular text-center">{item.nro_resolucion}</th>
+              <th className="roboto-regular text-center">{item.fecha_emision}</th>
 
-              <th className="font-bold titulo text-center">
+              <th className="roboto-regular text-center">
                 {item.tipo_resolucion}
               </th>
-              <th className="font-bold titulo text-center">
+              <th className="roboto-regular text-center">
                 {item.departamento}
               </th>
-              <th className="font-bold titulo text-center">{item.sala}</th>
+              <th className="roboto-regular text-center">{item.sala}</th>
               <th className="text-center">
                 {" "}
                 <button
-                  href={`http://localhost:3000/Jurisprudencia/Resolucion/${item.id}`}
+                  href={`http://localhost:3000/Resolucion/${item.id}`}
                   className="font-medium text-blue-600 dark:text-blue-500 hover:bg-gray-200 bg-white rounded-lg  border border-blue-600 mt-2 p-2"
                 >
                   Ver resolución

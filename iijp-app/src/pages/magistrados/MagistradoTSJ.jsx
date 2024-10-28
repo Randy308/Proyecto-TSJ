@@ -3,12 +3,12 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { IoIosPerson } from "react-icons/io";
 import "../../styles/styles_randy/magistradosTSJ.css";
-import EstadisticasMagistrado from "./EstadisticasMagistrado";
 
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 
 import "../../styles/tabs.css";
 import ResumenMagistrado from "./ResumenMagistrado";
+import Estadisticas from "./analisis/Estadisticas";
 
 const MagistradoTSJ = () => {
   const { id } = useParams();
@@ -58,7 +58,7 @@ const MagistradoTSJ = () => {
           <ResumenMagistrado id={id}></ResumenMagistrado>
         </TabPanel>
         <TabPanel forceRender={renderedPanels.includes(1)}>
-          <EstadisticasMagistrado id={id}></EstadisticasMagistrado>
+          <Estadisticas id={id}></Estadisticas>
         </TabPanel>
       </Tabs>
     </div>

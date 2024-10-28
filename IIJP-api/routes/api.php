@@ -58,7 +58,7 @@ Route::get('/obtener-filtradores', [ResolutionController::class, 'obtenerFiltrad
 
 Route::get('/obtener-estadisticas-res', [ResolutionController::class, 'obtenerEstadisticasRes'])->name('obtener-filtradores');
 
-Route::get('/obtener-coautores/{id}', [MagistradosController::class, 'obtenerCoAutores'])->name('obtener-coautores');
+Route::get('/obtener-coautores', [MagistradosController::class, 'obtenerCoAutores'])->name('obtener-coautores');
 
 
 //rutas de salas
@@ -69,7 +69,10 @@ Route::get('/obtener-datos-sala/{id}', [SalaController::class, 'show'])->name('o
 
 //rutas magistrados
 
-Route::get('/magistrado-estadisticas-departamentos/{id}', [MagistradosController::class, 'obtenerResolucionesDepartamento'])->name('estadisticas-magistrado-departamentos');
+Route::get('/magistrado-estadisticas-departamentos/{id}', [MagistradosController::class, 'obtenerResolucionesDepartamento'])->name('est-mag-dep');
+Route::get('/magistrado-estadisticas-v2/{id}', [MagistradosController::class, 'obtenerEstadistica'])->name('est-mag-v2');
+Route::get('/magistrado-estadisticas-salas/{id}', [MagistradosController::class, 'obtenerEstadisticaSalas'])->name('est-mag-salas');
+Route::get('/magistrado-estadisticas-juris/{id}', [MagistradosController::class, 'obtenerEstadisticaTipoJuris'])->name('est-mag-juris');
 
 
 //rutas de comparación de datos

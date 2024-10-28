@@ -17,15 +17,7 @@ const LineChart = ({ option, setData }) => {
 
   return (
     <ReactECharts
-      option={{
-        ...option,
-        grid: {
-          top: "10%", // Adjust top padding
-          bottom: "10%", // Adjust bottom padding
-          left: "10%", // Adjust left padding
-          right: "10%", // Adjust right padding
-        },
-      }}
+      option={option}
       theme={isDarkMode ? "dark" : "shine"}
       style={{
         height: "100%",
