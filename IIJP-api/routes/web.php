@@ -4,6 +4,7 @@ use App\Http\Controllers\api\ExcelController;
 use App\Http\Controllers\Api\TemaController;
 use App\Http\Controllers\TemasController;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Models\Role;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+//$role = Role::create(['name'=> 'admin']);
+//$role = Role::create(['name'=> 'user']);
 Route::get('/', function () {
     return view('prueba');
 });
