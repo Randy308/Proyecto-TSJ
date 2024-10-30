@@ -97,3 +97,7 @@ Route::get('/magistrado-estadisticas-juris/{id}', [MagistradosController::class,
 Route::get('/obtener-elemento', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');
 Route::get('/get-params', [CompareController::class, 'getParams'])->name('get-params');
 
+
+
+
+Route::get('/get-time-series/{id}', [MagistradosController::class, 'generarSerieTemporal']);

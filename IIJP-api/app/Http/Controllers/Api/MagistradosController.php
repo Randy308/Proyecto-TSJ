@@ -7,9 +7,11 @@ use App\Models\Contents;
 use App\Models\Magistrados;
 use App\Models\Resolutions;
 use App\Models\Salas;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class MagistradosController extends Controller
 {
@@ -323,6 +325,62 @@ class MagistradosController extends Controller
             return response()->json([
                 'error' => 'Ocurrió un error al intentar obtener los datos' . $e
             ], 500);
+        }
+    }
+
+
+    public function generarSerieTemporal($id)
+    {
+        $magistrado = Magistrados::where('id', $id)->firstOrFail();
+        $salas = DB::table('resolutions as r')
+            ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
+            ->select(
+                DB::raw('MAX(r.fecha_emision) as fecha_max'),
+                DB::raw('MIN(r.fecha_emision) as fecha_min')
+            )
+            ->where('r.magistrado_id', '=', $magistrado->id)
+            ->get();
+
+        $fecha_final = Carbon::parse(max($salas->pluck('fecha_max')->toArray()))->endOfMonth();
+        $fecha_inicial = Carbon::parse(min($salas->pluck('fecha_min')->toArray()))->startOfMonth();
+        $query = "
+            SELECT
+                series::date AS periodo,
+                COALESCE(COUNT(r.id), 0) AS cantidad
+            FROM
+                generate_series(:fechaInicial::date, :fechaFinal::date, '1 MONTH'::INTERVAL) AS series
+            LEFT JOIN resolutions r
+                ON EXTRACT(YEAR FROM r.fecha_emision) = EXTRACT(YEAR FROM series::date)
+                AND EXTRACT(MONTH FROM r.fecha_emision) = EXTRACT(MONTH FROM series::date)
+                AND r.magistrado_id = :magistradoId
+            GROUP BY
+                periodo
+            ORDER BY
+                periodo;
+        ";
+
+        $resolutions = DB::select($query, [
+            'fechaInicial' => $fecha_inicial,
+            'fechaFinal' => $fecha_final,
+            'magistradoId' => $magistrado->id,
+        ]);
+
+        // Preparar los datos en JSON
+        $data = [
+            'id' => $magistrado->id,
+            'resolutions' => $resolutions
+        ];
+        //return $resolutions;
+        // Enviar datos a Flask
+        $response = Http::post('http://127.0.0.1:5000/predicciones/', [
+            'data' => json_encode($data)
+        ]);
+
+        // Opcional: Manejar la respuesta
+        if ($response->successful()) {
+            return $response->json();
+        } else {
+            return response()->json(['error' => 'Error al enviar datos a Flask'.$response], 500);
         }
     }
 
