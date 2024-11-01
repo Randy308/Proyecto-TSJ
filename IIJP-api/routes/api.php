@@ -42,14 +42,23 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/temas-generales', [TemaController::class, 'verTemasGenerales'])->name('temas-generales');
+//rutas cronologias
+
+Route::get('/nodos-principales', [TemaController::class, 'verTemasGenerales'])->name('temas-generales');
+Route::get('/nodos-hijos/{id}', [TemaController::class, 'obtenerHijos'])->name('hijos-salas');
+
+Route::get('/obtener-nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
+
+
+
+
+
 
 Route::get('/resoluciones', [ResolutionController::class, 'obtenerAvg'])->name('resoluciones');
 
 Route::get('/resolucion/{id}', [ResolutionController::class, 'show'])->name('show-resolucion');
 Route::get('/salas', [SalaController::class, 'index'])->name('index-salas');
 
-Route::get('/salas-hijos/{id}', [TemaController::class, 'obtenerHijos'])->name('hijos-salas');
 
 
 Route::get('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
@@ -96,6 +105,8 @@ Route::get('/magistrado-estadisticas-juris/{id}', [MagistradosController::class,
 //rutas de comparación de datos
 Route::get('/obtener-elemento', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');
 Route::get('/get-params', [CompareController::class, 'getParams'])->name('get-params');
+Route::get('/get-dates', [CompareController::class, 'getDates']);
+
 
 
 

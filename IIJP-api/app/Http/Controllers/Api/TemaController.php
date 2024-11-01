@@ -33,6 +33,26 @@ class TemaController extends Controller
         //
     }
 
+    public function obtenerNodos(Request $request)
+    {
+        $id = $request->id;
+
+        if ($id) {
+            $nodo_principal = Temas::where('id', $id)->first();
+
+            if (!$nodo_principal) {
+                return response()->json(['error' => 'Nodo no encontrado'], 404);
+            }
+
+            $hijos = Temas::where('tema_id', $id)->get();
+            return response()->json( $hijos);
+        } else {
+            $temas_generales = Temas::whereNull('tema_id')->get(['id', 'nombre', 'tema_id']);
+            return response()->json($temas_generales);
+        }
+    }
+
+
     public function verTemasGenerales()
     {
         $temas_generales = DB::table('temas')->select('id', 'nombre', 'tema_id')->whereNull('tema_id')->get();

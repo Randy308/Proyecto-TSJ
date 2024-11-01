@@ -51,7 +51,7 @@ const ShowTemas = () => {
 
   const getAllHijos = async (id) => {
     try {
-      const response = await axios.get(`${endpoint}/salas-hijos/${id}`);
+      const response = await axios.get(`${endpoint}/nodos-hijos/${id}`);
       setTemas(response.data);
       console.log(response.data);
     } catch (error) {
@@ -61,7 +61,7 @@ const ShowTemas = () => {
 
   const getAllTemas = async () => {
     try {
-      const response = await axios.get(`${endpoint}/temas-generales`);
+      const response = await axios.get(`${endpoint}/nodos-principales`);
       setTemas(response.data);
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);

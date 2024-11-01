@@ -120,6 +120,8 @@ div#parent-container.dark-theme .arrow-steps .step:before {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .ocultar {

@@ -88,4 +88,25 @@ class CompareController extends Controller
 
         return response()->json($data);
     }
+
+
+    public function getDates()
+    {
+
+        $max_date = DB::table('resolutions as r')
+            ->selectRaw("MAX(r.fecha_emision) as fecha_completa")
+            ->value('fecha_completa'); // Obtiene el valor directamente
+
+        $min_date = DB::table('resolutions as r')
+            ->selectRaw("MIN(r.fecha_emision) as fecha_completa")
+            ->value('fecha_completa'); // Obtiene el valor directamente
+
+        $data = [
+            'superior' => $max_date,
+            'inferior' => $min_date
+        ];
+
+        return response()->json($data);
+    }
+
 }
