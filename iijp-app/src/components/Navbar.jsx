@@ -7,6 +7,8 @@ import { FaGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
 import { useToggleContext, useThemeContext } from "./ThemeProvider";
+import Config from "../auth/Config";
+import AuthUser from "../auth/AuthUser";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -15,7 +17,6 @@ function Navbar() {
   const listaRef = useRef(null);
   const cambiarTema = useToggleContext();
 
-
   const eventoBoton = () => {
     cambiarTema();
     setSettingsOpen(false);
@@ -23,13 +24,12 @@ function Navbar() {
       setMenuOpen(false);
     }
   };
-  const actualizarBoton=()=>{
-
-    setMenuOpen((prevState) => !prevState)
-    if(settingsOpen){
+  const actualizarBoton = () => {
+    setMenuOpen((prevState) => !prevState);
+    if (settingsOpen) {
       setSettingsOpen(false);
     }
-  }
+  };
   const actualizarAjustes = () => {
     setSettingsOpen((prevState) => !prevState);
     handleShowList();
@@ -48,6 +48,39 @@ function Navbar() {
         listaRef.current.style.top = `${rect.bottom + listaHeight / 2}px`;
         listaRef.current.style.left = `${rect.left - listaWidth / 2}px`;
       }
+    }
+  };
+  const { getToken, getLogout } = AuthUser();
+
+  const logoutUser = () => {
+    Config.getLogout("/logout")
+      .then(({ data }) => {
+        if (data.success) {
+          console.log(data);
+          getLogout();
+        }
+      })
+      .catch(({ err }) => {
+        console.log("Existe un error " + err);
+      });
+  };
+  const renderLinks = () => {
+    if (getToken()) {
+      return (
+        <>
+          <li className="p-2">
+            <a onClick={logoutUser}>Logout</a>
+          </li>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <li className="p-2">
+            <a href="/login">Login</a>
+          </li>
+        </>
+      );
     }
   };
 
@@ -131,6 +164,7 @@ function Navbar() {
               />
             </button>
           </li>
+          {renderLinks()}
           <li className="p-2">Ajustes</li>
         </ul>
       </div>

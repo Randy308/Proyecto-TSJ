@@ -23,13 +23,18 @@ import CompararDatos from "./pages/comparar/CompararDatos";
 import LayoutPublic from "./layouts/LayoutPublic";
 import ProtectedRoutes from "./auth/ProtectedRoutes";
 import LayoutAdmin from "./layouts/LayoutAdmin";
+import Login from "./auth/Login";
+import Register from "./auth/Register";
+import LayoutUser from "./layouts/LayoutUser";
+import { PanelUser } from "./pages/user/PanelUser";
+import PanelAdmin from "./pages/admin/PanelAdmin";
 function App() {
   return (
     <ThemeProvider>
       <main>
         <React.Fragment>
           <Routes>
-          //rutas publicas
+            //rutas publicas
             <Route path="/" element={<LayoutPublic />}>
               <Route index element={<Navigate to="/inicio" />} />
               <Route path="inicio" element={<Inicio />} />
@@ -81,17 +86,25 @@ function App() {
                 element={<Principal />}
               />
               <Route
-                path="/Jurisprudencia/lista-salas"
+                path="/jurisprudencia/lista-salas"
                 element={<ListaSalas />}
               />
+              <Route path="/login" element={<Login />} />
+              <Route path="/registrar" element={<Register />} />
             </Route>
             //rutas admin
             <Route path="/" element={<ProtectedRoutes />}>
               <Route path="/" element={<LayoutAdmin />}>
-                <Route path="/insertar-datos" element={<TablaCSV />} />
+                <Route path="/admin" element={<PanelAdmin />} />
+                <Route path="/admin/subir" element={<TablaCSV />} />
               </Route>
             </Route>
-
+            //rutas user
+            <Route path="/" element={<ProtectedRoutes />}>
+              <Route path="/" element={<LayoutUser />}>
+                <Route path="/user" element={<PanelUser />} />
+              </Route>
+            </Route>
           </Routes>
         </React.Fragment>
       </main>
