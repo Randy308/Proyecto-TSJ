@@ -73,7 +73,7 @@ const PaginationData = ({ data ,setFormData}) => {
               <td className="px-6 py-4">{item.sala}</td>
               <td className="px-6 py-4">
                 <a
-                  href={`http://localhost:3000/Jurisprudencia/Resolucion/${item.id}`}
+                  href={`http://localhost:3000/jurisprudencia/resolucion/${item.id}`}
                   className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                 >
                   Ver resolucion

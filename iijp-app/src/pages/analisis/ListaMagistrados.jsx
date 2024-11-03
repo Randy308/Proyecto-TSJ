@@ -9,7 +9,7 @@ const ListaMagistrados = () => {
     <Lista
       url={`${endpoint}/magistrados`}
       texto="magistrados"
-      enlace="/Jurisprudencia/Magistrado"
+      enlace="/jurisprudencia/magistrado"
     ></Lista>
   );
 };

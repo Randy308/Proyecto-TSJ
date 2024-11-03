@@ -8,7 +8,7 @@ const ListaSalas = () => {
     <Lista
       url={`${endpoint}/all-salas`}
       texto="salas"
-      enlace="/Jurisprudencia/Estadistica/sala"
+      enlace="/jurisprudencia/estadistica/sala"
     ></Lista>
   );
 };

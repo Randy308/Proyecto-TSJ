@@ -11,7 +11,7 @@ const JurisprudenciaLista = () => {
       id: 1,
       title: "Análisis por Resoluciones",
       descripcion: "Quis commodo deserunt pariatur eu ea ut.",
-      path: "/Jurisprudencia/Estadistica/Resoluciones",
+      path: "/jurisprudencia/estadistica/resoluciones",
       cName: "tool-item",
       icon: <HiDocumentReport className="h-8 w-8" />,
     },
@@ -20,7 +20,7 @@ const JurisprudenciaLista = () => {
       title: "Análisis por Magistrados",
       descripcion:
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
-      path: "/Jurisprudencia/Lista-Magistrados",
+      path: "/jurisprudencia/lista-magistrados",
       cName: "tool-item",
       icon: <GrDocumentUser className="h-8 w-8" />,
     },
@@ -29,7 +29,7 @@ const JurisprudenciaLista = () => {
       title: "Análisis por Salas",
       descripcion:
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
-      path: "/Jurisprudencia/lista-salas",
+      path: "/jurisprudencia/lista-salas",
       cName: "tool-item",
       icon: <GrDocumentUser className="h-8 w-8" />,
     },

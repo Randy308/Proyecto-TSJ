@@ -7,12 +7,12 @@ const Inicio = () => {
   const tarjetas = [
     {
       nombre: "TCP Dinamicas",
-      path: "/Dinamicas",
+      path: "/dinamicas",
       icon: <FaChartPie className="tarjetas-icon-style" />,
     },
     {
       nombre: "TSJ Jurisprudencia",
-      path: "/Jurisprudencia",
+      path: "/jurisprudencia",
       icon: <FaMagnifyingGlassChart className="tarjetas-icon-style" />,
     },
   ];

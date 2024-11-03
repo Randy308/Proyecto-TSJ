@@ -3,21 +3,21 @@ export const navItems = [
   {
     id: 0,
     title: "Inicio",
-    path: "/Inicio",
+    path: "/inicio",
     cName: "nav-item",
     icon: <FaHome className="icon-style"/> 
   },
   {
     id: 2,
     title: "Jurisprudencia",
-    path: "/Jurisprudencia",
+    path: "/jurisprudencia",
     cName: "nav-item",
     icon: <FaHome className="icon-style"/> 
   },
   {
     id: 3,
     title: "Novedades",
-    path: "/Novedades",
+    path: "/novedades",
     cName: "nav-item",
     icon: <FaHome className="icon-style"/> 
   },

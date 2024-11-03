@@ -103,7 +103,7 @@ const ShowTemas = () => {
         },
       });
       if (response.data.length > 0) {
-        navigate("/Jurisprudencia/Cronologias/Resultados", {
+        navigate("/jurisprudencia/cronologias/resultados", {
           state: { data: response.data },
         });
       } else {

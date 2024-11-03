@@ -12,7 +12,6 @@ import ResultadoAnalisis from "./pages/analisis/ResultadoAnalisis";
 import { ThemeProvider } from "./components/ThemeProvider";
 import ResolucionTSJ from "./pages/resoluciones/ResolucionTSJ";
 import CronologiasResultados from "./pages/cronologia/CronologiasResultados";
-import { useLocation } from 'react-router-dom';
 import JurisprudenciaLista from "./pages/analisis/JurisprudenciaLista";
 import ListaMagistrados from "./pages/analisis/ListaMagistrados";
 import MagistradoTSJ from "./pages/magistrados/MagistradoTSJ";
@@ -21,49 +20,82 @@ import TablaCSV from "./pages/datos/TablaCSV";
 import ListaSalas from "./pages/analisis/ListaSalas";
 import Sala from "./pages/analisis/salas/Sala";
 import CompararDatos from "./pages/comparar/CompararDatos";
+import LayoutPublic from "./layouts/LayoutPublic";
+import ProtectedRoutes from "./auth/ProtectedRoutes";
+import LayoutAdmin from "./layouts/LayoutAdmin";
 function App() {
-
-  const location = useLocation();
-  const noNavbarRoutes = ['/Jurisprudencia/Resolucion/:id']; // Agrega más rutas según sea necesario
-  const noFooterRoutes = ['/Jurisprudencia/Resolucion/:id', '/Jurisprudencia/Busqueda','/Jurisprudencia/Cronologias'];
-  const FooterRoutes = ['/Inicio', '/Novedades','/Jurisprudencia'];
-  const shouldShowNavbar = !noNavbarRoutes.some((route) =>
-    location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
-  );
-
-  const shouldShowFooter = FooterRoutes.some((route) =>
-    location.pathname.match(new RegExp(`^${route.replace(':id', '\\d+')}$`))
-  );
-
   return (
     <ThemeProvider>
-    <main>
-      <React.Fragment>
-        {shouldShowNavbar && <Navbar />}
-        <Routes>
-          <Route path="/" element={<Navigate to="/Inicio" />} />
-          <Route path="/Inicio" element={<Inicio />} />
-          <Route path="/Novedades" element={<Novedades />} />
-          <Route path="/Jurisprudencia" element={<Jurisprudencia />} />
-          <Route path="/Jurisprudencia/Analisis-Materia" element={<AnalisisMateria />} />
-          <Route path="/Jurisprudencia/Lista-Magistrados" element={<ListaMagistrados />} />
-          <Route path="/Jurisprudencia/Lista-de-analisis" element={<JurisprudenciaLista />} />
-          <Route path="/Jurisprudencia/Resultados" element={<ResultadoAnalisis />} />
-          <Route path="/Jurisprudencia/Busqueda" element={<JurisprudenciaBusqueda />} />
-          <Route path="/Jurisprudencia/Cronologias" element={<JurisprudenciaCronologia />} />
-          <Route path="/Jurisprudencia/Magistrado/:id" element={<MagistradoTSJ />} />
-          <Route path="/Jurisprudencia/Resolucion/:id" element={<ResolucionTSJ />} />
-          <Route path="/Jurisprudencia/Estadistica/sala/:id" element={<Sala />} />
-          <Route path="/comparar-datos" element={<CompararDatos />} />
-          <Route path="/Jurisprudencia/Cronologias/Resultados" element={<CronologiasResultados />} />
-          <Route path="/Jurisprudencia/Estadistica/Resoluciones" element={<Principal/>} />
-          <Route path="//Jurisprudencia/lista-salas" element={<ListaSalas/>}/>
-          <Route path="/insertar-datos" element={<TablaCSV/>}/>
-        </Routes>
-        {shouldShowFooter && <Footer />}
-      </React.Fragment>
-    </main>
-  </ThemeProvider>
+      <main>
+        <React.Fragment>
+          <Routes>
+          //rutas publicas
+            <Route path="/" element={<LayoutPublic />}>
+              <Route index element={<Navigate to="/inicio" />} />
+              <Route path="inicio" element={<Inicio />} />
+              <Route path="/novedades" element={<Novedades />} />
+              <Route path="/jurisprudencia" element={<Jurisprudencia />} />
+              <Route
+                path="/jurisprudencia/analisis-Materia"
+                element={<AnalisisMateria />}
+              />
+              <Route
+                path="/jurisprudencia/lista-Magistrados"
+                element={<ListaMagistrados />}
+              />
+              <Route
+                path="/jurisprudencia/lista-de-analisis"
+                element={<JurisprudenciaLista />}
+              />
+              <Route
+                path="/jurisprudencia/resultados"
+                element={<ResultadoAnalisis />}
+              />
+              <Route
+                path="/jurisprudencia/busqueda"
+                element={<JurisprudenciaBusqueda />}
+              />
+              <Route
+                path="/jurisprudencia/cronologias"
+                element={<JurisprudenciaCronologia />}
+              />
+              <Route
+                path="/jurisprudencia/magistrado/:id"
+                element={<MagistradoTSJ />}
+              />
+              <Route
+                path="/jurisprudencia/resolucion/:id"
+                element={<ResolucionTSJ />}
+              />
+              <Route
+                path="/jurisprudencia/estadistica/sala/:id"
+                element={<Sala />}
+              />
+              <Route path="/comparar-datos" element={<CompararDatos />} />
+              <Route
+                path="/jurisprudencia/cronologias/resultados"
+                element={<CronologiasResultados />}
+              />
+              <Route
+                path="/jurisprudencia/estadistica/resoluciones"
+                element={<Principal />}
+              />
+              <Route
+                path="/Jurisprudencia/lista-salas"
+                element={<ListaSalas />}
+              />
+            </Route>
+            //rutas admin
+            <Route path="/" element={<ProtectedRoutes />}>
+              <Route path="/" element={<LayoutAdmin />}>
+                <Route path="/insertar-datos" element={<TablaCSV />} />
+              </Route>
+            </Route>
+
+          </Routes>
+        </React.Fragment>
+      </main>
+    </ThemeProvider>
   );
 }
 

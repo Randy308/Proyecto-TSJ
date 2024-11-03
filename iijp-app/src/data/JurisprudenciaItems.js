@@ -4,7 +4,7 @@ export const jurisprudenciaItems = [
   {
     id: 1,
     title: "Estadisticas",
-    path: "/Jurisprudencia/Lista-de-analisis",
+    path: "/jurisprudencia/lista-de-analisis",
     cName: "tool-item",
     resumen : "El módulo de Estadísticas está diseñado para recuperar la información almacenada y presentarla de manera clara y comprensible para los usuarios. ",
     icon: <FaChartLine className="icon-style"/> ,
@@ -12,7 +12,7 @@ export const jurisprudenciaItems = [
   },{
     id: 2,
     title: "Cronojuridicas",
-    path: "/Jurisprudencia/Cronologias",
+    path: "/jurisprudencia/cronologias",
     cName: "tool-item",
     resumen : "El módulo de Cronojurídicas se encarga de recuperar la información segmentada de la jurisprudencia, y presentarla de manera estructurada, facilitando su comprensión y utilización posterior",
     icon: <FaSearch className="icon-style"/> ,
