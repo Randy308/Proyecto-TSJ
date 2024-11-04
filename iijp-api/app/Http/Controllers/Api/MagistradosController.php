@@ -329,9 +329,10 @@ class MagistradosController extends Controller
     }
 
 
-    public function generarSerieTemporal($id)
+    public function generarSerieTemporal(Request $request)
     {
-        $magistrado = Magistrados::where('id', $id)->firstOrFail();
+
+        $magistrado = Magistrados::where('id', $request->id)->firstOrFail();
         $salas = DB::table('resolutions as r')
             ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
             ->select(

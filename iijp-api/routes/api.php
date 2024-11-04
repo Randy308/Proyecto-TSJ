@@ -7,10 +7,9 @@ use App\Http\Controllers\Api\MagistradosController;
 use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
 use App\Http\Controllers\Api\TemaController;
-
+use App\Http\Controllers\Api\User\TimeSeriesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Laravel\Sanctum\Http\Controllers\CsrfCookieController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,12 +30,10 @@ Route::prefix('v1')->group(function () {
 
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
-
-
         Route::apiResource('admin/user', UserController::class);
     });
 
-
+    Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
 });
 
 
@@ -85,7 +82,7 @@ Route::get('/obtener-resoluciones-magistrado', [MagistradosController::class, 'o
 
 Route::get('/obtener-filtradores', [ResolutionController::class, 'obtenerFiltradores'])->name('obtener-filtradores');
 
-Route::get('/obtener-estadisticas-res', [ResolutionController::class, 'obtenerEstadisticasRes'])->name('obtener-filtradores');
+Route::get('/obtener-estadisticas-res', [ResolutionController::class, 'obtenerEstadisticasRes']);
 
 Route::get('/obtener-coautores', [MagistradosController::class, 'obtenerCoAutores'])->name('obtener-coautores');
 
@@ -113,4 +110,4 @@ Route::get('/get-dates', [CompareController::class, 'getDates']);
 
 
 
-Route::get('/get-time-series/{id}', [MagistradosController::class, 'generarSerieTemporal']);
+Route::get('/get-time-series', [MagistradosController::class, 'generarSerieTemporal']);

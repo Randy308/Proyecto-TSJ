@@ -1,20 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ArbolJurisprudencial from "./tabs/ArbolJurisprudencial";
 import { cronologiaItems } from "../../data/CronologiaItems.js";
 import InputEscenciales from "./tabs/InputEscenciales";
 import { FaHouse } from "react-icons/fa6";
+import axios from "axios";
+import { toast } from "react-toastify";
+import Tipografia from "./tabs/Tipografia";
+import { useNavigate } from "react-router-dom";
 
+const endpoint = process.env.REACT_APP_BACKEND;
 const JurisprudenciaCronologia = () => {
   const [currentID, setCurrentID] = useState(null);
   const [arbol, setArbol] = useState([]);
-
+  const [resultado, setResultado] = useState([]);
   const [tabActivo, setTabActivo] = useState(1);
-
-  const actualizarTab = (id) => {
-    if (tabActivo != id) {
-      setTabActivo(id);
-    }
-  };
+  const [formData, setFormData] = useState({
+    departamento: "Todos",
+    tipo_resolucion: "Todas",
+    forma_resolucion: "Todas",
+    fecha_exacta: "",
+    fecha_desde: "",
+    fecha_hasta: "",
+    cantidad: 10,
+  });
 
   const eliminarNodo = (idBuscado) => {
     if (tabActivo == 1) {
@@ -33,8 +41,22 @@ const JurisprudenciaCronologia = () => {
       setCurrentID(null);
     }
   };
+  const [activador, setActivador] = useState(false);
+  const actualizarTab = (id) => {
+    if (id != 1) {
+      if (arbol.length > 0) {
+        //getParams();
+        setActivador((prev) => !prev);
+      } else {
+        toast.warning("Debe seleccionar una materia");
+        return;
+      }
+    }
 
-  const [resultado, setResultado] = useState([]);
+    if (tabActivo != id) {
+      setTabActivo(id);
+    }
+  };
 
   const getParams = async () => {
     try {
@@ -60,19 +82,9 @@ const JurisprudenciaCronologia = () => {
     } catch (error) {
       const message = error.response?.data?.error || "Ocurrió un error";
       console.error("Error fetching data:", message);
-      alert(`Error: ${message}`);
+      console.error("Error :", error);
     }
   };
-
-  const [formData, setFormData] = useState({
-    departamento: "Todos",
-    tipo_resolucion: "Todas",
-    forma_resolucion: "Todas",
-    fecha_exacta: "",
-    fecha_desde: "",
-    fecha_hasta: "",
-    cantidad: 10,
-  });
 
   const renderContent = (id) => {
     switch (id) {
@@ -85,16 +97,50 @@ const JurisprudenciaCronologia = () => {
             arbol={arbol}
           />
         );
-      // case 2:
-      //   return (
-      //     <InputEscenciales
-      //       formData={formData}
-      //       setFormData={setFormData}
-      //       resultado={resultado}
-      //     />
-      //   );
+      case 2:
+        return (
+          <InputEscenciales
+            formData={formData}
+            setFormData={setFormData}
+            resultado={resultado}
+          />
+        );
+      case 4:
+        return <Tipografia />;
       default:
         return "Hola mundo";
+    }
+  };
+  useEffect(() => {
+    if (activador && arbol.length > 0) {
+      getParams();
+    }
+  }, [activador, arbol]);
+
+  const navigate = useNavigate();
+  const obtenerCronologia = async (e) => {
+    e.preventDefault();
+    try {
+      const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
+      const response = await axios.get(`${endpoint}/cronologias`, {
+        params: {
+          tema_id: arbol[arbol.length - 1].id,
+          tema_nombre: arbol[arbol.length - 1].nombre,
+          descriptor: nombresTemas,
+          ...formData,
+        },
+      });
+      if (response.data.length > 0) {
+        navigate("/jurisprudencia/cronologias/resultados", {
+          state: { data: response.data },
+        });
+      } else {
+        alert("No existen datos");
+      }
+    } catch (error) {
+      const message = error.response.data;
+      console.error("Error fetching data:", message);
+      alert(message.error);
     }
   };
 
@@ -129,8 +175,8 @@ const JurisprudenciaCronologia = () => {
           </div>
         </div>
       </div>
-      <div class="md:flex">
-        <ul class="flex-column space-y space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
+      <div className="md:flex">
+        <ul className="flex-column space-y space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400 md:me-4 mb-4 md:mb-0">
           {cronologiaItems.map((item) => (
             <li key={item.id}>
               <a
@@ -171,6 +217,13 @@ const JurisprudenciaCronologia = () => {
           </div>
         ))}
       </div>
+      <button
+        type="button"
+        onClick={(e) => obtenerCronologia(e)}
+        className={`bg-blue-500 hover:bg-blue-700 p-2 rounded-lg text-white`}
+      >
+        Generar Cronologia
+      </button>
     </div>
   );
 };

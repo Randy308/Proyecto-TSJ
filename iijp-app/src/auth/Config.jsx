@@ -6,7 +6,6 @@ const instance = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  withXSRFToken: true,
   withCredentials: true,
   baseURL: endpoint, // Base URL set here
 });
@@ -14,5 +13,18 @@ const instance = axios.create({
 export default {
   getRegister: (data) => instance.post(`/v1/auth/register`, data), // Correct path
   getLogin: (data) => instance.post(`/v1/auth/login`, data), // Correct path
-  getLogout: () => instance.post(`/v1/logout`), // Correct path
+  getLogout: () => instance.post(`/v1/auth/logout`), // Correct path
 };
+
+function getCookie(name) {
+  const cookieArr = document.cookie.split(";");
+
+  for (let cookie of cookieArr) {
+    const [cookieName, cookieValue] = cookie.trim().split("=");
+
+    if (cookieName === name) {
+      return decodeURIComponent(cookieValue);
+    }
+  }
+  return null;
+}

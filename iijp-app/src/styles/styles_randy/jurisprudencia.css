@@ -60,11 +60,6 @@
   color: rgba(255, 255, 255, .6) ;
 }
 
-.main {
-  width: 100%;
-  height: calc(100dvh - 200px);
-}
-
 
 .card{
   

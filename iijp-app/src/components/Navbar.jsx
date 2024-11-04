@@ -7,8 +7,9 @@ import { FaGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
 import { useToggleContext, useThemeContext } from "./ThemeProvider";
-import Config from "../auth/Config";
+
 import AuthUser from "../auth/AuthUser";
+import axios from "axios";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -52,23 +53,38 @@ function Navbar() {
   };
   const { getToken, getLogout } = AuthUser();
 
-  const logoutUser = () => {
-    Config.getLogout("/logout")
-      .then(({ data }) => {
-        if (data.success) {
-          console.log(data);
-          getLogout();
+  const logoutUser = async () => {
+    await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
+      withCredentials: true,
+    });
+
+    try {
+      const endpoint = process.env.REACT_APP_BACKEND;
+      const { data } = await axios.post(
+        `${endpoint}/v1/auth/logout`,
+        {},
+        {
+          headers: {
+            accept: "application/json",
+            Authorization: "Bearer " + getToken(),
+          },
+          withCredentials: true,
         }
-      })
-      .catch(({ err }) => {
-        console.log("Existe un error " + err);
-      });
+      );
+
+      if (data.success) {
+        console.log(data);
+        getLogout();
+      }
+    } catch (error) {
+      console.log("Error al realizar la solicitud: " + error.message);
+    }
   };
   const renderLinks = () => {
     if (getToken()) {
       return (
         <>
-          <li className="p-2">
+          <li className="p-2 hover:cursor-pointer rounded-md hover:bg-gray-200">
             <a onClick={logoutUser}>Logout</a>
           </li>
         </>
@@ -76,7 +92,7 @@ function Navbar() {
     } else {
       return (
         <>
-          <li className="p-2">
+          <li className="p-2 hover:cursor-pointer hover:bg-gray-200">
             <a href="/login">Login</a>
           </li>
         </>
@@ -153,7 +169,7 @@ function Navbar() {
             <button
               onClick={eventoBoton}
               type="button"
-              className="p-2 flex flex-row justify-between gap-4 w-full"
+              className="p-2 flex flex-row justify-between gap-4 w-full hover:bg-gray-200"
             >
               Tema
               <IoSunny

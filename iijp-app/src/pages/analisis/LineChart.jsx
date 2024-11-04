@@ -9,10 +9,15 @@ const LineChart = ({ option, setData }) => {
   const chartRef = useRef(null);
 
   useEffect(() => {
+    if (!setData) return;
     let instance = chartRef.current.getEchartsInstance();
     instance.on("click", (params) => {
       setData(params.name);
     });
+
+    return () => {
+      instance.off("click");
+    };
   }, []);
 
   return (

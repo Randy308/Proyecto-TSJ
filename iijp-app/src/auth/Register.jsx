@@ -21,8 +21,10 @@ const Register = () => {
 
   const submitForm = async (e) => {
     e.preventDefault();
-
-    Config.getRegister({
+    await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
+      withCredentials: true,
+    });
+    await Config.getRegister({
       name: name,
       email: email,
       password: password,

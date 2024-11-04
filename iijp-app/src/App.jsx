@@ -28,6 +28,10 @@ import Register from "./auth/Register";
 import LayoutUser from "./layouts/LayoutUser";
 import { PanelUser } from "./pages/user/PanelUser";
 import PanelAdmin from "./pages/admin/PanelAdmin";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function App() {
   return (
     <ThemeProvider>
@@ -108,6 +112,7 @@ function App() {
           </Routes>
         </React.Fragment>
       </main>
+      <ToastContainer />
     </ThemeProvider>
   );
 }

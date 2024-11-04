@@ -9,6 +9,7 @@ import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "../../styles/tabs.css";
 import ResumenMagistrado from "./ResumenMagistrado";
 import Estadisticas from "./analisis/Estadisticas";
+import Decomposition from "../prediccion/Decomposition";
 
 const MagistradoTSJ = () => {
   const { id } = useParams();
@@ -39,8 +40,8 @@ const MagistradoTSJ = () => {
 
   return (
     <div className="p-4 m-4 magistrado-contenedor">
-      <div className="contenedor-datos">
-        <div className="contenedor-foto">
+      <div className="contenedor-datos ">
+        <div className="contenedor-foto dark:bg-gray-400">
           <IoIosPerson className="foto-perfil" />
         </div>
         <div className="detalles-magistrado">
@@ -55,7 +56,8 @@ const MagistradoTSJ = () => {
         </TabList>
 
         <TabPanel forceRender={renderedPanels.includes(0)}>
-          <ResumenMagistrado id={id}></ResumenMagistrado>
+          {/* <ResumenMagistrado id={id}></ResumenMagistrado> */}
+          <Decomposition id={id} />
         </TabPanel>
         <TabPanel forceRender={renderedPanels.includes(1)}>
           <Estadisticas id={id}></Estadisticas>

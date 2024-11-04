@@ -21,6 +21,7 @@ import CambriaRegular from "../../fonts/Cambriax.ttf";
 import CambriaBold from "../../fonts/Cambria Bold.ttf";
 import CambriaItalic from "../../fonts/Cambria Italic.ttf";
 
+import { headingItems } from "../../data/HeadingItems.js";
 Font.register({
   family: "Times New Roman",
   fonts: [
@@ -48,7 +49,47 @@ Font.register({
   ],
 });
 
-const styles = StyleSheet.create({
+const defaultStyles = {
+  descriptor0: headingItems[0].estiloDefault,
+  descriptor1: headingItems[1].estiloDefault,
+  descriptor2: headingItems[2].estiloDefault,
+  descriptor3: headingItems[3].estiloDefault,
+  descriptor4: headingItems[4].estiloDefault,
+  descriptor5: headingItems[5].estiloDefault,
+  descriptor6: headingItems[6].estiloDefault,
+  ratio: headingItems[7].estiloDefault,
+  resolution: headingItems[8].estiloDefault,
+};
+
+// Carga de estilos desde localStorage
+const loadedStyles = {
+  descriptor0:
+    JSON.parse(localStorage.getItem("descriptor0")) ||
+    defaultStyles.descriptor0,
+  descriptor1:
+    JSON.parse(localStorage.getItem("descriptor1")) ||
+    defaultStyles.descriptor1,
+  descriptor2:
+    JSON.parse(localStorage.getItem("descriptor2")) ||
+    defaultStyles.descriptor2,
+  descriptor3:
+    JSON.parse(localStorage.getItem("descriptor3")) ||
+    defaultStyles.descriptor3,
+  descriptor4:
+    JSON.parse(localStorage.getItem("descriptor4")) ||
+    defaultStyles.descriptor4,
+  descriptor5:
+    JSON.parse(localStorage.getItem("descriptor5")) ||
+    defaultStyles.descriptor5,
+  descriptor6:
+    JSON.parse(localStorage.getItem("descriptor6")) ||
+    defaultStyles.descriptor6,
+  ratio: JSON.parse(localStorage.getItem("ratio")) || defaultStyles.ratio,
+  resolution:
+    JSON.parse(localStorage.getItem("resolution")) || defaultStyles.resolution,
+};
+
+const  styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
@@ -81,68 +122,15 @@ const styles = StyleSheet.create({
     fontSize: 15,
     padding: 4,
   },
-  descriptor0: {
-    fontFamily: "Cambria",
-    fontWeight: "normal",
-    fontSize: 26,
-    textAlign: "center",
-  },
-  descriptor1: {
-    fontFamily: "Cambria",
-    fontWeight: "normal",
-    fontSize: 22,
-    textAlign: "center",
-  },
-  descriptor2: {
-    fontFamily: "Trebuchet MS",
-    fontWeight: "normal",
-    fontSize: 16,
-    marginLeft: 2,
-    paddingBottom: 5,
-  },
-  descriptor3: {
-    fontFamily: "Trebuchet MS",
-    fontWeight: "normal",
-    fontSize: 15,
-    marginLeft: 15,
-    paddingBottom: 5,
-  },
-  descriptor4: {
-    fontFamily: "Trebuchet MS",
-    fontWeight: "normal",
-    fontSize: 14,
-    marginLeft: 30,
-    paddingBottom: 5,
-  },
-  descriptor5: {
-    fontFamily: "Trebuchet MS",
-    fontWeight: "normal",
-    fontSize: 13,
-    marginLeft: 55,
-    paddingBottom: 5,
-  },
-  descriptor6: {
-    fontFamily: "Trebuchet MS",
-    fontWeight: "normal",
-    fontSize: 12,
-    marginLeft: 75,
-    paddingBottom: 5,
-  },
-  ratio: {
-    fontFamily: "Times New Roman",
-    fontWeight: "normal",
-    fontSize: 12,
-    marginTop: 10, 
-    textAlign: "justify",
-  },
-  resolution: {
-    fontFamily: "Times New Roman",
-    fontWeight: "normal",
-    fontSize: 12,
-    paddingBottom: 15,
-    marginTop: 10, 
-    textAlign: "justify",
-  },
+  descriptor0: loadedStyles.descriptor0,
+  descriptor1: loadedStyles.descriptor1,
+  descriptor2: loadedStyles.descriptor2,
+  descriptor3: loadedStyles.descriptor3,
+  descriptor4: loadedStyles.descriptor4,
+  descriptor5: loadedStyles.descriptor5,
+  descriptor6: loadedStyles.descriptor6,
+  ratio: loadedStyles.ratio,
+  resolution: loadedStyles.resolution,
   resolucion: {
     marginLeft: 75,
   },
@@ -195,11 +183,11 @@ const getStyleByIndex = (index) => {
 };
 
 const CrearLista = ({ lista, indice }) => {
-  console.log("size of the list " + lista.length);
-  console.log(typeof lista);
+  //console.log("size of the list " + lista.length);
+  //console.log(typeof lista);
   if (lista && lista.length > 0) {
-    console.log(lista);
-    console.log(indice);
+    //console.log(lista);
+    //console.log(indice);
     return (
       <View>
         {lista.map((item, index) => (

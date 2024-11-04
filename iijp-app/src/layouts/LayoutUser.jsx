@@ -1,14 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import AuthUser from "../auth/AuthUser";
 
 const LayoutUser = () => {
-  const { getRol } = AuthUser();
+  const { rol } = AuthUser();
   const navigate = useNavigate();
   useEffect(() => {
-    if (getRol() != "user") {
+    if (rol != "user") {
       navigate("/");
     }
   }, []);

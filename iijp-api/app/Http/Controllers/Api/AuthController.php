@@ -41,6 +41,7 @@ class AuthController extends Controller
             $response['message'] = "Login exitoso";
             $response['user'] =  $user;
             $response['token'] = $user->createToken('web-token')->plainTextToken;
+            $response['rol'] = $user->getRoleNames();
         } else {
             $response['user'] = ['no encontrado'];
         }
@@ -51,7 +52,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $response = ['success' => false];
-        
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|min:3|max:50',
             'email' => 'required|email|unique:users,email',

@@ -3,14 +3,15 @@ import Config from "./Config";
 import { useNavigate } from "react-router-dom";
 import AuthUser from "./AuthUser";
 import axios from "axios";
-const endpoint = process.env.REACT_APP_TOKEN;
+const endpoint = process.env.REACT_APP_BACKEND;
 
 const Login = () => {
   const { getToken, saveToken } = AuthUser();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("pedro@gmail.com");
+  const [password, setPassword] = useState("root1234");
   const navigate = useNavigate();
+
 
   useEffect(() => {
     if (getToken()) {
@@ -21,19 +22,25 @@ const Login = () => {
   const submitForm = async (e) => {
     e.preventDefault();
 
-    await axios.get(`${endpoint}/sanctum/csrf-cookie`).then((response) => {
-      Config.getLogin({ email, password })
-        .then(({ data }) => {
-          if (data.success) {
-            console.log(data);
-            saveToken(data.user, data.token, data.user.roles[0].name);
-          }
-        })
-        .catch(({ err }) => {
-          console.log("Existe un error " + err);
-        });
+    await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
+      withCredentials: true,
     });
+    await Config.getLogin({
+      email: email,
+      password: password,
+    })
+      .then(({ data }) => {
+        if (data.success) {
+          saveToken(data.user , data.token , data.rol[0]);
+        } else {
+          console.log(data);
+        }
+      })
+      .catch(({ err }) => {
+        console.log("Existe un error " + err);
+      });
   };
+
   return (
     <div className="container mx-auto pt-4 mt-4">
       <form>
