@@ -45,11 +45,10 @@ const JurisprudenciaCronologia = () => {
   const actualizarTab = (id) => {
     if (id != 1) {
       if (arbol.length > 0) {
-        //getParams();
         setActivador((prev) => !prev);
       } else {
         toast.warning("Debe seleccionar una materia");
-        return;
+        //return;
       }
     }
 
@@ -120,28 +119,32 @@ const JurisprudenciaCronologia = () => {
   const navigate = useNavigate();
   const obtenerCronologia = async (e) => {
     e.preventDefault();
-    try {
-      const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
-      const response = await axios.get(`${endpoint}/cronologias`, {
-        params: {
-          tema_id: arbol[arbol.length - 1].id,
-          tema_nombre: arbol[arbol.length - 1].nombre,
-          descriptor: nombresTemas,
-          ...formData,
-        },
-      });
-      if (response.data.length > 0) {
-        navigate("/jurisprudencia/cronologias/resultados", {
-          state: { data: response.data },
-        });
-      } else {
-        alert("No existen datos");
-      }
-    } catch (error) {
-      const message = error.response.data;
-      console.error("Error fetching data:", message);
-      alert(message.error);
-    }
+
+    navigate("/jurisprudencia/cronologias/resultados", {
+      state: { data: "response.data" },
+    });
+    // try {
+    //   const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
+    //   const response = await axios.get(`${endpoint}/cronologias`, {
+    //     params: {
+    //       tema_id: arbol[arbol.length - 1].id,
+    //       tema_nombre: arbol[arbol.length - 1].nombre,
+    //       descriptor: nombresTemas,
+    //       ...formData,
+    //     },
+    //   });
+    //   if (response.data.length > 0) {
+    //     navigate("/jurisprudencia/cronologias/resultados", {
+    //       state: { data: response.data },
+    //     });
+    //   } else {
+    //     alert("No existen datos");
+    //   }
+    // } catch (error) {
+    //   const message = error.response.data;
+    //   console.error("Error fetching data:", message);
+    //   alert(message.error);
+    // }
   };
 
   return (

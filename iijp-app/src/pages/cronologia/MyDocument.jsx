@@ -61,35 +61,31 @@ const defaultStyles = {
   resolution: headingItems[8].estiloDefault,
 };
 
-// Carga de estilos desde localStorage
-const loadedStyles = {
-  descriptor0:
-    JSON.parse(localStorage.getItem("descriptor0")) ||
-    defaultStyles.descriptor0,
-  descriptor1:
-    JSON.parse(localStorage.getItem("descriptor1")) ||
-    defaultStyles.descriptor1,
-  descriptor2:
-    JSON.parse(localStorage.getItem("descriptor2")) ||
-    defaultStyles.descriptor2,
-  descriptor3:
-    JSON.parse(localStorage.getItem("descriptor3")) ||
-    defaultStyles.descriptor3,
-  descriptor4:
-    JSON.parse(localStorage.getItem("descriptor4")) ||
-    defaultStyles.descriptor4,
-  descriptor5:
-    JSON.parse(localStorage.getItem("descriptor5")) ||
-    defaultStyles.descriptor5,
-  descriptor6:
-    JSON.parse(localStorage.getItem("descriptor6")) ||
-    defaultStyles.descriptor6,
-  ratio: JSON.parse(localStorage.getItem("ratio")) || defaultStyles.ratio,
-  resolution:
-    JSON.parse(localStorage.getItem("resolution")) || defaultStyles.resolution,
+// Función para cargar un estilo específico desde localStorage con manejo de errores
+const loadStyle = async(key, defaultValue) => {
+  try {
+    const storedValue = localStorage.getItem(key);
+    return storedValue ? JSON.parse(storedValue) : defaultValue;
+  } catch (error) {
+    console.error(`Error al cargar ${key} desde localStorage:`, error);
+    return defaultValue;
+  }
 };
 
-const  styles = StyleSheet.create({
+// Carga de estilos con manejo de errores
+const loadedStyles = {
+  descriptor0: loadStyle("descriptor0", defaultStyles.descriptor0),
+  descriptor1: loadStyle("descriptor1", defaultStyles.descriptor1),
+  descriptor2: loadStyle("descriptor2", defaultStyles.descriptor2),
+  descriptor3: loadStyle("descriptor3", defaultStyles.descriptor3),
+  descriptor4: loadStyle("descriptor4", defaultStyles.descriptor4),
+  descriptor5: loadStyle("descriptor5", defaultStyles.descriptor5),
+  descriptor6: loadStyle("descriptor6", defaultStyles.descriptor6),
+  ratio: loadStyle("ratio", defaultStyles.ratio),
+  resolution: loadStyle("resolution", defaultStyles.resolution),
+};
+
+const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",

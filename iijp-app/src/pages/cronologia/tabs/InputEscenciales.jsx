@@ -1,5 +1,4 @@
 import React from "react";
-import { Datepicker } from "flowbite-react";
 
 const InputEscenciales = ({ formData, setFormData, resultado }) => {
   const cambiarFechaExacta = (e) => {
