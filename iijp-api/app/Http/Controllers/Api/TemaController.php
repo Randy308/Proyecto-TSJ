@@ -12,6 +12,7 @@ use App\Models\TipoResolucions;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 
 function validarModelo($modelClassName, $field, $value)
 {
@@ -45,7 +46,7 @@ class TemaController extends Controller
             }
 
             $hijos = Temas::where('tema_id', $id)->get();
-            return response()->json( $hijos);
+            return response()->json($hijos);
         } else {
             $temas_generales = Temas::whereNull('tema_id')->get(['id', 'nombre', 'tema_id']);
             return response()->json($temas_generales);
@@ -180,6 +181,9 @@ class TemaController extends Controller
         $current = [];
         //return $results;
 
+
+
+
         foreach ($results as $element) {
             $pieces = explode(" / ", $element->descriptor);
             //array_push($lista, $pieces);
@@ -212,7 +216,21 @@ class TemaController extends Controller
             'current' => $current,
             'data' => $results->toArray()
         ];
-        return response()->json($data);
+
+
+
+        $pdf = LaravelMpdf::chunkLoadView('<html-separator/>', 'pdf', ['results' => $results->toArray()], [], [
+            'format'          => 'letter',
+            'margin_left'     => 25,  // 2.5 cm en mm
+            'margin_right'    => 25,  // 2.5 cm en mm
+            'margin_top'      => 25,  // 2.5 cm en mm
+            'margin_bottom'   => 25,  // 2.5 cm en mm
+            'orientation'     => 'P',
+            'title'           => 'Documento',
+            'author'          => 'IIJP',
+        ]);
+
+        return $pdf->Output('document.pdf', 'I');
     }
 
 

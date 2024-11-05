@@ -120,31 +120,28 @@ const JurisprudenciaCronologia = () => {
   const obtenerCronologia = async (e) => {
     e.preventDefault();
 
-    navigate("/jurisprudencia/cronologias/resultados", {
-      state: { data: "response.data" },
-    });
-    // try {
-    //   const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
-    //   const response = await axios.get(`${endpoint}/cronologias`, {
-    //     params: {
-    //       tema_id: arbol[arbol.length - 1].id,
-    //       tema_nombre: arbol[arbol.length - 1].nombre,
-    //       descriptor: nombresTemas,
-    //       ...formData,
-    //     },
-    //   });
-    //   if (response.data.length > 0) {
-    //     navigate("/jurisprudencia/cronologias/resultados", {
-    //       state: { data: response.data },
-    //     });
-    //   } else {
-    //     alert("No existen datos");
-    //   }
-    // } catch (error) {
-    //   const message = error.response.data;
-    //   console.error("Error fetching data:", message);
-    //   alert(message.error);
-    // }
+    try {
+      const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
+      const response = await axios.get(`${endpoint}/cronologias`, {
+        params: {
+          tema_id: arbol[arbol.length - 1].id,
+          tema_nombre: arbol[arbol.length - 1].nombre,
+          descriptor: nombresTemas,
+          ...formData,
+        },
+        responseType: "blob",
+      });
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      navigate("/Jurisprudencia/Cronologias/Resultados", {
+        state: { pdfUrl: pdfUrl },
+      });
+    } catch (error) {
+      const message =
+        error.response?.data || "An error occurred while fetching data";
+      console.error("Error fetching data:", message);
+    }
   };
 
   return (

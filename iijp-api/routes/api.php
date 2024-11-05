@@ -60,9 +60,6 @@ Route::get('/salas', [SalaController::class, 'index'])->name('index-salas');
 
 
 
-Route::get('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
-
-
 
 Route::get('/obtener-parametros', [ResolutionController::class, 'obtenerParametros'])->name('obtener-parametros');
 Route::get('/filtrar-resoluciones', [ResolutionController::class, 'filtrarResoluciones'])->name('filtrar-resoluciones');
@@ -111,3 +108,6 @@ Route::get('/get-dates', [CompareController::class, 'getDates']);
 
 
 Route::get('/get-time-series', [MagistradosController::class, 'generarSerieTemporal']);
+
+
+Route::get('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');

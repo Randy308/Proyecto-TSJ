@@ -61,8 +61,8 @@ const defaultStyles = {
   resolution: headingItems[8].estiloDefault,
 };
 
-// Función para cargar un estilo específico desde localStorage con manejo de errores
-const loadStyle = async(key, defaultValue) => {
+
+const loadStyle = (key, defaultValue) => {
   try {
     const storedValue = localStorage.getItem(key);
     return storedValue ? JSON.parse(storedValue) : defaultValue;
@@ -224,12 +224,12 @@ const MyDocument = ({ data }) => (
                 {item.tipo_jurisprudencia ? (
                   <View>
                     <Text style={styles.ratio}>
-                      Tipo de jurisprudencia:{" "}
+                      Tipo de jurisprudencia:
                       {formatText(item.tipo_jurisprudencia)}
                     </Text>
                   </View>
                 ) : (
-                  " "
+                  <Text> </Text>
                 )}
 
                 {item.forma_resolucion ? (
@@ -239,7 +239,7 @@ const MyDocument = ({ data }) => (
                     </Text>
                   </View>
                 ) : (
-                  " "
+                  <Text> </Text>
                 )}
                 {item.proceso ? (
                   <View>
@@ -248,7 +248,7 @@ const MyDocument = ({ data }) => (
                     </Text>
                   </View>
                 ) : (
-                  " "
+                  <Text> </Text>
                 )}
 
                 {item.ratio ? (
@@ -258,7 +258,7 @@ const MyDocument = ({ data }) => (
                     </Text>
                   </View>
                 ) : (
-                  " "
+                  <Text> </Text>
                 )}
               </View>
             </View>

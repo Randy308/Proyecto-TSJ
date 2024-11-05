@@ -1,42 +1,43 @@
-import React from "react";
-
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
-import MyDocument from "./MyDocument";
-import DocumentoPDF from "./DocumentoPDF";
 
 const CronologiasResultados = () => {
-  //const location = useLocation();
-  //const { data } = location.state || [];
+  const location = useLocation();
+  const [pdfUrl, setPdfUrl] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.pdfUrl) {
+      setPdfUrl(location.state.pdfUrl);
+    }
+
+    return () => {
+      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+    };
+  }, [location.state, pdfUrl]);
 
   return (
     <div className="flex items-center justify-center">
-      <PDFViewer
-        className="pdf-container p-4 m-4"
-        style={{
-          height: "100vh",
-          width: "100vh",
-        }}
-      >
-        {/* <MyDocument data={data[0]}/> */}
-        <DocumentoPDF />
-      </PDFViewer>
-
-      <div>
-        <PDFDownloadLink
-          className="p-4 m-4 bg-blue-600 rounded-lg text-white"
-          style={{
-            height: "100dvh",
-            width: "100dvh",
-          }}
-          document={<DocumentoPDF />}
-          fileName="somename.pdf"
-        >
-          {({ blob, url, loading, error }) =>
-            loading ? "Cargando el documento" : "Descargar documentos"
-          }
-        </PDFDownloadLink>
-      </div>
+      {pdfUrl ? (
+        <div className="flex flex-row">
+          <iframe
+            src={pdfUrl}
+            title="PDF Document"
+            style={{ width: "70vw", height: "70vh" }}
+            frameBorder="0"
+          />
+          <div>
+            <a
+              href={pdfUrl}
+              download="prueba.pdf"
+              className="p-4 m-4 bg-blue-600 rounded-lg text-white"
+            >
+              Descargar PDF
+            </a>
+          </div>
+        </div>
+      ) : (
+        <p>Cargando PDF...</p>
+      )}
     </div>
   );
 };
