@@ -105,7 +105,7 @@ class TemaController extends Controller
 
     public function obtenerCronologias(Request $request)
     {
-        
+
         $tema_id = $request['tema_id'];
         $descriptor = $request['descriptor'];
         $departamento = $request["departamento"];
@@ -219,16 +219,37 @@ class TemaController extends Controller
 
 
         //return $request->estilos;
-        $pdf = LaravelMpdf::chunkLoadView('<html-separator/>', 'pdf', ['results' => $results->toArray() , 'estilos' => $request->estilos], [], [
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $request->estilos], [], [
             'format'          => 'letter',
-            'margin_left'     => 25,  // 2.5 cm en mm
-            'margin_right'    => 25,  // 2.5 cm en mm
-            'margin_top'      => 25,  // 2.5 cm en mm
-            'margin_bottom'   => 25,  // 2.5 cm en mm
+            'margin_left'     => 25,  // 2.5 cm in mm
+            'margin_right'    => 25,  // 2.5 cm in mm
+            'margin_top'      => 25,  // 2.5 cm in mm
+            'margin_bottom'   => 25,  // 2.5 cm in mm
             'orientation'     => 'P',
             'title'           => 'Documento',
             'author'          => 'IIJP',
+            'custom_font_dir' => public_path('fonts/'),
+            'custom_font_data' => [
+                'cambria' => [ 
+                    'R'  => 'Cambriax.ttf',
+                    'B'  => 'Cambria-Bold.ttf',
+                    'I'  => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf'
+                ],
+                'trebuchet_ms' => [
+                    'R'  => 'trebuc.ttf',
+                    'B'  => 'trebucbd.ttf',
+                    'I'  => 'trebucit.ttf'
+                ],
+                'times_new_roman' => [
+                    'R'  => 'times-new-roman.ttf',
+                    'B'  => 'times-new-roman-bold.ttf',
+                    'I'  => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf'
+                ],
+            ]
         ]);
+        
 
         return $pdf->Output('document.pdf', 'I');
         //return $pdf->stream('document.pdf');

@@ -16,28 +16,18 @@
             font-weight: bold;
         }
 
-        .contenido {
-            margin-left: 80pt;
-        }
-
-        .descriptor,
-        .resolution,
-        .tipo-jurisprudencia,
-        .forma-resolucion,
-        .proceso,
-        .ratio {
-            margin-bottom: 5px;
-        }
-
         @foreach ($estilos as $elemento)
         .{{ $elemento['titulo'] }} {
-            font-family: {{ $elemento['estilo']['fontFamily'] }};
+            font-family: '{{ $elemento['estilo']['fontFamily'] }}', sans-serif;
             font-weight: {{ $elemento['estilo']['fontWeight'] }};
-            font-size: {{ $elemento['estilo']['fontSize'] }};
-            margin-left: {{ $elemento['estilo']['marginLeft'] }}px;
+            font-size: {{ $elemento['estilo']['fontSize'] }}px;
+            margin-left: {{ $elemento['estilo']['marginLeft'] }};
             padding-bottom: {{ $elemento['estilo']['paddingBottom'] }}px;
             margin-top: {{ $elemento['estilo']['marginTop'] }}px;
             text-align: {{ $elemento['estilo']['textAlign'] }};
+            font-style: {{ $elemento['estilo']['fontStyle'] }};
+            text-decoration: {{ $elemento['estilo']['textDecoration'] }};
+            color: {{ $elemento['estilo']['color'] }};
         }
         @endforeach
 
@@ -52,6 +42,7 @@
             height: 90px;
             width: 90px;
         }
+
     </style>
 
 </head>
@@ -81,6 +72,10 @@
         </tr>
     </table>
 
+    <div style="background-color: #c23b22; text-align: center; margin-top: 20%; color: white;">
+        <p style="font-size: 45pt;">Cronologias Juridicas</p>
+    </div>
+
     <pagebreak even-footer-value="-1" resetpagenum="1" />
 
     <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />
@@ -104,9 +99,10 @@
             @endforeach
         </div>
 
+        <div>
+            <p class="restrictor">{{ $item->restrictor }}</p>
+        </div>
         <div class="contenido">
-            <p class="descriptor">{{ $item->restrictor }}</p>
-
             <p class="resolution">
                 Nro Resolución:
                 <a href="http://127.0.0.1:3000/jurisprudencia/resolucion/{{ $item->resolution_id }}">
