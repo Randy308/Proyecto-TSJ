@@ -105,7 +105,7 @@ class TemaController extends Controller
 
     public function obtenerCronologias(Request $request)
     {
-
+        
         $tema_id = $request['tema_id'];
         $descriptor = $request['descriptor'];
         $departamento = $request["departamento"];
@@ -218,8 +218,8 @@ class TemaController extends Controller
         ];
 
 
-
-        $pdf = LaravelMpdf::chunkLoadView('<html-separator/>', 'pdf', ['results' => $results->toArray()], [], [
+        //return $request->estilos;
+        $pdf = LaravelMpdf::chunkLoadView('<html-separator/>', 'pdf', ['results' => $results->toArray() , 'estilos' => $request->estilos], [], [
             'format'          => 'letter',
             'margin_left'     => 25,  // 2.5 cm en mm
             'margin_right'    => 25,  // 2.5 cm en mm
@@ -231,6 +231,7 @@ class TemaController extends Controller
         ]);
 
         return $pdf->Output('document.pdf', 'I');
+        //return $pdf->stream('document.pdf');
     }
 
 

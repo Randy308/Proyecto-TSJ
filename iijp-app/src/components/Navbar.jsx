@@ -85,7 +85,7 @@ function Navbar() {
       return (
         <>
           <li className="p-2 hover:cursor-pointer rounded-md hover:bg-gray-200">
-            <a onClick={logoutUser}>Logout</a>
+            <a onClick={logoutUser}>Cerrar sesión</a>
           </li>
         </>
       );
@@ -93,7 +93,7 @@ function Navbar() {
       return (
         <>
           <li className="p-2 hover:cursor-pointer hover:bg-gray-200">
-            <a href="/login">Login</a>
+            <a href="/login">Iniciar sesión</a>
           </li>
         </>
       );

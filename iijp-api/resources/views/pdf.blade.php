@@ -17,7 +17,7 @@
         }
 
         .contenido {
-            margin-top: 10px;
+            margin-left: 80pt;
         }
 
         .descriptor,
@@ -29,95 +29,17 @@
             margin-bottom: 5px;
         }
 
-        .descriptor-0 {
-            font-family: "Cambria";
-            font-weight: normal;
-            font-size: 26pt;
-            margin-left: 2px;
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-align: center;
+        @foreach ($estilos as $elemento)
+        .{{ $elemento['titulo'] }} {
+            font-family: {{ $elemento['estilo']['fontFamily'] }};
+            font-weight: {{ $elemento['estilo']['fontWeight'] }};
+            font-size: {{ $elemento['estilo']['fontSize'] }};
+            margin-left: {{ $elemento['estilo']['marginLeft'] }}px;
+            padding-bottom: {{ $elemento['estilo']['paddingBottom'] }}px;
+            margin-top: {{ $elemento['estilo']['marginTop'] }}px;
+            text-align: {{ $elemento['estilo']['textAlign'] }};
         }
-
-        .descriptor-1 {
-            font-family: "Cambria";
-            font-weight: normal;
-            font-size: 22pt;
-            margin-left: 2px;
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-align: center;
-        }
-
-        .descriptor-2 {
-            font-family: "Trebuchet MS";
-            font-weight: normal;
-            font-size: 16pt;
-            margin-left: 2px;
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-align: justify;
-        }
-
-        .descriptor-3 {
-            font-family: "Trebuchet MS";
-            font-weight: normal;
-            font-size: 15pt;
-            margin-left: 15px;
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-align: justify;
-        }
-
-        .descriptor-4 {
-            font-family: "Trebuchet MS";
-            font-weight: normal;
-            font-size: 14pt;
-            margin-left: 30px;
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-align: justify;
-        }
-
-        .descriptor-5 {
-            font-family: "Trebuchet MS";
-            font-weight: normal;
-            font-size: 13pt;
-            margin-left: 55px;
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-align: justify;
-        }
-
-        .descriptor-6 {
-            font-family: "Trebuchet MS";
-            font-weight: normal;
-            font-size: 12pt;
-            margin-left: 75px;
-            padding-bottom: 5px;
-            margin-top: 0;
-            text-align: justify;
-        }
-
-        .ratio {
-            font-family: "Times New Roman";
-            font-weight: normal;
-            font-size: 12pt;
-            margin-left: 0;
-            padding-bottom: 0;
-            margin-top: 10px;
-            text-align: justify;
-        }
-
-        .resolution {
-            font-family: "Times New Roman";
-            font-weight: normal;
-            font-size: 12pt;
-            margin-left: 0;
-            padding-bottom: 15px;
-            margin-top: 10px;
-            text-align: justify;
-        }
+        @endforeach
 
         .footer-pagination {
             color: gray;
@@ -158,6 +80,7 @@
             </td>
         </tr>
     </table>
+
     <pagebreak even-footer-value="-1" resetpagenum="1" />
 
     <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />
@@ -166,64 +89,65 @@
 
 
     @foreach ($results as $item)
+    <div>
         <div>
-            <div>
-                @foreach ($item->descriptor as $elemento)
-                    <h2 class="descriptor-{{ $item->indices[$loop->index] }}">
+            @foreach ($item->descriptor as $elemento)
+            <h2 class="descriptor{{ $item->indices[$loop->index] }}">
 
-                        @if ($item->indices[$loop->index] < 3)
-                            <tocentry content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
-                        @endif
-
-                        {{ $elemento }}
-                    </h2>
-                @endforeach
-            </div>
-
-            <div class="contenido">
-                <p class="descriptor">{{ $item->restrictor }}</p>
-
-                <p class="resolution">
-                    Nro Resolución:
-                    <a href="http://127.0.0.1:3000/Jurisprudencia/Resolucion/{{ $item->resolution_id }}">
-                        {{ $item->nro_resolucion }}
-                    </a>
-                </p>
-
-                @if ($item->tipo_jurisprudencia)
-                    <div>
-                        <p class="tipo-jurisprudencia">
-                            Tipo de jurisprudencia:
-                            {{ str_replace('_x000D_', "\n", $item->tipo_jurisprudencia) }}
-                        </p>
-                    </div>
+                @if ($item->indices[$loop->index]
+                < 3)
+                    <tocentry content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
                 @endif
 
-                @if ($item->forma_resolucion)
-                    <div>
-                        <p class="forma-resolucion">
-                            Forma de Resolución: {{ str_replace('_x000D_', "\n", $item->forma_resolucion) }}
-                        </p>
-                    </div>
-                @endif
-
-                @if ($item->proceso)
-                    <div>
-                        <p class="proceso">
-                            Proceso: {{ str_replace('_x000D_', "\n", $item->proceso) }}
-                        </p>
-                    </div>
-                @endif
-
-                @if ($item->ratio)
-                    <div>
-                        <p class="ratio">
-                            Ratio: {{ str_replace('_x000D_', "\n", $item->ratio) }}
-                        </p>
-                    </div>
-                @endif
-            </div>
+                {{ $elemento }}
+            </h2>
+            @endforeach
         </div>
+
+        <div class="contenido">
+            <p class="descriptor">{{ $item->restrictor }}</p>
+
+            <p class="resolution">
+                Nro Resolución:
+                <a href="http://127.0.0.1:3000/jurisprudencia/resolucion/{{ $item->resolution_id }}">
+                    {{ $item->nro_resolucion }}
+                </a>
+            </p>
+
+            @if ($item->tipo_jurisprudencia)
+            <div>
+                <p class="tipo-jurisprudencia">
+                    Tipo de jurisprudencia:
+                    {{ str_replace('_x000D_', "\n", $item->tipo_jurisprudencia) }}
+                </p>
+            </div>
+            @endif
+
+            @if ($item->forma_resolucion)
+            <div>
+                <p class="forma-resolucion">
+                    Forma de Resolución: {{ str_replace('_x000D_', "\n", $item->forma_resolucion) }}
+                </p>
+            </div>
+            @endif
+
+            @if ($item->proceso)
+            <div>
+                <p class="proceso">
+                    Proceso: {{ str_replace('_x000D_', "\n", $item->proceso) }}
+                </p>
+            </div>
+            @endif
+
+            @if ($item->ratio)
+            <div>
+                <p class="ratio">
+                    Ratio: {{ str_replace('_x000D_', "\n", $item->ratio) }}
+                </p>
+            </div>
+            @endif
+        </div>
+    </div>
     @endforeach
 
     <htmlpagefooter name="page-footer">

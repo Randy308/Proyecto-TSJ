@@ -56,8 +56,8 @@ const MagistradoTSJ = () => {
         </TabList>
 
         <TabPanel forceRender={renderedPanels.includes(0)}>
-          {/* <ResumenMagistrado id={id}></ResumenMagistrado> */}
-          <Decomposition id={id} />
+          <ResumenMagistrado id={id}></ResumenMagistrado>
+          {/* <Decomposition id={id} /> */}
         </TabPanel>
         <TabPanel forceRender={renderedPanels.includes(1)}>
           <Estadisticas id={id}></Estadisticas>

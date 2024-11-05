@@ -1,5 +1,5 @@
 import { useLocalStorage } from "../../../components/useLocalStorage";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import TimesNewRomanRegular from "../../../fonts/times new roman.ttf";
 import TimesNewRomanBold from "../../../fonts/times new roman bold.ttf";
@@ -13,26 +13,49 @@ import CambriaRegular from "../../../fonts/Cambriax.ttf";
 import CambriaBold from "../../../fonts/Cambria Bold.ttf";
 import CambriaItalic from "../../../fonts/Cambria Italic.ttf";
 
-
 const EstiloTitulos = ({ titulo, estiloDefault }) => {
   const [estilo, setEstilo] = useLocalStorage(titulo, estiloDefault);
 
+  const [tempEstilo, setTempEstilo] = useState(estilo);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setEstilo((prevEstilo) => ({
+
+    const parsedValue = [
+      "fontSize",
+      "marginLeft",
+      "paddingBottom",
+      "marginTop",
+    ].includes(name)
+      ? parseInt(value, 10)
+      : value;
+
+    setTempEstilo((prevEstilo) => ({
       ...prevEstilo,
-      [name]: ["fontSize", "marginLeft", "paddingBottom", "marginTop"].includes(
-        name
-      )
-        ? parseInt(value, 10)
-        : value,
+      [name]: parsedValue,
+    }));
+  };
+
+  const handleFont = (event) => {
+    const { name, value } = event.target;
+
+    const parsedValue =
+      name === "fontSize" ? `${parseInt(value, 10)}pt` : value;
+
+    setTempEstilo((prevEstilo) => ({
+      ...prevEstilo,
+      [name]: parsedValue,
     }));
   };
 
   const guardarEnStorage = () => {
-    localStorage.setItem(titulo, JSON.stringify(estilo));
-    console.log("Estilo guardado en storage:", estilo);
+    setEstilo(tempEstilo);
   };
+
+  useEffect(() => {
+    setTempEstilo(estilo);
+  }, [estilo]);
+
   return (
     <div>
       {" "}
@@ -41,7 +64,7 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
           Fuente:
           <select
             name="fontFamily"
-            value={estilo.fontFamily}
+            value={tempEstilo.fontFamily}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onChange={handleChange}
           >
@@ -56,7 +79,7 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
           Alineación:
           <select
             name="textAlign"
-            value={estilo.textAlign}
+            value={tempEstilo.textAlign}
             onChange={handleChange}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
@@ -71,7 +94,7 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
           Peso:
           <select
             name="fontWeight"
-            value={estilo.fontWeight}
+            value={tempEstilo.fontWeight}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onChange={handleChange}
           >
@@ -88,9 +111,9 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
             min={10}
             max={60}
             step={1}
-            value={estilo.fontSize}
+            value={parseInt(tempEstilo.fontSize) || 10}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            onChange={handleChange}
+            onChange={handleFont}
           ></input>
         </label>
 
@@ -102,7 +125,7 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
             min={0}
             max={80}
             step={5}
-            value={estilo.marginLeft}
+            value={tempEstilo.marginLeft}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onChange={handleChange}
           ></input>
@@ -116,7 +139,7 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
             min={0}
             max={80}
             step={5}
-            value={estilo.marginTop}
+            value={tempEstilo.marginTop}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onChange={handleChange}
           ></input>
@@ -130,7 +153,7 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
             min={0}
             max={80}
             step={5}
-            value={estilo.paddingBottom}
+            value={tempEstilo.paddingBottom}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             onChange={handleChange}
           ></input>
@@ -145,7 +168,7 @@ const EstiloTitulos = ({ titulo, estiloDefault }) => {
         </button>
       </div>
       {/* Título que muestra el estilo seleccionado */}
-      <h1 style={estilo}>Este es el título con estilo personalizado</h1>
+      <h1 style={tempEstilo}>Este es el título con estilo personalizado</h1>
     </div>
   );
 };

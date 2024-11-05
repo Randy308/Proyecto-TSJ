@@ -7,6 +7,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Tipografia from "./tabs/Tipografia";
 import { useNavigate } from "react-router-dom";
+import { useLocalStorage } from "../../components/useLocalStorage";
+import { headingItems } from "../../data/HeadingItems";
 
 const endpoint = process.env.REACT_APP_BACKEND;
 const JurisprudenciaCronologia = () => {
@@ -110,23 +112,29 @@ const JurisprudenciaCronologia = () => {
         return "Hola mundo";
     }
   };
-  useEffect(() => {
-    if (activador && arbol.length > 0) {
-      getParams();
-    }
-  }, [activador, arbol]);
-
+  const estilosState = headingItems.map((item) => {
+    const [value, setValue] = useLocalStorage(item.titulo, item.estiloDefault);
+    return { titulo: item.titulo, estilo: value, setEstilo: setValue };
+  });
   const navigate = useNavigate();
   const obtenerCronologia = async (e) => {
     e.preventDefault();
 
     try {
       const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
+      const currentEstilos = estilosState.map((item) => {
+        const currentEstilo = localStorage.getItem(item.titulo);
+        return {
+          titulo: item.titulo,
+          estilo: currentEstilo ? JSON.parse(currentEstilo) : item.estilo,
+        };
+      });
       const response = await axios.get(`${endpoint}/cronologias`, {
         params: {
           tema_id: arbol[arbol.length - 1].id,
           tema_nombre: arbol[arbol.length - 1].nombre,
           descriptor: nombresTemas,
+          estilos: currentEstilos,
           ...formData,
         },
         responseType: "blob",
@@ -140,9 +148,15 @@ const JurisprudenciaCronologia = () => {
     } catch (error) {
       const message =
         error.response?.data || "An error occurred while fetching data";
-      console.error("Error fetching data:", message);
+      console.error("Error fetching data:", error);
     }
   };
+
+  useEffect(() => {
+    if (activador && arbol.length > 0) {
+      getParams();
+    }
+  }, [activador, arbol]);
 
   return (
     <div id="cronologia-container" className="p-4 m-4">

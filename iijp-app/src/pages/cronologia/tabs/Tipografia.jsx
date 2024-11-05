@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import EstiloTitulos from "./EstiloTitulos";
 import { headingItems } from "../../../data/HeadingItems.js";
+import { useLocalStorage } from "../../../components/useLocalStorage";
 const Tipografia = () => {
+  
+
   
   return (
     <div>
