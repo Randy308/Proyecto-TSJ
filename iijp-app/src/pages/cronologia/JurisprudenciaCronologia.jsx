@@ -18,12 +18,15 @@ const JurisprudenciaCronologia = () => {
   const [tabActivo, setTabActivo] = useState(1);
   const [formData, setFormData] = useState({
     departamento: "Todos",
-    tipo_resolucion: "Todas",
-    forma_resolucion: "Todas",
+    tipo_resolucion: "Todos",
+    sala: "Todas",
     fecha_exacta: "",
     fecha_desde: "",
     fecha_hasta: "",
-    cantidad: 10,
+    cantidad: 15,
+    subtitulo: "",
+    recorrer: false,
+    seccion:true,
   });
 
   const eliminarNodo = (idBuscado) => {
@@ -50,7 +53,7 @@ const JurisprudenciaCronologia = () => {
         setActivador((prev) => !prev);
       } else {
         toast.warning("Debe seleccionar una materia");
-        //return;
+        return;
       }
     }
 
@@ -69,12 +72,10 @@ const JurisprudenciaCronologia = () => {
         }
       );
 
-      const { departamentos, forma_resolucions, tipo_resolucions } = data;
+      const { departamentos, salas, tipo_resolucions } = data;
 
       if (
-        [departamentos, forma_resolucions, tipo_resolucions].some(
-          (arr) => arr.length > 0
-        )
+        [departamentos, salas, tipo_resolucions].some((arr) => arr.length > 0)
       ) {
         setResultado(data);
       } else {
@@ -119,7 +120,10 @@ const JurisprudenciaCronologia = () => {
   const navigate = useNavigate();
   const obtenerCronologia = async (e) => {
     e.preventDefault();
-
+    if (arbol.length <= 0) {
+      toast.error("Seleccione una materia primero");
+      return;
+    }
     try {
       const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
       const currentEstilos = estilosState.map((item) => {
@@ -132,7 +136,6 @@ const JurisprudenciaCronologia = () => {
       const response = await axios.get(`${endpoint}/cronologias`, {
         params: {
           tema_id: arbol[arbol.length - 1].id,
-          tema_nombre: arbol[arbol.length - 1].nombre,
           descriptor: nombresTemas,
           estilos: currentEstilos,
           ...formData,
@@ -214,6 +217,16 @@ const JurisprudenciaCronologia = () => {
               </a>
             </li>
           ))}
+
+          <li>
+            <button
+              type="button"
+              onClick={(e) => obtenerCronologia(e)}
+              className={`inline-flex items-center px-4 py-3 rounded-lg w-full text-white bg-blue-700  active dark:bg-blue-600`}
+            >
+              Generar Cronologia
+            </button>
+          </li>
         </ul>
 
         {cronologiaItems.map((item) => (
@@ -231,13 +244,6 @@ const JurisprudenciaCronologia = () => {
           </div>
         ))}
       </div>
-      <button
-        type="button"
-        onClick={(e) => obtenerCronologia(e)}
-        className={`bg-blue-500 hover:bg-blue-700 p-2 rounded-lg text-white`}
-      >
-        Generar Cronologia
-      </button>
     </div>
   );
 };

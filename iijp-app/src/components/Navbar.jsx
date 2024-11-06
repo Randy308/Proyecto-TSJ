@@ -11,7 +11,6 @@ import { useToggleContext, useThemeContext } from "./ThemeProvider";
 import AuthUser from "../auth/AuthUser";
 import axios from "axios";
 function Navbar() {
-
   //localStorage.clear();
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);

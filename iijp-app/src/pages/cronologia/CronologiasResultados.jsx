@@ -18,11 +18,11 @@ const CronologiasResultados = () => {
   return (
     <div className="flex items-center justify-center">
       {pdfUrl ? (
-        <div className="flex flex-row">
+        <div className="flex flex-row p-4 m-4">
           <iframe
             src={pdfUrl}
             title="PDF Document"
-            style={{ width: "70vw", height: "70vh" }}
+            style={{ width: "70dvw", height: "90dvh" }}
             frameBorder="0"
           />
           <div>
