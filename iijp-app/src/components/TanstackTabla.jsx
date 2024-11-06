@@ -7,12 +7,23 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const TanstackTabla = ({ data }) => {
+
+  const [idGuardado, setIdGuardado] = useState(null);
+
+  const guardarID = (id) => {
+    // Función que guarda el ID y actualiza el estado
+    setIdGuardado(id);
+    console.log(id);
+  };
+
+
   const columns = [
-    { accessorKey: "tipo", header: "Nombre", enableSorting: true },
+    { accessorKey: "name", header: "Nombre", enableSorting: true },
     {
-      accessorKey: "cantidad",
+      accessorKey: "value",
       header: "Frecuencia Absoluta",
       enableSorting: true,
     },
@@ -31,13 +42,27 @@ const TanstackTabla = ({ data }) => {
       header: "Frecuencia Relativa Acumulado (%)",
       enableSorting: true,
     },
+    {
+
+      accessorKey: 'id',  // O `accessorKey: 'id'`
+      id: 'res_id',    // Define un ID único para la columna
+      cell: ({ cell, row }) => {
+        return( <button
+          onClick={() => guardarID(row.original.id)} // Guardar el ID de la fila
+          className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+        >
+          Ver grafica
+        </button>);
+      }
+    }
+    
   ];
 
   const [sorting, setSorting] = React.useState([]);
 
   const [pagination, setPagination] = useState({
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
+    pageIndex: 0, 
+    pageSize: 10, 
   });
   const table = useReactTable({
     data,
@@ -60,12 +85,9 @@ const TanstackTabla = ({ data }) => {
     getSortedRowModel: getSortedRowModel(),
   });
 
-  console.log("Current Page Index:", table.getState().pagination.pageIndex);
-  console.log("Can Next Page:", table.getCanNextPage());
-  console.log("Total Pages:", table.getPageCount());
 
   return (
-    <div className="flex flex-col justify-center">
+    <div className="flex flex-col justify-center p-4 m-4">
       <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -116,10 +138,10 @@ const TanstackTabla = ({ data }) => {
           disabled={!table.getCanPreviousPage()}
           className="px-3 py-1 rounded-md bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
         >
-          Previous
+          Anterior
         </button>
         <span className="px-3 py-1 rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white">
-          Page{" "}
+          Pagina{" "}
           <strong>
             {Number.isNaN(table.getState().pagination.pageIndex + 1)
               ? 1
@@ -132,7 +154,7 @@ const TanstackTabla = ({ data }) => {
           disabled={!table.getCanNextPage()}
           className="px-3 py-1 rounded-md bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white"
         >
-          Next
+          Siguiente
         </button>
       </div>
 

@@ -78,17 +78,17 @@ class SalaController extends Controller
             $resultado = DB::table('salas as s')
                 ->join('resolutions as r', 's.id', '=', 'r.sala_id')
                 ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
-                ->selectRaw("COALESCE(fr.nombre, '') as tipo, COALESCE(COUNT(DISTINCT r.id), 0) AS cantidad, fr.id")
+                ->selectRaw("COALESCE(fr.nombre, '') as name, COALESCE(COUNT(DISTINCT r.id), 0) AS value, fr.id")
                 ->whereIn('s.id', $salas)  // Ahora se utiliza $salas, que tiene los valores como enteros
                 ->groupBy('fr.id')
-                ->orderBy('cantidad', 'desc')
+                ->orderBy('value', 'desc')
                 ->get();
 
 
             // Convertir a array, si es necesario
             $salas = $resultado->toArray();
 
-            $cantidades = $resultado->pluck('cantidad')->toArray();
+            $cantidades = $resultado->pluck('value')->toArray();
             //$formas = $resultado->pluck('tipo')->toArray();
 
             $total = array_sum($cantidades);
@@ -97,11 +97,11 @@ class SalaController extends Controller
             $relativo_acum = 0;
             foreach ($salas as &$item) {
                 // Acumular el valor de cantidad
-                $acum += $item->cantidad;
+                $acum += $item->value;
                 $item->acum = $acum; // Guardar acumulado
 
 
-                $relativo = $item->cantidad / $total * 100;
+                $relativo = $item->value / $total * 100;
                 $item->relativo = round($relativo, 2) . '%'; // 
                 
                 $relativo_acum += $relativo;

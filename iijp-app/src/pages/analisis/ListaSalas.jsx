@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { GiInjustice } from "react-icons/gi";
 import axios from "axios";
 import TanstackTabla from "../../components/TanstackTabla";
-
-
+import LineChart from "./LineChart";
 
 const ListaSalas = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
@@ -15,8 +14,63 @@ const ListaSalas = () => {
 
   const [selectedIds, setSelectedIds] = useState([]);
   const [resoluciones, setResoluciones] = useState([]);
-  const [columnDefs, setColumnDefs] = useState([]);
   const [totalRes, setTotalRes] = useState(0);
+
+  const [umbral, setUmbral] = useState(0.05);
+  const [pieData, setPieData] = useState([]);
+  const [residuo, setResiduo] = useState([]);
+
+  useEffect(() => {
+    if (resoluciones && resoluciones.length > 0 && totalRes > 0) {
+      let acumulado = 0;
+      const filteredData = resoluciones
+        .map((item) => {
+          console.log(item.value / totalRes);
+          console.log(umbral);
+          if (item.value / totalRes >= umbral) {
+            return { name: item.name, value: item.value };
+          } else {
+            acumulado += item.value;
+            return null;
+          }
+        })
+        .filter((item) => item !== null);
+
+      if (acumulado > 0) {
+        filteredData.push({ name: "Otros", value: acumulado });
+      }
+
+      setPieData(filteredData);
+    }
+  }, [resoluciones, totalRes, umbral]);
+
+  const option = {
+    legend: {
+      top: "top",
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        mark: { show: true },
+        restore: { show: true },
+        saveAsImage: { show: true },
+      },
+    },
+    series: [
+      {
+        name: "Forma de resolución",
+        type: "pie",
+        radius: '50%',
+        itemStyle: {
+          borderRadius: 8,
+        },
+        data: pieData,
+      },
+    ],
+  };
   // Manejar el cambio de estado del checkbox
   const handleCheckboxChange = (event) => {
     const id = event.target.name;
@@ -40,24 +94,7 @@ const ListaSalas = () => {
       });
 
       setResoluciones(data.data);
-
       setTotalRes(data.total);
-      const headers = Object.keys(data.data[0])
-      .map((header) => {
-        // Excluir la columna `id`
-        if (header === "id") {
-          return null;
-        }
-        return {
-          accessorKey: header, // Nombre de la clave para acceder a los datos
-          header: header.charAt(0).toUpperCase() + header.slice(1), // Título de la columna, con la primera letra en mayúscula
-          enableSorting: true, // Habilita la opción de ordenar
-        };
-      })
-      .filter(Boolean);
-    
-    setColumnDefs(headers);
-    
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
     }
@@ -122,6 +159,32 @@ const ListaSalas = () => {
 
         {totalRes && totalRes > 0 ? (
           <div className="mb-5 p-4">
+            {pieData && pieData.length > 0 ? (
+              <div>
+                <div class="max-w-sm mx-auto">
+                  <label
+                    for="number-input"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Umbral de significacia (%):
+                  </label>
+                  <input
+                    type="number"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    step=".01" max={100} min={0.01}
+                    value={umbral}
+                    onChange={(e) => setUmbral(e.target.value )}
+                  />
+                </div>
+
+                <div className="border border-gray-300 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A] h-[600px] ">
+                  {" "}
+                  <LineChart option={option}></LineChart>
+                </div>
+              </div>
+            ) : (
+              <div></div>
+            )}
             <div className="text-center p-4 roboto-regular text-2xl text-black dark:text-white">
               <p>Tabla de frecuencias</p>
             </div>
