@@ -87,14 +87,14 @@ class TemaController extends Controller
         };
 
         // Obtener los valores únicos
-        $forma_resolucions = $getDistinctValues('forma_resolucions as fr', "fr", 'r.forma_resolucion_id', 'fr.nombre');
+        $salas = $getDistinctValues('salas as s', "s", 'r.sala_id', 's.nombre');
         $departamentos = $getDistinctValues('departamentos as d', "d", 'r.departamento_id', 'd.nombre');
         $tipo_resolucions = $getDistinctValues('tipo_resolucions as tr', "tr", 'r.tipo_resolucion_id', 'tr.nombre');
 
         // Preparar la respuesta
         $data = [
             'departamentos' => $departamentos,
-            'forma_resolucions' => $forma_resolucions,
+            'salas' => $salas,
             'tipo_resolucions' => $tipo_resolucions,
         ];
 
@@ -110,25 +110,29 @@ class TemaController extends Controller
         $descriptor = $request['descriptor'];
         $departamento = $request["departamento"];
         $tipo_resolucion = $request["tipo_resolucion"];
-        $forma_resolucion = $request["forma_resolucion"];
+        $sala = $request["sala"];
         $fecha_exacta = $request["fecha_exacta"];
         $fecha_desde = $request["fecha_desde"];
         $fecha_hasta = $request["fecha_hasta"];
         $cantidad = $request["cantidad"];
 
+
+        $excluirNodos = filter_var($request["recorrer"], FILTER_VALIDATE_BOOLEAN);
+        $seccion = filter_var($request["seccion"], FILTER_VALIDATE_BOOLEAN);
+
         $mi_departamento = null;
         $mi_tipo_resolucion = null;
-        $mi_forma_resolucion = null; // Valor por defecto si forma_resolucion es "Todas"
+        $mi_sala = null; // Valor por defecto si forma_resolucion es "Todas"
 
-
-        if ($forma_resolucion !== "Todas") {
-            $mi_forma_resolucion = validarModelo(FormaResolucions::class, 'nombre', $forma_resolucion);
+        //return $request;
+        if ($sala !== "Todas") {
+            $mi_sala = validarModelo(Salas::class, 'nombre', $sala);
         }
-        if ($forma_resolucion !== "Todas") {
-            $mi_forma_resolucion = validarModelo(TipoResolucions::class, 'nombre', $tipo_resolucion);
+        if ($tipo_resolucion !== "Todos") {
+            $mi_tipo_resolucion = validarModelo(TipoResolucions::class, 'nombre', $tipo_resolucion);
         }
-        if ($forma_resolucion !== "Todas") {
-            $mi_forma_resolucion = validarModelo(Departamentos::class, 'nombre', $departamento);
+        if ($departamento !== "Todos") {
+            $mi_departamento = validarModelo(Departamentos::class, 'nombre', $departamento);
         }
         // Encuentra el tema por ID
         $tema = Temas::where('id', $tema_id)->first();
@@ -139,17 +143,31 @@ class TemaController extends Controller
 
         $query = DB::table('jurisprudencias as j')
             ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
+            ->join('contents as c', 'r.id', '=', 'c.resolution_id')
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'j.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion')
             ->where('j.descriptor', 'like', '%' . $descriptor . '%');
 
 
+
+        if ($seccion === true) {
+            $query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
+        }
+
+        if ($excluirNodos === true) {
+            // Busca términos que empiecen con el descriptor
+            $query->where('j.descriptor', 'like', '%' . $descriptor);
+        } else {
+            // Busca coincidencias parciales en cualquier posición
+            $query->where('j.descriptor', 'like', '%' . $descriptor . '%');
+        }
+
         if ($mi_tipo_resolucion) {
             $query->where('r.tipo_resolucion_id', $mi_tipo_resolucion->id);
         }
-        if ($mi_forma_resolucion) {
-            $query->where('r.forma_resolucion_id', $mi_forma_resolucion->id);
+        if ($mi_sala) {
+            $query->where('r.sala_id', $mi_sala->id);
         }
 
         if ($mi_departamento) {
@@ -165,7 +183,7 @@ class TemaController extends Controller
         if ($cantidad) {
             $query->limit($cantidad);
         } else {
-            $query->limit(25);
+            $query->limit(30);
         }
         $results = $query->orderBy('j.descriptor')->get();
 
@@ -219,7 +237,7 @@ class TemaController extends Controller
 
 
         //return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $request->estilos], [], [
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $request->estilos, 'subtitulo' => $request->subtitulo], [], [
             'format'          => 'letter',
             'margin_left'     => 25,  // 2.5 cm in mm
             'margin_right'    => 25,  // 2.5 cm in mm
@@ -230,7 +248,7 @@ class TemaController extends Controller
             'author'          => 'IIJP',
             'custom_font_dir' => public_path('fonts/'),
             'custom_font_data' => [
-                'cambria' => [ 
+                'cambria' => [
                     'R'  => 'Cambriax.ttf',
                     'B'  => 'Cambria-Bold.ttf',
                     'I'  => 'Cambria-Italic.ttf',
@@ -249,7 +267,7 @@ class TemaController extends Controller
                 ],
             ]
         ]);
-        
+
 
         return $pdf->Output('document.pdf', 'I');
         //return $pdf->stream('document.pdf');

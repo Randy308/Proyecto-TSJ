@@ -20,7 +20,7 @@
         .{{ $elemento['titulo'] }} {
             font-family: '{{ $elemento['estilo']['fontFamily'] }}', sans-serif;
             font-weight: {{ $elemento['estilo']['fontWeight'] }};
-            font-size: {{ $elemento['estilo']['fontSize'] }}px;
+            font-size: {{ $elemento['estilo']['fontSize'] }};
             margin-left: {{ $elemento['estilo']['marginLeft'] }};
             padding-bottom: {{ $elemento['estilo']['paddingBottom'] }}px;
             margin-top: {{ $elemento['estilo']['marginTop'] }}px;
@@ -74,6 +74,12 @@
 
     <div style="background-color: #c23b22; text-align: center; margin-top: 20%; color: white;">
         <p style="font-size: 45pt;">Cronologias Juridicas</p>
+
+        @if (isset($subtitulo))
+            <p style="font-size: 35pt;">{{$subtitulo}}</p>
+            @endif
+
+
     </div>
 
     <pagebreak even-footer-value="-1" resetpagenum="1" />
@@ -111,37 +117,42 @@
             </p>
 
             @if ($item->tipo_jurisprudencia)
-            <div>
+
                 <p class="tipo-jurisprudencia">
                     Tipo de jurisprudencia:
                     {{ str_replace('_x000D_', "\n", $item->tipo_jurisprudencia) }}
                 </p>
-            </div>
+
             @endif
 
             @if ($item->forma_resolucion)
-            <div>
+
                 <p class="forma-resolucion">
                     Forma de Resolución: {{ str_replace('_x000D_', "\n", $item->forma_resolucion) }}
                 </p>
-            </div>
+
             @endif
 
             @if ($item->proceso)
-            <div>
+
                 <p class="proceso">
                     Proceso: {{ str_replace('_x000D_', "\n", $item->proceso) }}
                 </p>
-            </div>
+
             @endif
 
             @if ($item->ratio)
-            <div>
+
                 <p class="ratio">
                     Ratio: {{ str_replace('_x000D_', "\n", $item->ratio) }}
                 </p>
-            </div>
+
             @endif
+
+            @if (isset($item->resultado))
+            <p class="resultado">Por tanto: {{ str_replace(["\r\n\r\n", "_x000D_"], '', $item->resultado) }} </p>
+            @endif
+
         </div>
     </div>
     @endforeach

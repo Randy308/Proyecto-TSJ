@@ -15,7 +15,7 @@ class SalaController extends Controller
     {
 
         try {
-            $resultado = Salas::orderBy('id')->get();
+            $resultado = Salas::orderBy('nombre')->get();
             $salas = $resultado->toArray();
         } catch (\Exception $e) {
             return response()->json([
@@ -64,6 +64,68 @@ class SalaController extends Controller
         //
     }
 
+
+    public function getbyIDs(Request $request)
+    {
+
+
+        try {
+
+
+            // Convertir todos los elementos de $request->salas a enteros
+            $salas = array_map('intval', $request->salas);
+
+            $resultado = DB::table('salas as s')
+                ->join('resolutions as r', 's.id', '=', 'r.sala_id')
+                ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+                ->selectRaw("COALESCE(fr.nombre, '') as tipo, COALESCE(COUNT(DISTINCT r.id), 0) AS cantidad, fr.id")
+                ->whereIn('s.id', $salas)  // Ahora se utiliza $salas, que tiene los valores como enteros
+                ->groupBy('fr.id')
+                ->orderBy('cantidad', 'desc')
+                ->get();
+
+
+            // Convertir a array, si es necesario
+            $salas = $resultado->toArray();
+
+            $cantidades = $resultado->pluck('cantidad')->toArray();
+            //$formas = $resultado->pluck('tipo')->toArray();
+
+            $total = array_sum($cantidades);
+
+            $acum = 0;
+            $relativo_acum = 0;
+            foreach ($salas as &$item) {
+                // Acumular el valor de cantidad
+                $acum += $item->cantidad;
+                $item->acum = $acum; // Guardar acumulado
+
+                // Calcular el relativo
+                $relativo = $item->cantidad / $total * 100;
+                $item->relativo = round($relativo, 2); // Guardar relativo (porcentaje con dos decimales)
+
+                // Calcular el relativo acumulado
+                $relativo_acum += $relativo;
+                $item->relativo_acum = round($relativo_acum, 2); // Guardar relativo acumulado
+            }
+            // Retornar los datos en una respuesta JSON
+            return response()->json([
+                'data' => $salas,
+                'total' => $total
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Sala no encontrada
+            return response()->json([
+                'error' => 'Sala no encontrada'
+            ], 404);
+        } catch (\Exception $e) {
+            // Manejo de otros errores
+            return response()->json([
+                'error' => 'Ocurrió un error al intentar obtener las salas',
+                'details' => $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function show($id)
     {

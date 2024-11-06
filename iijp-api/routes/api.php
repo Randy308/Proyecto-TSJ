@@ -51,8 +51,6 @@ Route::get('/obtener-nodos', [TemaController::class, 'obtenerNodos'])->name('obt
 
 
 
-
-
 Route::get('/resoluciones', [ResolutionController::class, 'obtenerAvg'])->name('resoluciones');
 
 Route::get('/resolucion/{id}', [ResolutionController::class, 'show'])->name('show-resolucion');
@@ -111,3 +109,6 @@ Route::get('/get-time-series', [MagistradosController::class, 'generarSerieTempo
 
 
 Route::get('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
+
+
+Route::get('/obtener-datos-salas', [SalaController::class, 'getbyIDs']);
