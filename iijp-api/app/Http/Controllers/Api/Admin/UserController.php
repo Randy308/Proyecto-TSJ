@@ -33,7 +33,7 @@ class UserController extends Controller
 
         $validatedData['password'] = bcrypt($validatedData['password']);
         $user = User::create($validatedData);
-        $user->assignRole('user');
+        $user->assignRole('admin');
 
         return response()->json($user, 201);
     }

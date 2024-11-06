@@ -4,7 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GiInjustice } from "react-icons/gi";
 import axios from "axios";
-import AgTabla from "../../components/AgTabla";
+import TanstackTabla from "../../components/TanstackTabla";
+
+
+
 const ListaSalas = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -40,21 +43,21 @@ const ListaSalas = () => {
 
       setTotalRes(data.total);
       const headers = Object.keys(data.data[0])
-        .map((header) => {
-          // Excluir la columna `id`
-          if (header === "id") {
-            return null;
-          }
-          return {
-            field: header,
-            sortable: true,
-            resizable: true,
-            flex: 1,
-          };
-        })
-        .filter(Boolean);
-
-      setColumnDefs(headers);
+      .map((header) => {
+        // Excluir la columna `id`
+        if (header === "id") {
+          return null;
+        }
+        return {
+          accessorKey: header, // Nombre de la clave para acceder a los datos
+          header: header.charAt(0).toUpperCase() + header.slice(1), // Título de la columna, con la primera letra en mayúscula
+          enableSorting: true, // Habilita la opción de ordenar
+        };
+      })
+      .filter(Boolean);
+    
+    setColumnDefs(headers);
+    
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
     }
@@ -122,19 +125,7 @@ const ListaSalas = () => {
             <div className="text-center p-4 roboto-regular text-2xl text-black dark:text-white">
               <p>Tabla de frecuencias</p>
             </div>
-            <AgTabla
-              rowData={resoluciones}
-              columnDefs={columnDefs}
-              onSelectionChanged={() => {
-                const selectedRows = gridApi.getSelectedRows();
-                const selectedIds = selectedRows.map((row) => row.id); // Obtener los 'id' seleccionados
-                console.log(selectedIds); // Hacer lo que sea necesario con los 'id' seleccionados
-              }}
-              rowSelection="multiple" // Activar selección de múltiples filas
-              suppressRowClickSelection={true}
-              pagination={true}
-              width="65%"
-            />
+            <TanstackTabla data={resoluciones} />
           </div>
         ) : (
           ""

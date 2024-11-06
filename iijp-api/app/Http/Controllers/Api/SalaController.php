@@ -100,13 +100,12 @@ class SalaController extends Controller
                 $acum += $item->cantidad;
                 $item->acum = $acum; // Guardar acumulado
 
-                // Calcular el relativo
-                $relativo = $item->cantidad / $total * 100;
-                $item->relativo = round($relativo, 2); // Guardar relativo (porcentaje con dos decimales)
 
-                // Calcular el relativo acumulado
+                $relativo = $item->cantidad / $total * 100;
+                $item->relativo = round($relativo, 2) . '%'; // 
+                
                 $relativo_acum += $relativo;
-                $item->relativo_acum = round($relativo_acum, 2); // Guardar relativo acumulado
+                $item->relativo_acum = round($relativo_acum, 2) . '%'; 
             }
             // Retornar los datos en una respuesta JSON
             return response()->json([
