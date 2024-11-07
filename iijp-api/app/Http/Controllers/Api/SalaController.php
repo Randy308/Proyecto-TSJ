@@ -10,6 +10,8 @@ use App\Models\Salas;
 use App\Models\TipoResolucions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use PhpParser\Node\Stmt\Return_;
 
 class SalaController extends Controller
 {
@@ -66,13 +68,13 @@ class SalaController extends Controller
     {
         //
     }
-    public function obtenerEstadisticasXYZ(Request $request){
+    public function obtenerEstadisticasXYZ(Request $request)
+    {
 
         $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $departamentos = Departamentos::select('nombre as departamento')->get();
         $tipos = TipoResolucions::select('nombre as tipo')->get();
 
-        // Extract values as arrays
         $salasArray = $salas->pluck('sala')->toArray();
         $departamentosArray = $departamentos->pluck('departamento')->toArray();
         $tiposArray = $tipos->pluck('tipo')->toArray();
@@ -92,24 +94,58 @@ class SalaController extends Controller
                 }
             }
         }
-        return $combinations;
+
+        $datos = FormaResolucions::selectRaw('COALESCE(COUNT(resolutions.id), 0) AS cantidad, salas.nombre as sala , departamentos.nombre as departamento ,tipo_resolucions.nombre as tipo')
+            ->join('resolutions', 'resolutions.forma_resolucion_id', '=', 'forma_resolucions.id')
+            ->join('tipo_resolucions', 'resolutions.tipo_resolucion_id', '=', 'tipo_resolucions.id')
+            ->join('salas', 'resolutions.sala_id', '=', 'salas.id')->join('departamentos', 'resolutions.departamento_id', '=', 'departamentos.id')
+            ->whereIn('resolutions.sala_id', $request->salas)
+            ->where('forma_resolucions.id', $request->formaId)
+            ->groupBy('forma_resolucions.nombre', 'salas.nombre', 'departamentos.nombre', 'tipo_resolucions.nombre')->orderby("departamentos.nombre")
+            ->get();
+
+        $total = array_sum($datos->pluck('cantidad')->toArray());
+
+        // Create a lookup array with 'sala', 'departamento', and 'tipo' as keys
+        $datoLookup = [];
+        foreach ($datos as $dato) {
+            $datoLookup[$dato->sala][$dato->departamento][$dato->tipo] = $dato->cantidad;
+        }
+
+        foreach ($combinations as &$item) {
+            $item['cantidad'] = $datoLookup[$item['sala']][$item['departamento']][$item['tipo']] ?? 0;
+            $item['porcentaje'] = $total ? number_format(($item['cantidad'] / $total) * 100, 2) : 0;
+        }
+
+        $datos_agrupados = [];
+
+        // Group data by 'sala'
+        foreach ($combinations as $elemento) {
+            $datos_agrupados[$elemento['departamento']][] = $elemento;
+        }
+
+        return response()->json([
+            'formaID' => $request->formaId,
+            'total' => $total,
+            'data' => $datos_agrupados,
+        ], 200);
     }
     public function obtenerEstadisticasXY(Request $request)
     {
 
         $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $departamentos = Departamentos::select('nombre as departamento')->get();
-        $lista = [];
+        $salasArray = $salas->pluck('sala')->toArray();
+        $departamentosArray = $departamentos->pluck('departamento')->toArray();
+        $combinations = [];
 
-        $mayor = sizeof($departamentos) > sizeof($salas) ? $departamentos : $salas;
-        $menor = sizeof($departamentos) > sizeof($salas) ? $salas : $departamentos;
+        foreach ($salasArray as $sala) {
+            foreach ($departamentosArray as $departamento) {
 
-        foreach ($mayor as $itemMayor) {
-            foreach ($menor as $itemMenor) {
-                $lista[] = [
+                $combinations[] = [
+                    'sala' => $sala,
+                    'departamento' => $departamento,
                     "cantidad" => 0,
-                    "sala" => $itemMayor->sala ?? $itemMenor->sala,
-                    "departamento" => $itemMayor->departamento ?? $itemMenor->departamento
                 ];
             }
         }
@@ -122,20 +158,78 @@ class SalaController extends Controller
             ->groupBy('forma_resolucions.nombre', 'salas.nombre', 'departamentos.nombre')->orderby("departamentos.nombre")
             ->get();
 
-        foreach ($lista as &$item) {
-            foreach ($datos as $dato) {
-                if ($item['sala'] == $dato->sala && $item['departamento'] == $dato->departamento) {
-                    $item['cantidad'] = $dato->cantidad;
-                    break;
-                }
-            }
+        $total = array_sum($datos->pluck('cantidad')->toArray());
+
+        $datoLookup = [];
+        foreach ($datos as $dato) {
+            $datoLookup[$dato->sala][$dato->departamento] = $dato->cantidad;
         }
 
-        usort($lista, function ($a, $b) {
-            return $a['departamento'] > $b['departamento'];
-        });
+        foreach ($combinations as &$item) {
+            $item['cantidad'] = $datoLookup[$item['sala']][$item['departamento']] ?? 0;
+            $item['porcentaje'] = $total ? number_format(($item['cantidad'] / $total) * 100, 2) : 0;
+        }
 
-        return response()->json($lista, 200);
+
+        // $datos_agrupados = [];
+
+        // foreach ($combinations as $elemento) {
+        //     $datos_agrupados[$elemento['departamento']][] = $elemento;
+        // }
+
+        return response()->json([
+            'formaID' => $request->formaId,
+            'total' => $total,
+            'data' => $combinations,
+
+        ], 200);
+    }
+    public function obtenerEstadisticasX(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'salas' => 'required|array',
+            'salas.*' => 'required|integer',
+            'formaId' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $salasArray = $salas->pluck('sala')->toArray();
+        $combinations = [];
+        foreach ($salasArray as $sala) {
+            $combinations[] = [
+                'sala' => $sala,
+                'cantidad' => 0,
+            ];
+        }
+
+        $datos = FormaResolucions::selectRaw('COALESCE(COUNT(resolutions.id), 0) AS cantidad, salas.nombre as sala')
+            ->join('resolutions', 'resolutions.forma_resolucion_id', '=', 'forma_resolucions.id')
+            ->join('salas', 'resolutions.sala_id', '=', 'salas.id')
+            ->whereIn('resolutions.sala_id', $request->salas)
+            ->where('forma_resolucions.id', $request->formaId)
+            ->groupBy('salas.nombre')
+            ->get();
+
+        $total = array_sum($datos->pluck('cantidad')->toArray());
+        $datoLookup = $datos->pluck('cantidad', 'sala')->toArray();
+
+        foreach ($combinations as &$item) {
+            $item['cantidad'] = $datoLookup[$item['sala']] ?? 0;
+            $item['porcentaje'] = $total ? number_format(($item['cantidad'] / $total) * 100, 2) : 0;
+        }
+
+        $response = [
+            'formaID' => $request->formaId,
+            'total' => $total,
+            'data' => $combinations,
+        ];
+
+        return response()->json($response, 200);
     }
 
     public function getbyIDs(Request $request)

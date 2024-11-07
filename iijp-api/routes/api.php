@@ -41,6 +41,7 @@ Route::prefix('v1')->group(function () {
 
 Route::get('/estadisticas-xy' , [SalaController::class , 'obtenerEstadisticasXY']);
 Route::get('/estadisticas-xyz' , [SalaController::class , 'obtenerEstadisticasXYZ']);
+Route::get('/estadisticas-x' , [SalaController::class , 'obtenerEstadisticasX']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
