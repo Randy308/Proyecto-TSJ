@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Departamentos;
+use App\Models\FormaResolucions;
 use App\Models\Resolutions;
 use App\Models\Salas;
+use App\Models\TipoResolucions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -63,7 +66,77 @@ class SalaController extends Controller
     {
         //
     }
+    public function obtenerEstadisticasXYZ(Request $request){
 
+        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $departamentos = Departamentos::select('nombre as departamento')->get();
+        $tipos = TipoResolucions::select('nombre as tipo')->get();
+
+        // Extract values as arrays
+        $salasArray = $salas->pluck('sala')->toArray();
+        $departamentosArray = $departamentos->pluck('departamento')->toArray();
+        $tiposArray = $tipos->pluck('tipo')->toArray();
+
+
+        $combinations = [];
+
+        foreach ($salasArray as $sala) {
+            foreach ($departamentosArray as $departamento) {
+                foreach ($tiposArray as $tipo) {
+                    $combinations[] = [
+                        'sala' => $sala,
+                        'departamento' => $departamento,
+                        'tipo' => $tipo,
+                        "cantidad" => 0,
+                    ];
+                }
+            }
+        }
+        return $combinations;
+    }
+    public function obtenerEstadisticasXY(Request $request)
+    {
+
+        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $departamentos = Departamentos::select('nombre as departamento')->get();
+        $lista = [];
+
+        $mayor = sizeof($departamentos) > sizeof($salas) ? $departamentos : $salas;
+        $menor = sizeof($departamentos) > sizeof($salas) ? $salas : $departamentos;
+
+        foreach ($mayor as $itemMayor) {
+            foreach ($menor as $itemMenor) {
+                $lista[] = [
+                    "cantidad" => 0,
+                    "sala" => $itemMayor->sala ?? $itemMenor->sala,
+                    "departamento" => $itemMayor->departamento ?? $itemMenor->departamento
+                ];
+            }
+        }
+
+        $datos = FormaResolucions::selectRaw('COALESCE(COUNT(resolutions.id), 0) AS cantidad, salas.nombre as sala , departamentos.nombre as departamento')
+            ->join('resolutions', 'resolutions.forma_resolucion_id', '=', 'forma_resolucions.id')
+            ->join('salas', 'resolutions.sala_id', '=', 'salas.id')->join('departamentos', 'resolutions.departamento_id', '=', 'departamentos.id')
+            ->whereIn('resolutions.sala_id', $request->salas)
+            ->where('forma_resolucions.id', $request->formaId)
+            ->groupBy('forma_resolucions.nombre', 'salas.nombre', 'departamentos.nombre')->orderby("departamentos.nombre")
+            ->get();
+
+        foreach ($lista as &$item) {
+            foreach ($datos as $dato) {
+                if ($item['sala'] == $dato->sala && $item['departamento'] == $dato->departamento) {
+                    $item['cantidad'] = $dato->cantidad;
+                    break;
+                }
+            }
+        }
+
+        usort($lista, function ($a, $b) {
+            return $a['departamento'] > $b['departamento'];
+        });
+
+        return response()->json($lista, 200);
+    }
 
     public function getbyIDs(Request $request)
     {
@@ -103,9 +176,9 @@ class SalaController extends Controller
 
                 $relativo = $item->value / $total * 100;
                 $item->relativo = round($relativo, 2) . '%'; // 
-                
+
                 $relativo_acum += $relativo;
-                $item->relativo_acum = round($relativo_acum, 2) . '%'; 
+                $item->relativo_acum = round($relativo_acum, 2) . '%';
             }
             // Retornar los datos en una respuesta JSON
             return response()->json([

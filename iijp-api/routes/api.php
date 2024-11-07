@@ -34,12 +34,19 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
+
+
+
 });
 
+Route::get('/estadisticas-xy' , [SalaController::class , 'obtenerEstadisticasXY']);
+Route::get('/estadisticas-xyz' , [SalaController::class , 'obtenerEstadisticasXYZ']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+//salas
 
 //rutas cronologias
 
