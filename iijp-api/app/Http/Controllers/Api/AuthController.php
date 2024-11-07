@@ -81,7 +81,7 @@ class AuthController extends Controller
         $user = User::create($input);
         // $role = Role::create(['name' => 'admin']);
         // $role = Role::create(['name' => 'user']);
-        $user->assignRole('user');
+        $user->assignRole('admin');
 
         $response['success'] = true;
         //$response['user'] =  $user;

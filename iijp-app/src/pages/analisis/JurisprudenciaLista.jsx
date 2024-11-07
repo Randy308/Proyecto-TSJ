@@ -2,19 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import LineChart from "./LineChart";
-import { HiDocumentReport } from "react-icons/hi";
-import { GrDocumentUser } from "react-icons/gr";
 import Loading from "../../components/Loading";
+import { IoPeopleCircleSharp } from "react-icons/io5";
+import { HiMiniBuildingLibrary } from "react-icons/hi2";
 const JurisprudenciaLista = () => {
   const jurisprudenciaItems = [
-    {
-      id: 1,
-      title: "Análisis por Resoluciones",
-      descripcion: "Quis commodo deserunt pariatur eu ea ut.",
-      path: "/jurisprudencia/estadistica/resoluciones",
-      cName: "tool-item",
-      icon: <HiDocumentReport className="h-8 w-8" />,
-    },
+
     {
       id: 2,
       title: "Análisis por Magistrados",
@@ -22,7 +15,7 @@ const JurisprudenciaLista = () => {
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
       path: "/jurisprudencia/lista-magistrados",
       cName: "tool-item",
-      icon: <GrDocumentUser className="h-8 w-8" />,
+      icon: <IoPeopleCircleSharp className="h-8 w-8" />,
     },
     {
       id: 3,
@@ -31,7 +24,7 @@ const JurisprudenciaLista = () => {
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
       path: "/jurisprudencia/lista-salas",
       cName: "tool-item",
-      icon: <GrDocumentUser className="h-8 w-8" />,
+      icon: <HiMiniBuildingLibrary className="h-8 w-8" />,
     },
   ];
   const endpoint = process.env.REACT_APP_BACKEND;

@@ -1,9 +1,7 @@
 import React from "react";
-import Navbar from "./components/Navbar";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Novedades from "./pages/Novedades";
 import Inicio from "./pages/Inicio";
-import Footer from "./components/Footer";
 import Jurisprudencia from "./pages/Jurisprudencia";
 import JurisprudenciaBusqueda from "./pages/busqueda/JurisprudenciaBusqueda";
 import AnalisisMateria from "./pages/analisis/AnalisisMateria";
@@ -15,10 +13,8 @@ import CronologiasResultados from "./pages/cronologia/CronologiasResultados";
 import JurisprudenciaLista from "./pages/analisis/JurisprudenciaLista";
 import ListaMagistrados from "./pages/analisis/ListaMagistrados";
 import MagistradoTSJ from "./pages/magistrados/MagistradoTSJ";
-import Principal from "./pages/analisis/resoluciones/Principal";
 import TablaCSV from "./pages/datos/TablaCSV";
 import ListaSalas from "./pages/analisis/ListaSalas";
-import Sala from "./pages/analisis/salas/Sala";
 import CompararDatos from "./pages/comparar/CompararDatos";
 import LayoutPublic from "./layouts/LayoutPublic";
 import ProtectedRoutes from "./auth/ProtectedRoutes";
@@ -76,18 +72,10 @@ function App() {
                 path="/jurisprudencia/resolucion/:id"
                 element={<ResolucionTSJ />}
               />
-              <Route
-                path="/jurisprudencia/estadistica/sala/:id"
-                element={<Sala />}
-              />
               <Route path="/comparar-datos" element={<CompararDatos />} />
               <Route
                 path="/jurisprudencia/cronologias/resultados"
                 element={<CronologiasResultados />}
-              />
-              <Route
-                path="/jurisprudencia/estadistica/resoluciones"
-                element={<Principal />}
               />
               <Route
                 path="/jurisprudencia/lista-salas"

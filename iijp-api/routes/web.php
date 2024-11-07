@@ -26,4 +26,3 @@ Route::post('/excel/upload', [ExcelController::class, 'upload'])->name('excel.up
 
 
 Route::post('/excel/upload-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
-
