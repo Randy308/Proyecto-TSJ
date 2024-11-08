@@ -7,17 +7,17 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 const endpoint = process.env.REACT_APP_BACKEND;
 
 const TanstackTabla = ({ data , selectedIds}) => {
-
+  const navigate = useNavigate();
   const guardarID = async (id) => {
 
     try {
-      const { data } = await axios.get(`${endpoint}/estadisticas-xy`, {
+      const { data } = await axios.get(`${endpoint}/estadisticas-x`, {
         params: {
           salas: selectedIds,
           formaId: id
@@ -25,7 +25,7 @@ const TanstackTabla = ({ data , selectedIds}) => {
       });
 
       if(data){
-        console.log(data)
+        navigate(`/analisis/sala/${id}`, { state: data });
       }
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);

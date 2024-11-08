@@ -196,6 +196,7 @@ class SalaController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
+        $forma = FormaResolucions::findOrFail($request->formaId);
 
         $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $salasArray = $salas->pluck('sala')->toArray();
@@ -224,7 +225,7 @@ class SalaController extends Controller
         }
 
         $response = [
-            'formaID' => $request->formaId,
+            'formaResolution' => $forma->nombre,
             'total' => $total,
             'data' => $combinations,
         ];
@@ -269,7 +270,7 @@ class SalaController extends Controller
 
 
                 $relativo = $item->value / $total * 100;
-                $item->relativo = round($relativo, 2) . '%'; // 
+                $item->relativo = round($relativo, 2) . '%'; //
 
                 $relativo_acum += $relativo;
                 $item->relativo_acum = round($relativo_acum, 2) . '%';

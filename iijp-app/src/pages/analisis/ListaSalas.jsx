@@ -7,7 +7,9 @@ import axios from "axios";
 import TanstackTabla from "../../components/TanstackTabla";
 import LineChart from "./LineChart";
 import { toast } from "react-toastify";
-
+import { MdOutlineCleaningServices } from "react-icons/md";
+import { FaPlay } from "react-icons/fa6";
+import BtnDropdown from "../../components/BtnDropdown";
 const ListaSalas = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -21,7 +23,7 @@ const ListaSalas = () => {
   const [pieData, setPieData] = useState([]);
 
   const [actual, setActual] = useState(true);
-
+  const [visible, setVisible] = useState(true);
   const option = {
     legend: {
       top: "top",
@@ -49,22 +51,18 @@ const ListaSalas = () => {
       },
     ],
   };
-  // Manejar el cambio de estado del checkbox
+
   const handleCheckboxChange = (event) => {
-    const id = event.target.name;
-    if (event.target.checked) {
-      // Agregar el ID a la lista si se selecciona
-      setSelectedIds((prevSelectedIds) => [...prevSelectedIds, id]);
-    } else {
-      // Eliminar el ID de la lista si se deselecciona
-      setSelectedIds((prevSelectedIds) =>
-        prevSelectedIds.filter((item) => item !== id)
-      );
-    }
+    const itemId = parseInt(event.target.name, 10);
+    setSelectedIds((prevSelectedIds) =>
+      prevSelectedIds.includes(itemId)
+        ? prevSelectedIds.filter((id) => id !== itemId)
+        : [...prevSelectedIds, itemId]
+    );
   };
 
   const getDatos = async () => {
-    if(selectedIds.length <= 0 ){
+    if (selectedIds.length <= 0) {
       toast.warning("Debe seleccionar una sala");
       return;
     }
@@ -77,6 +75,7 @@ const ListaSalas = () => {
 
       setResoluciones(data.data);
       setTotalRes(data.total);
+      setVisible(false);
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
       toast.warning("Error de conexión");
@@ -130,23 +129,40 @@ const ListaSalas = () => {
             <p className="text-black dark:text-white pb-4">
               Seleccione una o varias salas para analizar
             </p>
-            <div className="flex flex-wrap p-4 justify-end">
+            <div className="grid grid-cols-2 gap-2 pb-2 custom:grid-cols-1">
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="w-full flex justify-around text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center me-2 mb-2"
+              >
+                <MdOutlineCleaningServices className="w-5 h-5" />
+                Limpiar
+              </button>
               <button
                 type="button"
                 onClick={getDatos}
-                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                className="w-full flex justify-around items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center me-2 mb-2"
               >
+                <FaPlay className="w-5 h-5" />
                 Analizar
               </button>
             </div>
-            <ul className="flex flex-col gap-4">
+            <div>
+              <BtnDropdown
+                setVisible={setVisible}
+                visible={visible}
+              ></BtnDropdown>
+            </div>
+            <ul className={`flex flex-col gap-4 ${visible ? "" : "hidden"}`}>
               {contenido.map((item) => (
                 <li key={item.id}>
                   <input
                     type="checkbox"
                     id={item.nombre}
                     name={item.id}
+                    value={item.id}
                     className="hidden peer"
+                    checked={selectedIds.includes(item.id)}
                     onChange={handleCheckboxChange}
                   />
                   <label
@@ -163,12 +179,8 @@ const ListaSalas = () => {
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
 
-        {actual ? (
-          pieData && pieData.length > 0 ? (
-            <div className="col-span-3">
+            {pieData && pieData.length > 0 ? (
               <div className="max-w-sm mx-auto mt-4">
                 <label
                   htmlFor="number-input"
@@ -188,14 +200,20 @@ const ListaSalas = () => {
                 <button
                   onClick={() => setActual((prev) => !prev)}
                   type="button"
-                  className="w-full mt-2 text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br 
-              focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 
-              text-center me-2 mb-2"
+                  className="w-full mt-2 text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
                 >
-                  Mostrar Tabla
+                  {actual ? "Mostrar Tabla " : "Mostrar Grafico"}
                 </button>
               </div>
+            ) : (
+              ""
+            )}
+          </div>
+        </div>
 
+        {actual ? (
+          pieData && pieData.length > 0 ? (
+            <div className="col-span-3">
               <div className="border border-gray-300 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A] h-[600px]">
                 <LineChart option={option} />
               </div>
@@ -211,15 +229,6 @@ const ListaSalas = () => {
               <div className="text-center p-4 roboto-regular text-2xl text-black dark:text-white">
                 <p>Tabla de frecuencias</p>
               </div>
-              <button
-                onClick={() => setActual((prev) => !prev)}
-                type="button"
-                className="w-full text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br 
-              focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 
-              text-center me-2 mb-2"
-              >
-                Mostrar Grafico
-              </button>
             </div>
             <TanstackTabla data={resoluciones} selectedIds={selectedIds} />
           </div>
