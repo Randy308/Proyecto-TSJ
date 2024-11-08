@@ -28,6 +28,8 @@ import PanelAdmin from "./pages/admin/PanelAdmin";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AnalisisSala from "./pages/analisis/AnalisisSala";
+import TablaXYZ from "./components/TablaXYZ";
+import Prueba from "./components/Prueba";
 
 function App() {
   return (
@@ -82,6 +84,7 @@ function App() {
                 path="/jurisprudencia/lista-salas"
                 element={<ListaSalas />}
               />
+              <Route path="/grafica/prueba" element={<Prueba/>} />
               <Route path="/analisis/sala/:id" element={<AnalisisSala/>} />
               <Route path="/login" element={<Login />} />
               <Route path="/registrar" element={<Register />} />

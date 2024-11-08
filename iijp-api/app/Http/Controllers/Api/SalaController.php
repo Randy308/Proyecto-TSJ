@@ -79,9 +79,7 @@ class SalaController extends Controller
         $departamentosArray = $departamentos->pluck('departamento')->toArray();
         $tiposArray = $tipos->pluck('tipo')->toArray();
 
-
         $combinations = [];
-
         foreach ($salasArray as $sala) {
             foreach ($departamentosArray as $departamento) {
                 foreach ($tiposArray as $tipo) {
@@ -106,7 +104,6 @@ class SalaController extends Controller
 
         $total = array_sum($datos->pluck('cantidad')->toArray());
 
-        // Create a lookup array with 'sala', 'departamento', and 'tipo' as keys
         $datoLookup = [];
         foreach ($datos as $dato) {
             $datoLookup[$dato->sala][$dato->departamento][$dato->tipo] = $dato->cantidad;
@@ -114,22 +111,104 @@ class SalaController extends Controller
 
         foreach ($combinations as &$item) {
             $item['cantidad'] = $datoLookup[$item['sala']][$item['departamento']][$item['tipo']] ?? 0;
-            $item['porcentaje'] = $total ? number_format(($item['cantidad'] / $total) * 100, 2) : 0;
-        }
-
-        $datos_agrupados = [];
-
-        // Group data by 'sala'
-        foreach ($combinations as $elemento) {
-            $datos_agrupados[$elemento['departamento']][] = $elemento;
         }
 
         return response()->json([
             'formaID' => $request->formaId,
             'total' => $total,
-            'data' => $datos_agrupados,
+            'data' => SalaController::ordenarArrayXYZ($combinations),
         ], 200);
     }
+
+    public function ordenarArrayXYZ($combinations)
+    {
+        $variableX = 'tipo';
+        $variableY = 'sala';
+        $variableZ = 'departamento';
+
+        $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX, $variableY) {
+            return $item[$variableX] . '_' . $item[$variableY];
+        })->unique()->sort()->values()->all();
+
+        $resultado = [];
+        $uniqueItems = collect($combinations)->pluck($variableZ)->unique();
+
+        $combinations = collect($combinations);
+
+        foreach ($uniqueItems as $mainValue) {
+            $row = [$variableZ => $mainValue];
+
+            foreach ($uniqueColumns as $column) {
+                $lastSpaceIndex = strrpos($column, '_');
+                $colValueX = substr($column, 0, $lastSpaceIndex);
+                $colValueY = substr($column, $lastSpaceIndex + 1);
+
+
+                $entry = $combinations->first(function ($element) use ($mainValue, $variableX, $variableY, $variableZ, $colValueX, $colValueY) {
+                    return $element[$variableZ] === $mainValue
+                        && $element[$variableX] === $colValueX
+                        && $element[$variableY] === $colValueY;
+                });
+
+                $row[$column] = $entry ? $entry['cantidad'] : 0;
+
+                if ($entry) {
+                    $combinations = $combinations->reject(function ($element) use ($entry) {
+                        return $element === $entry;
+                    });
+                }
+            }
+
+            $resultado[] = $row;
+        }
+
+        return $resultado;
+    }
+
+    public function ordenarArrayXY($combinations)
+    {
+        $variableX = 'departamento';
+        $variableY = 'sala';
+
+        $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX) {
+            return ucfirst($variableX) . '_' . $item[$variableX];
+        })->unique()->values()->all();
+
+        $resultado = [];
+        $uniqueItems = collect($combinations)->pluck($variableY)->unique();
+
+        $combinations = collect($combinations);
+
+        foreach ($uniqueItems as $mainValue) {
+
+            $row = [$variableY => $mainValue];
+
+            foreach ($uniqueColumns as $column) {
+                $lastSpaceIndex = strrpos($column, '_');
+                $colValue = substr($column, $lastSpaceIndex + 1);
+
+                $entry = $combinations->first(function ($element) use ($mainValue, $variableX, $variableY, $colValue) {
+                    return $element[$variableY] === $mainValue
+                        && $element[$variableX] === $colValue;
+                });
+
+                $row[$column] = $entry ? $entry['cantidad'] : 0;
+
+                if ($entry) {
+                    $combinations = $combinations->reject(function ($element) use ($entry) {
+                        return $element === $entry;
+                    });
+                }
+            }
+
+            $resultado[] = $row;
+        }
+
+        return $resultado;
+    }
+
+
+
     public function obtenerEstadisticasXY(Request $request)
     {
 
@@ -167,20 +246,12 @@ class SalaController extends Controller
 
         foreach ($combinations as &$item) {
             $item['cantidad'] = $datoLookup[$item['sala']][$item['departamento']] ?? 0;
-            $item['porcentaje'] = $total ? number_format(($item['cantidad'] / $total) * 100, 2) : 0;
         }
-
-
-        // $datos_agrupados = [];
-
-        // foreach ($combinations as $elemento) {
-        //     $datos_agrupados[$elemento['departamento']][] = $elemento;
-        // }
 
         return response()->json([
             'formaID' => $request->formaId,
             'total' => $total,
-            'data' => $combinations,
+            'data' => SalaController::ordenarArrayXY($combinations),
 
         ], 200);
     }
@@ -227,7 +298,7 @@ class SalaController extends Controller
         $response = [
             'formaResolution' => $forma->nombre,
             'total' => $total,
-            'data' => $combinations,
+            'data' => SalaController::ordenarArrayXY($combinations),
         ];
 
         return response()->json($response, 200);
