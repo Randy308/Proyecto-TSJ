@@ -298,7 +298,7 @@ class SalaController extends Controller
         $response = [
             'formaResolution' => $forma->nombre,
             'total' => $total,
-            'data' => SalaController::ordenarArrayXY($combinations),
+            'data' => $combinations,
         ];
 
         return response()->json($response, 200);

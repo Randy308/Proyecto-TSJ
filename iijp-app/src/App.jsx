@@ -30,6 +30,8 @@ import "react-toastify/dist/ReactToastify.css";
 import AnalisisSala from "./pages/analisis/AnalisisSala";
 import TablaXYZ from "./components/TablaXYZ";
 import Prueba from "./components/Prueba";
+import TablaXY from "./components/TablaXY";
+import Analisis2D from "./pages/analisis/Analisis2D";
 
 function App() {
   return (
@@ -75,6 +77,11 @@ function App() {
                 path="/jurisprudencia/resolucion/:id"
                 element={<ResolucionTSJ />}
               />
+
+              <Route
+                path="/prueba-tabla"
+                element={<Analisis2D />}
+              />
               <Route path="/comparar-datos" element={<CompararDatos />} />
               <Route
                 path="/jurisprudencia/cronologias/resultados"
@@ -85,7 +92,7 @@ function App() {
                 element={<ListaSalas />}
               />
               <Route path="/grafica/prueba" element={<Prueba/>} />
-              <Route path="/analisis/sala/:id" element={<AnalisisSala/>} />
+              <Route path="/analisis/sala/:id" element={<AnalisisSala />} />
               <Route path="/login" element={<Login />} />
               <Route path="/registrar" element={<Register />} />
             </Route>
