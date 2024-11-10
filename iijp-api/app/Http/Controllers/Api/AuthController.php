@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -40,7 +41,7 @@ class AuthController extends Controller
             //$user->hasRole('user');
             $response['success'] = true;
             $response['message'] = "Login exitoso";
-            $response['user'] =  $user;
+            $response['user'] =  new UserResource($user);
             $response['token'] = $user->createToken('web-token')->plainTextToken;
             $response['rol'] = $user->getRoleNames();
         } else {
@@ -96,4 +97,5 @@ class AuthController extends Controller
         $response['message'] = 'Sesión cerrada correctamente';
         return response()->json($response, 200);
     }
+
 }

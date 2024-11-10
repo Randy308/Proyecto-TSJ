@@ -145,15 +145,15 @@ nav ul li.submenu a:not(.active):hover {
 }
 
 
-#boton-ajustes {
+/* #boton-ajustes {
   height: 100%;
   padding: 1rem;
   margin-right: 1rem;
   fill: white;
   stroke: #915467;
   border-radius: 2rem;
-  position: relative; /* Necesario para que el ::after se posicione relativo a #boton-ajustes */
-}
+  position: relative;
+} */
 
 #boton-ajustes::after {
   display: inline-block;
@@ -169,11 +169,11 @@ nav ul li.submenu a:not(.active):hover {
 }
 
 
-#boton-ajustes:hover {
+/* #boton-ajustes:hover {
   cursor: pointer;
   background-color: #eaf8bf;
   color: var(--mainColor);
-}
+} */
 
 @media (max-width: 720px) {
   nav .menu {

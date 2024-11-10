@@ -21,11 +21,11 @@ export const navItems = [
     cName: "nav-item",
     icon: <FaHome className="icon-style"/> 
   },
-  {
-    id: 4,
-    title: "Administracion",
-    path: "/admin",
-    cName: "nav-item",
-    icon: <FaHome className="icon-style"/> 
-  },
+  // {
+  //   id: 4,
+  //   title: "Administración",
+  //   path: "/admin",
+  //   cName: "nav-item",
+  //   icon: <FaHome className="icon-style"/> 
+  // },
 ];

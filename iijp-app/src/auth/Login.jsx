@@ -12,7 +12,6 @@ const Login = () => {
   const [password, setPassword] = useState("root1234");
   const navigate = useNavigate();
 
-
   useEffect(() => {
     if (getToken()) {
       navigate("/");
@@ -22,16 +21,22 @@ const Login = () => {
   const submitForm = async (e) => {
     e.preventDefault();
 
-    await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
-      withCredentials: true,
-    });
+    await axios
+      .get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
+        withCredentials: true,
+      })
+      .catch(({ err }) => {
+        console.log("Existe un error " + err);
+      });
+
     await Config.getLogin({
       email: email,
       password: password,
     })
       .then(({ data }) => {
         if (data.success) {
-          saveToken(data.user , data.token , data.rol[0]);
+          console.log(data);
+          saveToken(data.user, data.token, data.rol[0]);
         } else {
           console.log(data);
         }

@@ -7,11 +7,12 @@ import AuthUser from "../auth/AuthUser";
 const LayoutUser = () => {
   const { rol } = AuthUser();
   const navigate = useNavigate();
+
   useEffect(() => {
-    if (rol != "user") {
+    if (rol !== "user" && rol !== "editor") {
       navigate("/");
     }
-  }, []);
+  }, [rol, navigate]);
   return (
     <>
       <Navbar></Navbar>

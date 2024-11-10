@@ -1,8 +1,8 @@
 import { FaBars, FaTimes } from "react-icons/fa";
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { IoSunny } from "react-icons/io5";
-import { FaMoon } from "react-icons/fa";
+import { FaCloudMoon } from "react-icons/fa6";
+import { FaSun } from "react-icons/fa";
 import { FaGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
@@ -10,6 +10,7 @@ import { useToggleContext, useThemeContext } from "./ThemeProvider";
 
 import AuthUser from "../auth/AuthUser";
 import axios from "axios";
+import Portal from "./Portal";
 function Navbar() {
   //localStorage.clear();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,14 +18,49 @@ function Navbar() {
   const isDark = useThemeContext();
   const ajustesRef = useRef(null);
   const listaRef = useRef(null);
-  const cambiarTema = useToggleContext();
+  const toggleContext = useToggleContext();
+
+  const [timer, setTimer] = useState(null);
+
+  const restartTimer = () => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    const newTimer = setTimeout(() => {
+      setSettingsOpen(false);
+    }, 2000);
+    setTimer(newTimer);
+  };
+
+  const handleMouseEnter = () => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  };
+
+  const stopTimer = () => {
+    if (timer) {
+      clearTimeout(timer);
+      setSettingsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [timer]);
 
   const eventoBoton = () => {
-    cambiarTema();
-    setSettingsOpen(false);
-    if (window.innerWidth <= 720 && menuOpen) {
-      setMenuOpen(false);
-    }
+    toggleContext();
+    setTimeout(() => {
+      setSettingsOpen(false);
+      if (window.innerWidth <= 720 && menuOpen) {
+        setMenuOpen(false);
+      }
+    }, 700);
   };
   const actualizarBoton = () => {
     setMenuOpen((prevState) => !prevState);
@@ -33,8 +69,15 @@ function Navbar() {
     }
   };
   const actualizarAjustes = () => {
-    setSettingsOpen((prevState) => !prevState);
-    handleShowList();
+    const nextState = !settingsOpen;
+
+    if (nextState) {
+      restartTimer();
+      setSettingsOpen(nextState);
+      handleShowList();
+    } else {
+      stopTimer();
+    }
   };
 
   const handleShowList = () => {
@@ -47,12 +90,20 @@ function Navbar() {
         listaRef.current.style.top = `auto`;
         listaRef.current.style.left = `auto`;
       } else {
-        listaRef.current.style.top = `${rect.bottom + listaHeight / 2}px`;
-        listaRef.current.style.left = `${rect.left - listaWidth / 2}px`;
+        listaRef.current.style.top = `${
+          rect.bottom - rect.height + listaHeight
+        }px`;
+        listaRef.current.style.left = `${
+          rect.left + rect.width - listaWidth
+        }px`;
       }
     }
   };
-  const { getToken, getLogout } = AuthUser();
+
+  useEffect(() => {
+    handleShowList();
+  }, []);
+  const { getToken, getLogout, rol } = AuthUser();
 
   const logoutUser = async () => {
     await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
@@ -85,25 +136,45 @@ function Navbar() {
     if (getToken()) {
       return (
         <>
-          <li className="p-2 hover:cursor-pointer rounded-md hover:bg-gray-200">
-            <a onClick={logoutUser}>Cerrar sesión</a>
+          {rol === "admin" && (
+            <li>
+              <a
+                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                href="/admin"
+              >
+                Administración
+              </a>
+            </li>
+          )}
+          <li>
+            <a
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer"
+              href="#"
+              onClick={logoutUser}
+            >
+              Cerrar sesión
+            </a>
           </li>
         </>
       );
     } else {
       return (
         <>
-          <li className="p-2 hover:cursor-pointer hover:bg-gray-200">
-            <a href="/login">Iniciar sesión</a>
+          <li>
+            <a
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              href="/login"
+            >
+              Iniciar sesión
+            </a>
+          </li>
+          <li>
+            <Portal setSettingsOpen={setSettingsOpen} />
           </li>
         </>
       );
     }
   };
-
-  useEffect(() => {
-    handleShowList();
-  }, []);
 
   return (
     <header>
@@ -149,43 +220,103 @@ function Navbar() {
             );
           })}
         </ul>
-        <div id="gear" className={`rounded-lg ${menuOpen ? "open" : ""}`}>
+        <div id="gear" className={` ${menuOpen ? "open" : ""}`}>
           <button
             id="boton-ajustes"
             ref={ajustesRef}
-            className="flex items-center justify-center"
+            className="py-3.5 px-5 me-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:text-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
             onClick={() => actualizarAjustes(true)}
           >
             <FaGear></FaGear>
           </button>
         </div>
       </nav>
+
       <div
         ref={listaRef}
-        id="lista-ajustes"
-        className={settingsOpen ? "show" : ""}
+        id="dropdown"
+        onMouseLeave={stopTimer}
+        onMouseEnter={handleMouseEnter}
+        className={`z-10 absolute  bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 ${
+          settingsOpen ? "visible " : "invisible "
+        }`}
       >
-        <ul className="flex flex-col">
+        <ul
+          className="py-2 text-sm text-gray-700 dark:text-gray-200"
+          aria-labelledby="dropdownDefaultButton"
+        >
           <li>
-            <button
-              onClick={eventoBoton}
-              type="button"
-              className="p-2 flex flex-row justify-between gap-4 w-full hover:bg-gray-200"
+            <a
+              href="#"
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
             >
-              Tema
-              <IoSunny
-                className={["text-lg", isDark ? "hidden" : ""].join(" ")}
-              />
-              <FaMoon
-                className={["text-lg", isDark ? "" : "hidden"].join(" ")}
-              />
-            </button>
+              Dashboard
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              Settings
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+            >
+              <label className="inline-flex items-center me-5 cursor-pointer">
+                {/* Show the theme label and checkbox toggle */}
+                <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                  {isDark ? "Tema Oscuro" : "Tema Claro"}
+                </span>
+
+                {/* Checkbox input toggle for dark/light theme */}
+                <input
+                  type="checkbox"
+                  checked={!isDark}
+                  onChange={eventoBoton}
+                  className="sr-only peer"
+                />
+
+                {/* Toggle switch style */}
+                <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-yellow-300 dark:peer-focus:ring-yellow-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-400"></div>
+              </label>
+            </a>
           </li>
           {renderLinks()}
-          <li className="p-2">Ajustes</li>
         </ul>
       </div>
     </header>
   );
 }
 export default Navbar;
+
+{
+  /* <div
+ref={listaRef}
+id="lista-ajustes"
+className={settingsOpen ? "hidden" : "hidden"}
+>
+<ul className="flex flex-col">
+  <li>
+    <button
+      onClick={eventoBoton}
+      type="button"
+      className="p-2 flex flex-row justify-between gap-4 w-full hover:bg-gray-200"
+    >
+      Tema
+      <IoSunny
+        className={["text-lg", isDark ? "hidden" : ""].join(" ")}
+      />
+      <FaMoon
+        className={["text-lg", isDark ? "" : "hidden"].join(" ")}
+      />
+    </button>
+  </li>
+  {renderLinks()}
+  <li className="p-2">Ajustes</li>
+</ul>
+</div> */
+}

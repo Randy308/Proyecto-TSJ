@@ -1,7 +1,37 @@
 import React from "react";
+import AuthUser from "../../auth/AuthUser";
 
 const PanelAdmin = () => {
-  return <div>PanelAdmin</div>;
+  const { can } = AuthUser();
+
+  const permissions = [
+    "access posts",
+    "create posts",
+    "update posts",
+    "delete posts",
+    "create users",
+    "update users",
+    "delete users",
+    "create user",
+    "update user",
+    "delete user",
+  ];
+
+  return (
+    <div>
+      <h2>Admin Panel</h2>
+
+      {permissions.map((permission) => (
+        <div key={permission}>
+          {can(permission) ? (
+            <p>Tienes permiso para {permission.replace(/_/g, " ")}</p>
+          ) : (
+            <p>No tienes los siguientes permisos {permission.replace(/_/g, " ")}</p>
+          )}
+        </div>
+      ))}
+    </div>
+  );
 };
 
 export default PanelAdmin;
