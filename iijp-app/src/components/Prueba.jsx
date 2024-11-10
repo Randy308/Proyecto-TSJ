@@ -1,53 +1,63 @@
 import React, { useEffect, useState } from "react";
 import TablaXYZ from "./TablaXYZ.jsx";
+import SimpleChart from "./SimpleChart.jsx";
+import { SwitchMultiChart } from "./SwitchMultiChart.jsx";
 const Prueba = () => {
   const [data, setData] = useState({
-    formaID: "7",
-    total: 931,
+    formaID: "19",
+    total: 85,
     data: [
       {
-        sala: "Civil I",
-        "Departamento_Santa Cruz": 145,
-        Departamento_Oruro: 62,
-        Departamento_Chuquisaca: 89,
-        Departamento_Desconocido: 2,
-        Departamento_Cochabamba: 138,
-        "Departamento_La Paz": 137,
-        Departamento_Tarija: 45,
-        Departamento_Potosí: 58,
-        Departamento_Pando: 17,
-        Departamento_Beni: 42,
+        magistrado: "Rita Susana Nava Duran",
+        Cochabamba_Penal: 0,
+        "Cochabamba_Penal I": 0,
+        "Cochabamba_Penal Ii": 1,
+        "Cochabamba_Penal Liquidadora": 0,
+        "La Paz_Penal": 0,
+        "La Paz_Penal I": 0,
+        "La Paz_Penal Ii": 0,
+        "La Paz_Penal Liquidadora": 0,
+        "Santa Cruz_Penal": 0,
+        "Santa Cruz_Penal I": 0,
+        "Santa Cruz_Penal Ii": 0,
+        "Santa Cruz_Penal Liquidadora": 0,
       },
       {
-        sala: "Civil Liquidadora",
-        "Departamento_Santa Cruz": 0,
-        Departamento_Oruro: 0,
-        Departamento_Chuquisaca: 0,
-        Departamento_Desconocido: 0,
-        Departamento_Cochabamba: 0,
-        "Departamento_La Paz": 0,
-        Departamento_Tarija: 0,
-        Departamento_Potosí: 0,
-        Departamento_Pando: 0,
-        Departamento_Beni: 0,
+        magistrado: "Norka Natalia Mercado Guzmán",
+        Cochabamba_Penal: 3,
+        "Cochabamba_Penal I": 12,
+        "Cochabamba_Penal Ii": 4,
+        "Cochabamba_Penal Liquidadora": 0,
+        "La Paz_Penal": 11,
+        "La Paz_Penal I": 13,
+        "La Paz_Penal Ii": 7,
+        "La Paz_Penal Liquidadora": 0,
+        "Santa Cruz_Penal": 2,
+        "Santa Cruz_Penal I": 6,
+        "Santa Cruz_Penal Ii": 8,
+        "Santa Cruz_Penal Liquidadora": 0,
       },
       {
-        sala: "Civil",
-        "Departamento_Santa Cruz": 37,
-        Departamento_Oruro: 20,
-        Departamento_Chuquisaca: 10,
-        Departamento_Desconocido: 0,
-        Departamento_Cochabamba: 49,
-        "Departamento_La Paz": 48,
-        Departamento_Tarija: 9,
-        Departamento_Potosí: 10,
-        Departamento_Pando: 3,
-        Departamento_Beni: 10,
+        magistrado: "Ivan Manolo Lima Magne",
+        Cochabamba_Penal: 0,
+        "Cochabamba_Penal I": 1,
+        "Cochabamba_Penal Ii": 7,
+        "Cochabamba_Penal Liquidadora": 0,
+        "La Paz_Penal": 0,
+        "La Paz_Penal I": 4,
+        "La Paz_Penal Ii": 1,
+        "La Paz_Penal Liquidadora": 0,
+        "Santa Cruz_Penal": 0,
+        "Santa Cruz_Penal I": 0,
+        "Santa Cruz_Penal Ii": 5,
+        "Santa Cruz_Penal Liquidadora": 0,
       },
     ],
   });
+  const [option, setOption] = useState({});
 
   const [estado, setEstado] = useState(true);
+  const [isAbs, setIsAbs] = useState(true);
   const cambiarPorcentaje = () => {
     const total = data.total;
 
@@ -58,18 +68,17 @@ const Prueba = () => {
         if (newItem.hasOwnProperty(key)) {
           const value = newItem[key];
           const valor = parseFloat(value);
-      
+
           // Check if valor is a valid number
           if (!isNaN(valor)) {
             newItem[key] = estado
-              ? (valor / total).toFixed(2)  // Divide by total and round to 2 decimal places
-              : (valor * total).toFixed(2); // Multiply by total and round to 2 decimal places
+              ? (valor / total) * 100 // Divide by total and round to 2 decimal places
+              : (valor * total) / 100; // Multiply by total and round to 2 decimal places
           } else {
             newItem[key] = value; // If value is not a number, keep it as is
           }
         }
       }
-      
 
       return newItem;
     });
@@ -82,21 +91,106 @@ const Prueba = () => {
     setEstado(!estado);
   };
 
+  const [headers, setHeaders] = useState([]);
+  const [values, setValues] = useState([]);
+  const [bandera, setBandera] = useState(true);
+
+  const handleChartTypeChange = (type) => {
+    setOption((prevOption) => SwitchMultiChart(prevOption, type.toLowerCase()));
+  };
+
+  const createSeries = (flag = false, length) => {
+    const series = [];
+    for (let index = 0; index < length; index++) {
+      if (flag) {
+        series.push({ type: "line", seriesLayoutBy: "row" });
+      } else {
+        series.push({ type: "line" });
+      }
+    }
+    return series;
+  };
   useEffect(() => {
-    console.log(data.data);
+    cambiarPorcentaje();
+  }, [isAbs]);
+
+  useEffect(() => {
+    if (headers && values) {
+      setOption(crearOption(bandera, bandera ? values.length : headers.length));
+    }
+  }, [headers, values, bandera]);
+
+  const crearOption = (flag, size) => {
+    return {
+      legend: {},
+      dataset: {
+        source: [headers, ...values],
+      },
+      yAxis: { type: "value" },
+      xAxis: { type: "category" },
+      tooltip: {
+        trigger: "axis",
+        axisPointer: {
+          type: "shadow",
+        },
+        valueFormatter: (value) => value.toFixed(2),
+      },
+      series: createSeries(flag, size),
+    };
+  };
+
+  useEffect(() => {
+    const headers = Object.keys(data.data[0]).map((key) =>
+      key.startsWith("Departamento_") ? key.replace("Departamento_", "") : key
+    );
+
+    setHeaders(headers);
+
+    setValues(data.data.map((item) => Object.values(item)));
   }, [data]);
   return (
     <div>
       {data.data && data.data.length ? (
-        <div>
-          <TablaXYZ data={data.data} />
+        <>
           <div>
-            {" "}
-            <button onClick={() => cambiarPorcentaje()}>
-              Cambiar A porcentaje
-            </button>
+            <TablaXYZ data={data.data} />
+            <div>
+              <div className="p-4 m-4">
+                <select
+                  id="charts"
+                  onChange={(e) => handleChartTypeChange(e.target.value)}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                >
+                  <option disabled defaultValue>
+                    Choose a chart type
+                  </option>
+                  <option value="line">Line</option>
+                  <option value="area">Area</option>
+                  <option value="bar">Bar</option>
+                  <option value="column">Column</option>
+                  <option value="stacked-bar">Stacked Bar</option>
+                  <option value="stacked-column">Stacked Column</option>
+                </select>
+              </div>
+              <button
+                type="button"
+                onClick={() => setBandera((prev) => !prev)}
+                className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+              >
+                Intercambio X-Y
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsAbs((prev) => !prev)}
+                className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+              >
+                {isAbs ? "Mostrar porcentajes" : "Mostrar frecuencias"}
+              </button>
+            </div>
           </div>
-        </div>
+          <div>{option && <SimpleChart option={option} />}</div>
+        </>
       ) : (
         <div>Hola mundo</div>
       )}
@@ -105,46 +199,15 @@ const Prueba = () => {
 };
 
 export default Prueba;
+// series: [
+//   { type: "bar", seriesLayoutBy: "row" },
+//   { type: "bar", seriesLayoutBy: "row" },
+//   { type: "bar", seriesLayoutBy: "row" },
 
-// const option = {
-//     legend: {},
-//     tooltip: {},
-//     dataset: {
-//       source: [
-//         [
-//           "product",
-//           "2012_Mujeres",
-//           "2012_Hombres",
-//           "2013_Mujeres",
-//           "2013_Hombres",
-//           "2014_Mujeres",
-//           "2014_Hombres",
-//           "2015_Mujeres",
-//           "2015_Hombres",
-//         ],
-//         ["Matcha Latte", 21.1, 20, 15.4, 15, 35.1, 30, 28.3, 25],
-//         ["Milk Tea", 46.5, 40, 50.1, 42, 45.7, 40, 43.1, 40],
-//         ["Cheese Cocoa", 14.1, 10, 37.2, 30, 39.5, 40, 46.4, 40],
-//       ],
-//     },
-//     xAxis: [
-//       { type: "category", gridIndex: 0 },
-//       { type: "category", gridIndex: 1 },
-//     ],
-//     yAxis: [{ gridIndex: 0 }, { gridIndex: 1 }],
-//     grid: [{ bottom: "55%" }, { top: "55%" }],
-//     series: [
-//       Series por genero
-//       { type: "bar", seriesLayoutBy: "row" },
-//       { type: "bar", seriesLayoutBy: "row" },
-//       { type: "bar", seriesLayoutBy: "row" },
-
-//       Series por año
-//       { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
-//       { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
-//       { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
-//       { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
-//       { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
-//       { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
-//     ],
-//   };
+//   { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
+//   { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
+//   { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
+//   { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
+//   { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
+//   { type: "bar", xAxisIndex: 1, yAxisIndex: 1 },
+// ],

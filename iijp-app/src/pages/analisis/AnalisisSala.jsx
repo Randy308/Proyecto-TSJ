@@ -1,14 +1,24 @@
 import Loading from "../../components/Loading";
 import SimpleChart from "../../components/SimpleChart";
 import TablaX from "../../components/TablaX";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import { FaPlay } from "react-icons/fa6";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  useLocation,
+  useNavigate,
+  useParams,
+} from "react-router-dom";
 import BtnDropdown from "../../components/BtnDropdown";
 import { SwitchChart } from "../../components/SwitchChart";
+import axios from "axios";
+import Select from "../../components/Select";
 
-const AnalisisSala = (id) => {
+const endpoint = process.env.REACT_APP_BACKEND;
+
+const AnalisisSala = () => {
+  const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const receivedData = location.state;
@@ -19,6 +29,8 @@ const AnalisisSala = (id) => {
   const [formaResolution, setFormaResolution] = useState(null);
 
   const [option, setOption] = useState({});
+  const [salas, setSalas] = useState(null);
+  const [params, setParams] = useState(null);
 
   const columns = [
     { accessorKey: "sala", header: "Salas", enableSorting: true },
@@ -39,10 +51,40 @@ const AnalisisSala = (id) => {
   const [lista, setLista] = useState([]);
 
   useEffect(() => {
+    // Fetch data only once on component mount
+    if (salas && id) {
+      axios
+        .get(`${endpoint}/obtener-parametros-salas`, {
+          params: {
+            salas: salas,
+            formaId: id,
+          },
+        })
+        .then(({ data }) => {
+          setParams(data);
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error("Error fetching data", error);
+        });
+    }
+  }, [salas, id]);
+
+  const memoizedParams = useMemo(() => params, [params]);
+  const [limite, setLimite] = useState(0);
+  const [listaX, setListaX] = useState([]);
+  const [checkedX, setCheckedX] = useState(false);
+  const [checkedZ, setCheckedZ] = useState(false);
+  useEffect(() => {
+    console.log(listaX);
+  }, [listaX]);
+
+  useEffect(() => {
     if (receivedData === null || !Array.isArray(receivedData.data)) {
       navigate("/jurisprudencia/lista-salas");
     } else {
       setTotal(receivedData.total);
+      setSalas(receivedData.salas);
       setData(receivedData.data.length > 0 ? receivedData.data : []);
       setFormaResolution(receivedData.formaResolution);
     }
@@ -91,15 +133,47 @@ const AnalisisSala = (id) => {
     }
   }, [data]);
   const handleChartTypeChange = (type) => {
-   setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
+    setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
+
+  const updateFirstCheck = () => {
+    const change = !checkedX;
+    setCheckedX(change);
+
+    if (!change) {
+      // Remove the first item if `checkedX` is unchecked
+      setListaX((prev) => (prev.length > 0 ? prev.slice(1) : []));
+      setLimite(0);
+      setCheckedZ(false); // Reset `checkedZ` if `checkedX` is unchecked
+    } else {
+      setLimite(1);
+    }
+  };
+
+  const updateSecondCheck = () => {
+    if (checkedX) {
+      const change = !checkedZ;
+      setCheckedZ(change);
+
+      if (!change) {
+        // Remove the last item if `checkedZ` is unchecked
+        setListaX((prev) => (prev.length > 1 ? prev.slice(0, -1) : []));
+        setLimite(1);
+      } else {
+        setLimite(2);
+      }
+    }
+  };
+
   return (
     <div className="grid grid-cols-4 gap-2 p-4 m-4 custom:grid-cols-1">
       <div className="p-4 m-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
-        <p className="text-black dark:text-white pb-4">
-          Forma de resolucion:
-          <span className="italic font-bold"> {formaResolution}</span>
-        </p>
+        {formaResolution && (
+          <p className="text-black dark:text-white pb-4">
+            Forma de resolucion:
+            <span className="italic font-bold"> {formaResolution}</span>
+          </p>
+        )}
         <div className="grid grid-cols-2 gap-2 pb-2 custom:grid-cols-1">
           <button
             type="button"
@@ -117,7 +191,39 @@ const AnalisisSala = (id) => {
           </button>
         </div>
         <div>
-          <BtnDropdown setVisible={setVisible} visible={visible}></BtnDropdown>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={checkedX}
+              onChange={() => updateFirstCheck()}
+              className="sr-only peer"
+            />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+              Cruce por una variable
+            </span>
+          </label>
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={checkedZ}
+              onChange={() => updateSecondCheck()}
+              className="sr-only peer"
+            />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+            <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+              Cruce por segunda variable
+            </span>
+          </label>
+
+          {memoizedParams && (
+            <Select
+              memoizedParams={memoizedParams}
+              limite={limite}
+              listaX={listaX}
+              setListaX={setListaX}
+            ></Select>
+          )}
 
           <select
             id="charts"

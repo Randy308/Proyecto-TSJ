@@ -8,6 +8,7 @@ use App\Models\FormaResolucions;
 use App\Models\Resolutions;
 use App\Models\Salas;
 use App\Models\TipoResolucions;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -71,60 +72,87 @@ class SalaController extends Controller
     public function obtenerEstadisticasXYZ(Request $request)
     {
 
+        $validator = Validator::make($request->all(), [
+            'salas' => 'required|array',
+            'salas.*' => 'required|integer',
+            'formaId' => 'required|integer',
+            'idsY' => 'required|array',
+            'idsY.*' => 'required|integer',
+            'idsZ' => 'required|array',
+            'idsZ.*' => 'required|integer',
+            'nombreY' => 'required|string',
+            'nombreZ' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $nombre_y = $request['nombreY'];
+        $ids_y = $request['idsY'];
+        $nombre_z = $request['nombreZ'];
+        $ids_z = $request['idsZ'];
+
         $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
-        $departamentos = Departamentos::select('nombre as departamento')->get();
-        $tipos = TipoResolucions::select('nombre as tipo')->get();
+        $table_y = SalaController::obtenerModelo($nombre_y, $ids_y);
+        $table_z = SalaController::obtenerModelo($nombre_z, $ids_z);
 
         $salasArray = $salas->pluck('sala')->toArray();
-        $departamentosArray = $departamentos->pluck('departamento')->toArray();
-        $tiposArray = $tipos->pluck('tipo')->toArray();
+        $tableYArray = $table_y->pluck($nombre_y)->toArray();
+        $tableZArray = $table_z->pluck($nombre_z)->toArray();
 
         $combinations = [];
         foreach ($salasArray as $sala) {
-            foreach ($departamentosArray as $departamento) {
-                foreach ($tiposArray as $tipo) {
+            foreach ($tableYArray as $tipo_y) {
+                foreach ($tableZArray as $tipo_z) {
                     $combinations[] = [
                         'sala' => $sala,
-                        'departamento' => $departamento,
-                        'tipo' => $tipo,
+                        $nombre_y => $tipo_y,
+                        $nombre_z => $tipo_z,
                         "cantidad" => 0,
                     ];
                 }
             }
         }
 
-        $datos = FormaResolucions::selectRaw('COALESCE(COUNT(resolutions.id), 0) AS cantidad, salas.nombre as sala , departamentos.nombre as departamento ,tipo_resolucions.nombre as tipo')
-            ->join('resolutions', 'resolutions.forma_resolucion_id', '=', 'forma_resolucions.id')
-            ->join('tipo_resolucions', 'resolutions.tipo_resolucion_id', '=', 'tipo_resolucions.id')
-            ->join('salas', 'resolutions.sala_id', '=', 'salas.id')->join('departamentos', 'resolutions.departamento_id', '=', 'departamentos.id')
-            ->whereIn('resolutions.sala_id', $request->salas)
-            ->where('forma_resolucions.id', $request->formaId)
-            ->groupBy('forma_resolucions.nombre', 'salas.nombre', 'departamentos.nombre', 'tipo_resolucions.nombre')->orderby("departamentos.nombre")
-            ->get();
+
+
+        $datos = SalaController::generarConsulta($request->formaId, $request->salas, [
+            (object)[
+                "nombre" => $nombre_y,
+                "ids" => $ids_y
+            ],
+            (object)[
+                "nombre" => $nombre_z,
+                "ids" => $ids_z
+            ]
+        ]);
 
         $total = array_sum($datos->pluck('cantidad')->toArray());
 
         $datoLookup = [];
         foreach ($datos as $dato) {
-            $datoLookup[$dato->sala][$dato->departamento][$dato->tipo] = $dato->cantidad;
+            $datoLookup[$dato->sala][$dato->$nombre_y][$dato->$nombre_z] = $dato->cantidad;
         }
 
         foreach ($combinations as &$item) {
-            $item['cantidad'] = $datoLookup[$item['sala']][$item['departamento']][$item['tipo']] ?? 0;
+            $item['cantidad'] = $datoLookup[$item['sala']][$item[$nombre_y]][$item[$nombre_z]] ?? 0;
         }
 
         return response()->json([
             'formaID' => $request->formaId,
             'total' => $total,
-            'data' => SalaController::ordenarArrayXYZ($combinations),
+            'data' => SalaController::ordenarArrayXYZ($combinations, $nombre_y, $nombre_z),
         ], 200);
     }
 
-    public function ordenarArrayXYZ($combinations)
+    public function ordenarArrayXYZ($combinations, $nombre_y, $nombre_z)
     {
-        $variableX = 'tipo';
+        $variableX = $nombre_y;
         $variableY = 'sala';
-        $variableZ = 'departamento';
+        $variableZ = $nombre_z;
 
         $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX, $variableY) {
             return $item[$variableX] . '_' . $item[$variableY];
@@ -165,9 +193,9 @@ class SalaController extends Controller
         return $resultado;
     }
 
-    public function ordenarArrayXY($combinations)
+    public function ordenarArrayXY($combinations, $name)
     {
-        $variableX = 'departamento';
+        $variableX = $name;
         $variableY = 'sala';
 
         $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX) {
@@ -207,54 +235,134 @@ class SalaController extends Controller
         return $resultado;
     }
 
+    public function obtenerModelo($name, $values)
+    {
+        $errorMessage = null;
+
+        if ($name == "tipo_jurisprudencia") {
+            $model = DB::table('jurisprudencias as x')
+                ->select('x.tipo_jurisprudencia as ' . $name)->whereNotNull('x.tipo_jurisprudencia')
+                ->distinct()
+                ->get();
+        } else {
+            $full_name = $name . "s";
+            $model = DB::table($full_name . ' as x')
+                ->select('x.nombre as ' . $name)
+                ->whereIn('x.id', $values)
+                ->get();
+        }
+
+        if ($model->isEmpty()) {
+            $defaultErrorMessage = "No se encontró el modelo '$name'.";
+            throw new ModelNotFoundException($errorMessage ?: $defaultErrorMessage);
+        }
+
+        return $model;
+    }
+
+    public function generarConsulta($formaId, $salas, $tablas)
+    {
+        // Initial select and group by
+        $select = "COALESCE(COUNT(r.id), 0) AS cantidad, salas.nombre AS sala";
+        $group_by = "forma_resolucions.nombre, salas.nombre";
+
+        // Base query
+        $query = FormaResolucions::selectRaw($select)
+            ->join('resolutions as r', 'r.forma_resolucion_id', '=', 'forma_resolucions.id')
+            ->join('salas', 'r.sala_id', '=', 'salas.id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('forma_resolucions.id', $formaId);
+
+        // Loop to add dynamic joins and selects based on tables array
+        foreach ($tablas as $tabla) {
+            $table_name = $tabla->nombre;
+            $values = $tabla->ids;
+            $full_name = $table_name . "s";
+            if ($table_name && $values) {
+                if ($table_name == "tipo_jurisprudencia") {
+                    $query->join('jurisprudencias', 'jurisprudencias.resolution_id', '=', 'r.id')
+                        ->whereIn('jurisprudencias.tipo_jurisprudencia', $values);
+                    $select .= ", jurisprudencias.tipo_jurisprudencia AS " . $table_name;
+                    $group_by .= ", " . $table_name;
+                } else {
+                    $query->join($full_name, $full_name . '.id', '=', 'r.' . $table_name . '_id')
+                        ->whereIn($full_name . '.id', $values);
+                    $select .= ", " . $full_name . ".nombre AS " . $table_name;
+                    $group_by .= ", " . $full_name . ".nombre";
+                }
+            }
+        }
+
+        // Finalize select and group by, then get the results
+        return $query->selectRaw($select)->groupByRaw($group_by)->get();
+    }
+
 
 
     public function obtenerEstadisticasXY(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'salas' => 'required|array',
+            'salas.*' => 'required|integer',
+            'formaId' => 'required|integer',
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer',
+            'nombre' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $nombre = $request['nombre'];
+        $ids = $request['ids'];
 
         $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
-        $departamentos = Departamentos::select('nombre as departamento')->get();
+        $table = SalaController::obtenerModelo($nombre, $ids);
+
         $salasArray = $salas->pluck('sala')->toArray();
-        $departamentosArray = $departamentos->pluck('departamento')->toArray();
+        $tableArray = $table->pluck($nombre)->toArray();
         $combinations = [];
 
         foreach ($salasArray as $sala) {
-            foreach ($departamentosArray as $departamento) {
-
+            foreach ($tableArray as $row) {
                 $combinations[] = [
                     'sala' => $sala,
-                    'departamento' => $departamento,
+                    $nombre => $row,
                     "cantidad" => 0,
                 ];
             }
         }
 
-        $datos = FormaResolucions::selectRaw('COALESCE(COUNT(resolutions.id), 0) AS cantidad, salas.nombre as sala , departamentos.nombre as departamento')
-            ->join('resolutions', 'resolutions.forma_resolucion_id', '=', 'forma_resolucions.id')
-            ->join('salas', 'resolutions.sala_id', '=', 'salas.id')->join('departamentos', 'resolutions.departamento_id', '=', 'departamentos.id')
-            ->whereIn('resolutions.sala_id', $request->salas)
-            ->where('forma_resolucions.id', $request->formaId)
-            ->groupBy('forma_resolucions.nombre', 'salas.nombre', 'departamentos.nombre')->orderby("departamentos.nombre")
-            ->get();
+        $datos = SalaController::generarConsulta($request->formaId, $request->salas, [
+            (object)[
+                "nombre" => $nombre,
+                "ids" => $ids
+            ]
+        ]);
 
         $total = array_sum($datos->pluck('cantidad')->toArray());
 
+
         $datoLookup = [];
         foreach ($datos as $dato) {
-            $datoLookup[$dato->sala][$dato->departamento] = $dato->cantidad;
+            $datoLookup[$dato->sala][$dato->$nombre] = $dato->cantidad;
         }
 
+
         foreach ($combinations as &$item) {
-            $item['cantidad'] = $datoLookup[$item['sala']][$item['departamento']] ?? 0;
+            $item['cantidad'] = $datoLookup[$item['sala']][$item[$nombre]] ?? 0;
         }
 
         return response()->json([
             'formaID' => $request->formaId,
             'total' => $total,
-            'data' => SalaController::ordenarArrayXY($combinations),
-
+            'data' => SalaController::ordenarArrayXY($combinations, $nombre),
         ], 200);
     }
+
     public function obtenerEstadisticasX(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -299,6 +407,7 @@ class SalaController extends Controller
             'formaResolution' => $forma->nombre,
             'total' => $total,
             'data' => $combinations,
+            'salas' => $request->salas,
         ];
 
         return response()->json($response, 200);
@@ -363,6 +472,55 @@ class SalaController extends Controller
                 'details' => $e->getMessage()
             ], 500);
         }
+    }
+    public function getParamsSalas(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'salas' => 'required|array',
+            'salas.*' => 'required|integer',
+            'formaId' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $salas = $request->salas;
+        $formaId = $request->formaId;
+
+        $departamentos = DB::table('departamentos as d')->selectRaw('DISTINCT(d.id), d.nombre')
+            ->join('resolutions as r', 'r.departamento_id', '=', 'd.id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('r.forma_resolucion_id', $formaId)
+            ->get();
+        $magistrados = DB::table('magistrados as m')->selectRaw('DISTINCT(m.id), m.nombre')
+            ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('r.forma_resolucion_id', $formaId)
+            ->get();
+        $tipo_resolucions = DB::table('tipo_resolucions as tr')->selectRaw('DISTINCT(tr.id), tr.nombre')
+            ->join('resolutions as r', 'r.tipo_resolucion_id', '=', 'tr.id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('r.forma_resolucion_id', $formaId)
+            ->get();
+        $tipo_jurisprudencia = DB::table('jurisprudencias as j')
+            ->select('j.tipo_jurisprudencia as nombre', DB::raw('MIN(j.id) as id'))
+            ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('r.forma_resolucion_id', $formaId)
+            ->whereNotNull('j.tipo_jurisprudencia')
+            ->groupBy('j.tipo_jurisprudencia')
+            ->get();
+
+
+        return response()->json([
+            'departamento' => $departamentos,
+            'magistrado' => $magistrados,
+            'tipo_resolucion' => $tipo_resolucions,
+            'tipo_jurisprudencia' => $tipo_jurisprudencia,
+        ], 200);
     }
 
     public function show($id)

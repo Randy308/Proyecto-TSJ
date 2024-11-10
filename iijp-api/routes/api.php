@@ -48,6 +48,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 //salas
+Route::get('/obtener-parametros-salas', [SalaController::class, 'getParamsSalas']);
 
 //rutas cronologias
 

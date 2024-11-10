@@ -121,7 +121,9 @@ const TablaXYZ = ({ data }) => {
                   key={`${header.group}-${subHeader}`}
                   className="border px-4 py-2 text-center dark:text-gray-300"
                 >
-                  {item[header.group]?.[subHeader] || 0}
+                  {item[header.group]?.[subHeader] !== undefined
+                    ? item[header.group][subHeader].toFixed(2)
+                    : 0}
                 </td>
               ))
             )}

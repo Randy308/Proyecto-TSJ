@@ -151,6 +151,7 @@ const ListaSalas = () => {
               <BtnDropdown
                 setVisible={setVisible}
                 visible={visible}
+                titulo={"Lista de salas"}
               ></BtnDropdown>
             </div>
             <ul className={`flex flex-col gap-4 ${visible ? "" : "hidden"}`}>
