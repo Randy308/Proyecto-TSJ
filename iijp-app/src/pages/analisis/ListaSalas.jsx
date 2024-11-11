@@ -154,7 +154,11 @@ const ListaSalas = () => {
                 titulo={"Lista de salas"}
               ></BtnDropdown>
             </div>
-            <ul className={`flex flex-col gap-4 ${visible ? "" : "hidden"}`}>
+            <ul
+              className={`flex flex-col gap-4 ${
+                visible ? "" : "hidden"
+              }`}
+            >
               {contenido.map((item) => (
                 <li key={item.id}>
                   <input

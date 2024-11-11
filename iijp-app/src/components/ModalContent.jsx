@@ -28,7 +28,7 @@ export default function ModalContent({ onClose, status }) {
     status === "registrar"
       ? "Register"
       : status === "login"
-      ? "Login"
+      ? "Iniciar sesión"
       : "Error";
 
   return ReactDOM.createPortal(

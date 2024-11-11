@@ -31,23 +31,9 @@ const AnalisisSala = () => {
   const [option, setOption] = useState({});
   const [salas, setSalas] = useState(null);
   const [params, setParams] = useState(null);
-
-  const columns = [
-    { accessorKey: "sala", header: "Salas", enableSorting: true },
-    {
-      accessorKey: "cantidad",
-      header: "Frecuencia",
-      enableSorting: true,
-    },
-    {
-      accessorKey: "porcentaje",
-      header: "F. Relativa (%)",
-      enableSorting: true,
-    },
-  ];
+  const [columns, setColumns] = useState(null);
 
   const [actual, setActual] = useState(true);
-  const [visible, setVisible] = useState(true);
   const [lista, setLista] = useState([]);
 
   useEffect(() => {
@@ -90,46 +76,64 @@ const AnalisisSala = () => {
     }
   }, [receivedData]);
 
+  const createSeries = (flag = false, length) => {
+    const series = [];
+    for (let index = 0; index < length; index++) {
+      if (flag) {
+        series.push({ type: "line", seriesLayoutBy: "row" });
+      } else {
+        series.push({ type: "line" });
+      }
+    }
+    return series;
+  };
+
   useEffect(() => {
-    console.log(data);
-
     if (data && data.length > 0) {
-      const listas = [...data];
+      // Initialize an object to hold the total values
+      const total = { sala: "Total" };
 
-      listas.push({
-        sala: "Total",
-        cantidad: total,
-        porcentaje: "100.00",
+      // Iterate over each data entry and accumulate totals
+      data.forEach((entry) => {
+        for (let key in entry) {
+          if (key !== "sala") {
+            total[key] = (total[key] || 0) + entry[key];
+          }
+        }
       });
 
+      // Append the total object to the data array
+      const listas = [...data, total];
+
       setLista(listas);
+
+      let keys = Object.keys(data[0]);
+      let values = data.map((item) => Object.values(item));
       setOption({
-        tooltip: {
-          trigger: "item",
+        legend: {},
+        tooltip: {},
+        dataset: {
+          source: [keys, ...values],
         },
         toolbox: {
           feature: {
             saveAsImage: {},
           },
         },
-        xAxis: {
-          type: "category",
-          data: data.map((item) => item.sala),
-        },
-        yAxis: {
-          type: "value",
-        },
-        series: [
-          {
-            data: data.map((item) => ({
-              value: item.cantidad,
-              name: item.sala,
-            })),
-            type: "line",
-            radius: ["40%", "70%"],
-          },
-        ],
+        xAxis: { type: "category",boundaryGap: false, },
+        yAxis: {},
+        series: createSeries(false, keys.length - 1),
       });
+
+      setColumns(
+        keys.map((item) => ({
+          accessorKey: item,
+          header: item
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (char) => char.toUpperCase()),
+          enableSorting: true,
+        }))
+      );
     }
   }, [data]);
   const handleChartTypeChange = (type) => {
@@ -139,30 +143,38 @@ const AnalisisSala = () => {
   const updateFirstCheck = () => {
     const change = !checkedX;
     setCheckedX(change);
-
     if (!change) {
-      // Remove the first item if `checkedX` is unchecked
       setListaX((prev) => (prev.length > 0 ? prev.slice(1) : []));
       setLimite(0);
-      setCheckedZ(false); // Reset `checkedZ` if `checkedX` is unchecked
+      setCheckedZ(false);
     } else {
       setLimite(1);
     }
   };
 
-  const updateSecondCheck = () => {
-    if (checkedX) {
-      const change = !checkedZ;
-      setCheckedZ(change);
-
-      if (!change) {
-        // Remove the last item if `checkedZ` is unchecked
-        setListaX((prev) => (prev.length > 1 ? prev.slice(0, -1) : []));
-        setLimite(1);
-      } else {
-        setLimite(2);
-      }
+  const realizarAnalisis = () => {
+    let myendpoint = `${endpoint}/estadisticas-x`;
+    let myparams = {
+      salas,
+      formaId: id,
+    };
+    if (listaX.length > 0 && checkedX) {
+      myendpoint = `${endpoint}/estadisticas-xy`;
+      myparams = {
+        ...myparams,
+        idsY: listaX[0].ids,
+        nombreY: listaX[0].name,
+      };
     }
+
+    axios
+      .get(myendpoint, { params: myparams })
+      .then(({ data }) => {
+        console.log(data);
+        setTotal(data.total);
+        setData(data.data.length > 0 ? data.data : []);
+      })
+      .catch((error) => console.error("Error fetching data", error));
   };
 
   return (
@@ -174,16 +186,10 @@ const AnalisisSala = () => {
             <span className="italic font-bold"> {formaResolution}</span>
           </p>
         )}
-        <div className="grid grid-cols-2 gap-2 pb-2 custom:grid-cols-1">
+        <div className="grid grid-cols-1 gap-2 pb-2">
           <button
             type="button"
-            className="w-full flex justify-around text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center me-2 mb-2"
-          >
-            <MdOutlineCleaningServices className="w-5 h-5" />
-            Limpiar
-          </button>
-          <button
-            type="button"
+            onClick={() => realizarAnalisis()}
             className="w-full flex justify-around items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center me-2 mb-2"
           >
             <FaPlay className="w-5 h-5" />
@@ -203,18 +209,6 @@ const AnalisisSala = () => {
               Cruce por una variable
             </span>
           </label>
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={checkedZ}
-              onChange={() => updateSecondCheck()}
-              className="sr-only peer"
-            />
-            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-            <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-              Cruce por segunda variable
-            </span>
-          </label>
 
           {memoizedParams && (
             <Select
@@ -231,14 +225,25 @@ const AnalisisSala = () => {
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           >
             <option disabled defaultValue>
-              Choose a chart type
+              Elige un tipo de gráfico
             </option>
-            <option value="Line">Line</option>
-            <option value="Bar">Bar</option>
-            <option value="Column">Column</option>
-            <option value="Pie">Pie</option>
-            <option value="Donut">Donut</option>
-            <option value="Scatter">Scatter</option>
+            <option value="line">Línea</option>
+            <option value="bar">Barras</option>
+            <option value="column">Columnas</option>
+            <option value="area">Área</option>
+            <option value="scatter">Dispersión</option>
+
+            {checkedX ? (
+              <>
+                <option value="stacked-bar">Barras Apiladas</option>
+                <option value="stacked-column">Columnas Apiladas</option>
+              </>
+            ) : (
+              <>
+                <option value="pie">Circular</option>
+                <option value="donut">Dona</option>
+              </>
+            )}
           </select>
         </div>
 

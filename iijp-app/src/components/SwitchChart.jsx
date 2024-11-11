@@ -3,39 +3,109 @@ export const SwitchChart = (option, action) => {
   let newOption = JSON.parse(JSON.stringify(option));
 
   // Select x and y based on existing data
-  let x = newOption.xAxis.data ? newOption.xAxis : newOption.yAxis;
-  let y = !newOption.xAxis.data ? newOption.xAxis : newOption.yAxis;
+  let x = newOption.xAxis.type ? newOption.xAxis : newOption.yAxis;
+  let y = !newOption.xAxis.type ? newOption.xAxis : newOption.yAxis;
 
+  delete x["boundaryGap"];
   switch (action) {
     case "line":
-      newOption.series[0].type = "line";
+      newOption.series.forEach((series) => {
+        series.type = "line";
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
       newOption.xAxis = x;
+      newOption.xAxis.boundaryGap = false;
+      newOption.yAxis = y;
+      
+      break;
+    case "area":
+      newOption.series.forEach((series) => {
+        series.type = "line";
+        series.smooth = true;
+        series.areaStyle = {};
+        series.stack = "total";
+      });
+      newOption.xAxis = x;
+      newOption.xAxis.boundaryGap = false;
       newOption.yAxis = y;
       break;
     case "bar":
-      newOption.series[0].type = "bar";
+      newOption.series.forEach((series) => {
+        series.type = "bar";
+        series.colorBy = "data";
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
       newOption.xAxis = x;
       newOption.yAxis = y;
       break;
     case "column":
-      newOption.series[0].type = "bar";
+      newOption.series.forEach((series) => {
+        series.type = "bar";
+        series.colorBy = "data";
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
+      newOption.xAxis = y;
+      newOption.yAxis = x;
+      break;
+    case "stacked-bar":
+      newOption.series.forEach((series) => {
+        series.type = "bar";
+        series.stack = "total";
+        delete series["smooth"];
+        delete series["areaStyle"];
+        delete series["colorBy"];
+      });
+      newOption.xAxis = x;
+      newOption.yAxis = y;
+      break;
+    case "stacked-column":
+      newOption.series.forEach((series) => {
+        series.type = "bar";
+        series.stack = "total";
+        delete series["smooth"];
+        delete series["areaStyle"];
+        delete series["colorBy"];
+      });
       newOption.xAxis = y;
       newOption.yAxis = x;
       break;
     case "pie":
-      newOption.series[0].type = "pie";
+      newOption.series.forEach((series) => {
+        series.type = "pie";
+        series.radius = ["70%"];
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
       newOption.xAxis = x;
       newOption.yAxis = y;
-      newOption.series[0].radius = ["70%"];
+
       break;
     case "donut":
-      newOption.series[0].type = "pie";
+      newOption.series.forEach((series) => {
+        series.type = "pie";
+        series.radius = ["40%", "70%"];
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
       newOption.xAxis = x;
       newOption.yAxis = y;
-      newOption.series[0].radius = ["40%", "70%"];
+
       break;
     case "scatter":
-      newOption.series[0].type = "scatter";
+      newOption.series.forEach((series) => {
+        series.type = "scatter";
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
       newOption.xAxis = x;
       newOption.yAxis = y;
       break;

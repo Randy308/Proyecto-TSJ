@@ -71,6 +71,30 @@ export const SwitchMultiChart = (option, action) => {
       newOption.xAxis = y;
       newOption.yAxis = x;
       break;
+    case "pie":
+      newOption.series.forEach((series) => {
+        series.type = "pie";
+        series.radius = ["70%"];
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
+      newOption.xAxis = x;
+      newOption.yAxis = y;
+
+      break;
+    case "donut":
+      newOption.series.forEach((series) => {
+        series.type = "pie";
+        series.radius = ["40%", "70%"];
+        delete series["smooth"];
+        delete series["stack"];
+        delete series["areaStyle"];
+      });
+      newOption.xAxis = x;
+      newOption.yAxis = y;
+
+      break;
     default:
       break;
   }

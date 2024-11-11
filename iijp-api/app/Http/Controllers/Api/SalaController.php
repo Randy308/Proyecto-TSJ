@@ -150,9 +150,9 @@ class SalaController extends Controller
 
     public function ordenarArrayXYZ($combinations, $nombre_y, $nombre_z)
     {
-        $variableX = $nombre_y;
-        $variableY = 'sala';
-        $variableZ = $nombre_z;
+        $variableY = $nombre_y;
+        $variableZ = 'sala';
+        $variableX = $nombre_z;
 
         $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX, $variableY) {
             return $item[$variableX] . '_' . $item[$variableY];
@@ -199,7 +199,7 @@ class SalaController extends Controller
         $variableY = 'sala';
 
         $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX) {
-            return ucfirst($variableX) . '_' . $item[$variableX];
+            return $item[$variableX];
         })->unique()->values()->all();
 
         $resultado = [];
@@ -212,8 +212,8 @@ class SalaController extends Controller
             $row = [$variableY => $mainValue];
 
             foreach ($uniqueColumns as $column) {
-                $lastSpaceIndex = strrpos($column, '_');
-                $colValue = substr($column, $lastSpaceIndex + 1);
+
+                $colValue = $column;
 
                 $entry = $combinations->first(function ($element) use ($mainValue, $variableX, $variableY, $colValue) {
                     return $element[$variableY] === $mainValue
@@ -305,9 +305,9 @@ class SalaController extends Controller
             'salas' => 'required|array',
             'salas.*' => 'required|integer',
             'formaId' => 'required|integer',
-            'ids' => 'required|array',
-            'ids.*' => 'required|integer',
-            'nombre' => 'required|string',
+            'idsY' => 'required|array',
+            'idsY.*' => 'required|integer',
+            'nombreY' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -316,8 +316,8 @@ class SalaController extends Controller
             ], 422);
         }
 
-        $nombre = $request['nombre'];
-        $ids = $request['ids'];
+        $nombre = $request['nombreY'];
+        $ids = $request['idsY'];
 
         $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $table = SalaController::obtenerModelo($nombre, $ids);
@@ -400,7 +400,6 @@ class SalaController extends Controller
 
         foreach ($combinations as &$item) {
             $item['cantidad'] = $datoLookup[$item['sala']] ?? 0;
-            $item['porcentaje'] = $total ? number_format(($item['cantidad'] / $total) * 100, 2) : 0;
         }
 
         $response = [
@@ -475,12 +474,12 @@ class SalaController extends Controller
     }
     public function getParamsSalas(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'salas' => 'required|array',
             'salas.*' => 'required|integer',
             'formaId' => 'required|integer',
         ]);
+
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors()
@@ -490,38 +489,53 @@ class SalaController extends Controller
         $salas = $request->salas;
         $formaId = $request->formaId;
 
-        $departamentos = DB::table('departamentos as d')->selectRaw('DISTINCT(d.id), d.nombre')
+        $departamentos = DB::table('departamentos as d')
+            ->selectRaw('DISTINCT(d.id), d.nombre')
             ->join('resolutions as r', 'r.departamento_id', '=', 'd.id')
             ->whereIn('r.sala_id', $salas)
             ->where('r.forma_resolucion_id', $formaId)
             ->get();
-        $magistrados = DB::table('magistrados as m')->selectRaw('DISTINCT(m.id), m.nombre')
+
+        $magistrados = DB::table('magistrados as m')
+            ->selectRaw('DISTINCT(m.id), m.nombre')
             ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
             ->whereIn('r.sala_id', $salas)
             ->where('r.forma_resolucion_id', $formaId)
             ->get();
-        $tipo_resolucions = DB::table('tipo_resolucions as tr')->selectRaw('DISTINCT(tr.id), tr.nombre')
+
+        $tipo_resolucions = DB::table('tipo_resolucions as tr')
+            ->selectRaw('DISTINCT(tr.id), tr.nombre')
             ->join('resolutions as r', 'r.tipo_resolucion_id', '=', 'tr.id')
             ->whereIn('r.sala_id', $salas)
             ->where('r.forma_resolucion_id', $formaId)
             ->get();
-        $tipo_jurisprudencia = DB::table('jurisprudencias as j')
-            ->select('j.tipo_jurisprudencia as nombre', DB::raw('MIN(j.id) as id'))
-            ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
-            ->whereIn('r.sala_id', $salas)
-            ->where('r.forma_resolucion_id', $formaId)
-            ->whereNotNull('j.tipo_jurisprudencia')
-            ->groupBy('j.tipo_jurisprudencia')
-            ->get();
 
+        // Prepare the response data, excluding any fields with only one record
+        $response = [];
 
-        return response()->json([
-            'departamento' => $departamentos,
-            'magistrado' => $magistrados,
-            'tipo_resolucion' => $tipo_resolucions,
-            'tipo_jurisprudencia' => $tipo_jurisprudencia,
-        ], 200);
+        if ($departamentos->count() > 1) {
+            $response['departamento'] = $departamentos;
+        }
+
+        if ($magistrados->count() > 1) {
+            $response['magistrado'] = $magistrados;
+        }
+
+        if ($tipo_resolucions->count() > 1) {
+            $response['tipo_resolucion'] = $tipo_resolucions;
+        }
+
+        return response()->json($response, 200);
     }
+
+    // $tipo_jurisprudencia = DB::table('jurisprudencias as j')
+    //     ->select('j.tipo_jurisprudencia as nombre', DB::raw('MIN(j.id) as id'))
+    //     ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
+    //     ->whereIn('r.sala_id', $salas)
+    //     ->where('r.forma_resolucion_id', $formaId)
+    //     ->whereNotNull('j.tipo_jurisprudencia')
+    //     ->groupBy('j.tipo_jurisprudencia')
+    //     ->get();
 
     public function show($id)
     {

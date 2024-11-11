@@ -4,7 +4,6 @@ import Novedades from "./pages/Novedades";
 import Inicio from "./pages/Inicio";
 import Jurisprudencia from "./pages/Jurisprudencia";
 import JurisprudenciaBusqueda from "./pages/busqueda/JurisprudenciaBusqueda";
-import AnalisisMateria from "./pages/analisis/AnalisisMateria";
 import JurisprudenciaCronologia from "./pages/cronologia/JurisprudenciaCronologia";
 import ResultadoAnalisis from "./pages/analisis/ResultadoAnalisis";
 import { ThemeProvider } from "./components/ThemeProvider";
@@ -25,13 +24,9 @@ import LayoutUser from "./layouts/LayoutUser";
 import { PanelUser } from "./pages/user/PanelUser";
 import PanelAdmin from "./pages/admin/PanelAdmin";
 
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AnalisisSala from "./pages/analisis/AnalisisSala";
-import TablaXYZ from "./components/TablaXYZ";
-import Prueba from "./components/Prueba";
-import TablaXY from "./components/TablaXY";
-import Analisis2D from "./pages/analisis/Analisis2D";
 
 function App() {
   return (
@@ -45,10 +40,6 @@ function App() {
               <Route path="inicio" element={<Inicio />} />
               <Route path="/novedades" element={<Novedades />} />
               <Route path="/jurisprudencia" element={<Jurisprudencia />} />
-              <Route
-                path="/jurisprudencia/analisis-Materia"
-                element={<AnalisisMateria />}
-              />
               <Route
                 path="/jurisprudencia/lista-Magistrados"
                 element={<ListaMagistrados />}
@@ -78,10 +69,6 @@ function App() {
                 element={<ResolucionTSJ />}
               />
 
-              <Route
-                path="/prueba-tabla"
-                element={<Analisis2D />}
-              />
               <Route path="/comparar-datos" element={<CompararDatos />} />
               <Route
                 path="/jurisprudencia/cronologias/resultados"
@@ -91,7 +78,6 @@ function App() {
                 path="/jurisprudencia/lista-salas"
                 element={<ListaSalas />}
               />
-              <Route path="/grafica/prueba" element={<Prueba/>} />
               <Route path="/analisis/sala/:id" element={<AnalisisSala />} />
               <Route path="/login" element={<Login />} />
               <Route path="/registrar" element={<Register />} />

@@ -161,15 +161,11 @@ function Navbar() {
       return (
         <>
           <li>
-            <a
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              href="/login"
-            >
-              Iniciar sesión
-            </a>
-          </li>
-          <li>
-            <Portal setSettingsOpen={setSettingsOpen} />
+            <Portal
+              setSettingsOpen={setSettingsOpen}
+              titulo={"Iniciar sesión"}
+              status={"login"}
+            />
           </li>
         </>
       );
@@ -177,7 +173,7 @@ function Navbar() {
   };
 
   return (
-    <header>
+    <header className="overflow-x-hidden">
       <nav>
         <div className="bg-white mx-4 my-1 rounded-md custom:bg-transparent custom:flex custom:p-1">
           <img
