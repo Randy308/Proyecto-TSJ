@@ -85,16 +85,15 @@ function Navbar() {
       const rect = ajustesRef.current.getBoundingClientRect();
       const listaHeight = ajustesRef.current.offsetHeight;
       const listaWidth = listaRef.current.offsetWidth;
-
       if (window.innerWidth <= 720) {
-        listaRef.current.style.top = `auto`;
-        listaRef.current.style.left = `auto`;
+        listaRef.current.style.top = auto;
+        listaRef.current.style.left = auto;
       } else {
         listaRef.current.style.top = `${
           rect.bottom - rect.height + listaHeight
         }px`;
         listaRef.current.style.left = `${
-          rect.left + rect.width - listaWidth
+          rect.left + rect.width - 180
         }px`;
       }
     }
@@ -219,8 +218,9 @@ function Navbar() {
         <div id="gear" className={` ${menuOpen ? "open" : ""}`}>
           <button
             id="boton-ajustes"
-            ref={ajustesRef}
-            className="py-3.5 px-5 me-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:text-gray-200 dark:hover:bg-gray-700 flex items-center justify-center"
+            ref={ajustesRef} className="bg-transparent me-3 hover:bg-gray-100 hover:text-black text-white font-semibold py-2 px-4
+           rounded shadow flex items-center justify-center"
+
             onClick={() => actualizarAjustes(true)}
           >
             <FaGear></FaGear>
@@ -234,7 +234,7 @@ function Navbar() {
         onMouseLeave={stopTimer}
         onMouseEnter={handleMouseEnter}
         className={`z-10 absolute  bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 ${
-          settingsOpen ? "visible " : "invisible "
+          settingsOpen ? " " : "hidden"
         }`}
       >
         <ul

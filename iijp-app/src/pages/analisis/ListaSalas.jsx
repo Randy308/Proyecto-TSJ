@@ -129,24 +129,6 @@ const ListaSalas = () => {
             <p className="text-black dark:text-white pb-4">
               Seleccione una o varias salas para analizar
             </p>
-            <div className="grid grid-cols-2 gap-2 pb-2 custom:grid-cols-1">
-              <button
-                type="button"
-                onClick={() => setSelectedIds([])}
-                className="w-full flex justify-around text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center me-2 mb-2"
-              >
-                <MdOutlineCleaningServices className="w-5 h-5" />
-                Limpiar
-              </button>
-              <button
-                type="button"
-                onClick={getDatos}
-                className="w-full flex justify-around items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center me-2 mb-2"
-              >
-                <FaPlay className="w-5 h-5" />
-                Analizar
-              </button>
-            </div>
             <div>
               <BtnDropdown
                 setVisible={setVisible}
@@ -155,12 +137,16 @@ const ListaSalas = () => {
               ></BtnDropdown>
             </div>
             <ul
-              className={`flex flex-col gap-4 ${
-                visible ? "" : "hidden"
-              }`}
+              className={`flex flex-col gap-2 pb-4 mb-4 max-h-[400px] overflow-x-auto  [&::-webkit-scrollbar]:w-2
+  [&::-webkit-scrollbar-track]:rounded-full
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:rounded-full
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" ${visible ? "" : "hidden"}`}
             >
               {contenido.map((item) => (
-                <li key={item.id}>
+                <li key={item.id} className="px-2">
                   <input
                     type="checkbox"
                     id={item.nombre}
@@ -172,10 +158,10 @@ const ListaSalas = () => {
                   />
                   <label
                     htmlFor={item.nombre}
-                    className="inline-flex items-center justify-between w-full p-3 custom:p-2 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+                    className="inline-flex items-center justify-between w-full p-2 custom:p-1 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
                   >
                     <div className="flex flex-row gap-3 items-center custom:gap-2">
-                      <GiInjustice className="mb-2 text-black w-7 h-7 dark:text-white" />
+                      <GiInjustice className="mb-2 text-black w-5 h-5 dark:text-white" />
                       <div className="roboto-regular text-sm text-black dark:text-white custom:text-xs">
                         {item.nombre}
                       </div>
@@ -184,7 +170,24 @@ const ListaSalas = () => {
                 </li>
               ))}
             </ul>
-
+            <div className="flex flex-wrap gap-2 pb-2 justify-center">
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
+              >
+                <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
+                <span>Limpiar</span>
+              </button>
+              <button
+                type="button"
+                onClick={getDatos}
+                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
+              >
+                <FaPlay className="fill-current w-4 h-4 mr-2" />
+                <span>Analizar</span>
+              </button>
+            </div>
             {pieData && pieData.length > 0 ? (
               <div className="max-w-sm mx-auto mt-4">
                 <label

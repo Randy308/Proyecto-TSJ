@@ -76,16 +76,22 @@ const MultiBtnDropdown = ({
               : "bg-white hover:bg-gray-100 dark:hover:bg-gray-700 border text-gray-900 dark:bg-gray-800"
           }`}
       >
-        {name}
+        {String(name).charAt(0).toUpperCase() + String(name).slice(1)}
         {activo ? (
           <IoIosArrowUp className="w-6 h-5 me-2 -ms-1 " />
         ) : (
           <IoIosArrowDown className="w-6 h-5 me-2 -ms-1" />
         )}
       </button>
-      <ul className={`flex flex-col gap-4 ${activo ? "" : "hidden"}`}>
+      <ul className={`flex flex-col gap-1 mb-4 max-h-[400px] overflow-x-auto  [&::-webkit-scrollbar]:w-2
+  [&::-webkit-scrollbar-track]:rounded-full
+  [&::-webkit-scrollbar-track]:bg-gray-100
+  [&::-webkit-scrollbar-thumb]:rounded-full
+  [&::-webkit-scrollbar-thumb]:bg-gray-300
+  dark:[&::-webkit-scrollbar-track]:bg-neutral-700
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 ${activo ? "" : "hidden"}`}>
         {contenido.map((currentItem) => (
-          <li key={currentItem.id}>
+          <li key={currentItem.id} className="px-2">
             <input
               type="checkbox"
               id={currentItem.nombre}
@@ -100,10 +106,10 @@ const MultiBtnDropdown = ({
             />
             <label
               htmlFor={currentItem.nombre}
-              className="inline-flex items-center justify-between w-full p-3 custom:p-2 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
+              className="inline-flex items-center justify-between w-full p-2 custom:p-1 text-gray-500 bg-white border-2 border-gray-200 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-blue-600 hover:text-gray-600 dark:peer-checked:text-gray-300 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-800 dark:hover:bg-gray-700"
             >
               <div className="flex flex-row gap-3 items-center custom:gap-2">
-                <div className="roboto-regular text-sm text-black dark:text-white custom:text-xs">
+                <div className="roboto-regular text-xs text-black dark:text-white custom:text-xs">
                   {currentItem.nombre}
                 </div>
               </div>

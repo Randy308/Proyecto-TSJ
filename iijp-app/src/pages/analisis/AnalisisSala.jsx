@@ -2,18 +2,12 @@ import Loading from "../../components/Loading";
 import SimpleChart from "../../components/SimpleChart";
 import TablaX from "../../components/TablaX";
 import React, { useEffect, useMemo, useState } from "react";
-import { MdOutlineCleaningServices } from "react-icons/md";
 import { FaPlay } from "react-icons/fa6";
-import {
-  Navigate,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import BtnDropdown from "../../components/BtnDropdown";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { SwitchChart } from "../../components/SwitchChart";
 import axios from "axios";
 import Select from "../../components/Select";
+import { MdOutlineCleaningServices } from "react-icons/md";
 
 const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -22,8 +16,6 @@ const AnalisisSala = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const receivedData = location.state;
-
-  const [total, setTotal] = useState(1);
 
   const [data, setData] = useState(null);
   const [formaResolution, setFormaResolution] = useState(null);
@@ -37,7 +29,6 @@ const AnalisisSala = () => {
   const [lista, setLista] = useState([]);
 
   useEffect(() => {
-    // Fetch data only once on component mount
     if (salas && id) {
       axios
         .get(`${endpoint}/obtener-parametros-salas`, {
@@ -60,7 +51,6 @@ const AnalisisSala = () => {
   const [limite, setLimite] = useState(0);
   const [listaX, setListaX] = useState([]);
   const [checkedX, setCheckedX] = useState(false);
-  const [checkedZ, setCheckedZ] = useState(false);
   useEffect(() => {
     console.log(listaX);
   }, [listaX]);
@@ -69,49 +59,68 @@ const AnalisisSala = () => {
     if (receivedData === null || !Array.isArray(receivedData.data)) {
       navigate("/jurisprudencia/lista-salas");
     } else {
-      setTotal(receivedData.total);
       setSalas(receivedData.salas);
       setData(receivedData.data.length > 0 ? receivedData.data : []);
       setFormaResolution(receivedData.formaResolution);
     }
   }, [receivedData]);
 
-  const createSeries = (flag = false, length) => {
+  const createSeries = (length) => {
     const series = [];
     for (let index = 0; index < length; index++) {
-      if (flag) {
-        series.push({ type: "line", seriesLayoutBy: "row" });
-      } else {
-        series.push({ type: "line" });
-      }
+      series.push({ type: "line", seriesLayoutBy: "column" });
     }
     return series;
   };
 
   useEffect(() => {
     if (data && data.length > 0) {
-      // Initialize an object to hold the total values
-      const total = { sala: "Total" };
+      const totalC = { sala: "Total" };
+      if (checkedX && listaX.length > 0) {
+        let newData = data.map((item) => {
+          const Total = Object.entries(item).reduce((sum, [key, value]) => {
+            return key !== "sala" ? sum + value : sum;
+          }, 0);
+          return { ...item, Total };
+        });
 
-      // Iterate over each data entry and accumulate totals
-      data.forEach((entry) => {
-        for (let key in entry) {
-          if (key !== "sala") {
-            total[key] = (total[key] || 0) + entry[key];
+        newData.forEach((entry) => {
+          for (let key in entry) {
+            if (key !== "sala") {
+              totalC[key] = (totalC[key] || 0) + entry[key];
+            }
           }
-        }
-      });
+        });
 
-      // Append the total object to the data array
-      const listas = [...data, total];
+        const listas = [...newData, totalC];
 
-      setLista(listas);
+        setLista(listas);
+      } else {
+        data.forEach((entry) => {
+          for (let key in entry) {
+            if (key !== "sala") {
+              totalC[key] = (totalC[key] || 0) + entry[key];
+            }
+          }
+        });
+
+        const listas = [...data, totalC];
+
+        setLista(listas);
+      }
 
       let keys = Object.keys(data[0]);
+      keys = keys.map(
+        (item) => String(item).charAt(0).toUpperCase() + String(item).slice(1)
+      );
       let values = data.map((item) => Object.values(item));
+
       setOption({
         legend: {},
-        tooltip: {},
+        
+  tooltip: {
+    trigger: 'item'
+  },
         dataset: {
           source: [keys, ...values],
         },
@@ -120,33 +129,23 @@ const AnalisisSala = () => {
             saveAsImage: {},
           },
         },
-        xAxis: { type: "category",boundaryGap: false, },
+        xAxis: { type: "category", boundaryGap: false },
         yAxis: {},
-        series: createSeries(false, keys.length - 1),
+        series: createSeries(keys.length - 1),
       });
-
-      setColumns(
-        keys.map((item) => ({
-          accessorKey: item,
-          header: item
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase()),
-          enableSorting: true,
-        }))
-      );
     }
   }, [data]);
+
   const handleChartTypeChange = (type) => {
     setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
 
-  const updateFirstCheck = () => {
+  const updateCheck = () => {
     const change = !checkedX;
     setCheckedX(change);
     if (!change) {
-      setListaX((prev) => (prev.length > 0 ? prev.slice(1) : []));
+      setListaX([]);
       setLimite(0);
-      setCheckedZ(false);
     } else {
       setLimite(1);
     }
@@ -158,6 +157,7 @@ const AnalisisSala = () => {
       salas,
       formaId: id,
     };
+    let flag = false;
     if (listaX.length > 0 && checkedX) {
       myendpoint = `${endpoint}/estadisticas-xy`;
       myparams = {
@@ -165,18 +165,64 @@ const AnalisisSala = () => {
         idsY: listaX[0].ids,
         nombreY: listaX[0].name,
       };
+      flag = true;
     }
 
     axios
       .get(myendpoint, { params: myparams })
       .then(({ data }) => {
-        console.log(data);
-        setTotal(data.total);
         setData(data.data.length > 0 ? data.data : []);
       })
       .catch((error) => console.error("Error fetching data", error));
   };
+  function transposeArray(data) {
+    const transposed = {};
+    data.forEach((item) => {
+      Object.keys(item).forEach((key) => {
+        if (!transposed[key]) {
+          transposed[key] = [];
+        }
+        transposed[key].push(item[key]);
+      });
+    });
 
+    const result = Object.entries(transposed).map(([key, values]) => [
+      key,
+      ...values,
+    ]);
+    console.log(result);
+    const headers = result[0];
+
+    const keyValueArray = result.slice(1).map((row) => {
+      return headers.reduce((obj, header, index) => {
+        obj[header] = row[index];
+        return obj;
+      }, {});
+    });
+    return keyValueArray;
+  }
+
+  const invertirAxis = () => {
+    setOption((prevOption) => SwitchChart(prevOption, "default", true));
+    const transposed = transposeArray(lista);
+    console.log(transposed);
+    setLista(transposed);
+  };
+
+  useEffect(() => {
+    if (lista && lista.length > 0) {
+      let keys = Object.keys(lista[0]);
+      setColumns(
+        keys.map((item) => ({
+          accessorKey: item,
+          header: item
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (char) => char.toUpperCase()),
+          enableSorting: true,
+        }))
+      );
+    }
+  }, [lista]);
   return (
     <div className="grid grid-cols-4 gap-2 p-4 m-4 custom:grid-cols-1">
       <div className="p-4 m-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
@@ -186,65 +232,86 @@ const AnalisisSala = () => {
             <span className="italic font-bold"> {formaResolution}</span>
           </p>
         )}
-        <div className="grid grid-cols-1 gap-2 pb-2">
-          <button
-            type="button"
-            onClick={() => realizarAnalisis()}
-            className="w-full flex justify-around items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center me-2 mb-2"
-          >
-            <FaPlay className="w-5 h-5" />
-            Analizar
-          </button>
-        </div>
         <div>
-          <label className="inline-flex items-center cursor-pointer">
-            <input
-              type="checkbox"
-              checked={checkedX}
-              onChange={() => updateFirstCheck()}
-              className="sr-only peer"
-            />
-            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-            <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-              Cruce por una variable
-            </span>
-          </label>
+          <div>
+            <label
+              for="charts"
+              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            >
+              Tipo de graficos
+            </label>
+            <select
+              id="charts"
+              onChange={(e) => handleChartTypeChange(e.target.value)}
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            >
+              <option disabled defaultValue>
+                Elige un tipo de gráfico
+              </option>
+              <option value="line">Línea</option>
+              <option value="bar">Barras</option>
+              <option value="column">Columnas</option>
+              <option value="area">Área</option>
 
-          {memoizedParams && (
-            <Select
-              memoizedParams={memoizedParams}
-              limite={limite}
-              listaX={listaX}
-              setListaX={setListaX}
-            ></Select>
-          )}
-
-          <select
-            id="charts"
-            onChange={(e) => handleChartTypeChange(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          >
-            <option disabled defaultValue>
-              Elige un tipo de gráfico
-            </option>
-            <option value="line">Línea</option>
-            <option value="bar">Barras</option>
-            <option value="column">Columnas</option>
-            <option value="area">Área</option>
-            <option value="scatter">Dispersión</option>
-
-            {checkedX ? (
-              <>
-                <option value="stacked-bar">Barras Apiladas</option>
-                <option value="stacked-column">Columnas Apiladas</option>
-              </>
-            ) : (
-              <>
-                <option value="pie">Circular</option>
-                <option value="donut">Dona</option>
-              </>
+              {checkedX ? (
+                <>
+                  <option value="stacked-bar">Barras Apiladas</option>
+                  <option value="stacked-column">Columnas Apiladas</option>
+                </>
+              ) : (
+                <>
+                  <option value="scatter">Dispersión</option>
+                  <option value="pie">Circular</option>
+                  <option value="donut">Dona</option>
+                </>
+              )}
+            </select>
+          </div>
+          <div>
+            <label className="inline-flex items-center cursor-pointer m-4">
+              <input
+                type="checkbox"
+                checked={checkedX}
+                onChange={() => updateCheck()}
+                className="sr-only peer"
+              />
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                Cruce por una variable
+              </span>
+            </label>
+          </div>
+          <div className={` ${checkedX ? "" : "hidden"}  `}>
+            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+              Variables
+            </label>
+            {memoizedParams && (
+              <Select
+                memoizedParams={memoizedParams}
+                limite={limite}
+                listaX={listaX}
+                setListaX={setListaX}
+              ></Select>
             )}
-          </select>
+            <div className="grid grid-cols-2 gap-2 pb-2">
+              <button
+                type="button"
+                onClick={() => invertirAxis()}
+                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
+              >
+                <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
+                <span>Invertir Axis</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => realizarAnalisis()}
+                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
+              >
+                <FaPlay className="fill-current w-4 h-4 mr-2" />
+                <span>Analizar</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {data && data.length > 0 ? (

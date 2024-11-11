@@ -17,7 +17,7 @@ export default function ModalContent({ onClose, status }) {
         return (
           <div>
             <h1>Error occurred</h1>
-            <p>Something went wrong, please try again.</p>
+            <p>Intente de nuevo.</p>
           </div>
         );
     }

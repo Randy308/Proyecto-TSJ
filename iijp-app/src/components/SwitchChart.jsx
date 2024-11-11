@@ -1,4 +1,4 @@
-export const SwitchChart = (option, action) => {
+export const SwitchChart = (option, action, flag = false) => {
   // Copy option to ensure a new reference is returned
   let newOption = JSON.parse(JSON.stringify(option));
 
@@ -18,7 +18,6 @@ export const SwitchChart = (option, action) => {
       newOption.xAxis = x;
       newOption.xAxis.boundaryGap = false;
       newOption.yAxis = y;
-      
       break;
     case "area":
       newOption.series.forEach((series) => {
@@ -85,7 +84,6 @@ export const SwitchChart = (option, action) => {
       });
       newOption.xAxis = x;
       newOption.yAxis = y;
-
       break;
     case "donut":
       newOption.series.forEach((series) => {
@@ -97,7 +95,6 @@ export const SwitchChart = (option, action) => {
       });
       newOption.xAxis = x;
       newOption.yAxis = y;
-
       break;
     case "scatter":
       newOption.series.forEach((series) => {
@@ -112,5 +109,20 @@ export const SwitchChart = (option, action) => {
     default:
       break;
   }
+
+  if (flag) {
+    // Invert axis
+    let filas = newOption.dataset.source.length;
+    let columnas = newOption.dataset.source[0].length;
+    let serieData = newOption.series[0];
+    let length = serieData.seriesLayoutBy === "column" ? filas : columnas;
+    let layout = serieData.seriesLayoutBy === "column" ? "row" : "column";
+    let newSeries = [];
+    for (let index = 1; index < length; index++) {
+      newSeries.push({ type: serieData.type, seriesLayoutBy: layout });
+    }
+    newOption.series = newSeries;
+  }
+
   return newOption;
 };
