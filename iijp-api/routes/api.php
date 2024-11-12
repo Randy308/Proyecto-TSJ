@@ -104,6 +104,11 @@ Route::get('/magistrado-estadisticas-juris/{id}', [MagistradosController::class,
 
 Route::get('/obtener-datos-magistrado/{id}', [MagistradosController::class, 'obtenerDatos'])->name('obtener-datos-magistrado');
 
+Route::get('/obtener-paramentros-magistrado', [MagistradosController::class, 'magistradosParamentros']);
+
+
+Route::get('/magistrado-estadisticas-xy' , [MagistradosController::class , 'obtenerEstadisticasXY']);
+Route::get('/magistrado-estadisticas-x' , [MagistradosController::class , 'obtenerEstadisticasX']);
 
 //rutas de comparación de datos
 Route::get('/obtener-elemento', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');

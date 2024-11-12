@@ -99,23 +99,23 @@ const EstiloTitulos = ({
       {isPreview ? (
         // Renderiza solo el título en modo previsualización
         <div style={estilo}>
-          <div>{transformTitle(titulo)}</div>
+          <div className="text-black dark:text-white">{transformTitle(titulo)}</div>
         </div>
       ) : (
         // En el modo normal, renderiza el título con controles para personalizar el estilo
         <div>
           <div
-            className="bg-white border border-gray-300 m-2 p-4 hover:cursor-pointer flex flex-row justify-between rounded-md"
+            className="bg-white dark:bg-gray-700 text-black dark:text-white border border-gray-300 dark:border-gray-900 m-2 p-4 hover:cursor-pointer flex flex-row justify-between rounded-md"
             onClick={() => setTabActivo()}
           >
-            <div className="text-black">{transformTitle(titulo)}</div>
+            <div>{transformTitle(titulo)}</div>
 
             <div>
-              <IoMdArrowDropdown className="text-black" />
+              <IoMdArrowDropdown />
             </div>
           </div>
           <div
-            className={`bg-gray-100 border border-gray-300 m-2 p-4 hover:cursor-pointer flex flex-col justify-between ${
+            className={`bg-gray-100 dark:bg-gray-500 border border-gray-300 m-2 p-4 hover:cursor-pointer flex flex-col justify-between ${
               visible === id ? "" : "hidden"
             }`}
           >

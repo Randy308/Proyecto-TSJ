@@ -12,7 +12,18 @@ const TimesSeries = ({ setValor, resoluciones, recorrerLista }) => {
 
   const option = {
     tooltip: {
-      trigger: "axis",
+      trigger: "item",
+      formatter: function (params) {
+        return `${params.name}: ${params.value} resoluciones`;
+      },
+      backgroundColor: "#ffffff",
+      borderColor: "#ccc",
+      borderWidth: 1,
+      textStyle: {
+        color: "#333",
+      },
+      showDelay: 0,
+      transitionDuration: 0.2,
     },
 
     legend: {
@@ -38,6 +49,15 @@ const TimesSeries = ({ setValor, resoluciones, recorrerLista }) => {
       symbol: "circle",
       symbolSize: 9,
       smooth: true,
+      markPoint: {
+        data: [
+          { type: 'max', name: 'Cantidad maxima' },
+          { type: 'min', name: 'Cantidad minima' }
+        ]
+      },
+      markLine: {
+        data: [{ type: 'average', name: 'Promedio' }]
+      },
       areaStyle: {
         opacity: 0.4,
         color: "#C9E8F1", // Color de relleno suave y claro para el área

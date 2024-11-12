@@ -15,36 +15,23 @@ const MultiBtnDropdown = ({
     const itemId = parseInt(event.target.name, 10);
 
     setListaX((prev) => {
+      const existingItem = prev.find((item) => item.name === name);
 
-      const isNamePresent = prev.some((item) => item.name === name);
+      if (existingItem) {
+        const updatedIds = existingItem.ids.includes(itemId)
+          ? existingItem.ids.filter((id) => id !== itemId)
+          : [...existingItem.ids, itemId];
 
-      if (isNamePresent) {
-
-        return prev
-          .map((item) =>
-            item.name === name
-              ? {
-                  ...item,
-                  ids: item.ids.includes(itemId)
-                    ? item.ids.filter((id) => id !== itemId) 
-                    : [...item.ids, itemId], 
-                }
-              : item
-          )
-          .filter((item) => item.ids.length > 0); 
+        return updatedIds.length > 0 ? [{ name, ids: updatedIds }] : [];
       } else {
-        
         if (limite === 0) {
-          return prev; 
+          return prev;
         }
 
-        const newState = [...prev, { ids: [itemId], name }];
-
-        return newState.length > limite ? newState.slice(1) : newState;
+        return [{ name, ids: [itemId] }];
       }
     });
   };
-
 
   const handleClick = () => {
     const nextState = !activo;
@@ -62,6 +49,12 @@ const MultiBtnDropdown = ({
     }
   }, [visible]);
 
+  const convertirTitulo = (name) => {
+    return String(name)
+      .replace(/_/g, " ") // Reemplaza los guiones bajos por espacios
+      .replace(/\b\w/g, (char) => char.toUpperCase()); // Convierte la primera letra de cada palabra a mayúscula
+  };
+
   return (
     <>
       <button
@@ -76,20 +69,22 @@ const MultiBtnDropdown = ({
               : "bg-white hover:bg-gray-100 dark:hover:bg-gray-700 border text-gray-900 dark:bg-gray-800"
           }`}
       >
-        {String(name).charAt(0).toUpperCase() + String(name).slice(1)}
+        {convertirTitulo(name)}
         {activo ? (
           <IoIosArrowUp className="w-6 h-5 me-2 -ms-1 " />
         ) : (
           <IoIosArrowDown className="w-6 h-5 me-2 -ms-1" />
         )}
       </button>
-      <ul className={`flex flex-col gap-1 mb-4 max-h-[400px] overflow-x-auto  [&::-webkit-scrollbar]:w-2
+      <ul
+        className={`flex flex-col gap-1 mb-4 max-h-[400px] overflow-x-auto  [&::-webkit-scrollbar]:w-2
   [&::-webkit-scrollbar-track]:rounded-full
   [&::-webkit-scrollbar-track]:bg-gray-100
   [&::-webkit-scrollbar-thumb]:rounded-full
   [&::-webkit-scrollbar-thumb]:bg-gray-300
   dark:[&::-webkit-scrollbar-track]:bg-neutral-700
-  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 ${activo ? "" : "hidden"}`}>
+  dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 ${activo ? "" : "hidden"}`}
+      >
         {contenido.map((currentItem) => (
           <li key={currentItem.id} className="px-2">
             <input

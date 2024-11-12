@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Departamentos;
 use App\Models\FormaResolucions;
+use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
 use App\Models\Salas;
 use App\Models\TipoResolucions;
@@ -264,7 +265,7 @@ class SalaController extends Controller
     {
         // Initial select and group by
         $select = "COALESCE(COUNT(r.id), 0) AS cantidad, salas.nombre AS sala";
-        $group_by = "forma_resolucions.nombre, salas.nombre";
+        $group_by = "salas.nombre";
 
         // Base query
         $query = FormaResolucions::selectRaw($select)
@@ -280,8 +281,9 @@ class SalaController extends Controller
             $full_name = $table_name . "s";
             if ($table_name && $values) {
                 if ($table_name == "tipo_jurisprudencia") {
+                    $jurisprudencia_nombres  = Jurisprudencias::whereIn('jurisprudencias.id', $values)->get("tipo_jurisprudencia")->pluck("tipo_jurisprudencia");
                     $query->join('jurisprudencias', 'jurisprudencias.resolution_id', '=', 'r.id')
-                        ->whereIn('jurisprudencias.tipo_jurisprudencia', $values);
+                        ->whereIn('jurisprudencias.id', $jurisprudencia_nombres);
                     $select .= ", jurisprudencias.tipo_jurisprudencia AS " . $table_name;
                     $group_by .= ", " . $table_name;
                 } else {

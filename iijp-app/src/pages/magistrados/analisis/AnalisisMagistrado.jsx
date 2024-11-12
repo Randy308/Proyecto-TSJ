@@ -1,78 +1,34 @@
-import Loading from "../../components/Loading";
-import SimpleChart from "../../components/SimpleChart";
-import TablaX from "../../components/TablaX";
+import Loading from "../../../components/Loading";
+import SimpleChart from "../../../components/SimpleChart";
+import TablaX from "../../../components/TablaX";
+import { SwitchChart } from "../../../components/SwitchChart";
+import Select from "../../../components/Select";
+
 import React, { useEffect, useMemo, useState } from "react";
 import { FaPlay } from "react-icons/fa6";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { SwitchChart } from "../../components/SwitchChart";
+
 import axios from "axios";
-import Select from "../../components/Select";
+
 import { MdOutlineCleaningServices } from "react-icons/md";
-
-const endpoint = process.env.REACT_APP_BACKEND;
-
-const AnalisisSala = () => {
-  const { id } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const receivedData = location.state;
-
-  const [data, setData] = useState(null);
-  const [formaResolution, setFormaResolution] = useState(null);
+function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, setMultiVariable}) {
+  const endpoint = process.env.REACT_APP_BACKEND;
 
   const [option, setOption] = useState({});
-  const [salas, setSalas] = useState(null);
-  const [params, setParams] = useState(null);
   const [columns, setColumns] = useState(null);
-
   const [actual, setActual] = useState(true);
   const [lista, setLista] = useState([]);
-  const [multiVariable, setMultiVariable] = useState(false);
-
-  useEffect(() => {
-    if (salas && id) {
-      axios
-        .get(`${endpoint}/obtener-parametros-salas`, {
-          params: {
-            salas: salas,
-            formaId: id,
-          },
-        })
-        .then(({ data }) => {
-          setParams(data);
-          console.log(data);
-        })
-        .catch((error) => {
-          console.error("Error fetching data", error);
-        });
-    }
-  }, [salas, id]);
-
-  const memoizedParams = useMemo(() => params, [params]);
   const [limite, setLimite] = useState(0);
   const [listaX, setListaX] = useState([]);
   const [checkedX, setCheckedX] = useState(false);
-  useEffect(() => {
-    console.log(listaX);
-  }, [listaX]);
-
-  useEffect(() => {
-    if (receivedData === null || !Array.isArray(receivedData.data)) {
-      navigate("/jurisprudencia/lista-salas");
-    } else {
-      setSalas(receivedData.salas);
-      setData(receivedData.data.length > 0 ? receivedData.data : []);
-      setFormaResolution(receivedData.formaResolution);
-    }
-  }, [receivedData]);
 
   const createSeries = (length) => {
     const series = [];
     for (let index = 0; index < length; index++) {
-      series.push({ type: "line", seriesLayoutBy: "column" });
+      series.push({ type: "bar", seriesLayoutBy: "column" });
     }
     return series;
   };
+
   useEffect(() => {
     if (data && data.length > 0) {
       const totalCounts = { sala: "Total" };
@@ -132,16 +88,16 @@ const AnalisisSala = () => {
   const realizarAnalisis = () => {
     const isMultiVariable = listaX.length > 0 && checkedX;
     const endpointPath = isMultiVariable
-      ? `${endpoint}/estadisticas-xy`
-      : `${endpoint}/estadisticas-x`;
+      ? `${endpoint}/magistrado-estadisticas-xy`
+      : `${endpoint}/magistrado-estadisticas-x`;
     const params = isMultiVariable
       ? {
           salas,
-          formaId: id,
+          magistradoId: id,
           idsY: listaX[0].ids,
           nombreY: listaX[0].name,
         }
-      : { salas, formaId: id };
+      : { salas, magistradoId: id };
 
     axios
       .get(endpointPath, { params })
@@ -151,6 +107,7 @@ const AnalisisSala = () => {
       })
       .catch((error) => console.error("Error fetching data:", error));
   };
+
   function transposeArray(data) {
     const transposed = {};
     data.forEach((item) => {
@@ -201,19 +158,13 @@ const AnalisisSala = () => {
   return (
     <div className="grid grid-cols-4 gap-2 p-4 m-4 custom:grid-cols-1">
       <div className="p-4 m-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
-        {formaResolution && (
-          <p className="text-black dark:text-white pb-4">
-            Forma de resolucion:
-            <span className="italic font-bold"> {formaResolution}</span>
-          </p>
-        )}
         <div>
           <div>
             <label
-              for="charts"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              htmlFor="charts"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              Tipo de graficos
+              Selección de grafico
             </label>
             <select
               id="charts"
@@ -223,10 +174,8 @@ const AnalisisSala = () => {
               <option disabled defaultValue>
                 Elige un tipo de gráfico
               </option>
-              <option value="line">Línea</option>
               <option value="bar">Barras</option>
               <option value="column">Columnas</option>
-              <option value="area">Área</option>
 
               {multiVariable ? (
                 <>
@@ -256,12 +205,12 @@ const AnalisisSala = () => {
             </label>
           </div>
           <div className={` ${checkedX ? "" : "hidden"}  `}>
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Variables
             </label>
-            {memoizedParams && (
+            {params && (
               <Select
-                memoizedParams={memoizedParams}
+                memoizedParams={params}
                 limite={limite}
                 listaX={listaX}
                 setListaX={setListaX}
@@ -288,7 +237,7 @@ const AnalisisSala = () => {
           </div>
         </div>
 
-        {data && data.length > 0 ? (
+        {data && data.length > 0 && (
           <div className="max-w-sm mx-auto mt-4">
             <button
               onClick={() => setActual((prev) => !prev)}
@@ -298,8 +247,6 @@ const AnalisisSala = () => {
               {actual ? "Mostrar Tabla " : "Mostrar Grafico"}
             </button>
           </div>
-        ) : (
-          ""
         )}
       </div>
 
@@ -318,6 +265,5 @@ const AnalisisSala = () => {
       )}
     </div>
   );
-};
-
-export default AnalisisSala;
+}
+export default AnalisisMagistrado;

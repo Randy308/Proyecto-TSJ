@@ -14,26 +14,14 @@ import { magistradoItems } from "../../data/MagistradoItems";
 import Resumen from "./analisis/Resumen";
 import TimesSeries from "./analisis/TimesSeries";
 import Mapa from "./analisis/Mapa";
+import AnalisisMagistrado from "./analisis/AnalisisMagistrado";
 const MagistradoTSJ = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
   const { id } = useParams();
   const [magistrado, setMagistrado] = useState([]);
   const [activeTab, setActiveTab] = useState(1);
-  useEffect(() => {
-    const obtenerResumen = async () => {
-      try {
-        const {data} = await axios.get(
-          `${endpoint}/obtener-datos-magistrado/${id}`
-        );
-        console.log(data)
-        setMagistrado(data.magistrado);
-      } catch (error) {
-        console.error("Error al realizar la solicitud:", error);
-      }
-    };
-    obtenerResumen();
-  }, [id]);
 
+  const [multiVariable, setMultiVariable] = useState(false);
   const [departamentos, setDepartamentos] = useState(null);
   const [hasFetchedDep, setHasFetchedDep] = useState(false);
 
@@ -51,10 +39,36 @@ const MagistradoTSJ = () => {
     }
   };
 
+  const [params, setParams] = useState(null);
+  const [hasParams, setHasParams] = useState(false);
+
+  const handleClickParams = async () => {
+    if (!hasParams) {
+      try {
+        const { data } = await axios.get(
+          `${endpoint}/obtener-paramentros-magistrado`,
+          {
+            params: {
+              id: id,
+              salas: salasId,
+            },
+          }
+        );
+        setParams(data);
+        setHasParams(true);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+  };
+
   const [resoluciones, setResoluciones] = useState([]);
   const [valor, setValor] = useState(null);
   const lista = ["year", "month", "day"];
   const actual = useRef(0);
+
+  const [salasId, setSalasId] = useState([]);
+  const [salasData, setSalasData] = useState(null);
 
   const generarFecha = () => {
     if (valor !== null) {
@@ -100,10 +114,36 @@ const MagistradoTSJ = () => {
       recorrerLista(false);
     }
   }, [valor]);
+  useEffect(() => {
+    const obtenerResumen = async () => {
+      try {
+        const { data } = await axios.get(
+          `${endpoint}/obtener-datos-magistrado/${id}`
+        );
+        console.log(data);
+        setMagistrado(data);
+      } catch (error) {
+        console.error("Error al realizar la solicitud:", error);
+      }
+    };
+    obtenerResumen();
+  }, [id]);
 
-    useEffect(() => {
-      getEstadisticas();
-    }, []);
+  useEffect(() => {
+    if (magistrado && magistrado.salas && magistrado.salas.length > 0) {
+      setSalasId(magistrado.salas.map((item) => item.id));
+      setSalasData(
+        magistrado.salas.map((item) => ({
+          sala: item.nombre,
+          cantidad: item.cantidad,
+        }))
+      );
+    }
+  }, [magistrado]);
+
+  useEffect(() => {
+    getEstadisticas();
+  }, []);
 
   const handleTabs = (number) => {
     switch (number) {
@@ -111,6 +151,7 @@ const MagistradoTSJ = () => {
         setActiveTab(number);
         return;
       case 2:
+        handleClickParams();
         setActiveTab(number);
         return;
       case 3:
@@ -127,9 +168,19 @@ const MagistradoTSJ = () => {
   const renderContent = (number) => {
     switch (number) {
       case 1:
-        return <Resumen id={id} />;
+        return <Resumen magistrado={magistrado} />;
       case 2:
-        return <div>Contenido por defecto</div>;
+        return (
+          <AnalisisMagistrado
+            params={params}
+            data={salasData}
+            setData={setSalasData}
+            salas={salasId}
+            id={id}
+            multiVariable={multiVariable}
+            setMultiVariable={setMultiVariable}
+          />
+        );
       case 3:
         return (
           <TimesSeries
@@ -157,11 +208,11 @@ const MagistradoTSJ = () => {
           </span>
 
           <h1 className="my-2 ms-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-            {magistrado}
+            {magistrado.nombre}
           </h1>
         </div>
         <div className="flex justify-end">
-          <ImUserTie className="w-20 h-20 p-4 border border-gray-200 rounded-lg" />
+          <ImUserTie className="w-20 h-20 p-4 dark:text-white border border-gray-200 rounded-lg" />
         </div>
       </div>
 

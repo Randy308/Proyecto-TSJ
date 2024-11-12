@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Contents;
+use App\Models\Jurisprudencias;
 use App\Models\Magistrados;
 use App\Models\Resolutions;
 use App\Models\Salas;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class MagistradosController extends Controller
 {
@@ -25,6 +27,72 @@ class MagistradosController extends Controller
         return response()->json($magistrados, 200);
     }
 
+    public function magistradosParamentros(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+            'salas' => 'required|array',
+            'salas.*' => 'required|integer',
+            'id' => 'required|integer',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $salas = $request->salas;
+
+
+        $magistrado = Magistrados::where("id", $request->id)->first();
+
+        $departamentos = DB::table('departamentos as d')
+            ->selectRaw('DISTINCT(d.id), d.nombre')
+            ->join('resolutions as r', 'r.departamento_id', '=', 'd.id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('r.magistrado_id', $magistrado->id)
+            ->get();
+
+        $tipo_resolucions = DB::table('tipo_resolucions as tr')
+            ->selectRaw('DISTINCT(tr.id), tr.nombre')
+            ->join('resolutions as r', 'r.tipo_resolucion_id', '=', 'tr.id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('r.magistrado_id', $magistrado->id)
+            ->get();
+        $jurisprudencias = DB::table('resolutions as r')
+            ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
+            ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
+            ->select(
+                'j.tipo_jurisprudencia as nombre',
+                DB::raw('MIN(j.id) as id')
+            )
+            ->whereIn('r.sala_id', $salas)
+            ->where('r.magistrado_id', '=', $magistrado->id)
+            ->whereNotNull('j.tipo_jurisprudencia')
+            ->groupBy('j.tipo_jurisprudencia')
+            ->orderBy('j.tipo_jurisprudencia')
+            ->get();
+
+        $response = [];
+
+        if ($departamentos->count() > 1) {
+            $response['departamento'] = $departamentos;
+        }
+
+        if ($jurisprudencias->count() > 1) {
+            $response['tipo_jurisprudencia'] = $jurisprudencias;
+        }
+
+        if ($tipo_resolucions->count() > 1) {
+            $response['tipo_resolucion'] = $tipo_resolucions;
+        }
+
+        return response()->json($response, 200);
+    }
+
     public function obtenerDatos($id)
     {
 
@@ -33,24 +101,38 @@ class MagistradosController extends Controller
         $fechas = DB::table('resolutions as r')
             ->select(DB::raw("MIN(r.fecha_emision) as fecha_minima, MAX(r.fecha_emision) as fecha_maxima"))
             ->where("r.magistrado_id", $magistrado->id)
-            ->get();
+            ->first();
 
         $salas = DB::table('resolutions as r')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
-            ->select(DB::raw("COUNT(r.id) as cantidad, s.nombre"))
+            ->select(DB::raw("COUNT(r.id) as cantidad, s.nombre , s.id"))
             ->where("r.magistrado_id", $magistrado->id)
-            ->groupBy("s.nombre")->orderBy('cantidad', 'desc')
+            ->groupBy("s.nombre", "s.id")->orderBy('cantidad', 'desc')
             ->get();
         $formas = DB::table('resolutions as r')
             ->join('forma_resolucions as fr', 'r.forma_resolucion_id', '=', 'fr.id')
             ->select(DB::raw("COUNT(r.id) as cantidad, fr.nombre"))
             ->where("r.magistrado_id", $magistrado->id)
-            ->groupBy("fr.nombre")->orderBy('cantidad', 'desc')
+            ->groupBy("fr.nombre")
+            ->having(DB::raw("COUNT(r.id)"), ">", 20) // Use COUNT(r.id) directly in having
+            ->orderBy('cantidad', 'desc')
             ->get();
 
+        Carbon::setLocale('es');
+        $total = $salas->sum("cantidad");
+
+        foreach ($salas as $sala) {
+            $sala->porcetaje = round($sala->cantidad * 100 / $total, 2);
+        }
+
+        // Convert and format the dates
+        $fechaMinima = Carbon::parse($fechas->fecha_minima)->translatedFormat('j \\d\\e F \\d\\e Y');
+        $fechaMaxima = Carbon::parse($fechas->fecha_maxima)->translatedFormat('j \\d\\e F \\d\\e Y');
+
         return response()->json([
-            'magistrado' => $magistrado->nombre,
-            'fechas' => $fechas,
+            'nombre' => $magistrado->nombre,
+            'fecha_maxima' => $fechaMaxima,
+            'fecha_minima' => $fechaMinima,
             'salas' => $salas,
             'formas' => $formas,
         ]);
@@ -638,5 +720,218 @@ class MagistradosController extends Controller
         ];
 
         return response()->json($data);
+    }
+
+    public function obtenerModelo($name, $values)
+    {
+        $errorMessage = null;
+
+        if ($name == "tipo_jurisprudencia") {
+            $model = DB::table('jurisprudencias as x')
+                ->select('x.tipo_jurisprudencia as ' . $name)->whereNotNull('x.tipo_jurisprudencia')
+                ->distinct()
+                ->get();
+        } else {
+            $full_name = $name . "s";
+            $model = DB::table($full_name . ' as x')
+                ->select('x.nombre as ' . $name)
+                ->whereIn('x.id', $values)
+                ->get();
+        }
+
+        if ($model->isEmpty()) {
+            $defaultErrorMessage = "No se encontró el modelo '$name'.";
+            throw new ModelNotFoundException($errorMessage ?: $defaultErrorMessage);
+        }
+
+        return $model;
+    }
+
+    public function generarConsulta($formaId, $salas, $tablas)
+    {
+        // Initial select and group by
+        $select = "COALESCE(COUNT(r.id), 0) AS cantidad, salas.nombre AS sala";
+        $group_by = "salas.nombre";
+
+        // Base query
+        $query = Magistrados::selectRaw($select)
+            ->join('resolutions as r', 'r.magistrado_id', '=', 'magistrados.id')
+            ->join('salas', 'r.sala_id', '=', 'salas.id')
+            ->whereIn('r.sala_id', $salas)
+            ->where('magistrados.id', $formaId);
+
+        // Loop to add dynamic joins and selects based on tables array
+        foreach ($tablas as $tabla) {
+            $table_name = $tabla->nombre;
+            $values = $tabla->ids;
+            $full_name = $table_name . "s";
+            if ($table_name && $values) {
+                if ($table_name == "tipo_jurisprudencia") {
+
+                    $jurisprudencia_nombres  = Jurisprudencias::whereIn('jurisprudencias.id', $values)->get("tipo_jurisprudencia")->pluck("tipo_jurisprudencia");
+                    $query->join('jurisprudencias', 'jurisprudencias.resolution_id', '=', 'r.id')
+                        ->whereIn('jurisprudencias.tipo_jurisprudencia', $jurisprudencia_nombres);
+                    $select .= ", jurisprudencias.tipo_jurisprudencia AS " . $table_name;
+                    $group_by .= ", " . $table_name;
+                } else {
+                    $query->join($full_name, $full_name . '.id', '=', 'r.' . $table_name . '_id')
+                        ->whereIn($full_name . '.id', $values);
+                    $select .= ", " . $full_name . ".nombre AS " . $table_name;
+                    $group_by .= ", " . $full_name . ".nombre";
+                }
+            }
+        }
+
+        // Finalize select and group by, then get the results
+        return $query->selectRaw($select)->groupByRaw($group_by)->get();
+    }
+
+
+
+    public function obtenerEstadisticasXY(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'salas' => 'required|array',
+            'salas.*' => 'required|integer',
+            'magistradoId' => 'required|integer',
+            'idsY' => 'required|array',
+            'idsY.*' => 'required|integer',
+            'nombreY' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $nombre = $request['nombreY'];
+        $ids = $request['idsY'];
+
+        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $table = MagistradosController::obtenerModelo($nombre, $ids);
+
+        $salasArray = $salas->pluck('sala')->toArray();
+        $tableArray = $table->pluck($nombre)->toArray();
+        $combinations = [];
+
+        foreach ($salasArray as $sala) {
+            foreach ($tableArray as $row) {
+                $combinations[] = [
+                    'sala' => $sala,
+                    $nombre => $row,
+                    "cantidad" => 0,
+                ];
+            }
+        }
+
+        $datos = MagistradosController::generarConsulta($request->magistradoId, $request->salas, [
+            (object)[
+                "nombre" => $nombre,
+                "ids" => $ids
+            ]
+        ]);
+
+        $total = array_sum($datos->pluck('cantidad')->toArray());
+
+        $datoLookup = [];
+        foreach ($datos as $dato) {
+            $datoLookup[$dato->sala][$dato->$nombre] = $dato->cantidad;
+        }
+
+
+        foreach ($combinations as &$item) {
+            $item['cantidad'] = $datoLookup[$item['sala']][$item[$nombre]] ?? 0;
+        }
+
+        return response()->json([
+            'data' => MagistradosController::ordenarArrayXY($combinations, $nombre),
+        ], 200);
+    }
+    public function ordenarArrayXY($combinations, $name)
+    {
+        $variableX = $name;
+        $variableY = 'sala';
+
+        $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX) {
+            return $item[$variableX];
+        })->unique()->values()->all();
+
+        $resultado = [];
+        $uniqueItems = collect($combinations)->pluck($variableY)->unique();
+
+        $combinations = collect($combinations);
+
+        foreach ($uniqueItems as $mainValue) {
+
+            $row = [$variableY => $mainValue];
+
+            foreach ($uniqueColumns as $column) {
+
+                $colValue = $column;
+
+                $entry = $combinations->first(function ($element) use ($mainValue, $variableX, $variableY, $colValue) {
+                    return $element[$variableY] === $mainValue
+                        && $element[$variableX] === $colValue;
+                });
+
+                $row[$column] = $entry ? $entry['cantidad'] : 0;
+
+                if ($entry) {
+                    $combinations = $combinations->reject(function ($element) use ($entry) {
+                        return $element === $entry;
+                    });
+                }
+            }
+
+            $resultado[] = $row;
+        }
+
+        return $resultado;
+    }
+    public function obtenerEstadisticasX(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'salas' => 'required|array',
+            'salas.*' => 'required|integer',
+            'magistradoId' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $forma = Magistrados::findOrFail($request->magistradoId);
+
+        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $salasArray = $salas->pluck('sala')->toArray();
+        $combinations = [];
+        foreach ($salasArray as $sala) {
+            $combinations[] = [
+                'sala' => $sala,
+                'cantidad' => 0,
+            ];
+        }
+
+        $datos = Magistrados::selectRaw('COALESCE(COUNT(resolutions.id), 0) AS cantidad, salas.nombre as sala')
+            ->join('resolutions', 'resolutions.magistrado_id', '=', 'magistrados.id')
+            ->join('salas', 'resolutions.sala_id', '=', 'salas.id')
+            ->whereIn('resolutions.sala_id', $request->salas)
+            ->where('magistrados.id', $request->magistradoId)
+            ->groupBy('salas.nombre')
+            ->get();
+
+        $total = array_sum($datos->pluck('cantidad')->toArray());
+        $datoLookup = $datos->pluck('cantidad', 'sala')->toArray();
+
+        foreach ($combinations as &$item) {
+            $item['cantidad'] = $datoLookup[$item['sala']] ?? 0;
+        }
+
+        $response = [
+            'data' => $combinations,
+        ];
+
+        return response()->json($response, 200);
     }
 }
