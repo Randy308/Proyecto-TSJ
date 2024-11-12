@@ -29,7 +29,31 @@ class MagistradosController extends Controller
     {
 
         $magistrado = Magistrados::where("id", $id)->first();
-        return $magistrado;
+
+        $fechas = DB::table('resolutions as r')
+            ->select(DB::raw("MIN(r.fecha_emision) as fecha_minima, MAX(r.fecha_emision) as fecha_maxima"))
+            ->where("r.magistrado_id", $magistrado->id)
+            ->get();
+
+        $salas = DB::table('resolutions as r')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->select(DB::raw("COUNT(r.id) as cantidad, s.nombre"))
+            ->where("r.magistrado_id", $magistrado->id)
+            ->groupBy("s.nombre")->orderBy('cantidad', 'desc')
+            ->get();
+        $formas = DB::table('resolutions as r')
+            ->join('forma_resolucions as fr', 'r.forma_resolucion_id', '=', 'fr.id')
+            ->select(DB::raw("COUNT(r.id) as cantidad, fr.nombre"))
+            ->where("r.magistrado_id", $magistrado->id)
+            ->groupBy("fr.nombre")->orderBy('cantidad', 'desc')
+            ->get();
+
+        return response()->json([
+            'magistrado' => $magistrado->nombre,
+            'fechas' => $fechas,
+            'salas' => $salas,
+            'formas' => $formas,
+        ]);
     }
 
 
@@ -381,7 +405,7 @@ class MagistradosController extends Controller
         if ($response->successful()) {
             return $response->json();
         } else {
-            return response()->json(['error' => 'Error al enviar datos a Flask'.$response], 500);
+            return response()->json(['error' => 'Error al enviar datos a Flask' . $response], 500);
         }
     }
 

@@ -79,8 +79,6 @@ Route::get('/magistrado-estadisticas/{id}', [MagistradosController::class, 'obte
 
 Route::get('/all-resoluciones', [ResolutionController::class, 'index'])->name('all-resolutions');
 
-Route::get('/obtener-datos-magistrado/{id}', [MagistradosController::class, 'obtenerDatos'])->name('obtener-datos-magistrado');
-
 Route::get('/obtener-resoluciones-magistrado', [MagistradosController::class, 'obtenerResoluciones'])->name('obtener-resoluciones-magistrado');
 
 
@@ -103,6 +101,8 @@ Route::get('/magistrado-estadisticas-departamentos/{id}', [MagistradosController
 Route::get('/magistrado-estadisticas-v2/{id}', [MagistradosController::class, 'obtenerEstadistica'])->name('est-mag-v2');
 Route::get('/magistrado-estadisticas-salas/{id}', [MagistradosController::class, 'obtenerEstadisticaSalas'])->name('est-mag-salas');
 Route::get('/magistrado-estadisticas-juris/{id}', [MagistradosController::class, 'obtenerEstadisticaTipoJuris'])->name('est-mag-juris');
+
+Route::get('/obtener-datos-magistrado/{id}', [MagistradosController::class, 'obtenerDatos'])->name('obtener-datos-magistrado');
 
 
 //rutas de comparación de datos

@@ -27,7 +27,7 @@ const Estadisticas = ({ id }) => {
   const [activo, setActivo] = useState("primero");
   const actualizar = (id) => {
     setActivo(id);
-    console.log(activo);
+  
   };
 
   const generarFecha = () => {

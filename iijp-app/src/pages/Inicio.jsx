@@ -18,6 +18,7 @@ const Inicio = () => {
   ];
   return (
     <div className="flex p-4 m-4 justify-center card-container custom:flex-col gap-3">
+      <p>Sistemas Gestion y Analisis de Metricas de la Justicia Ordinaria</p>
       {tarjetas.map((tarjeta) => {
         return (
           <div className="card box-content aspect-square bg-[#31363F] hover:bg-[#222831] p-4 mx-4 hover:cursor-pointer rounded-lg" key={tarjeta.nombre}>

@@ -139,40 +139,50 @@ const JurisprudenciaLista = () => {
     visualMap: [
       {
         show: false,
-        type: 'continuous',
+        type: "continuous",
         seriesIndex: 0,
         min: 0,
-        max: Math.max(...resoluciones)
+        max: Math.max(...resoluciones),
       },
       {
         show: false,
-        type: 'continuous',
+        type: "continuous",
         seriesIndex: 1,
         dimension: 0,
         min: 0,
-        max: jurisprudencia.length - 1
-      }
+        max: jurisprudencia.length - 1,
+      },
     ],
     toolbox: {
       feature: {
-        magicType: { show: true, type: ['line', 'bar'] },
-        saveAsImage: { show: true }
-      }
+        magicType: {
+          show: true,
+          type: ["line", "bar"],
+          title: {
+            line: "Línea", // Cambia "line" a "Línea"
+            bar: "Barras", // Cambia "bar" a "Barras"
+          },
+        },
+        saveAsImage: {
+          show: true,
+          title: "Guardar como imagen",
+        },
+      },
     },
     title: [
       {
-        left: 'center',
-        top: '5%',
-        text: 'Cantidad de resoluciones por periodo'
+        left: "center",
+        top: "5%",
+        text: "Cantidad de resoluciones por periodo",
       },
       {
-        top: '55%',
-        left: 'center',
-        text: 'Cantidad de jurisprudencia por periodo'
-      }
+        top: "55%",
+        left: "center",
+        text: "Cantidad de jurisprudencia por periodo",
+      },
     ],
     tooltip: {
-      trigger: 'axis'
+      trigger: "axis",
     },
     xAxis: [
       {
@@ -180,43 +190,43 @@ const JurisprudenciaLista = () => {
       },
       {
         data: xAxis,
-        gridIndex: 1
-      }
+        gridIndex: 1,
+      },
     ],
     yAxis: [
       {},
       {
-        gridIndex: 1
-      }
+        gridIndex: 1,
+      },
     ],
     grid: [
       {
-        bottom: '60%',
-        left: '5%',  // Agrega padding izquierdo
-        right: '5%', // Agrega padding derecho
-        containLabel: true
+        bottom: "60%",
+        left: "5%", // Agrega padding izquierdo
+        right: "5%", // Agrega padding derecho
+        containLabel: true,
       },
       {
-        top: '60%',
-        left: '5%',  // Agrega padding izquierdo
-        right: '5%', // Agrega padding derecho
-        containLabel: true
-      }
+        top: "60%",
+        left: "5%", // Agrega padding izquierdo
+        right: "5%", // Agrega padding derecho
+        containLabel: true,
+      },
     ],
     series: [
       {
-        type: 'line',
+        type: "line",
         showSymbol: false,
-        data: resoluciones
+        data: resoluciones,
       },
       {
-        type: 'line',
+        type: "line",
         showSymbol: false,
         data: jurisprudencia,
         xAxisIndex: 1,
-        yAxisIndex: 1
-      }
-    ]
+        yAxisIndex: 1,
+      },
+    ],
   };
 
   

@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import { IoIosPerson } from "react-icons/io";
+import { ImUserTie } from "react-icons/im";
 import "../../styles/styles_randy/magistradosTSJ.css";
 
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
@@ -10,59 +10,202 @@ import "../../styles/tabs.css";
 import ResumenMagistrado from "./ResumenMagistrado";
 import Estadisticas from "./analisis/Estadisticas";
 import Decomposition from "../prediccion/Decomposition";
-
+import { magistradoItems } from "../../data/MagistradoItems";
+import Resumen from "./analisis/Resumen";
+import TimesSeries from "./analisis/TimesSeries";
+import Mapa from "./analisis/Mapa";
 const MagistradoTSJ = () => {
+  const endpoint = process.env.REACT_APP_BACKEND;
   const { id } = useParams();
   const [magistrado, setMagistrado] = useState([]);
+  const [activeTab, setActiveTab] = useState(1);
   useEffect(() => {
-    const endpoint = process.env.REACT_APP_BACKEND;
-    const getEstadisticas = async () => {
+    const obtenerResumen = async () => {
       try {
-        const response = await axios.get(
+        const {data} = await axios.get(
           `${endpoint}/obtener-datos-magistrado/${id}`
         );
-        setMagistrado(response.data.nombre);
+        console.log(data)
+        setMagistrado(data.magistrado);
       } catch (error) {
         console.error("Error al realizar la solicitud:", error);
       }
     };
-    getEstadisticas();
+    obtenerResumen();
   }, [id]);
-  const [renderedPanels, setRenderedPanels] = useState([0]);
 
-  const onSelect = useCallback((index) => {
-    setRenderedPanels((renderedPanels) =>
-      renderedPanels.includes(index)
-        ? renderedPanels
-        : renderedPanels.concat(index)
-    );
-  }, []);
+  const [departamentos, setDepartamentos] = useState(null);
+  const [hasFetchedDep, setHasFetchedDep] = useState(false);
+
+  const handleClick = async () => {
+    if (!hasFetchedDep) {
+      try {
+        const { data } = await axios.get(
+          `${endpoint}/magistrado-estadisticas-departamentos/${id}`
+        );
+        setDepartamentos(data);
+        setHasFetchedDep(true);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }
+  };
+
+  const [resoluciones, setResoluciones] = useState([]);
+  const [valor, setValor] = useState(null);
+  const lista = ["year", "month", "day"];
+  const actual = useRef(0);
+
+  const generarFecha = () => {
+    if (valor !== null) {
+      const selectedData = resoluciones.find((item) => item.fecha === valor);
+      return selectedData
+        ? selectedData.fecha_inicio
+        : resoluciones[0].fecha_inicio;
+    }
+  };
+
+  const recorrerLista = (reversa) => {
+    if (reversa && actual.current === 0) {
+      console.log("limite superior alcanzado");
+    } else if (!reversa && actual.current === lista.length - 1) {
+      console.log("limite inferior alcanzado");
+    } else {
+      actual.current = reversa ? actual.current - 1 : actual.current + 1;
+      console.log(lista[actual.current]);
+      getEstadisticas();
+    }
+  };
+
+  const getEstadisticas = async () => {
+    try {
+      setResoluciones([]);
+      const response = await axios.get(
+        `${endpoint}/magistrado-estadisticas-v2/${id}`,
+        {
+          params: {
+            actual: lista[actual.current],
+            dato: generarFecha(),
+          },
+        }
+      );
+      setResoluciones(response.data.data);
+    } catch (error) {
+      console.error("Error al realizar la solicitud:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (valor != null) {
+      recorrerLista(false);
+    }
+  }, [valor]);
+
+    useEffect(() => {
+      getEstadisticas();
+    }, []);
+
+  const handleTabs = (number) => {
+    switch (number) {
+      case 1:
+        setActiveTab(number);
+        return;
+      case 2:
+        setActiveTab(number);
+        return;
+      case 3:
+        setActiveTab(number);
+        return;
+      case 4:
+        handleClick();
+        setActiveTab(number);
+      default:
+        return;
+    }
+  };
+
+  const renderContent = (number) => {
+    switch (number) {
+      case 1:
+        return <Resumen id={id} />;
+      case 2:
+        return <div>Contenido por defecto</div>;
+      case 3:
+        return (
+          <TimesSeries
+            resoluciones={resoluciones}
+            setValor={setValor}
+            recorrerLista={recorrerLista}
+          />
+        );
+      case 4:
+        return <Mapa contenido={departamentos} />;
+      default:
+        return <div>Contenido por defecto</div>;
+    }
+  };
 
   return (
-    <div className="p-4 m-4 magistrado-contenedor">
-      <div className="contenedor-datos ">
-        <div className="contenedor-foto dark:bg-gray-400">
-          <IoIosPerson className="foto-perfil" />
+    <div className="container mx-auto border border-gray-300 rounded-lg p-4 mt-4 ">
+      <div className="grid grid-cols-2 p-4">
+        <div>
+          <span
+            className="bg-blue-100 text-blue-800 text-md font-semibold px-2.5 
+          py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ms-3 mb-4"
+          >
+            Magistrado
+          </span>
+
+          <h1 className="my-2 ms-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+            {magistrado}
+          </h1>
         </div>
-        <div className="detalles-magistrado">
-          <span className="etiqueta-magistrado">Magistrado</span>
-          <h1 className="nombre-magistrado titulo">{magistrado}</h1>
+        <div className="flex justify-end">
+          <ImUserTie className="w-20 h-20 p-4 border border-gray-200 rounded-lg" />
         </div>
       </div>
-      <Tabs onSelect={onSelect}>
-        <TabList>
-          <Tab>Resumen</Tab>
-          <Tab>Estadísticas</Tab>
-        </TabList>
 
-        <TabPanel forceRender={renderedPanels.includes(0)}>
-          <ResumenMagistrado id={id}></ResumenMagistrado>
-          {/* <Decomposition id={id} /> */}
-        </TabPanel>
-        <TabPanel forceRender={renderedPanels.includes(1)}>
-          <Estadisticas id={id}></Estadisticas>
-        </TabPanel>
-      </Tabs>
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+          {magistradoItems.map((item) => (
+            <li key={item.id} className="me-2">
+              <a
+                href="#"
+                onClick={() => handleTabs(item.id)}
+                className={`inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg group 
+                ${
+                  item.id === activeTab
+                    ? "text-blue-600 border-blue-600  active dark:text-blue-500 dark:border-blue-500 "
+                    : "border-transparent  hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                } `}
+              >
+                {item.icon(
+                  `w-4 h-4 me-2 ${
+                    item.id === activeTab
+                      ? "text-blue-600 dark:text-blue-500"
+                      : "text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300"
+                  }`
+                )}
+                {item.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
+          {magistradoItems.map(
+            (item) =>
+              item.id === activeTab && (
+                <div key={item.id}>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    {item.title} Tab
+                  </h3>
+                  {renderContent(item.id)}
+                </div>
+              )
+          )}
+        </div>
+      </div>
     </div>
   );
 };

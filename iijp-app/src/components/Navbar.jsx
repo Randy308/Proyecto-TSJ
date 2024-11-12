@@ -86,8 +86,8 @@ function Navbar() {
       const listaHeight = ajustesRef.current.offsetHeight;
       const listaWidth = listaRef.current.offsetWidth;
       if (window.innerWidth <= 720) {
-        listaRef.current.style.top = auto;
-        listaRef.current.style.left = auto;
+        listaRef.current.style.top = "auto";
+        listaRef.current.style.left = "auto";
       } else {
         listaRef.current.style.top = `${
           rect.bottom - rect.height + listaHeight
