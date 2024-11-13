@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\UserController;
+use App\Http\Controllers\Api\ArimaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\Api\MagistradosController;
@@ -34,14 +35,11 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
-
-
-
 });
 
-Route::get('/estadisticas-xy' , [SalaController::class , 'obtenerEstadisticasXY']);
-Route::get('/estadisticas-xyz' , [SalaController::class , 'obtenerEstadisticasXYZ']);
-Route::get('/estadisticas-x' , [SalaController::class , 'obtenerEstadisticasX']);
+Route::get('/estadisticas-xy', [SalaController::class, 'obtenerEstadisticasXY']);
+Route::get('/estadisticas-xyz', [SalaController::class, 'obtenerEstadisticasXYZ']);
+Route::get('/estadisticas-x', [SalaController::class, 'obtenerEstadisticasX']);
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -126,3 +124,7 @@ Route::get('/cronologias', [TemaController::class, 'obtenerCronologias'])->name(
 
 
 Route::get('/obtener-datos-salas', [SalaController::class, 'getbyIDs']);
+
+
+
+Route::get('/test-arima', [ArimaController::class, 'test_arima']);

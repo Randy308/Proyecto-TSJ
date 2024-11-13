@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3e57c82e4ce01ff3c0a0bca88a9b79cf",
+    "content-hash": "4c5583093cbfb8074f8bacde0e4d1ac4",
     "packages": [
         {
             "name": "box/spout",
@@ -1881,6 +1881,39 @@
                 }
             ],
             "time": "2024-09-21T08:32:55+00:00"
+        },
+        {
+            "name": "livabefeni/php-arima",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/livabefeni/ARIMA-PHP.git",
+                "reference": "55ace3bfec536d0efe326dc7afa8a7695b78fa9e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/livabefeni/ARIMA-PHP/zipball/55ace3bfec536d0efe326dc7afa8a7695b78fa9e",
+                "reference": "55ace3bfec536d0efe326dc7afa8a7695b78fa9e",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpArima\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "liva",
+                    "email": "liva.ramarolahy@gmail.com"
+                }
+            ],
+            "description": "description",
+            "support": {
+                "source": "https://github.com/livabefeni/ARIMA-PHP/tree/v1.0.0"
+            },
+            "time": "2022-07-08T07:56:16+00:00"
         },
         {
             "name": "monolog/monolog",
