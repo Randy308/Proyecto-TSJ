@@ -157,6 +157,10 @@ span.mpdf_toc_t_level_6 { /* Título nivel 6 */
 span.mpdf_toc_p_level_6 { /* Número de página nivel 6 */
 }
 
+
+.titulo-portada{
+    font-family: 'cambria', sans-serif;
+}
     </style>
 
 </head>
@@ -183,16 +187,23 @@ span.mpdf_toc_p_level_6 { /* Número de página nivel 6 */
         </tr>
     </table>
 
-    <div style="background-color: #c23b22; text-align: center; margin-top: 20%; color: white;">
-        <p style="font-size: 45pt;">Cronologias Juridicas</p>
-
-        @if (isset($subtitulo))
-            <p style="font-size: 35pt;">{{$subtitulo}}</p>
-            @endif
-
-
+    <div style="background-color: #A40020; text-align: center; margin-top: 20%; color: white;">
+        <p style="font-size: 24pt;" class="titulo-portada">CRONOLOGIAS JURÍDICAS</p>
     </div>
-
+   
+    @if (isset($subtitulo))
+    <div style="text-align: center; margin-top: 10%;" class="titulo-portada">
+    <p style="font-size: 16pt;">{{$subtitulo}}</p>
+    </div>
+           
+    @endif
+    
+    @if (isset($fechaActual))
+    <div style="margin-top: 20%;margin-left: 10%;" class="titulo-portada">
+    <p style="font-size: 12pt;"><span style="font-weight: bold;">Fecha de publicación:</span>{{$fechaActual}}</p>
+    </div>
+           
+    @endif
     <pagebreak even-footer-value="-1" resetpagenum="1" />
 
     <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />

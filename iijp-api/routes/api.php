@@ -113,6 +113,8 @@ Route::get('/obtener-elemento', [CompareController::class, 'obtenerElemento'])->
 Route::get('/get-params', [CompareController::class, 'getParams'])->name('get-params');
 Route::get('/get-dates', [CompareController::class, 'getDates']);
 
+Route::get('/buscar-resoluciones', [CompareController::class, 'obtenerResoluciones']);
+
 
 
 

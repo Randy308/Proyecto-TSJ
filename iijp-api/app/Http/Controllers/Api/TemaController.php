@@ -9,6 +9,7 @@ use App\Models\Resolutions;
 use App\Models\Salas;
 use App\Models\Temas;
 use App\Models\TipoResolucions;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -234,10 +235,12 @@ class TemaController extends Controller
             'current' => $current,
             'data' => $results->toArray()
         ];
+        
+        $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
 
 
         //return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $request->estilos, 'subtitulo' => $request->subtitulo], [], [
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $request->estilos, 'subtitulo' => $request->subtitulo ,"fechaActual"=>$fechaActual], [], [
             'format'          => 'letter',
             'margin_left'     => 25,  // 2.5 cm in mm
             'margin_right'    => 25,  // 2.5 cm in mm

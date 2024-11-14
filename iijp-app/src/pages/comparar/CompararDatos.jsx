@@ -2,31 +2,52 @@ import React, { useEffect, useState } from "react";
 import "../../styles/styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
 import axios from "axios";
-import { TbMathFunction } from "react-icons/tb";
-import { BsThreeDots } from "react-icons/bs";
-import { CiSearch } from "react-icons/ci";
+
 import "../../styles/paginate.css";
 import Loading from "../../components/Loading";
-import LineChart from "../analisis/LineChart";
 import styles from "./CompararDatos.module.css";
-import { RxDotsVertical } from "react-icons/rx";
 import { comparacionItems } from "../../data/ComparacionItems";
 import Contenido from "./tabs/Contenido";
 import ResolucionesTab from "./tabs/ResolucionesTab";
+import Dropdown from "../../components/Dropdown";
+import Select from "./tabs/Select";
+import SimpleChart from "../../components/SimpleChart";
 const CompararDatos = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState(null);
   const [limiteSuperior, setLimiteSuperior] = useState(null);
   const [limiteInferior, setLimiteInferior] = useState(null);
-
+  const [numeroBusqueda, setNumeroBusqueda] = useState(1);
   const [cabeceras, setCabeceras] = useState(null);
-  //maneja eventos en el grafico
-  const [valor, setValor] = useState("");
+
+  const [hasFetchedDates, setHasFetchedDates] = useState(false);
+
+  const [hasFetchedData, setHasFetchedData] = useState(false);
 
   const [terminos, setTerminos] = useState([]);
+
+  const [data, setData] = useState(null);
+
+  const [option, setOption] = useState({});
+  const [busqueda, setBusqueda] = useState([]);
+  const [actualFormData, setActualFormData] = useState(null);
+
+  const [formData, setFormData] = useState({
+    tipo_resolucion: "all",
+    sala: "all",
+    magistrado: "all",
+    forma_resolucion: "all",
+    tipo_jurisprudencia: "all",
+    materia: "all",
+  });
+
+  const [varActiva, setVarActiva] = useState(1);
+
   useEffect(() => {
-    getParams();
+    if (!hasFetchedDates) {
+      getParams();
+    }
   }, []);
 
   const getParams = async () => {
@@ -34,16 +55,28 @@ const CompararDatos = () => {
       const { data } = await axios.get(`${endpoint}/get-dates`);
       setLimiteInferior(data.inferior);
       setLimiteSuperior(data.superior);
+      setHasFetchedDates(true);
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
     }
   };
 
   useEffect(() => {
-    console.log(resoluciones);
-  }, [resoluciones]);
+    if (hasFetchedDates && !hasFetchedData) {
+      getSelect();
+    }
+  }, [hasFetchedDates]);
 
-  const [option, setOption] = useState({});
+  const getSelect = async () => {
+    try {
+      const { data } = await axios.get(`${endpoint}/get-params`);
+      setData(data);
+      setHasFetchedData(true);
+    } catch (error) {
+      console.error("Error al realizar la solicitud:", error);
+    }
+  };
+
   useEffect(() => {
     if (resoluciones && cabeceras) {
       setOption({
@@ -88,222 +121,218 @@ const CompararDatos = () => {
     }
   }, [resoluciones, cabeceras]);
 
-  function toTitleCase(str) {
-    return str.replace(
-      /\w\S*/g,
-      (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
-    );
-  }
+  useEffect(() => {
+    if (actualFormData) {
+      realizarBusqueda(1);
+    }
+  }, [actualFormData]);
 
-  const renderContent = (id) => {
-    switch (id) {
-      case 1:
-        return <Contenido />;
-      case 2:
-        return (
-          <ResolucionesTab
-            setResoluciones={setResoluciones}
-            setCabeceras={setCabeceras}
-            setTerminos={setTerminos}
-            limiteInferior={limiteInferior}
-            limiteSuperior={limiteSuperior}
-          />
+  const obtenerResoluciones = async () => {
+    try {
+      const { data } = await axios.get(`${endpoint}/obtener-elemento`, {
+        params: {
+          fecha_final: limiteSuperior,
+          fecha_inicial: limiteInferior,
+          numero_busqueda: numeroBusqueda,
+          ...formData,
+        },
+      });
+      console.log(data);
+      if (data.resoluciones.data.length > 0) {
+        setNumeroBusqueda((prev) => prev + 1);
+        setResoluciones((prev) =>
+          prev ? [...prev, data.resoluciones] : [data.resoluciones]
         );
-      default:
-        return "Hola mundo";
+        setCabeceras(data.cabeceras);
+
+        setTerminos((prev) =>
+          prev.length > 0 ? [...prev, data.termino] : [data.termino]
+        );
+      } else {
+        alert("No existen datos");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
   };
 
-  const [varActiva, setVarActiva] = useState(1);
+  const removeItemById = (id) => {
+    setResoluciones((prevResoluciones) =>
+      prevResoluciones.filter((item) => item.id !== id)
+    );
+
+    setTerminos((prevTerminos) =>
+      prevTerminos.filter((item) => item.id !== id)
+    );
+  };
+
+  const limpiarFiltros = () => {
+    setFormData({
+      tipo_resolucion: "all",
+      sala: "all",
+      magistrado: "all",
+      forma_resolucion: "all",
+      tipo_jurisprudencia: "all",
+      materia: "all",
+    });
+  };
+
+  const realizarBusqueda = async (page) => {
+    try {
+      const { data } = await axios.get(`${endpoint}/buscar-resoluciones`, {
+        params: {
+          ...actualFormData,
+          page: page,
+        },
+      });
+      setBusqueda(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log(formData);
+  }, [formData]);
+
+  useEffect(() => {
+    console.log(resoluciones);
+  }, [resoluciones]);
+
+  const renderContent = (number) => {
+    switch (number) {
+      case 1:
+        return (
+          <>
+            {resoluciones && resoluciones.length > 0 ? (
+              <SimpleChart option={option} border={false}></SimpleChart>
+            ) : (
+              <div className="h-[500px]">
+                <Loading></Loading>
+              </div>
+            )}
+          </>
+        );
+      case 2:
+        return (
+          <>
+            {actualFormData ? (
+              <ResolucionesTab
+                setActualFormData={setActualFormData}
+                data={busqueda}
+                realizarBusqueda={realizarBusqueda}
+              />
+            ) : (
+              <p className="text-gray-500 dark:text-white">No existen datos</p>
+            )}
+          </>
+        );
+      case 3:
+        return (
+          <p className="text-gray-500 dark:text-white">No existen datos</p>
+        );
+      default:
+        return (
+          <p className="text-gray-500 dark:text-white">No existen datos</p>
+        );
+    }
+  };
+
   return (
     <div
       className="md:container mx-auto px-40 custom:px-0"
       id="jurisprudencia-busqueda"
     >
       <div className="row p-4">
-        <p className="m-4 p-4 text-center font-bold text-3xl text-black dark:text-white arimo">
-          Análisis de Jurisprudencia Avanzada
-        </p>
-        <div className="flex flex-col bg-white dark:bg-[#111827] rounded-lg border border-gray-200">
-          <div className="bg-[#450920] dark:bg-blue-600 p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
+        <div className="flex flex-col bg-white dark:bg-[#111827] rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
+          <div className="custom-gradient p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
             <FaFilter></FaFilter> <p>Campos de filtrado</p>
           </div>
 
-          <ul class="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400 p-4 m-4">
-            <li key={0}>
-              <a class="inline-block px-4 py-3 text-black cursor-not-allowed dark:text-white">
-                Seleccione una variable:
-              </a>
-            </li>
-            {comparacionItems.map((item) => (
-              <li class="me-2" key={item.id}>
-                <a
-                  href="#"
-                  className={`inline-block px-4 py-3 rounded-lg ${
-                    item.id === varActiva
-                      ? "text-white bg-blue-600  active"
-                      : "hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
-                  }`}
-                  onClick={() => setVarActiva(item.id)}
-                >
-                  {item.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-
-          <div>
-            {comparacionItems.map((item) => (
-              <div
-                key={item.id}
-                className={`p-6 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-[#111827] rounded-lg w-full ${
-                  item.id === varActiva ? "" : "hidden"
-                }`}
+          <div className="w-full p-4 text-center bg-white border border-gray-200 rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
+            <h5 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+              Análisis de Jurisprudencia Avanzada
+            </h5>
+            <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
+              Comparacion de datos a travez del tiempo.
+            </p>
+            <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+              {data &&
+                Object.entries(data).map(([key, items]) => (
+                  <Select
+                    key={key} // Add a unique key for each Select component
+                    formData={formData}
+                    items={items}
+                    fieldName={key}
+                    setFormData={setFormData}
+                  />
+                ))}
+            </div>
+            <div className="flex flex-row justify-end gap-4 p-4">
+              <button
+                className="rounded-lg bg-blue-500 hover:bg-blue-800 p-3 text-white"
+                onClick={() => obtenerResoluciones()}
               >
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                  {item.title} Tab
-                </h3>
-
-                {renderContent(item.id)}
-              </div>
-            ))}
+                Generar
+              </button>
+              <button
+                className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-3"
+                onClick={limpiarFiltros}
+              >
+                Limpiar
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="flex flex-row flex-wrap py-4 m-4 gap-4">
-        {terminos && terminos.length > 0 ? (
+        {terminos &&
+          terminos.length > 0 &&
           terminos.map((item, index) => (
-            <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-              <div class="flex justify-end px-4 pt-4">
-                <button
-                  id="dropdownButton"
-                  data-dropdown-toggle="dropdown"
-                  class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5"
-                  type="button"
-                >
-                  <BsThreeDots class="w-5 h-5" />
-                </button>
-                <div
-                  id="dropdown"
-                  class="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-                >
-                  <ul class="py-2" aria-labelledby="dropdownButton">
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                      >
-                        Edit
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                      >
-                        Export Data
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                      >
-                        Delete
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="flex flex-col items-center pb-10">
-                <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                  {toTitleCase(item.name.replace(/_/g, " "))} :
-                  <span>{item.value}</span>
-                </h5>
-                <span class="text-sm text-gray-500 dark:text-gray-400">
-                  Termino de busqueda
-                </span>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div>
-            <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-              <div class="flex justify-end px-4 pt-4">
-                <button
-                  id="dropdownButton"
-                  data-dropdown-toggle="dropdown"
-                  class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5"
-                  type="button"
-                >
-                  <BsThreeDots class="w-5 h-5" />
-                </button>
-                <div
-                  id="dropdown"
-                  class="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-                >
-                  <ul class="py-2" aria-labelledby="dropdownButton">
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                      >
-                        Edit
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                      >
-                        Export Data
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                      >
-                        Delete
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <div class="flex flex-col items-center pb-10">
-                <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">
-                  Bonnie Green
-                </h5>
-                <span class="text-sm text-gray-500 dark:text-gray-400">
-                Termino de busqueda
-                </span>
-              </div>
-            </div>
-            <div className="bg-white dark:bg-[#100C2A] text-black rounded-md p-4 flex flex-row justify-center items-center gap-4">
-              <div className="p-2">
-                <div className="titulo text-xl">
-                Visual Designer
-                </div>
-                <div className="text-gray-400">Termino de busqueda</div>
-              </div>
-              <div className="titulo">
-                <RxDotsVertical />
-              </div>
-            </div>
-          </div>
-        )}
+            <Dropdown
+              key={index}
+              item={item}
+              removeItemById={removeItemById}
+              setActualFormData={setActualFormData}
+            />
+          ))}
       </div>
 
-      <div
-        className={`${styles.graficoContenedor} border border-gray-200 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]`}
-        id="grafico-contenedor"
-      >
-        {resoluciones && resoluciones.length > 0 ? (
-          <LineChart option={option} setData={setValor}></LineChart>
-        ) : (
-          <Loading></Loading>
-        )}
+      <div>
+        <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400 p-4 m-4">
+          {comparacionItems.map((item) => (
+            <li className="me-2" key={item.id}>
+              <a
+                className={`inline-block px-4 py-3 rounded-lg  ${
+                  item.id === varActiva
+                    ? "text-white bg-blue-600  active"
+                    : "hover:text-gray-900 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
+                }`}
+                onClick={() => setVarActiva(item.id)}
+              >
+                {item.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div>
+          {comparacionItems.map(
+            (item) =>
+              item.id === varActiva && (
+                <div
+                  key={item.id}
+                  className="p-6 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-[#111827] rounded-lg w-full"
+                >
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    {item.title} Tab
+                  </h3>
+                  {renderContent(item.id)}
+                </div>
+              )
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,35 +1,33 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/tabla.css";
 import Cabecera from "../../components/Cabecera";
-const PaginationData = ({ data ,setFormData}) => {
-
-
- const listaCabeceras = [
+const PaginationData = ({ data, setFormData }) => {
+  const listaCabeceras = [
     {
       id: 1,
       title: "Fecha Emisión",
-      nombre: "fecha_emision"
-    }, {
+      nombre: "fecha_emision",
+    },
+    {
       id: 2,
       title: "Tipo de resolucion",
-      nombre: "tipo_resolucion"
+      nombre: "tipo_resolucion",
     },
     {
       id: 3,
       title: "Nro de resolucion",
-      nombre: "nro_resolucion"
+      nombre: "nro_resolucion",
     },
     {
       id: 4,
       title: "Departamento",
-      nombre: "departamento"
+      nombre: "departamento",
     },
     {
       id: 5,
       title: "Sala",
-      nombre: "sala"
+      nombre: "sala",
     },
-
   ];
   const [visible, setVisible] = useState(false);
   return (
@@ -41,11 +39,14 @@ const PaginationData = ({ data ,setFormData}) => {
       >
         <thead className="text-xs text-black uppercase bg-[#F8F8F8] border-b dark:bg-[#222628] dark:text-white">
           <tr>
-
             {listaCabeceras.map((item) => (
               <Cabecera
-                titulo={item.title} id={item.id} key={item.id} valor={item.nombre}
-                setFormData={setFormData} setVisible={setVisible}
+                titulo={item.title}
+                id={item.id}
+                key={item.id}
+                valor={item.nombre}
+                setFormData={setFormData}
+                setVisible={setVisible}
                 visible={visible}
               ></Cabecera>
             ))}
@@ -74,6 +75,8 @@ const PaginationData = ({ data ,setFormData}) => {
               <td className="px-6 py-4">
                 <a
                   href={`http://localhost:3000/jurisprudencia/resolucion/${item.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                 >
                   Ver resolucion
