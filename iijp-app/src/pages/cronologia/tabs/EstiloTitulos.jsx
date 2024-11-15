@@ -98,8 +98,8 @@ const EstiloTitulos = ({
     <div>
       {isPreview ? (
         // Renderiza solo el título en modo previsualización
-        <div style={estilo}>
-          <div className="text-black dark:text-white">{transformTitle(titulo)}</div>
+        <div>
+          <div style={tempEstilo}>{transformTitle(titulo)}</div>
         </div>
       ) : (
         // En el modo normal, renderiza el título con controles para personalizar el estilo

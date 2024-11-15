@@ -16,7 +16,7 @@ const Footer = () => {
           <img src={iijp} alt="Logo del IIJP" id="imagen-footer" className="rounded-md" />
         </div>
         <div className="footer-title flex  flex-col items-start justify-center gap-4">
-          <div className="titulo">Ubicacion</div>
+          <div className="titulo">Ubicación</div>
           <p className="titulo">
             © 2024 IIJP - Instituto de Investigaciones Juridicas y Politicas
           </p>

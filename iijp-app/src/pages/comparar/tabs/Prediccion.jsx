@@ -52,10 +52,12 @@ const Prediccion = ({ proyeccion }) => {
         series: [
           {
             data: prediccion.map((item) => item),
+            name: 'Predicción',
             type: "line",
           },
           {
             data: original.map((item) => item),
+            name: 'Serie original',
             type: "line",
           },
         ],

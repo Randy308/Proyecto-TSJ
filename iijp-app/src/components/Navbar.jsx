@@ -13,7 +13,6 @@ import { FaGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
 import { useToggleContext, useThemeContext } from "./ThemeProvider";
-
 import AuthUser from "../auth/AuthUser";
 import axios from "axios";
 import Portal from "./Portal";
@@ -214,7 +213,7 @@ function Navbar() {
   };
 
   return (
-    <header className="overflow-x-hidden">
+    <header id="default-navbar" className="overflow-x-hidden">
       <nav>
         <a className="flex m-2 items-center justify-center ms-2 md:me-24 bg-white rounded-lg custom:bg-transparent">
           <img

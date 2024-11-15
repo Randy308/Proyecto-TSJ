@@ -2,6 +2,7 @@ import React from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { Outlet, useLocation } from "react-router-dom";
+import MyNavbar from "../components/MyNavbar";
 
 const LayoutPublic = () => {
   const location = useLocation();
@@ -22,7 +23,7 @@ const LayoutPublic = () => {
 
   return (
     <>
-      {shouldShowNavbar && <Navbar />}
+      {shouldShowNavbar && <MyNavbar />}
       <Outlet></Outlet>
       {shouldShowFooter && <Footer />}
     </>

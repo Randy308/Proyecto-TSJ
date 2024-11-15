@@ -53,7 +53,7 @@ const JurisprudenciaCronologia = () => {
         setActivador((prev) => !prev);
       } else {
         toast.warning("Debe seleccionar una materia");
-        return;
+        //return;
       }
     }
 

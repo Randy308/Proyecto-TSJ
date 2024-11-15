@@ -5,7 +5,6 @@ import { useLocalStorage } from "../../../components/useLocalStorage";
 const Tipografia = () => {
   const [preview, setPreview] = useState(true);
 
-
   const [visible, setVisible] = useState(false);
 
   return (
@@ -20,14 +19,25 @@ const Tipografia = () => {
             : "Mostrar previsualizacion"}
         </button>
       </div>
-      {headingItems.map((item, index) => (
-        <EstiloTitulos
-          key={index} id={index} setVisible={setVisible} visible={visible}
-          titulo={item.titulo}
-          isPreview={preview}
-          estiloDefault={item.estiloDefault}
-        />
-      ))}
+      <div
+        className={` ${
+          preview ? "bg-white flex p-4 m-4 flex-col justify-center" : " "
+        }  `}
+      >
+        <div>
+          {headingItems.map((item, index) => (
+            <EstiloTitulos
+              key={index}
+              id={index}
+              setVisible={setVisible}
+              visible={visible}
+              titulo={item.titulo}
+              isPreview={preview}
+              estiloDefault={item.estiloDefault}
+            />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

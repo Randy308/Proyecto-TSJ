@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
+import MyNavbar from "../components/MyNavbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import AuthUser from "../auth/AuthUser";
 
@@ -15,7 +15,7 @@ const LayoutUser = () => {
   }, [rol, navigate]);
   return (
     <>
-      <Navbar></Navbar>
+      <MyNavbar></MyNavbar>
       <Outlet></Outlet>
       <Footer></Footer>
     </>
