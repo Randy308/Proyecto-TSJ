@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
-const Dropdown = ({ item, setActualFormData, removeItemById }) => {
+const Dropdown = ({
+  item,
+  setActualFormData,
+  removeItemById,
+  obtenerSerieTemporal,
+}) => {
   const [visible, setVisible] = useState(false);
   const [oculto, setOculto] = useState(true);
   function toTitleCase(str) {
@@ -47,8 +52,11 @@ const Dropdown = ({ item, setActualFormData, removeItemById }) => {
               </a>
             </li>
             <li>
-              <a className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                Realizar proyeccion
+              <a
+                onClick={() => obtenerSerieTemporal(item.id)}
+                className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+              >
+                Realizar proyección
               </a>
             </li>
             <li>

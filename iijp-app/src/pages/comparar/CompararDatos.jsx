@@ -12,6 +12,8 @@ import ResolucionesTab from "./tabs/ResolucionesTab";
 import Dropdown from "../../components/Dropdown";
 import Select from "./tabs/Select";
 import SimpleChart from "../../components/SimpleChart";
+import TimesSeries from "../magistrados/analisis/TimesSeries";
+import Prediccion from "./tabs/Prediccion";
 const CompararDatos = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -28,6 +30,9 @@ const CompararDatos = () => {
   const [terminos, setTerminos] = useState([]);
 
   const [data, setData] = useState(null);
+
+  const [timeSeries, setTimeSeries] = useState(null);
+  const [proyeccion, setProyeccion] = useState(null);
 
   const [option, setOption] = useState({});
   const [busqueda, setBusqueda] = useState([]);
@@ -156,6 +161,18 @@ const CompararDatos = () => {
     }
   };
 
+  const obtenerSerieTemporal = (id) => {
+    // Find the item by id
+    const item = resoluciones.find((item) => item.id === id);
+
+    // If the item is found, set the data, otherwise set an empty array or handle the error
+    if (item) {
+      setTimeSeries(item.data);
+    } else {
+      setTimeSeries([]); // Or handle as needed, e.g., show an error message
+    }
+  };
+
   const removeItemById = (id) => {
     setResoluciones((prevResoluciones) =>
       prevResoluciones.filter((item) => item.id !== id)
@@ -192,13 +209,30 @@ const CompararDatos = () => {
     }
   };
 
+  const realizarProyeccion = async (page) => {
+    try {
+      const { data } = await axios.get(`${endpoint}/realizar-prediccion`, {
+        params: {
+          data: timeSeries,
+          periodo: cabeceras,
+        },
+      });
+      setProyeccion(data);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   useEffect(() => {
     console.log(formData);
   }, [formData]);
 
   useEffect(() => {
-    console.log(resoluciones);
-  }, [resoluciones]);
+    if (timeSeries && timeSeries.length > 0) {
+      realizarProyeccion();
+    }
+  }, [timeSeries]);
 
   const renderContent = (number) => {
     switch (number) {
@@ -230,7 +264,15 @@ const CompararDatos = () => {
         );
       case 3:
         return (
-          <p className="text-gray-500 dark:text-white">No existen datos</p>
+          <>
+            {proyeccion ? (
+              <Prediccion
+                proyeccion={proyeccion}
+              />
+            ) : (
+              <p className="text-gray-500 dark:text-white">No existen datos</p>
+            )}
+          </>
         );
       default:
         return (
@@ -293,6 +335,7 @@ const CompararDatos = () => {
           terminos.map((item, index) => (
             <Dropdown
               key={index}
+              obtenerSerieTemporal={obtenerSerieTemporal}
               item={item}
               removeItemById={removeItemById}
               setActualFormData={setActualFormData}

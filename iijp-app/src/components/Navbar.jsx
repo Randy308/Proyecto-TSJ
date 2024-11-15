@@ -1,8 +1,14 @@
 import { FaBars, FaTimes } from "react-icons/fa";
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FaCloudMoon } from "react-icons/fa6";
+import { FaCloudMoon, FaDatabase } from "react-icons/fa6";
 import { FaSun } from "react-icons/fa";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { MdSettingsInputComponent } from "react-icons/md";
+import { HiOutlineLogin } from "react-icons/hi";
+import { FaUsers } from "react-icons/fa";
+import { RiDashboard2Fill } from "react-icons/ri";
+import { MdLiveHelp } from "react-icons/md";
 import { FaGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
@@ -92,9 +98,7 @@ function Navbar() {
         listaRef.current.style.top = `${
           rect.bottom - rect.height + listaHeight
         }px`;
-        listaRef.current.style.left = `${
-          rect.left + rect.width - 180
-        }px`;
+        listaRef.current.style.left = `${rect.left + rect.width - 180}px`;
       }
     }
   };
@@ -136,24 +140,62 @@ function Navbar() {
       return (
         <>
           {rol === "admin" && (
+            <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+              <li>
+                <NavLink
+                  to="/admin"
+                  className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                >
+                  <RiDashboard2Fill className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                  <span className="ms-3">Dashboard</span>
+                </NavLink>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                >
+                  <FaUsers className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                  <span className="flex-1 ms-3 whitespace-nowrap">
+                    Usuarios
+                  </span>
+                </a>
+              </li>
+              <li>
+                <NavLink
+                  to="/admin/subir"
+                  className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                >
+                  <FaDatabase className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                  <span className="flex-1 ms-3 whitespace-nowrap">
+                    Resoluciones
+                  </span>
+                </NavLink>
+              </li>
+            </ul>
+          )}
+
+          <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
             <li>
               <a
-                className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                href="/admin"
+                href="#"
+                className="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
               >
-                Administración
+                <MdSettingsInputComponent className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <span className="ms-3">Configuración</span>
               </a>
             </li>
-          )}
-          <li>
-            <a
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer"
-              href="#"
-              onClick={logoutUser}
-            >
-              Cerrar sesión
-            </a>
-          </li>
+            <li>
+              <a
+                href="#"
+                onClick={logoutUser}
+                className="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+              >
+                <HiOutlineLogin className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <span className="ms-3">Cerrar Sesión</span>
+              </a>
+            </li>
+          </ul>
         </>
       );
     } else {
@@ -174,18 +216,18 @@ function Navbar() {
   return (
     <header className="overflow-x-hidden">
       <nav>
-        <div className="bg-white mx-4 my-1 rounded-md custom:bg-transparent custom:flex custom:p-1">
+        <a className="flex m-2 items-center justify-center ms-2 md:me-24 bg-white rounded-lg custom:bg-transparent">
           <img
             src="https://museo.umss.edu.bo/wp-content/uploads/2021/05/cropped-cropped-Logo7.png"
             alt="logo"
-            className="second-logo"
+            className="hidden h-12 custom:block"
           />
           <img
             src="https://www.umss.edu.bo/wp-content/uploads/2022/08/Logo_umss.png"
             alt="first-logo"
-            className="first-logo"
+            className="h-12 self-center custom:hidden"
           />
-        </div>
+        </a>
         <div className="menu" onClick={() => actualizarBoton()}>
           <FaBars
             id="bars"
@@ -216,15 +258,15 @@ function Navbar() {
           })}
         </ul>
         <div id="gear" className={` ${menuOpen ? "open" : ""}`}>
-          <button
+          <a
             id="boton-ajustes"
-            ref={ajustesRef} className="bg-transparent me-3 hover:bg-gray-100 hover:text-black text-white font-semibold py-2 px-4
-           rounded shadow flex items-center justify-center"
-
+            ref={ajustesRef}
+            className="bg-transparent me-3 hover:bg-gray-100 hover:text-black text-white font-semibold
+           rounded-xl p-3 flex items-center justify-center"
             onClick={() => actualizarAjustes(true)}
           >
-            <FaGear></FaGear>
-          </button>
+            <FaGear className="w-5 h-5"></FaGear>
+          </a>
         </div>
       </nav>
 
@@ -244,17 +286,10 @@ function Navbar() {
           <li>
             <a
               href="#"
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
             >
-              Dashboard
-            </a>
-          </li>
-          <li>
-            <a
-              href="#"
-              className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-            >
-              Settings
+              <MdLiveHelp className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+              <span className="ms-3">Ayuda</span>
             </a>
           </li>
           <li>
@@ -263,12 +298,10 @@ function Navbar() {
               className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
             >
               <label className="inline-flex items-center me-5 cursor-pointer">
-                {/* Show the theme label and checkbox toggle */}
                 <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
                   {isDark ? "Tema Oscuro" : "Tema Claro"}
                 </span>
 
-                {/* Checkbox input toggle for dark/light theme */}
                 <input
                   type="checkbox"
                   checked={!isDark}
@@ -276,43 +309,14 @@ function Navbar() {
                   className="sr-only peer"
                 />
 
-                {/* Toggle switch style */}
                 <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-yellow-300 dark:peer-focus:ring-yellow-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-yellow-400"></div>
               </label>
             </a>
           </li>
-          {renderLinks()}
         </ul>
+        {renderLinks()}
       </div>
     </header>
   );
 }
 export default Navbar;
-
-{
-  /* <div
-ref={listaRef}
-id="lista-ajustes"
-className={settingsOpen ? "hidden" : "hidden"}
->
-<ul className="flex flex-col">
-  <li>
-    <button
-      onClick={eventoBoton}
-      type="button"
-      className="p-2 flex flex-row justify-between gap-4 w-full hover:bg-gray-200"
-    >
-      Tema
-      <IoSunny
-        className={["text-lg", isDark ? "hidden" : ""].join(" ")}
-      />
-      <FaMoon
-        className={["text-lg", isDark ? "" : "hidden"].join(" ")}
-      />
-    </button>
-  </li>
-  {renderLinks()}
-  <li className="p-2">Ajustes</li>
-</ul>
-</div> */
-}

@@ -20,9 +20,5 @@ use Spatie\Permission\Models\Role;
 //$role = Role::create(['name'=> 'admin']);
 //$role = Role::create(['name'=> 'user']);
 Route::get('/', function () {
-    return view('prueba');
+    return view('welcome');
 });
-Route::post('/excel/upload', [ExcelController::class, 'upload'])->name('excel.upload');
-
-
-Route::post('/excel/upload-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');

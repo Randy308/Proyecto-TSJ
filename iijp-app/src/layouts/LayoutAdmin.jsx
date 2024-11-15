@@ -17,7 +17,7 @@ const LayoutAdmin = () => {
     <>
       <Navbar></Navbar>
       <Outlet></Outlet>
-      <Footer></Footer>
+
     </>
   );
 };

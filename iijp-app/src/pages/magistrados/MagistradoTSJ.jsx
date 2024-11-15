@@ -1,15 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { ImUserTie } from "react-icons/im";
 import "../../styles/styles_randy/magistradosTSJ.css";
 
-import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 
 import "../../styles/tabs.css";
-import ResumenMagistrado from "./ResumenMagistrado";
-import Estadisticas from "./analisis/Estadisticas";
-import Decomposition from "../prediccion/Decomposition";
+
 import { magistradoItems } from "../../data/MagistradoItems";
 import Resumen from "./analisis/Resumen";
 import TimesSeries from "./analisis/TimesSeries";

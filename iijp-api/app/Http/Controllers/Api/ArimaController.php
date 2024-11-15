@@ -65,11 +65,11 @@ class ArimaController extends Controller
     {
 
         $newArray = [];
-        $i = $window - 2;
+        $i = floor($window / 2);
 
         foreach ($array as $key => $value) {
 
-            $newKey = intval($key) - ($window - 2);
+            $newKey = intval($key) - $i;
 
             if ($newKey >= 0) {
                 $newArray[$newKey] = $value;
@@ -153,11 +153,11 @@ class ArimaController extends Controller
         }
 
         $suma = array_sum($lista_indices);
-        if(  !$suma == $window){
-            $correccion = $window/$suma;
-            foreach($lista_indices as $mi_indice){
-                $mi_indice = $mi_indice * $correccion;
-
+        $correccion = 1;
+        if ($suma != $window) {
+            $correccion = $window / $suma;
+            foreach ($lista_indices as $key => $mi_indice) {
+                $lista_indices[$key] = $mi_indice * $correccion;
             }
         }
 
@@ -165,12 +165,12 @@ class ArimaController extends Controller
     }
 
 
-    public function rellenarFaltantes($media_movil_centralizada, $last_index, $first_index = 0, $value = 0)
+    public function rellenarFaltantes($lista, $last_index, $first_index = 0, $value = 0)
     {
         $newArray = [];
         for ($i = $first_index; $i <= $last_index; $i++) {
-            if (isset($media_movil_centralizada[$i])) {
-                $newArray[$i] = $media_movil_centralizada[$i];
+            if (isset($lista[$i])) {
+                $newArray[$i] = $lista[$i];
             } else {
                 $newArray[$i] = $value;
             }
@@ -178,6 +178,50 @@ class ArimaController extends Controller
         return $newArray;
     }
 
+
+    public function realizar_prediccion(Request $request)
+    {
+
+        $data = array_map('intval', $request->data);
+
+        $window = 12;
+
+        $media_movil = ArimaController::calcularMediaMovil($data, $window);
+        $media_movil = ArimaController::modificarClaves($media_movil, $window);
+        // Aplicar media móvil centralizada
+        $centered_window = $window % 2 == 0 ? 2 : 3;
+        $media_movil_centrada = ArimaController::calcularMediaMovil($media_movil, $centered_window);
+        $media_movil_centrada = ArimaController::modificarClaves($media_movil_centrada, $centered_window);
+
+        $indices = ArimaController::obtenerIndicesEstacionarios($data, $media_movil_centrada, $window);
+
+
+        $regresion_lineal = new RegresionLineal;
+        $regresion = $regresion_lineal->regresion_lineal($data);
+        $a = $regresion['a'];
+        $b = $regresion['b'];
+
+        $y_pred = $regresion_lineal->get_predicted_array_completed($data, $a, $b, $window);
+
+
+        $y_pred_multiplied = [];
+        $indices_count = count($indices);
+
+        for ($i = 0; $i < count($y_pred); $i++) {
+            // Use modulo to loop through indices if $y_pred is larger than $indices
+            $index = $indices[$i % $indices_count];
+            $y_pred_multiplied[$i] = $y_pred[$i] * $index;
+        }
+
+        return response()->json([
+            'original' => $data,
+            'periodo' => $request->periodo,
+            'prediccion' => $y_pred_multiplied,
+            'Media movil centrada' => $media_movil_centrada,
+            'Indices Estacionarios' => $indices
+        ], 200);
+        // Imprimir el resultado
+    }
 
     public function test_arima()
     {
@@ -209,7 +253,13 @@ class ArimaController extends Controller
         $window = 4;
         $data =  array_column($resolutions, "cantidad");
 
-        $window = 4;
+        $order = array(2, 1, 2);
+
+        $cut = 4;
+        $train = array_slice($data, 0, count($data) - $cut);
+        $test = array_slice($data, -$cut);
+
+        $window = 12;
 
         $media_movil = ArimaController::calcularMediaMovil($data, $window);
         $media_movil = ArimaController::modificarClaves($media_movil, $window);
@@ -219,8 +269,28 @@ class ArimaController extends Controller
         $media_movil_centrada = ArimaController::modificarClaves($media_movil_centrada, $centered_window);
 
         $indices = ArimaController::obtenerIndicesEstacionarios($data, $media_movil_centrada, $window);
+
+
+        $regresion_lineal = new RegresionLineal;
+        $regresion = $regresion_lineal->regresion_lineal($data);
+        $a = $regresion['a'];
+        $b = $regresion['b'];
+
+        $y_pred = $regresion_lineal->get_predicted_array_completed($data, $a, $b, $window);
+
+
+        $y_pred_multiplied = [];
+        $indices_count = count($indices);
+
+        for ($i = 0; $i < count($y_pred); $i++) {
+            // Use modulo to loop through indices if $y_pred is larger than $indices
+            $index = $indices[$i % $indices_count];
+            $y_pred_multiplied[$i] = $y_pred[$i] * $index;
+        }
+
         return response()->json([
-            'Media movil' => $media_movil,
+            'serie original' => $data,
+            'y_pred_multiplied' => $y_pred_multiplied,
             'Media movil centrada' => $media_movil_centrada,
             'Indices Estacionarios' => $indices
         ], 200);

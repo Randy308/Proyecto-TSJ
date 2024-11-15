@@ -22,18 +22,43 @@ class PermissionsSeeder extends Seeder
 
         // Define an array of permission names
         $arrayOfPermissionNames = [
-            // Posts
-            "access posts",
-            "create posts",
-            "update posts",
-            "delete posts",
-            "create users",
-            "update users",
-            "delete users",
+            // Admin
+            "ver_todas_resoluciones",
+            "ver_todas_jurisprudencia",
+            "crear_usuarios",
+            "eliminar_usuarios",
+            "actualizar_usuarios",
+            "ver_usuarios",
+            "crear_roles",
+            "eliminar_roles",
+            "actualizar_roles",
+            "ver_roles",
+            "asignar_permisos",
+            "quitar_permisos",
+            //Codificador
+            "acceder_resoluciones",
+            "subir_resoluciones",
+            "actualizar_resoluciones",
+            "eliminar_resoluciones",
+            "acceder_jurisprudencia",
+            "subir_jurisprudencia",
+            "actualizar_jurisprudencia",
+            "eliminar_jurisprudencia",
+
+            "crear_publicacion",
+            "eliminar_publicacion",
+            "ver_publicacion",
+            "actualizar_publicacion",
             // Users
-            "create user",
-            "update user",
-            "delete user",
+            "realizar_prediccion",
+            "refinar_busqueda",
+            "crear_estilos",
+            "eliminar_estilos",
+            "ver_estilos",
+            "actualizar_estilos",
+            "actualizar_perfil",
+            "eliminar_perfil",
+            "ver_perfil",
             // Additional permissions...
         ];
 
@@ -47,8 +72,40 @@ class PermissionsSeeder extends Seeder
 
         // Create roles and assign permissions
         Role::create(["name" => "admin"])->givePermissionTo(Permission::all());
-        Role::create(["name" => "editor"])->givePermissionTo(['access posts', 'update posts']);
-        Role::create(["name" => "user"])->givePermissionTo(['access posts',]);
+        Role::create(["name" => "editor"])->givePermissionTo([
+            "acceder_resoluciones",
+            "subir_resoluciones",
+            "actualizar_resoluciones",
+            "eliminar_resoluciones",
+            "acceder_jurisprudencia",
+            "subir_jurisprudencia",
+            "actualizar_jurisprudencia",
+            "eliminar_jurisprudencia",
+            "crear_publicacion",
+            "eliminar_publicacion",
+            "ver_publicacion",
+            "actualizar_publicacion",
+            "realizar_prediccion",
+            "refinar_busqueda",
+            "crear_estilos",
+            "eliminar_estilos",
+            "ver_estilos",
+            "actualizar_estilos",
+            "actualizar_perfil",
+            "eliminar_perfil",
+            "ver_perfil",
+        ]);
+        Role::create(["name" => "user"])->givePermissionTo([
+            "realizar_prediccion",
+            "refinar_busqueda",
+            "crear_estilos",
+            "eliminar_estilos",
+            "ver_estilos",
+            "actualizar_estilos",
+            "actualizar_perfil",
+            "eliminar_perfil",
+            "ver_perfil",
+        ]);
 
         // Assign roles to users
         // User::find(1)->assignRole('admin');

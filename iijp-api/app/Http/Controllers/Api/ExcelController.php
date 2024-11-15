@@ -14,6 +14,7 @@ use App\Models\Salas;
 use App\Models\Temas;
 use App\Models\TipoResolucions;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\SimpleExcel\SimpleExcelReader;
 
 class ExcelController extends Controller
@@ -21,6 +22,14 @@ class ExcelController extends Controller
 
     public function upload_jurisprudencia(Request $request)
     {
+
+        if (Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+            $response['mensaje'] = "el usuario cuenta con el permiso";
+        } else {
+            $response['mensaje'] = "el usuario no cuenta con el permiso necesario";
+            return response()->json($response, 200);
+        }
+
         $file = $request->file('excelFile');
         $extension = $file->getClientOriginalExtension();
 
@@ -71,6 +80,15 @@ class ExcelController extends Controller
     {
 
 
+        $response['success'] = false;
+
+        if(Auth::user()->hasPermissionTo('subir_resoluciones')){
+            $response['mensaje'] = "el usuario cuenta con el permiso";
+
+        }else{
+            $response['mensaje'] = "el usuario no cuenta con el permiso necesario";
+            return response()->json($response, 200);
+        }
         $file = $request->file('excelFile');
         $extension = $file->getClientOriginalExtension();
 
