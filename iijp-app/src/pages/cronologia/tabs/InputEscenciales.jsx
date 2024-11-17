@@ -1,3 +1,4 @@
+import Loading from "../../../components/Loading";
 import React from "react";
 
 const InputEscenciales = ({ formData, setFormData, resultado }) => {
@@ -27,7 +28,7 @@ const InputEscenciales = ({ formData, setFormData, resultado }) => {
     resultado === null ||
     Object.keys(resultado).length === 0
   ) {
-    return <p>No hay datos disponibles.</p>;
+    return <Loading/>;
   }
 
   return (

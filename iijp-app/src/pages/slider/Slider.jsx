@@ -39,8 +39,7 @@ const Slider = () => {
   }, [currentSlide]);
 
   return (
-    <div className="slider">
-      
+    <div className="slider bg-white dark:bg-gray-900 text-black dark:text-white">
       <IoIosArrowBack className="arrow prev" onClick={prevSlide} />
       <IoIosArrowForward className="arrow next" onClick={nextSlide} />
       {sliderData.map((slide, index) => {
@@ -64,7 +63,7 @@ const Slider = () => {
                   <div className="titulo-card">
                     <h2>{slide.heading}</h2>
                   </div>
-                  <div className="desc-card">
+                  <div className="desc-card text-black dark:text-gray-200">
                     <p>{slide.desc}</p>
                     <button className="bg-blue-500 my-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                       Ver mas

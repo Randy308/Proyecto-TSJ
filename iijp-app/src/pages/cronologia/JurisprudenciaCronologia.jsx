@@ -9,7 +9,7 @@ import Tipografia from "./tabs/Tipografia";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../../components/useLocalStorage";
 import { headingItems } from "../../data/HeadingItems";
-
+import AsyncButton from "../../components/AsyncButton";
 const endpoint = process.env.REACT_APP_BACKEND;
 const JurisprudenciaCronologia = () => {
   const [currentID, setCurrentID] = useState(null);
@@ -26,9 +26,10 @@ const JurisprudenciaCronologia = () => {
     cantidad: 15,
     subtitulo: "",
     recorrer: false,
-    seccion:true,
+    seccion: true,
   });
-
+  const [activador, setActivador] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const eliminarNodo = (idBuscado) => {
     if (tabActivo == 1) {
       const indice = arbol.findIndex((elemento) => elemento.id === idBuscado);
@@ -46,14 +47,14 @@ const JurisprudenciaCronologia = () => {
       setCurrentID(null);
     }
   };
-  const [activador, setActivador] = useState(false);
+
   const actualizarTab = (id) => {
     if (id != 1) {
       if (arbol.length > 0) {
         setActivador((prev) => !prev);
       } else {
         toast.warning("Debe seleccionar una materia");
-        //return;
+        return;
       }
     }
 
@@ -120,11 +121,14 @@ const JurisprudenciaCronologia = () => {
   const navigate = useNavigate();
   const obtenerCronologia = async (e) => {
     e.preventDefault();
+
     if (arbol.length <= 0) {
       toast.error("Seleccione una materia primero");
       return;
     }
+
     try {
+      setIsLoading(true);
       const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
       const currentEstilos = estilosState.map((item) => {
         const currentEstilo = localStorage.getItem(item.titulo);
@@ -142,6 +146,8 @@ const JurisprudenciaCronologia = () => {
         },
         responseType: "blob",
       });
+
+      setIsLoading(false);
       const pdfBlob = new Blob([response.data], { type: "application/pdf" });
       const pdfUrl = URL.createObjectURL(pdfBlob);
 
@@ -152,6 +158,7 @@ const JurisprudenciaCronologia = () => {
       const message =
         error.response?.data || "An error occurred while fetching data";
       console.error("Error fetching data:", error);
+      setIsLoading(false);
     }
   };
 
@@ -219,13 +226,11 @@ const JurisprudenciaCronologia = () => {
           ))}
 
           <li>
-            <button
-              type="button"
-              onClick={(e) => obtenerCronologia(e)}
-              className={`inline-flex items-center px-4 py-3 rounded-lg w-full text-white bg-blue-700  active dark:bg-blue-600`}
-            >
-              Generar Cronologia
-            </button>
+            <AsyncButton
+              asyncFunction={obtenerCronologia}
+              name={"Obtener Resoluciones"}
+              isLoading={isLoading}
+            />
           </li>
         </ul>
 

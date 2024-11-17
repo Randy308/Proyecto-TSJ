@@ -14,6 +14,7 @@ import Select from "./tabs/Select";
 import SimpleChart from "../../components/SimpleChart";
 import TimesSeries from "../magistrados/analisis/TimesSeries";
 import Prediccion from "./tabs/Prediccion";
+import AsyncButton from "../../components/AsyncButton";
 const CompararDatos = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -37,7 +38,7 @@ const CompararDatos = () => {
   const [option, setOption] = useState({});
   const [busqueda, setBusqueda] = useState([]);
   const [actualFormData, setActualFormData] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     tipo_resolucion: "all",
     sala: "all",
@@ -134,6 +135,7 @@ const CompararDatos = () => {
 
   const obtenerResoluciones = async () => {
     try {
+      setIsLoading(true);
       const { data } = await axios.get(`${endpoint}/obtener-elemento`, {
         params: {
           fecha_final: limiteSuperior,
@@ -156,8 +158,10 @@ const CompararDatos = () => {
       } else {
         alert("No existen datos");
       }
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setIsLoading(false);
     }
   };
 
@@ -266,9 +270,7 @@ const CompararDatos = () => {
         return (
           <>
             {proyeccion ? (
-              <Prediccion
-                proyeccion={proyeccion}
-              />
+              <Prediccion proyeccion={proyeccion} />
             ) : (
               <p className="text-gray-500 dark:text-white">No existen datos</p>
             )}
@@ -312,12 +314,13 @@ const CompararDatos = () => {
                 ))}
             </div>
             <div className="flex flex-row justify-end gap-4 p-4">
-              <button
-                className="rounded-lg bg-blue-500 hover:bg-blue-800 p-3 text-white"
-                onClick={() => obtenerResoluciones()}
-              >
-                Generar
-              </button>
+              <div>
+                <AsyncButton
+                  asyncFunction={obtenerResoluciones}
+                  name={"Generar Serie Temporal"}
+                  isLoading={isLoading}
+                />
+              </div>
               <button
                 className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-3"
                 onClick={limpiarFiltros}

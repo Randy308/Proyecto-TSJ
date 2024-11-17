@@ -49,7 +49,6 @@ export default function ModalContent({ onClose, status }) {
           </button>
         </div>
         <div className="modal-body">{renderContent()}</div>{" "}
-        {/* Call the function */}
       </div>
     </div>,
     document.body

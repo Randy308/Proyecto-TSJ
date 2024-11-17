@@ -1,5 +1,5 @@
 import React from "react";
-import Slider from "../pages/slider/Slider";
+import Slider from "./slider/Slider";
 
 const Novedades = () => {
   return (

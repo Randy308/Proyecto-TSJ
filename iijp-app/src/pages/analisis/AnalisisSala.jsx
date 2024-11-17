@@ -211,7 +211,7 @@ const AnalisisSala = () => {
           <div>
             <label
               for="charts"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Tipo de graficos
             </label>
@@ -256,7 +256,7 @@ const AnalisisSala = () => {
             </label>
           </div>
           <div className={` ${checkedX ? "" : "hidden"}  `}>
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
               Variables
             </label>
             {memoizedParams && (

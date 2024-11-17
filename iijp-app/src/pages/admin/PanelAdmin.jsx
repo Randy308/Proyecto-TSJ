@@ -1,6 +1,5 @@
 import React from "react";
 import AuthUser from "../../auth/AuthUser";
-import Sidebar from "../../components/Sidebar";
 
 const PanelAdmin = () => {
   const { can } = AuthUser();

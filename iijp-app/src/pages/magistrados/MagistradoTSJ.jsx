@@ -4,7 +4,6 @@ import { useParams } from "react-router-dom";
 import { ImUserTie } from "react-icons/im";
 import "../../styles/styles_randy/magistradosTSJ.css";
 
-
 import "../../styles/tabs.css";
 
 import { magistradoItems } from "../../data/MagistradoItems";
@@ -195,7 +194,10 @@ const MagistradoTSJ = () => {
 
   return (
     <div className="container mx-auto border border-gray-300 rounded-lg p-4 mt-4 ">
-      <div className="grid grid-cols-2 p-4">
+      <div className="flex flex-row gap-4 p-4">
+        <div className="flex justify-end">
+          <ImUserTie className="w-20 h-20 p-4 dark:text-white border border-gray-200 dark:border-gray-700 rounded-lg" />
+        </div>
         <div>
           <span
             className="bg-blue-100 text-blue-800 text-md font-semibold px-2.5 
@@ -207,9 +209,6 @@ const MagistradoTSJ = () => {
           <h1 className="my-2 ms-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
             {magistrado.nombre}
           </h1>
-        </div>
-        <div className="flex justify-end">
-          <ImUserTie className="w-20 h-20 p-4 dark:text-white border border-gray-200 rounded-lg" />
         </div>
       </div>
 
