@@ -69,7 +69,7 @@ const AnalisisSala = () => {
   const createSeries = (length) => {
     const series = [];
     for (let index = 0; index < length; index++) {
-      series.push({ type: "line", seriesLayoutBy: "column" });
+      series.push({ type: "bar", seriesLayoutBy: "column" });
     }
     return series;
   };
@@ -215,7 +215,7 @@ const AnalisisSala = () => {
         <div>
           <div>
             <label
-              for="charts"
+              htmlFor="charts"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
               Tipo de graficos
@@ -228,7 +228,6 @@ const AnalisisSala = () => {
               <option disabled defaultValue>
                 Elige un tipo de gráfico
               </option>
-              <option value="line">Línea</option>
               <option value="bar">Barras</option>
               <option value="column">Columnas</option>
               <option value="area">Área</option>

@@ -100,7 +100,6 @@ class CompareController extends Controller
             throw new InvalidArgumentException("Invalid interval specified.");
         }
 
-
         $query = DB::table(DB::raw("generate_series('{$fecha_inicial}'::date, '{$fecha_final}'::date, '1 {$intervalo}'::interval) AS series(fecha)"))
             ->selectRaw("
             EXTRACT(YEAR FROM series.fecha) AS year,
@@ -110,54 +109,48 @@ class CompareController extends Controller
             COALESCE(COUNT(r.id), 0) AS cantidad
         ")
             ->leftJoin('resolutions AS r', function ($join) use ($request, $intervalo) {
-                // Join on the truncated date based on interval
                 $join->on(DB::raw("date_trunc('{$intervalo}', r.fecha_emision)"), '=', DB::raw("date_trunc('{$intervalo}', series.fecha)"));
 
-                // Filter by magistrado_id if provided
+                // Apply filters on 'resolutions' table
                 if ($request->magistrado != "all") {
                     $join->where("r.magistrado_id", $request->magistrado);
                 }
-                // Filter by forma_resolucion_id if provided
                 if ($request->forma_resolucion != "all") {
                     $join->where("r.forma_resolucion_id", $request->forma_resolucion);
                 }
-                // Filter by tipo_jurisprudencia if provided
                 if ($request->tipo_resolucion != "all") {
                     $join->where("r.tipo_resolucion_id", $request->tipo_resolucion);
                 }
-                // Filter by sala_id if provided
                 if ($request->sala != "all") {
-                    $join->where("r.sala_id", $request->sala); // Fixed this line to use sala_id
+                    $join->where("r.sala_id", $request->sala);
                 }
-
                 if ($request->departamento != "all") {
                     $join->where("r.departamento_id", $request->departamento);
                 }
-            })
-            ->groupBy('series.fecha')
-            ->orderBy('series.fecha');
+            });
 
-        // Apply additional conditions for 'materia' and 'tipo_jurisprudencia'
-        if ($request->materia != "all" || $request->tipo_jurisprudencia != "all") {
-
-            // Left join with jurisprudencias if conditions are met
+        // Adding the second join on the 'jurisprudencias' table
+        if (strcmp($request->materia, "all") !== 0 || strcmp($request->tipo_jurisprudencia, "all") !== 0) {
+            
             $query->leftJoin('jurisprudencias AS j', function ($join) use ($request) {
+                // Joining 'jurisprudencias' on 'resolution_id'
+                
                 $join->on("j.resolution_id", '=', "r.id");
 
-                // Additional filter for tipo_jurisprudencia
-                if ($request->tipo_jurisprudencia != "all") {
+                // Apply filters on 'jurisprudencias' table
+                if (strcmp($request->tipo_jurisprudencia, "all") !== 0) {
                     $join->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
                 }
-                // Additional filter for materia
-                if ($request->materia != "all") {
+                if (strcmp($request->materia, "all") !== 0) {
                     $join->where("j.descriptor", 'like', $request->materia . '%');
                 }
             });
         }
 
-        // Execute the query
-        $resolutions = $query->get();
-
+        $resolutions = $query
+            ->groupBy('year', 'month', 'day', 'periodo') // Grouping non-aggregated fields
+            ->orderBy('periodo') // Ordering by 'periodo' (series.fecha)
+            ->get();
         $data = $resolutions->pluck('cantidad');
         $cabeceras = $resolutions->pluck('periodo')->map(function ($fecha) {
             return Carbon::parse($fecha)->toDateString();
@@ -336,8 +329,8 @@ class CompareController extends Controller
             'sala' => $salas->toArray(),
             'magistrado' => $magistrados,
             'forma_resolucion' => $forma_res,
-            'tipo_jurisprudencia' => $jurisprudencias,
-            'materia' => $materia,
+            // 'tipo_jurisprudencia' => $jurisprudencias,
+            // 'materia' => $materia,
             'departamento' => $departamentos
         ];
 

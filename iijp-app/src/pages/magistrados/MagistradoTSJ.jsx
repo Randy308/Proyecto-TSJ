@@ -214,22 +214,22 @@ const MagistradoTSJ = () => {
 
       <div className="border-b border-gray-200 dark:border-gray-700">
         <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-          {magistradoItems.map((item) => (
-            <li key={item.id} className="me-2">
+          {magistradoItems.map((item ,index) => (
+            <li key={index} className="me-2">
               <a
                 href="#"
                 onClick={() => handleTabs(item.id)}
                 className={`inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg group 
                 ${
                   item.id === activeTab
-                    ? "text-blue-600 border-blue-600  active dark:text-blue-500 dark:border-blue-500 "
+                    ? "text-[#7E3045] border-[#7E3045] active dark:text-blue-500 dark:border-blue-500 "
                     : "border-transparent  hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
                 } `}
               >
                 {item.icon(
                   `w-4 h-4 me-2 ${
                     item.id === activeTab
-                      ? "text-blue-600 dark:text-blue-500"
+                      ? "text-[#7E3045] dark:text-blue-500"
                       : "text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300"
                   }`
                 )}
@@ -243,10 +243,10 @@ const MagistradoTSJ = () => {
           {magistradoItems.map(
             (item) =>
               item.id === activeTab && (
-                <>
+                <div key={item.id}>
                   
                   {renderContent(item.id)}
-                </>
+                </div>
               )
           )}
         </div>

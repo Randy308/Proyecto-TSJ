@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { IoIosArrowUp } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
+import { BsCheck2All } from "react-icons/bs";
+import { MdOutlineRemoveCircle } from "react-icons/md";
 const MultiBtnDropdown = ({
   setVisible,
   visible,
@@ -33,6 +35,13 @@ const MultiBtnDropdown = ({
     });
   };
 
+  const clearList = () => {
+    setListaX([]);
+  };
+
+  const selectAll = () => {
+    setListaX([{ name: name, ids: contenido.map((item) => item.id) }]);
+  };
   const handleClick = () => {
     const nextState = !activo;
     setActivo(nextState);
@@ -51,8 +60,8 @@ const MultiBtnDropdown = ({
 
   const convertirTitulo = (name) => {
     return String(name)
-      .replace(/_/g, " ") // Reemplaza los guiones bajos por espacios
-      .replace(/\b\w/g, (char) => char.toUpperCase()); // Convierte la primera letra de cada palabra a mayúscula
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   return (
@@ -85,6 +94,22 @@ const MultiBtnDropdown = ({
   dark:[&::-webkit-scrollbar-track]:bg-neutral-700
   dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500 ${activo ? "" : "hidden"}`}
       >
+        <li className="px-2 grid grid-cols-2 gap-2 custom:grid-cols-1 sm:grid-cols-1 xl:grid-cols-2 sm:text-xs">
+          <a
+            onClick={() => selectAll()}
+            className="dark:bg-gray-800 dark:border-gray-700 flex border hover:cursor-pointer border-gray-200 items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          >
+            <BsCheck2All className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+            <span className="ms-3">Seleccionar todos</span>
+          </a>
+          <a
+            onClick={() => clearList()}
+            className="dark:bg-gray-800 dark:border-gray-700 flex border hover:cursor-pointer border-gray-200 items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+          >
+            <MdOutlineRemoveCircle className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+            <span className="ms-3">Quitar Selección</span>
+          </a>
+        </li>
         {contenido.map((currentItem) => (
           <li key={currentItem.id} className="px-2">
             <input

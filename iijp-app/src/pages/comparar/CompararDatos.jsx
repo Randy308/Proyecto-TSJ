@@ -302,7 +302,7 @@ const CompararDatos = () => {
               {data &&
                 Object.entries(data).map(([key, items]) => (
                   <Select
-                    key={key} // Add a unique key for each Select component
+                    key={key}
                     formData={formData}
                     items={items}
                     fieldName={key}
@@ -351,7 +351,7 @@ const CompararDatos = () => {
               <a
                 className={`inline-block px-4 py-3 rounded-lg  ${
                   item.id === varActiva
-                    ? "text-white bg-blue-600  active"
+                    ? "text-white bg-[#7E3045] dark:bg-gray-900  active"
                     : "hover:text-gray-900 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
                 }`}
                 onClick={() => setVarActiva(item.id)}
