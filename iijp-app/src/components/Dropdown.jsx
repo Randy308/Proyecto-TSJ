@@ -37,14 +37,6 @@ const Dropdown = ({
           <ul className="py-2" aria-labelledby="dropdownButton">
             <li>
               <a
-                onClick={() => setOculto((prev) => !prev)}
-                className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-              >
-                {oculto ? "Ver detalles" : "Ocultar detalles"}
-              </a>
-            </li>
-            <li>
-              <a
                 onClick={() => setActualFormData(item.detalles)}
                 className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >
@@ -70,27 +62,14 @@ const Dropdown = ({
           </ul>
         </div>
       </div>
-      {oculto ? (
-        <div className="flex flex-col items-center pb-10">
-          <h5 className="mb-1 text-lg font-medium text-gray-900 dark:text-white">
-            {toTitleCase(item.name.replace(/_/g, " "))} :
-            <span>{item.value}</span>
-          </h5>
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            Termino de busqueda
-          </span>
-        </div>
-      ) : (
-        <div className="mx-4 text-sm">
-          {item &&
-            item.detalles &&
-            Object.entries(item.detalles).map(([key, items]) => (
-              <div key={key}>
-                {key}={items}
-              </div>
-            ))}
-        </div>
-      )}
+      <div className="flex flex-col items-center pb-10">
+        <h5 className="mb-1 text-lg font-medium text-gray-900 dark:text-white">
+          {toTitleCase(item.name.replace(/_/g, " "))} :<span>{item.value}</span>
+        </h5>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          Termino de búsqueda
+        </span>
+      </div>
     </div>
   );
 };

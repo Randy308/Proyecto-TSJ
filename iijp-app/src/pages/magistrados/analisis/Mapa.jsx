@@ -3,7 +3,7 @@ import React from "react";
 
 const Mapa = ({ contenido }) => {
   return (
-    <div className=" h-[600px] border border-gray-300 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]">
+    <div className=" h-[600px] border border-gray-300 p-4 m-4 custom:p-2 custom:m-0 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]">
       <EChart contenido={contenido} />
     </div>
   );

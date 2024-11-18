@@ -10,7 +10,16 @@ import { FaPlay } from "react-icons/fa6";
 import axios from "axios";
 
 import { MdOutlineCleaningServices } from "react-icons/md";
-function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, setMultiVariable}) {
+import AsyncButton from "../../../components/AsyncButton";
+function AnalisisMagistrado({
+  params,
+  data,
+  setData,
+  salas,
+  id,
+  multiVariable,
+  setMultiVariable,
+}) {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [option, setOption] = useState({});
@@ -20,7 +29,7 @@ function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, s
   const [limite, setLimite] = useState(0);
   const [listaX, setListaX] = useState([]);
   const [checkedX, setCheckedX] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const createSeries = (length) => {
     const series = [];
     for (let index = 0; index < length; index++) {
@@ -86,6 +95,8 @@ function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, s
   };
 
   const realizarAnalisis = () => {
+    setIsLoading(true); // Start loading
+
     const isMultiVariable = listaX.length > 0 && checkedX;
     const endpointPath = isMultiVariable
       ? `${endpoint}/magistrado-estadisticas-xy`
@@ -104,8 +115,12 @@ function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, s
       .then(({ data }) => {
         setData(data.data.length > 0 ? data.data : []);
         setMultiVariable(isMultiVariable);
+        setIsLoading(false); // Stop loading when data is fetched
       })
-      .catch((error) => console.error("Error fetching data:", error));
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setIsLoading(false); // Stop loading in case of an error
+      });
   };
 
   function transposeArray(data) {
@@ -156,15 +171,15 @@ function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, s
     }
   }, [lista]);
   return (
-    <div className="grid grid-cols-4 gap-2 p-4 m-4 custom:grid-cols-1">
-      <div className="p-4 m-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
+    <div className="grid grid-cols-4 gap-2 p-2 m-2 custom:p-0 custom:m-0 custom:grid-cols-1">
+      <div className="p-2 m-2 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
         <div>
           <div>
             <label
               htmlFor="charts"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              Selección de grafico
+              Selección de gráfico
             </label>
             <select
               id="charts"
@@ -216,23 +231,21 @@ function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, s
                 setListaX={setListaX}
               ></Select>
             )}
-            <div className="grid grid-cols-2 gap-2 pb-2">
+            <div className="flex flex-wrap gap-2 pb-2 justify-center">
               <button
                 type="button"
                 onClick={() => invertirAxis()}
-                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
+                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-xs px-5 py-3 text-center"
               >
                 <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
                 <span>Invertir Axis</span>
               </button>
-              <button
-                type="button"
-                onClick={() => realizarAnalisis()}
-                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
-              >
-                <FaPlay className="fill-current w-4 h-4 mr-2" />
-                <span>Analizar</span>
-              </button>
+              <AsyncButton
+                name={"Analizar"}
+                asyncFunction={realizarAnalisis}
+                isLoading={isLoading}
+                full={false}
+              />
             </div>
           </div>
         </div>
@@ -244,7 +257,7 @@ function AnalisisMagistrado({ params, data, setData, salas, id ,multiVariable, s
               type="button"
               className="w-full mt-2 text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
             >
-              {actual ? "Mostrar Tabla " : "Mostrar Grafico"}
+              {actual ? "Mostrar Tabla " : "Mostrar Gráfico"}
             </button>
           </div>
         )}

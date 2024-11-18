@@ -95,7 +95,7 @@ const TimesSeries = ({ setValor, resoluciones, recorrerLista }) => {
   return (
     <div
       ref={containerRef}
-      className=" h-[600px] static border border-gray-300 p-4 m-4 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]"
+      className=" h-[600px] static border border-gray-300 p-4 m-4 custom:p-2 custom:m-0 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]"
     >
       {data.length > 0 ? (
         <MagistradoChart option={option} setData={setValor} />

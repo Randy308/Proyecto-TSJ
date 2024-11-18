@@ -239,16 +239,14 @@ const MagistradoTSJ = () => {
           ))}
         </ul>
 
-        <div className="p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
+        <div className="p-4 custom:p-0 mt-4 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
           {magistradoItems.map(
             (item) =>
               item.id === activeTab && (
-                <div key={item.id}>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                    {item.title} Tab
-                  </h3>
+                <>
+                  
                   {renderContent(item.id)}
-                </div>
+                </>
               )
           )}
         </div>

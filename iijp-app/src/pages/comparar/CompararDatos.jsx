@@ -2,19 +2,16 @@ import React, { useEffect, useState } from "react";
 import "../../styles/styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
 import axios from "axios";
-
 import "../../styles/paginate.css";
 import Loading from "../../components/Loading";
-import styles from "./CompararDatos.module.css";
 import { comparacionItems } from "../../data/ComparacionItems";
-import Contenido from "./tabs/Contenido";
 import ResolucionesTab from "./tabs/ResolucionesTab";
 import Dropdown from "../../components/Dropdown";
 import Select from "./tabs/Select";
 import SimpleChart from "../../components/SimpleChart";
-import TimesSeries from "../magistrados/analisis/TimesSeries";
 import Prediccion from "./tabs/Prediccion";
 import AsyncButton from "../../components/AsyncButton";
+import { MdCleaningServices } from "react-icons/md";
 const CompararDatos = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -296,10 +293,10 @@ const CompararDatos = () => {
 
           <div className="w-full p-4 text-center bg-white border border-gray-200 rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
             <h5 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
-              Análisis de Jurisprudencia Avanzada
+              Análisis de datos
             </h5>
             <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
-              Comparacion de datos a travez del tiempo.
+              Comparación de datos atreves del tiempo.
             </p>
             <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
               {data &&
@@ -322,10 +319,11 @@ const CompararDatos = () => {
                 />
               </div>
               <button
-                className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-3"
+                className="inline-flex items-center px-4 py-3 rounded-lg text-xs bg-blue-500 hover:bg-blue-800 text-white"
                 onClick={limpiarFiltros}
               >
-                Limpiar
+                <MdCleaningServices className="fill-current w-4 h-4 mr-2" />
+                <span>Limpiar</span>
               </button>
             </div>
           </div>
@@ -369,7 +367,7 @@ const CompararDatos = () => {
               item.id === varActiva && (
                 <div
                   key={item.id}
-                  className="p-6 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-[#111827] rounded-lg w-full"
+                  className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full"
                 >
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
                     {item.title} Tab

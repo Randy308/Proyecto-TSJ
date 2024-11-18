@@ -1,3 +1,9 @@
+:root {
+  --mainColor: #450920;
+  --secondaryColor: #fff;
+  --secondaryFontColor: #eaf8bf;
+}
+
 #navbar-submenu {
   background: rgb(169, 97, 112);
   background: linear-gradient(

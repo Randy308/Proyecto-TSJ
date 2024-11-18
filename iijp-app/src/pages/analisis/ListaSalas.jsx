@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import { FaPlay } from "react-icons/fa6";
 import BtnDropdown from "../../components/BtnDropdown";
+import AsyncButton from "../../components/AsyncButton";
 const ListaSalas = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -24,6 +25,8 @@ const ListaSalas = () => {
 
   const [actual, setActual] = useState(true);
   const [visible, setVisible] = useState(true);
+
+  const [isLoadingData, setIsLoadingData] = useState(false);
   const option = {
     legend: {
       top: "top",
@@ -66,6 +69,8 @@ const ListaSalas = () => {
       toast.warning("Debe seleccionar una sala");
       return;
     }
+
+    setIsLoadingData(true);
     try {
       const { data } = await axios.get(`${endpoint}/obtener-datos-salas`, {
         params: {
@@ -76,9 +81,11 @@ const ListaSalas = () => {
       setResoluciones(data.data);
       setTotalRes(data.total);
       setVisible(false);
+      setIsLoadingData(false);
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
       toast.warning("Error de conexión");
+      setIsLoadingData(false);
     }
   };
 
@@ -179,14 +186,13 @@ const ListaSalas = () => {
                 <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
                 <span>Limpiar</span>
               </button>
-              <button
-                type="button"
-                onClick={getDatos}
-                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
-              >
-                <FaPlay className="fill-current w-4 h-4 mr-2" />
-                <span>Analizar</span>
-              </button>
+
+              <AsyncButton
+                name={"Analizar"}
+                asyncFunction={getDatos}
+                isLoading={isLoadingData}
+                full={false}
+              />
             </div>
             {pieData && pieData.length > 0 ? (
               <div className="max-w-sm mx-auto mt-4">

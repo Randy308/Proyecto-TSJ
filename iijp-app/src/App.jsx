@@ -5,7 +5,6 @@ import Inicio from "./pages/Inicio";
 import Jurisprudencia from "./pages/Jurisprudencia";
 import JurisprudenciaBusqueda from "./pages/busqueda/JurisprudenciaBusqueda";
 import JurisprudenciaCronologia from "./pages/cronologia/JurisprudenciaCronologia";
-import ResultadoAnalisis from "./pages/analisis/ResultadoAnalisis";
 import { ThemeProvider } from "./components/ThemeProvider";
 import ResolucionTSJ from "./pages/resoluciones/ResolucionTSJ";
 import CronologiasResultados from "./pages/cronologia/CronologiasResultados";
@@ -27,6 +26,7 @@ import PanelAdmin from "./pages/admin/PanelAdmin";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AnalisisSala from "./pages/analisis/AnalisisSala";
+import Usuarios from "./pages/admin/Usuarios";
 
 function App() {
   return (
@@ -47,10 +47,6 @@ function App() {
               <Route
                 path="/jurisprudencia/lista-de-analisis"
                 element={<JurisprudenciaLista />}
-              />
-              <Route
-                path="/jurisprudencia/resultados"
-                element={<ResultadoAnalisis />}
               />
               <Route
                 path="/jurisprudencia/busqueda"
@@ -87,6 +83,7 @@ function App() {
               <Route path="/" element={<LayoutAdmin />}>
                 <Route path="/admin" element={<PanelAdmin />} />
                 <Route path="/admin/subir" element={<TablaCSV />} />
+                <Route path="/admin/usuarios" element={<Usuarios />} />
               </Route>
             </Route>
             //rutas user

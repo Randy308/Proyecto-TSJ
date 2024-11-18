@@ -10,7 +10,7 @@ const Prediccion = ({ proyeccion }) => {
   const [option, setOption] = useState({});
   useEffect(() => {
     if (proyeccion) {
-      setXAxis(proyeccion.prediccion.map((_, index) => index + 1));
+      setXAxis(proyeccion.periodo);
       setPrediccion(proyeccion.prediccion);
       setOriginal(proyeccion.original);
     }

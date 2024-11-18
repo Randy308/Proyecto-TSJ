@@ -17,7 +17,7 @@ const Inicio = () => {
     },
   ];
   return (
-    <div className="flex p-4 m-4 justify-center card-container custom:flex-col gap-3 text-black dark:text-white">
+    <div className="flex p-4 m-4 justify-center custom:flex-col gap-3 text-black dark:text-white">
       <div>
         <p className="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-2xl lg:text-2xl dark:text-white">Sistemas Gestión y Analisis de Metricas de la Justicia Ordinaria</p>
         <div className="mb-6 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-16 dark:text-gray-400">

@@ -2,13 +2,12 @@ import Loading from "../../components/Loading";
 import SimpleChart from "../../components/SimpleChart";
 import TablaX from "../../components/TablaX";
 import React, { useEffect, useMemo, useState } from "react";
-import { FaPlay } from "react-icons/fa6";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { SwitchChart } from "../../components/SwitchChart";
 import axios from "axios";
 import Select from "../../components/Select";
 import { MdOutlineCleaningServices } from "react-icons/md";
-
+import AsyncButton from "../../components/AsyncButton";
 const endpoint = process.env.REACT_APP_BACKEND;
 
 const AnalisisSala = () => {
@@ -29,6 +28,7 @@ const AnalisisSala = () => {
   const [lista, setLista] = useState([]);
   const [multiVariable, setMultiVariable] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     if (salas && id) {
       axios
@@ -131,6 +131,7 @@ const AnalisisSala = () => {
 
   const realizarAnalisis = () => {
     const isMultiVariable = listaX.length > 0 && checkedX;
+    setIsLoading(true);
     const endpointPath = isMultiVariable
       ? `${endpoint}/estadisticas-xy`
       : `${endpoint}/estadisticas-x`;
@@ -148,8 +149,12 @@ const AnalisisSala = () => {
       .then(({ data }) => {
         setData(data.data.length > 0 ? data.data : []);
         setMultiVariable(isMultiVariable);
+        setIsLoading(false);
       })
-      .catch((error) => console.error("Error fetching data:", error));
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setIsLoading(false);
+      });
   };
   function transposeArray(data) {
     const transposed = {};
@@ -276,14 +281,13 @@ const AnalisisSala = () => {
                 <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
                 <span>Invertir Axis</span>
               </button>
-              <button
-                type="button"
-                onClick={() => realizarAnalisis()}
-                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
-              >
-                <FaPlay className="fill-current w-4 h-4 mr-2" />
-                <span>Analizar</span>
-              </button>
+
+              <AsyncButton
+                name={"Analizar"}
+                asyncFunction={realizarAnalisis}
+                isLoading={isLoading}
+                full={false}
+              />
             </div>
           </div>
         </div>

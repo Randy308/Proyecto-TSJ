@@ -9,7 +9,7 @@ const Jurisprudencia = () => {
         <h2 className="text-center py-4 text-3xl font-bold titulo">
           Herramientas
         </h2>
-        <div className="cards-container flex p-4 m-4 justify-center items-center custom:flex-col">
+        <div className="cards-container flex  justify-center items-center custom:flex-col">
           {jurisprudenciaItems.map((item) => {
             return (
               <Link to={item.path} key={item.id}>

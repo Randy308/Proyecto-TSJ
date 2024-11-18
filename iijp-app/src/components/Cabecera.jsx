@@ -3,7 +3,7 @@ import { FaArrowDownAZ, FaArrowUpAZ } from "react-icons/fa6";
 
 const Cabecera = ({ titulo,valor, setFormData, id, setVisible , visible }) => {
   const identificador = `cabecera-${titulo}`;
-  const [activo, setActivo] = useState(1); // Initial state
+  const [activo, setActivo] = useState(1);
 
   useEffect(() => {
     if( visible != id){
@@ -18,8 +18,8 @@ const Cabecera = ({ titulo,valor, setFormData, id, setVisible , visible }) => {
   };
   const variables = [
     { id: 1, nombre: "none", icono: <div className="w-3 h-3"></div> },
-    { id: 2, nombre: "asc", icono: <FaArrowDownAZ /> },
-    { id: 3, nombre: "desc", icono: <FaArrowUpAZ /> },
+    { id: 2, nombre: "asc", icono: <FaArrowDownAZ className="w-5 h-5" /> },
+    { id: 3, nombre: "desc", icono: <FaArrowUpAZ className="w-5 h-5" /> },
   ];
 
   const handleClick = () => {
@@ -35,8 +35,6 @@ const Cabecera = ({ titulo,valor, setFormData, id, setVisible , visible }) => {
         setParametros("orden", variable.nombre);
         setVisible(id);
       } else {
-        //setParametros("variable", null); // Reset sorting
-        //setParametros("orden", null);
         setVisible(null);
       }
       

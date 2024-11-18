@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use DateInterval;
+use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -203,6 +205,19 @@ class ArimaController extends Controller
 
         $y_pred = $regresion_lineal->get_predicted_array_completed($data, $a, $b, $window);
 
+        $periodos = $request->periodo;
+
+        // Convertir la última fecha de $periodos a un objeto DateTime
+        $lastDate = new DateTime(end($periodos));
+
+        // Calcular la diferencia de longitud entre $periodos y $y_pred
+        $missingPeriods = count($y_pred) - count($periodos);
+
+        // Agregar los periodos faltantes
+        for ($i = 0; $i < $missingPeriods; $i++) {
+            $lastDate->add(new DateInterval("P1M")); // Añadir un mes manteniendo el día original
+            $periodos[] = $lastDate->format('Y-m-d'); // Agregar la nueva fecha al array $periodos con el mismo día
+        }
 
         $y_pred_multiplied = [];
         $indices_count = count($indices);
@@ -210,12 +225,12 @@ class ArimaController extends Controller
         for ($i = 0; $i < count($y_pred); $i++) {
             // Use modulo to loop through indices if $y_pred is larger than $indices
             $index = $indices[$i % $indices_count];
-            $y_pred_multiplied[$i] = $y_pred[$i] * $index;
+            $y_pred_multiplied[$i] = ceil($y_pred[$i] * $index);
         }
 
         return response()->json([
             'original' => $data,
-            'periodo' => $request->periodo,
+            'periodo' => $periodos,
             'prediccion' => $y_pred_multiplied,
             'Media movil centrada' => $media_movil_centrada,
             'Indices Estacionarios' => $indices

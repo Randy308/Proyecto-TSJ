@@ -1,12 +1,11 @@
 import React from "react";
 import Footer from "../components/Footer";
-import Navbar from "../components/Navbar";
 import { Outlet, useLocation } from "react-router-dom";
 import MyNavbar from "../components/MyNavbar";
 
 const LayoutPublic = () => {
   const location = useLocation();
-  const noNavbarRoutes = ["/jurisprudencia/Resolucion/:id"]; // Agrega más rutas según sea necesario
+  const noNavbarRoutes = ["/jurisprudencia/resolucion/:id"]; // Agrega más rutas según sea necesario
   const noFooterRoutes = [
     "/jurisprudencia/resolucion/:id",
     "/jurisprudencia/busqueda",

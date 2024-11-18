@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../../../styles/paginate.css";
 import Paginate from "../../../components/Paginate";
 import PaginationData from "../../busqueda/PaginationData";
-import Menciones from "../../magistrados/analisis/Menciones";
 const ResolucionesTab = ({ setActualFormData ,data ,realizarBusqueda }) => {
-  const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState([]);
   const [lastPage, setLastPage] = useState(1);
@@ -30,21 +28,17 @@ const ResolucionesTab = ({ setActualFormData ,data ,realizarBusqueda }) => {
 
   return (
     <div>
-      <div className="row p-4">
-        {resoluciones.length > 0 && (
-          <div>
-            <PaginationData
-              data={resoluciones}
-              total={totalRes}
-              setFormData={setActualFormData}
-            />
-          </div>
-        )}
-        <Paginate
-          handlePageClick={handlePageClick}
-          pageCount={pageCount}
-        ></Paginate>
-      </div>
+      {resoluciones.length > 0 && (
+        <PaginationData
+          data={resoluciones}
+          total={totalRes}
+          setFormData={setActualFormData}
+        />
+      )}
+      <Paginate
+        handlePageClick={handlePageClick}
+        pageCount={pageCount}
+      ></Paginate>
     </div>
   );
 };

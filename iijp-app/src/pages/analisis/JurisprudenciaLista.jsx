@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import LineChart from "./LineChart";
+import SimpleChart from "../../components/SimpleChart";
 import Loading from "../../components/Loading";
 import { IoPeopleCircleSharp } from "react-icons/io5";
 import { HiMiniBuildingLibrary } from "react-icons/hi2";
@@ -51,91 +51,8 @@ const JurisprudenciaLista = () => {
     }
   };
 
-  const styles = {
-    page: {
-      height: "85vh",
-    },
-    pages: {
-      height: "600px",
-    },
-  };
-
-
-
-
-  /** 
   const option = {
-    tooltip: {
-      trigger: "axis",
-      axisPointer: {
-        type: "cross",
-        crossStyle: {
-          color: "#999",
-        },
-      },
-    },
-    toolbox: {
-      feature: {
-        dataView: { show: true, readOnly: false },
-        magicType: { show: true, type: ["line", "bar"] },
-        restore: { show: true },
-        saveAsImage: { show: true },
-      },
-    },
-    legend: {
-      data: legend,
-    },
-    xAxis: {
-      type: "category",
-      data: xAxis,
-      axisPointer: {
-        type: "shadow",
-      },
-    },
-    yAxis: [
-      {
-        type: "value",
-        name: "Todos",
-        min: 0,
-        max: Math.max(...resoluciones),
-        axisLabel: {
-          formatter: "{value}",
-        },
-      },
-      {
-        type: "value",
-        name: "Jurisprudencia",
-        min: 0,
-        max: Math.max(...jurisprudencia),
-        axisLabel: {
-          formatter: "{value}",
-        },
-      },
-    ],
-    series: [
-      {
-        name: "Jurisprudencia",
-        type: "bar",
-        tooltip: {
-          valueFormatter: (value) => `${value}`,
-        },
-        data: jurisprudencia,
-      },
 
-      {
-        name: "Resoluciones",
-        type: "line",
-        yAxisIndex: 0,
-        tooltip: {
-          valueFormatter: (value) => `${value} `,
-        },
-        data: resoluciones,
-      },
-    ],
-  };
-  **/
-  const option = {
-    // Make gradient line here
     visualMap: [
       {
         show: false,
@@ -159,8 +76,8 @@ const JurisprudenciaLista = () => {
           show: true,
           type: ["line", "bar"],
           title: {
-            line: "Línea", // Cambia "line" a "Línea"
-            bar: "Barras", // Cambia "bar" a "Barras"
+            line: "Línea", 
+            bar: "Barras", 
           },
         },
         saveAsImage: {
@@ -173,12 +90,12 @@ const JurisprudenciaLista = () => {
       {
         left: "center",
         top: "5%",
-        text: "Cantidad de resoluciones por periodo",
+        text: "Cantidad de Autos supremos por periodo",
       },
       {
         top: "55%",
         left: "center",
-        text: "Cantidad de jurisprudencia por periodo",
+        text: "Cantidad de Jurisprudencia por periodo",
       },
     ],
     tooltip: {
@@ -202,14 +119,14 @@ const JurisprudenciaLista = () => {
     grid: [
       {
         bottom: "60%",
-        left: "5%", // Agrega padding izquierdo
-        right: "5%", // Agrega padding derecho
+        left: "5%", 
+        right: "5%",
         containLabel: true,
       },
       {
         top: "60%",
-        left: "5%", // Agrega padding izquierdo
-        right: "5%", // Agrega padding derecho
+        left: "5%",
+        right: "5%",
         containLabel: true,
       },
     ],
@@ -229,13 +146,6 @@ const JurisprudenciaLista = () => {
     ],
   };
 
-  
-  const [valor, setValor] = useState(null);
-  useEffect(() => {
-    if (valor) {
-      console.log(valor);
-    }
-  }, [valor]);
   return (
     <div className="lista-analisis flex flex-col items-center justify-center py-4 my-4">
       <div className="flex justify-center">
@@ -243,9 +153,9 @@ const JurisprudenciaLista = () => {
           Histórico de Resoluciones
         </span>
       </div>
-      <div style={styles.pages} className="p-4 m-4 w-3/6 custom:w-full rounded-xl shadow-lg bg-white dark:bg-[#100C2A]">
+      <div className="container mx-auto">
         {resoluciones && resoluciones.length > 0 ? (
-          <LineChart option={option} setData={setValor}></LineChart>
+          <SimpleChart option={option}></SimpleChart>
         ) : (
           <Loading></Loading>
         )}

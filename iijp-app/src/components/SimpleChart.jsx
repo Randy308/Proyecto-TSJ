@@ -8,7 +8,7 @@ const SimpleChart = ({ option, border = true }) => {
 
   return (
     <div
-      className={` p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] h-[600px] ${
+      className={`p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] h-[600px] ${
         border ? "border shadow-lg border-gray-300 dark:border-gray-800" : ""
       }`}
     >

@@ -8,12 +8,12 @@ const Paginate = ({handlePageClick, pageCount}) => {
     <div>
       <ReactPaginate
         breakLabel={
-          <span className="mr-4 w-10 h-10 flex items-center justify-center pagina rounded-md">
-            <HiDotsHorizontal />
+          <span className="w-10 h-10 hover:bg-gray-200 dark:border-gray-700 border border-gray-300 flex items-center justify-center pagina rounded-md text-black dark:text-white">
+            <HiDotsHorizontal className="w-5 h-5" />
           </span>
         }
         nextLabel={
-          <span className="w-10 h-10 flex items-center justify-center pagina rounded-md">
+          <span className="w-10 h-10 hover:bg-gray-200 dark:border-gray-700 border border-gray-300 dark:hover:bg-gray-700 flex items-center justify-center pagina rounded-md text-black dark:text-white">
             <BsChevronRight />
           </span>
         }
@@ -21,14 +21,14 @@ const Paginate = ({handlePageClick, pageCount}) => {
         pageRangeDisplayed={5}
         pageCount={pageCount}
         previousLabel={
-          <span className="w-10 h-10 flex items-center justify-center pagina rounded-md mr-4">
+          <span className="w-10 h-10 hover:bg-gray-200 dark:border-gray-700 border border-gray-300 dark:hover:bg-gray-700 flex items-center justify-center pagina rounded-md text-black dark:text-white">
             <BsChevronLeft />
           </span>
         }
-        containerClassName="flex items-center justify-center mt-8 mb-4 gap-2"
-        pageClassName="block w-10 h-10 flex items-center justify-center 
-            rounded-md mr-4 pagina"
-        activeClassName="pagina-activa"
+        containerClassName="flex items-center justify-center my-4 gap-1 text-xs"
+        pageClassName="block w-10 h-10 flex items-center justify-center border border-gray-300 
+            rounded-md text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"
+        activeClassName="text-[#450920] bg-[#EEB6C1] font-bold text-sm border border-[#450920] dark:border-gray-700 dark:text-white dark:bg-gray-700"
         renderOnZeroPageCount={null}
       />
     </div>

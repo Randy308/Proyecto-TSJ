@@ -31,13 +31,12 @@ const PaginationData = ({ data, setFormData }) => {
   ];
   const [visible, setVisible] = useState(false);
   return (
-    <div className="relative overflow-x-auto">
+    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table
-        id="tabla-resoluciones"
-        className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border
-         border-gray-300 dark:border-white rounded-lg p-4"
+         className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border
+         border-gray-300 dark:border-gray-600 rounded-lg p-4"
       >
-        <thead className="text-xs text-black uppercase bg-[#F8F8F8] border-b dark:bg-[#222628] dark:text-white">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
             {listaCabeceras.map((item) => (
               <Cabecera
@@ -51,7 +50,7 @@ const PaginationData = ({ data, setFormData }) => {
               ></Cabecera>
             ))}
             <th scope="col" key={6} className="px-6 py-3">
-              Accion
+              Acción
             </th>
           </tr>
         </thead>
@@ -59,16 +58,14 @@ const PaginationData = ({ data, setFormData }) => {
           {data.map((item, index) => (
             <tr
               key={index}
-              className="border-b border-gray-200 text-black odd:bg-white even:bg-gray-100 dark:text-white
-              dark:odd:bg-[#222628] dark:even:bg-[#181D1F]"
+              class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
             >
-              <th
-                scope="row"
-                className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-              >
+              <th scope="row" className="px-6 py-4">
                 {item.fecha_emision}
               </th>
-              <td className="px-6 py-4">{item.tipo_resolucion}</td>
+              <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                {item.tipo_resolucion}
+              </td>
               <td className="px-6 py-4">{item.nro_resolucion}</td>
               <td className="px-6 py-4">{item.departamento}</td>
               <td className="px-6 py-4">{item.sala}</td>
@@ -79,7 +76,7 @@ const PaginationData = ({ data, setFormData }) => {
                   rel="noopener noreferrer"
                   className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                 >
-                  Ver resolucion
+                  Ver resolución
                 </a>
               </td>
             </tr>
