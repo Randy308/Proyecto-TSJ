@@ -129,22 +129,11 @@ class CompareController extends Controller
                 }
             });
 
-        // Adding the second join on the 'jurisprudencias' table
         if (strcmp($request->materia, "all") !== 0 || strcmp($request->tipo_jurisprudencia, "all") !== 0) {
-            
-            $query->leftJoin('jurisprudencias AS j', function ($join) use ($request) {
-                // Joining 'jurisprudencias' on 'resolution_id'
-                
-                $join->on("j.resolution_id", '=', "r.id");
-
-                // Apply filters on 'jurisprudencias' table
-                if (strcmp($request->tipo_jurisprudencia, "all") !== 0) {
-                    $join->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
-                }
-                if (strcmp($request->materia, "all") !== 0) {
-                    $join->where("j.descriptor", 'like', $request->materia . '%');
-                }
-            });
+            $query->join(DB::raw("(SELECT DISTINCT resolution_id FROM jurisprudencias 
+                WHERE ('{$request->tipo_jurisprudencia}' = 'all' OR tipo_jurisprudencia = '{$request->tipo_jurisprudencia}')
+                AND ('{$request->materia}' = 'all' OR descriptor LIKE '{$request->materia}%')
+            ) AS j"), 'j.resolution_id', '=', 'r.id');
         }
 
         $resolutions = $query

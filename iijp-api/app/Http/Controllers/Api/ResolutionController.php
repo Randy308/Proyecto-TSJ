@@ -13,10 +13,151 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpClient\HttpClient;
 
 class ResolutionController extends Controller
 {
+
+
+    public function filtrarResolucionesContenido(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'materia' => 'required',
+            'tipo_jurisprudencia' => 'required',
+            'tipo_resolucion' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if ($value !== 'all' && !is_numeric($value)) {
+                        return $fail($attribute . ' must be either "all" or an integer.');
+                    }
+                },
+            ],
+            'sala' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if ($value !== 'all' && !is_numeric($value)) {
+                        return $fail($attribute . ' must be either "all" or an integer.');
+                    }
+                },
+            ],
+            'departamento' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if ($value !== 'all' && !is_numeric($value)) {
+                        return $fail($attribute . ' must be either "all" or an integer.');
+                    }
+                },
+            ],
+            'magistrado' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if ($value !== 'all' && !is_numeric($value)) {
+                        return $fail($attribute . ' must be either "all" or an integer.');
+                    }
+                },
+            ],
+            'forma_resolucion' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if ($value !== 'all' && !is_numeric($value)) {
+                        return $fail($attribute . ' must be either "all" or an integer.');
+                    }
+                },
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $variable = $request["variable"];
+        $orden = $request["orden"];
+        $fecha_final = $request->input('fecha_final');
+        $fecha_inicial = $request->input('fecha_inicial');
+
+        $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
+        $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
+        $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
+
+        $query = DB::table('resolutions as r')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+            ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
+
+        if ($request->materia != "all" || $request->tipo_jurisprudencia != "all") {
+            $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+            if ($request->tipo_jurisprudencia != "all") {
+                $query->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
+            }
+            if ($request->materia != "all") {
+                $query->where("j.descriptor", 'like', $request->materia . '%');
+            }
+        }
+
+        if ($fecha_inicial && $fecha_final && strtotime($fecha_inicial) && strtotime($fecha_final)) {
+            $query->whereBetween('r.fecha_emision', [$fecha_inicial, $fecha_final]);
+        }
+
+        if ($request->magistrado != "all") {
+            $query->where("r.magistrado_id", $request->magistrado);
+        }
+        if ($request->forma_resolucion != "all") {
+            $query->where("r.forma_resolucion_id", $request->forma_resolucion);
+        }
+        if ($request->tipo_resolucion != "all") {
+            $query->where("r.tipo_resolucion_id", $request->tipo_resolucion);
+        }
+        if ($request->sala != "all") {
+            $query->where("r.sala_id", $request->sala);
+        }
+        if ($request->departamento != "all") {
+            $query->where("r.departamento_id", $request->departamento);
+        }
+
+        if ($request->has('term')) {
+            $searchTerm = $request->input('term');
+            $escapedTerm1 = preg_quote($searchTerm, '/');
+        
+            // Initialize the regex pattern to capture sentences with the first term
+            $pattern = "[^\\.]*" . $escapedTerm1 . "[^\\.]*";
+        
+            // Add additional terms to the regex pattern if they exist in the request
+            if ($request->has('term-2')) {
+                $searchTerm2 = $request->input('term-2');
+                $escapedTerm2 = preg_quote($searchTerm2, '/');
+                $pattern = "(?=.*" . $escapedTerm2 . ")" . $pattern;
+                $query->where('c.contenido', '~*', $escapedTerm2);
+            }
+        
+            if ($request->has('term-3')) {
+                $searchTerm3 = $request->input('term-3');
+                $escapedTerm3 = preg_quote($searchTerm3, '/');
+                $pattern = "(?=.*" . $escapedTerm3 . ")" . $pattern;
+                $query->where('c.contenido', '~*', $escapedTerm3);
+            }
+        
+            // Join `contents` and select the matched sentence using the combined pattern
+            $query->join('contents as c', 'c.resolution_id', '=', 'r.id')
+                ->addSelect(DB::raw("(regexp_matches(c.contenido, '$pattern', 'g'))[1] AS resumen"))
+                ->where('c.contenido', '~*', $escapedTerm1);
+        }
+        
+
+        $results = $query->orderBy($variable, $orden)->paginate(20);
+
+        return response()->json($results);
+    }
+
+
 
     public function obtenerResolucionesTSJ(Request $request)
     {
@@ -30,7 +171,7 @@ class ResolutionController extends Controller
 
         if ($response->getStatusCode() === 200) {
             $data = $response->toArray();
-            return ($data); 
+            return ($data);
         } else {
             throw new \Exception("Failed to retrieve the data. Status code: " . $response->getStatusCode());
         }
