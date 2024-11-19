@@ -141,3 +141,6 @@ Route::get('/obtener-datos-salas', [SalaController::class, 'getbyIDs']);
 
 Route::get('/test-arima', [ArimaController::class, 'test_arima']);
 Route::get('/realizar-prediccion', [ArimaController::class, 'realizar_prediccion']);
+
+
+Route::get('/obtencion-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);

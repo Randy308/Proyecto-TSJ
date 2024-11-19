@@ -13,9 +13,28 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpClient\HttpClient;
 
 class ResolutionController extends Controller
 {
+
+    public function obtenerResolucionesTSJ(Request $request)
+    {
+
+        $httpClient = HttpClient::create([
+            'verify_peer' => false,
+            'verify_host' => false,
+        ]);
+
+        $response = $httpClient->request('GET', 'https://jurisprudencia.tsj.bo/jurisprudencia/' . $request->id);
+
+        if ($response->getStatusCode() === 200) {
+            $data = $response->toArray();
+            return ($data); 
+        } else {
+            throw new \Exception("Failed to retrieve the data. Status code: " . $response->getStatusCode());
+        }
+    }
 
     public function index()
     {
