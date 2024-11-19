@@ -2,10 +2,7 @@ import "../styles/navbar.css";
 import { NavLink } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import React, { useEffect, useRef, useState } from "react";
-import { FaCloudMoon, FaDatabase } from "react-icons/fa6";
-import { FaSun } from "react-icons/fa";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { FaRegMoon } from "react-icons/fa";
+import { FaDatabase } from "react-icons/fa6";
 import { MdSettingsInputComponent } from "react-icons/md";
 import { HiOutlineLogin } from "react-icons/hi";
 import { FaUsers } from "react-icons/fa";
@@ -102,7 +99,7 @@ const MyNavbar = () => {
   useEffect(() => {
     handleShowList();
   }, []);
-  const { getToken, getLogout, rol } = AuthUser();
+  const { getToken, getLogout, rol, can } = AuthUser();
 
   const logoutUser = async () => {
     await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
@@ -131,46 +128,56 @@ const MyNavbar = () => {
       console.log("Error al realizar la solicitud: " + error.message);
     }
   };
+
+  const navLinks = () => {
+    if (getToken()) {
+      return (
+        <>
+          {can("ver_usuarios") && (
+            <li>
+              <NavLink
+                to="/admin/usuarios"
+                className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+              >
+                <FaUsers className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <span className="flex-1 ms-3 whitespace-nowrap">Usuarios</span>
+              </NavLink>
+            </li>
+          )}
+
+          {can("acceder_resoluciones") && (
+            <li>
+              <NavLink
+                to="/admin/subir"
+                className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+              >
+                <FaDatabase className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <span className="flex-1 ms-3 whitespace-nowrap">
+                  Resoluciones
+                </span>
+              </NavLink>
+            </li>
+          )}
+
+          {can("ver_roles") && (
+            <li>
+              <NavLink
+                to="/admin"
+                className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+              >
+                <RiDashboard2Fill className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <span className="ms-3">Dashboard</span>
+              </NavLink>
+            </li>
+          )}
+        </>
+      );
+    }
+  };
   const renderLinks = () => {
     if (getToken()) {
       return (
         <>
-          {rol === "admin" && (
-            <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-              <li>
-                <NavLink
-                  to="/admin"
-                  className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                >
-                  <RiDashboard2Fill className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                  <span className="ms-3">Dashboard</span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/admin/usuarios"
-                  className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                >
-                  <FaUsers className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Usuarios
-                  </span>
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
-                  to="/admin/subir"
-                  className="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-                >
-                  <FaDatabase className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                  <span className="flex-1 ms-3 whitespace-nowrap">
-                    Resoluciones
-                  </span>
-                </NavLink>
-              </li>
-            </ul>
-          )}
-
           <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
             <li>
               <a
@@ -230,7 +237,7 @@ const MyNavbar = () => {
           </a>
           <div className="flex items-center space-x-6 rtl:space-x-reverse">
             <p className="text-sm  text-white dark:text-white">
-              Sistema de Gestión y Análisis de Métricas de la Justicia Ordinaria
+              ESTA PÁGINA SE ENCUENTRA EN CONSTRUCCIÓN.
             </p>
           </div>
         </div>
@@ -309,7 +316,6 @@ const MyNavbar = () => {
                     </label>
                   </a>
                 </li>
-                <li></li>
                 {renderLinks()}
                 <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
                   <li>
@@ -346,6 +352,8 @@ const MyNavbar = () => {
                   </li>
                 );
               })}
+
+              {navLinks()}
             </ul>
           </div>
         </div>

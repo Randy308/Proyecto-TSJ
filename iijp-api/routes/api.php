@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\PermissionController;
+use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\ArimaController;
 use App\Http\Controllers\Api\AuthController;
@@ -33,7 +35,8 @@ Route::prefix('v1')->group(function () {
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::apiResource('admin/user', UserController::class);
-
+        Route::apiResource('admin/roles', RoleController::class);
+        Route::get('admin/permisos', [PermissionController::class, 'index']);
 
 
         Route::post('/excel/upload', [ExcelController::class, 'upload'])->name('excel.upload');

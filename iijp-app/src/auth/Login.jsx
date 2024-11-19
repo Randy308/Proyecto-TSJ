@@ -3,13 +3,12 @@ import Config from "./Config";
 import { useNavigate } from "react-router-dom";
 import AuthUser from "./AuthUser";
 import axios from "axios";
-const endpoint = process.env.REACT_APP_BACKEND;
 
 const Login = () => {
   const { getToken, saveToken } = AuthUser();
 
-  const [email, setEmail] = useState("pedro@gmail.com");
-  const [password, setPassword] = useState("root1234");
+  const [email, setEmail] = useState("admin@example.com");
+  const [password, setPassword] = useState("password");
   const navigate = useNavigate();
 
   useEffect(() => {

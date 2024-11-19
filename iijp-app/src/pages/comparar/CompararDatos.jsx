@@ -369,9 +369,6 @@ const CompararDatos = () => {
                   key={item.id}
                   className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full"
                 >
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-                    {item.title} Tab
-                  </h3>
                   {renderContent(item.id)}
                 </div>
               )
