@@ -10,7 +10,7 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::where('name', '!=', 'admin')->get();
+        $roles = Role::where('name', '!=', 'admin')->get(['name', 'id']);
 
         return response()->json($roles, 200);
     }

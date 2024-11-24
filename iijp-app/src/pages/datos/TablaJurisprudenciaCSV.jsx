@@ -8,7 +8,7 @@ import axios from "axios";
 import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
 
-const TablaCSV = () => {
+const TablaJurisprudenciaCSV = () => {
   const { getToken, getLogout, rol } = AuthUser();
   const [isLoading, setIsLoading] = useState(false);
   const { readString } = usePapaParse();
@@ -80,7 +80,7 @@ const TablaCSV = () => {
       formData.append("excelFile", archivo);
 
       const { data } = await axios.post(
-        `${endpoint}/v1/excel/upload`,
+        `${endpoint}/v1/excel/upload-jurisprudencia`,
         formData,
         {
           headers: {
@@ -163,4 +163,4 @@ const TablaCSV = () => {
   );
 };
 
-export default TablaCSV;
+export default TablaJurisprudenciaCSV;

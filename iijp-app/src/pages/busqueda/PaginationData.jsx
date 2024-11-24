@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/tabla.css";
 import Cabecera from "../../components/Cabecera";
-const PaginationData = ({ data, setFormData }) => {
+const PaginationData = ({ data, setFormData, resumen=false }) => {
   const listaCabeceras = [
     {
       id: 1,
@@ -31,9 +31,9 @@ const PaginationData = ({ data, setFormData }) => {
   ];
   const [visible, setVisible] = useState(false);
   return (
-    <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <div className="relative overflow-x-auto">
       <table
-         className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border
+        className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border
          border-gray-300 dark:border-gray-600 rounded-lg p-4"
       >
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -49,6 +49,12 @@ const PaginationData = ({ data, setFormData }) => {
                 visible={visible}
               ></Cabecera>
             ))}
+
+            {resumen && (
+              <th scope="col" key={69} className="px-6 py-3">
+                Resumen
+              </th>
+            )}
             <th scope="col" key={6} className="px-6 py-3">
               Acción
             </th>
@@ -58,7 +64,7 @@ const PaginationData = ({ data, setFormData }) => {
           {data.map((item, index) => (
             <tr
               key={index}
-              class="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
+              className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700"
             >
               <th scope="row" className="px-6 py-4">
                 {item.fecha_emision}
@@ -69,6 +75,7 @@ const PaginationData = ({ data, setFormData }) => {
               <td className="px-6 py-4">{item.nro_resolucion}</td>
               <td className="px-6 py-4">{item.departamento}</td>
               <td className="px-6 py-4">{item.sala}</td>
+              {resumen && <td className="px-6 py-4">{item.resumen}</td>}
               <td className="px-6 py-4">
                 <a
                   href={`http://localhost:3000/jurisprudencia/resolucion/${item.id}`}

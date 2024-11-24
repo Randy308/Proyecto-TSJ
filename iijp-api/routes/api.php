@@ -38,14 +38,19 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('admin/roles', RoleController::class);
         Route::get('admin/permisos', [PermissionController::class, 'index']);
 
-
         Route::post('/excel/upload', [ExcelController::class, 'upload'])->name('excel.upload');
         Route::post('/excel/upload-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
+
+
 
     });
 
     Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
 });
+
+
+Route::get('/resoluciones-documento', [ResolutionController::class, 'obtenerDocumentoResoluciones']);
+
 
 Route::get('/estadisticas-xy', [SalaController::class, 'obtenerEstadisticasXY']);
 Route::get('/estadisticas-xyz', [SalaController::class, 'obtenerEstadisticasXYZ']);

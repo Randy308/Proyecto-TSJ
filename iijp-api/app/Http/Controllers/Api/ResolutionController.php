@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Contents;
 use App\Models\Departamentos;
 use App\Models\FormaResolucions;
+use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
 use App\Models\Salas;
 use App\Models\TipoResolucions;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 use Symfony\Component\HttpClient\HttpClient;
 
 class ResolutionController extends Controller
@@ -22,55 +25,32 @@ class ResolutionController extends Controller
 
     public function filtrarResolucionesContenido(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
-            'materia' => 'required',
-            'tipo_jurisprudencia' => 'required',
+            'materia' => 'nullable|string',
+            'tipo_jurisprudencia' => 'nullable|string',
             'tipo_resolucion' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'sala' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'departamento' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'magistrado' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'forma_resolucion' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([
@@ -93,7 +73,7 @@ class ResolutionController extends Controller
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
 
-        if ($request->materia != "all" || $request->tipo_jurisprudencia != "all") {
+        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
             if ($request->tipo_jurisprudencia != "all") {
                 $query->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
@@ -107,56 +87,232 @@ class ResolutionController extends Controller
             $query->whereBetween('r.fecha_emision', [$fecha_inicial, $fecha_final]);
         }
 
-        if ($request->magistrado != "all") {
+        if ($request->has('magistrado')) {
             $query->where("r.magistrado_id", $request->magistrado);
         }
-        if ($request->forma_resolucion != "all") {
+        if ($request->has('forma_resolucion')) {
             $query->where("r.forma_resolucion_id", $request->forma_resolucion);
         }
-        if ($request->tipo_resolucion != "all") {
+        if ($request->has('tipo_resolucion')) {
             $query->where("r.tipo_resolucion_id", $request->tipo_resolucion);
         }
-        if ($request->sala != "all") {
+        if ($request->has('sala')) {
             $query->where("r.sala_id", $request->sala);
         }
-        if ($request->departamento != "all") {
+        if ($request->has('departamento')) {
             $query->where("r.departamento_id", $request->departamento);
         }
 
-        if ($request->has('term')) {
+        if ($request->has('term') && !empty($request->input('term')) && strlen($request->input('term')) > 2) {
+
             $searchTerm = $request->input('term');
             $escapedTerm1 = preg_quote($searchTerm, '/');
-        
-            // Initialize the regex pattern to capture sentences with the first term
+
+
             $pattern = "[^\\.]*" . $escapedTerm1 . "[^\\.]*";
-        
-            // Add additional terms to the regex pattern if they exist in the request
-            if ($request->has('term-2')) {
+
+
+            if ($request->has('term-2') && !empty($request->input('term-2')) && strlen($request->input('term-2')) > 2) {
+
                 $searchTerm2 = $request->input('term-2');
                 $escapedTerm2 = preg_quote($searchTerm2, '/');
                 $pattern = "(?=.*" . $escapedTerm2 . ")" . $pattern;
                 $query->where('c.contenido', '~*', $escapedTerm2);
             }
-        
-            if ($request->has('term-3')) {
+
+            if ($request->has('term-3') && !empty($request->input('term-3')) && strlen($request->input('term-3')) > 2) {
+
                 $searchTerm3 = $request->input('term-3');
                 $escapedTerm3 = preg_quote($searchTerm3, '/');
                 $pattern = "(?=.*" . $escapedTerm3 . ")" . $pattern;
                 $query->where('c.contenido', '~*', $escapedTerm3);
             }
-        
-            // Join `contents` and select the matched sentence using the combined pattern
+
             $query->join('contents as c', 'c.resolution_id', '=', 'r.id')
                 ->addSelect(DB::raw("(regexp_matches(c.contenido, '$pattern', 'g'))[1] AS resumen"))
                 ->where('c.contenido', '~*', $escapedTerm1);
         }
-        
+
 
         $results = $query->orderBy($variable, $orden)->paginate(20);
 
         return response()->json($results);
     }
 
+
+    //     $query->join('contents as c', 'c.resolution_id', '=', 'r.id')
+    // ->addSelect(DB::raw("regexp_replace(c.contenido, '($pattern)', '<b>\\1</b>', 'gi') AS resumen"))
+    // ->where('c.contenido', '~*', $escapedTerm1);
+
+
+
+    public function obtenerDocumentoResoluciones(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+            'materia' => 'nullable|string',
+            'tipo_jurisprudencia' => 'nullable|string',
+            'tipo_resolucion' => [
+                'nullable',
+                'integer',
+            ],
+            'sala' => [
+                'nullable',
+                'integer',
+            ],
+            'departamento' => [
+                'nullable',
+                'integer',
+            ],
+            'magistrado' => [
+                'nullable',
+                'integer',
+            ],
+            'forma_resolucion' => [
+                'nullable',
+                'integer',
+            ],
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $fecha_final = $request->input('fecha_final');
+        $fecha_inicial = $request->input('fecha_inicial');
+
+        $query = DB::table('resolutions as r')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->join('mapeos as m', 'm.resolution_id', '=', 'r.id')
+            ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala', 'fr.nombre as forma_resolucion', 'r.proceso', 'm.external_id as original');
+
+        $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+        $query->addSelect('j.tipo_jurisprudencia', 'j.descriptor', 'j.ratio', 'j.restrictor');
+
+
+        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
+
+            if ($request->tipo_jurisprudencia != "all") {
+                $query->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
+            }
+            if ($request->materia != "all") {
+                $query->where("j.descriptor", 'like', $request->materia . '%');
+            }
+        }
+
+        if ($fecha_inicial && $fecha_final && strtotime($fecha_inicial) && strtotime($fecha_final)) {
+            $query->whereBetween('r.fecha_emision', [$fecha_inicial, $fecha_final]);
+        }
+
+        if ($request->has('magistrado')) {
+            $query->where("r.magistrado_id", $request->magistrado);
+        }
+        if ($request->has('forma_resolucion')) {
+            $query->where("r.forma_resolucion_id", $request->forma_resolucion);
+        }
+        if ($request->has('tipo_resolucion')) {
+            $query->where("r.tipo_resolucion_id", $request->tipo_resolucion);
+        }
+        if ($request->has('sala')) {
+            $query->where("r.sala_id", $request->sala);
+        }
+        if ($request->has('departamento')) {
+            $query->where("r.departamento_id", $request->departamento);
+        }
+        if ($request->has('term') && !empty($request->input('term')) && strlen($request->input('term')) > 2) {
+
+            $searchTerm = $request->input('term');
+            $escapedTerm1 = preg_quote($searchTerm, '/');
+
+
+            $pattern = "[^\\.]*" . $escapedTerm1 . "[^\\.]*";
+
+
+            if ($request->has('term-2') && !empty($request->input('term-2')) && strlen($request->input('term-2')) > 2) {
+
+                $searchTerm2 = $request->input('term-2');
+                $escapedTerm2 = preg_quote($searchTerm2, '/');
+                $pattern = "(?=.*" . $escapedTerm2 . ")" . $pattern;
+                $query->where('j.ratio', '~*', $escapedTerm2);
+            }
+
+            if ($request->has('term-3') && !empty($request->input('term-3')) && strlen($request->input('term-3')) > 2) {
+
+                $searchTerm3 = $request->input('term-3');
+                $escapedTerm3 = preg_quote($searchTerm3, '/');
+                $pattern = "(?=.*" . $escapedTerm3 . ")" . $pattern;
+                $query->where('j.ratio', '~*', $escapedTerm3);
+            }
+
+            $query->where('j.ratio', '~*', $escapedTerm1);
+            // $query->addSelect(DB::raw("(regexp_matches(j.ratio, '$pattern', 'g'))[1] AS resumen"))
+            //     ->where('j.ratio', '~*', $escapedTerm1);
+
+            //$query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
+        }
+
+
+        $results = $query->limit(50)->get();
+
+
+
+        if (!$results) {
+            return response()->json(['error' => 'Sala no encontrada'], 404);
+        }
+
+        if ($results->count() === 0) {
+            return response()->json(['error' => 'Datos no encontrados '], 404);
+        }
+
+
+
+
+        $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
+
+
+        //return $results;
+        $pdf = LaravelMpdf::loadView('resolucion', ['results' => $results->toArray(), "fechaActual" => $fechaActual], [], [
+            'format'          => 'letter',
+            'margin_left'     => 25,  // 2.5 cm in mm
+            'margin_right'    => 25,  // 2.5 cm in mm
+            'margin_top'      => 25,  // 2.5 cm in mm
+            'margin_bottom'   => 25,  // 2.5 cm in mm
+            'orientation'     => 'P',
+            'title'           => 'Documento',
+            'author'          => 'IIJP',
+            'custom_font_dir' => public_path('fonts/'),
+            'custom_font_data' => [
+                'cambria' => [
+                    'R'  => 'Cambriax.ttf',
+                    'B'  => 'Cambria-Bold.ttf',
+                    'I'  => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf'
+                ],
+                'trebuchet_ms' => [
+                    'R'  => 'trebuc.ttf',
+                    'B'  => 'trebucbd.ttf',
+                    'I'  => 'trebucit.ttf'
+                ],
+                'times_new_roman' => [
+                    'R'  => 'times-new-roman.ttf',
+                    'B'  => 'times-new-roman-bold.ttf',
+                    'I'  => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf'
+                ],
+            ]
+        ]);
+
+        //$pdf = LaravelMpdf::loadView('test');
+        return $pdf->Output('document.pdf', 'I');
+        //return $pdf->stream('document.pdf');
+    }
 
 
     public function obtenerResolucionesTSJ(Request $request)
@@ -179,24 +335,38 @@ class ResolutionController extends Controller
 
     public function index()
     {
-        //
+
         $all_res = DB::table('resolutions as r')
-            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(r.id), 0) AS cantidad")
-            ->groupBy("year")
-            ->orderBy("year")
+            ->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date as periodo, COALESCE(COUNT(r.id), 0) AS cantidad")
+            ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)"))
+            ->havingRaw("COUNT(r.id) > 10")
+            ->orderBy('periodo')
             ->get();
+
 
         $all_jurisprudencia = DB::table('resolutions as r')
             ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
-            ->selectRaw("COALESCE(EXTRACT(YEAR FROM r.fecha_emision), 0) as year, COALESCE(COUNT(DISTINCT(r.id)), 0) AS cantidad")
-            ->groupBy("year")
-            ->orderBy("year")
+            ->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date as periodo, COALESCE(COUNT(DISTINCT r.id), 0) AS cantidad")
+            ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)"))
+            ->orderBy("periodo")
+            ->havingRaw("COUNT(r.id) > 10")
             ->get();
 
 
+        $max_res = max($all_res->pluck('cantidad')->toArray());
+        $max_juris = max($all_jurisprudencia->pluck('cantidad')->toArray());
+        $result_res = $all_res->map(function ($item) {
+            return [$item->periodo, $item->cantidad];
+        })->toArray();
+        $result_juris = $all_jurisprudencia->map(function ($item) {
+            return [$item->periodo, $item->cantidad];
+        })->toArray();
+
         return response()->json([
-            'Resoluciones' => $all_res,
-            'Jurisprudencia' => $all_jurisprudencia,
+            'max_res' => $max_res,
+            'max_juris' => $max_juris,
+            'resoluciones' => $result_res,
+            'jurisprudencia' => $result_juris,
         ]);
     }
 
@@ -314,13 +484,21 @@ class ResolutionController extends Controller
                     'fr.nombre as forma_resolucion',
                     'r.proceso',
                     'r.demandante',
-                    'r.demandado'
+                    'r.demandado',
+                    'r.maxima',
+                    'r.sintesis',
                 )
                 ->where('r.id', '=', $id)
                 ->first();
+            $jurisprudencias = Jurisprudencias::where('resolution_id', $id)->get();
+            $jurisprudencias->makeHidden(['id', 'resolution_id', 'updated_at', 'created_at']);
 
 
-            return response()->json($resolucion, 200);
+            return response()->json([
+
+                'resolucion' => $resolucion,
+                'jurisprudencias' => $jurisprudencias,
+            ], 200);
         } catch (ModelNotFoundException $e) {
 
             return response()->json([

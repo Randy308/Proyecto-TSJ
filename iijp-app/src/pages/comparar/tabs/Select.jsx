@@ -4,7 +4,6 @@ const Select = ({ fieldName, items, setFormData, formData }) => {
   const [selectedTipo, setSelectedTipo] = useState("all");
 
   useEffect(() => {
-    // Update form data whenever selectedTipo changes
     const setParametros = (name, value) => {
       setFormData((prevData) => ({
         ...prevData,
@@ -21,8 +20,8 @@ const Select = ({ fieldName, items, setFormData, formData }) => {
 
   const convertirTitulo = (name) => {
     return String(name)
-      .replace(/_/g, " ") // Reemplaza los guiones bajos por espacios
-      .replace(/\b\w/g, (char) => char.toUpperCase()); // Convierte la primera letra de cada palabra a mayúscula
+      .replace(/_/g, " ") 
+      .replace(/\b\w/g, (char) => char.toUpperCase()); 
   };
   useEffect(() => {
     if (formData[fieldName] === "all") {

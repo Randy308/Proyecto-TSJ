@@ -24,65 +24,32 @@ class CompareController extends Controller
 
 
     {
-
         $validator = Validator::make($request->all(), [
-            'materia' => 'required',
-            'tipo_jurisprudencia' => 'required',
-            //'intervalo' => 'required',
+            'materia' => 'nullable|string',
+            'tipo_jurisprudencia' => 'nullable|string',
             'tipo_resolucion' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'sala' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'departamento' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'magistrado' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'forma_resolucion' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
-
         ]);
 
-        // 'intervalo' => 'required|string',
+
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors()
@@ -94,63 +61,98 @@ class CompareController extends Controller
         $intervalo = $request->input('intervalo');
         $numero_busqueda = $request->input('numero_busqueda');
 
-        $intervalo = "month";
+        $intervalo = "year";
         $validIntervals = ['day', 'month', 'year', 'week', 'quarter'];
         if (!in_array($intervalo, $validIntervals)) {
             throw new InvalidArgumentException("Invalid interval specified.");
         }
 
-        $query = DB::table(DB::raw("generate_series('{$fecha_inicial}'::date, '{$fecha_final}'::date, '1 {$intervalo}'::interval) AS series(fecha)"))
-            ->selectRaw("
-            EXTRACT(YEAR FROM series.fecha) AS year,
-            EXTRACT(MONTH FROM series.fecha) AS month,
-            EXTRACT(DAY FROM series.fecha) AS day,
-            series.fecha AS periodo,
-            COALESCE(COUNT(r.id), 0) AS cantidad
-        ")
-            ->leftJoin('resolutions AS r', function ($join) use ($request, $intervalo) {
-                $join->on(DB::raw("date_trunc('{$intervalo}', r.fecha_emision)"), '=', DB::raw("date_trunc('{$intervalo}', series.fecha)"));
+        $validIntervals = ['day', 'week', 'month', 'quarter', 'year'];
 
-                // Apply filters on 'resolutions' table
-                if ($request->magistrado != "all") {
-                    $join->where("r.magistrado_id", $request->magistrado);
-                }
-                if ($request->forma_resolucion != "all") {
-                    $join->where("r.forma_resolucion_id", $request->forma_resolucion);
-                }
-                if ($request->tipo_resolucion != "all") {
-                    $join->where("r.tipo_resolucion_id", $request->tipo_resolucion);
-                }
-                if ($request->sala != "all") {
-                    $join->where("r.sala_id", $request->sala);
-                }
-                if ($request->departamento != "all") {
-                    $join->where("r.departamento_id", $request->departamento);
-                }
-            });
+        if (!in_array($intervalo, $validIntervals)) {
+            throw new InvalidArgumentException("Invalid interval specified.");
+        }
+        $query = DB::table('resolutions AS r')
+            ->selectRaw('COUNT(r.id) AS cantidad');
 
-        if (strcmp($request->materia, "all") !== 0 || strcmp($request->tipo_jurisprudencia, "all") !== 0) {
-            $query->join(DB::raw("(SELECT DISTINCT resolution_id FROM jurisprudencias 
-                WHERE ('{$request->tipo_jurisprudencia}' = 'all' OR tipo_jurisprudencia = '{$request->tipo_jurisprudencia}')
-                AND ('{$request->materia}' = 'all' OR descriptor LIKE '{$request->materia}%')
-            ) AS j"), 'j.resolution_id', '=', 'r.id');
+        // Adjust the query based on the selected interval
+        switch ($intervalo) {
+            case 'day':
+                // Select the date only, ignoring the time part
+                $query->selectRaw('DATE(r.fecha_emision) AS periodo');
+                $query->groupBy(DB::raw('DATE(r.fecha_emision)'));
+                $query->orderBy(DB::raw('DATE(r.fecha_emision)'));
+                break;
+            case 'week':
+                // Select the start of the week, truncating to the date
+                $query->selectRaw('DATE_TRUNC(\'week\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
+                break;
+            case 'month':
+                // Select the start of the month, truncating to the date
+                $query->selectRaw('DATE_TRUNC(\'month\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
+                break;
+            case 'quarter':
+                // Select the start of the quarter, truncating to the date
+                $query->selectRaw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
+                break;
+            case 'year':
+                // Select the start of the year, truncating to the date
+                $query->selectRaw('DATE_TRUNC(\'year\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
+                break;
         }
 
-        $resolutions = $query
-            ->groupBy('year', 'month', 'day', 'periodo') // Grouping non-aggregated fields
-            ->orderBy('periodo') // Ordering by 'periodo' (series.fecha)
-            ->get();
-        $data = $resolutions->pluck('cantidad');
-        $cabeceras = $resolutions->pluck('periodo')->map(function ($fecha) {
-            return Carbon::parse($fecha)->toDateString();
-        });
+        // Apply additional filters if they are present
+        if ($request->has('limite')) {
+            $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 2005');
+        }
+        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 1999');
+        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) < 2025');
+        if ($request->has('magistrado')) {
+            $query->where('r.magistrado_id', $request->magistrado);
+        }
+        if ($request->has('forma_resolucion')) {
+            $query->where('r.forma_resolucion_id', $request->forma_resolucion);
+        }
+        if ($request->has('tipo_resolucion')) {
+            $query->where('r.tipo_resolucion_id', $request->tipo_resolucion);
+        }
+        if ($request->has('sala')) {
+            $query->where('r.sala_id', $request->sala);
+        }
+        if ($request->has('departamento')) {
+            $query->where('r.departamento_id', $request->departamento);
+        }
+
+        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
+            $tipo_jurisprudencia = $request->tipo_jurisprudencia ?? 'all';
+            $materia = $request->materia ?? 'all';
+
+            $query->join(DB::raw("(SELECT resolution_id FROM jurisprudencias
+            WHERE ('{$tipo_jurisprudencia}' = 'all' OR tipo_jurisprudencia = '{$tipo_jurisprudencia}')
+            AND ('{$materia}' = 'all' OR descriptor LIKE '{$materia}%')) AS j"), 'j.resolution_id', '=', 'r.id');
+        }
+
+        $resolutions = $query->get();
+
+        // Transform results into the desired format
+        $result = $resolutions->map(function ($item) {
+            return [$item->periodo, $item->cantidad];
+        })->toArray();
 
         $request["variable"] = "fecha_emision";
         $request["orden"] = "asc";
 
         return response()->json([
 
-            'cabeceras' => $cabeceras,
+
             'termino' => [
                 'name' => "Titulo",
                 'id' => $numero_busqueda,
@@ -161,7 +163,7 @@ class CompareController extends Controller
                 'name' => "Busqueda #" . $numero_busqueda,
                 'type' => 'line',
                 'id' => $numero_busqueda,
-                'data' => $data
+                'data' => $result
             ]
         ]);
     }
@@ -173,60 +175,28 @@ class CompareController extends Controller
 
 
         $validator = Validator::make($request->all(), [
-            'materia' => 'required',
-            'tipo_jurisprudencia' => 'required',
-            //'intervalo' => 'required',
+            'materia' => 'nullable|string',
+            'tipo_jurisprudencia' => 'nullable|string',
             'tipo_resolucion' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'sala' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'departamento' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'magistrado' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
             'forma_resolucion' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    // Check if value is either 'all' or an integer
-                    if ($value !== 'all' && !is_numeric($value)) {
-                        return $fail($attribute . ' must be either "all" or an integer.');
-                    }
-                },
+                'nullable',
+                'integer',
             ],
-
         ]);
 
         if ($validator->fails()) {
@@ -251,13 +221,13 @@ class CompareController extends Controller
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->select('r.nro_resolucion', 'r.id', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
 
-        if ($request->materia != "all" || $request->tipo_jurisprudencia != "all") {
+        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
 
-            if ($request->tipo_jurisprudencia != "all") {
+            if ($request->has('tipo_jurisprudencia')) {
                 $query->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
             }
-            if ($request->materia != "all") {
+            if ($request->has('materia')) {
                 $query->where("j.descriptor", 'like', $request->materia . '%');
             }
         }
@@ -265,23 +235,23 @@ class CompareController extends Controller
             $query->whereBetween('r.fecha_emision', [$fecha_inicial, $fecha_final]);
         }
 
-        if ($request->magistrado != "all") {
+        if ($request->has('magistrado')) {
             $query->where("r.magistrado_id", $request->magistrado);
         }
         // Filter by forma_resolucion_id if provided
-        if ($request->forma_resolucion != "all") {
+        if ($request->has('forma_resolucion')) {
             $query->where("r.forma_resolucion_id", $request->forma_resolucion);
         }
         // Filter by tipo_jurisprudencia if provided
-        if ($request->tipo_resolucion != "all") {
+        if ($request->has('tipo_resolucion')) {
             $query->where("r.tipo_resolucion_id", $request->tipo_resolucion);
         }
         // Filter by sala_id if provided
-        if ($request->sala != "all") {
+        if ($request->has('sala')) {
             $query->where("r.sala_id", $request->sala); // Fixed this line to use sala_id
         }
 
-        if ($request->departamento != "all") {
+        if ($request->has('departamento')) {
             $query->where("r.departamento_id", $request->departamento);
         }
 
@@ -318,8 +288,8 @@ class CompareController extends Controller
             'sala' => $salas->toArray(),
             'magistrado' => $magistrados,
             'forma_resolucion' => $forma_res,
-            // 'tipo_jurisprudencia' => $jurisprudencias,
-            // 'materia' => $materia,
+            'tipo_jurisprudencia' => $jurisprudencias,
+            'materia' => $materia,
             'departamento' => $departamentos
         ];
 
@@ -331,12 +301,25 @@ class CompareController extends Controller
     {
 
         $max_date = DB::table('resolutions as r')
-            ->selectRaw("MAX(r.fecha_emision) as fecha_completa")
-            ->value('fecha_completa'); // Obtiene el valor directamente
+            ->selectRaw('MAX(r.fecha_emision) as max_fecha')
+            ->whereIn('r.fecha_emision', function ($query) {
+                $query->select('fecha_emision')
+                    ->from('resolutions as sub_r')
+                    ->groupBy('fecha_emision')
+                    ->havingRaw('COUNT(sub_r.id) > 10');
+            })
+            ->value('max_fecha');
 
+        // Get the min date
         $min_date = DB::table('resolutions as r')
-            ->selectRaw("MIN(r.fecha_emision) as fecha_completa")
-            ->value('fecha_completa'); // Obtiene el valor directamente
+            ->selectRaw('MIN(r.fecha_emision) as min_fecha')
+            ->whereIn('r.fecha_emision', function ($query) {
+                $query->select('fecha_emision')
+                    ->from('resolutions as sub_r')
+                    ->groupBy('fecha_emision')
+                    ->havingRaw('COUNT(sub_r.id) > 10');
+            })
+            ->value('min_fecha');
 
         $data = [
             'superior' => $max_date,

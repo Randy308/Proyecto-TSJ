@@ -208,7 +208,7 @@ const MyNavbar = () => {
             <Portal
               setSettingsOpen={setSettingsOpen}
               titulo={"Iniciar sesión"}
-              status={"login"}
+              status={"Iniciar sesión"}
             />
           </li>
         </>

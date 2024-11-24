@@ -93,3 +93,65 @@ const AutoCorrelacion = ({ pacf, acf }) => {
 };
 
 export default AutoCorrelacion;
+
+
+// // Series data
+// const series1 = [
+//     ['2014-01-01', 120],
+//     ['2015-01-01', 130],
+//     ['2016-01-01', 140],
+//     ['2017-01-01', 150],
+//     ['2018-01-01', 160],
+//     ['2019-01-01', 170],
+//     ['2020-01-01', 180],
+//     ['2021-01-01', 190],
+//     ['2022-01-01', 200],
+//     ['2023-01-01', 210],
+// ];
+
+// const series2 = [
+//     ['2017-01-01', 100],
+//     ['2018-01-01', 110],
+//     ['2019-01-01', 120],
+//     ['2020-01-01', 130],
+//     ['2021-01-01', 140],
+//     ['2022-01-01', 150],
+//     ['2023-01-01', 160],
+// ];
+// option = {
+//     title: {
+//         text: 'Two Time Series with Different Ranges',
+//     },
+//     tooltip: {
+//         trigger: 'axis',
+//     },
+//     xAxis: {
+//         type: 'time',
+//         name: 'Year',
+//     },
+//     yAxis: {
+//         type: 'value',
+//         name: 'Value',
+//     },
+//     series: [
+//         {
+//             name: 'Series 1',
+//             type: 'line',
+//             data: series1,
+//             smooth: true,
+//             lineStyle: {
+//                 width: 2,
+//             },
+//         },
+//         {
+//             name: 'Series 2',
+//             type: 'line',
+//             data: series2,
+//             smooth: true,
+//             lineStyle: {
+//                 width: 2,
+//                 type: 'dashed', // Different style for differentiation
+//             },
+//         },
+//     ],
+// };

@@ -81,7 +81,7 @@ const CompararDatos = () => {
   };
 
   useEffect(() => {
-    if (resoluciones && cabeceras) {
+    if (resoluciones) {
       setOption({
         title: {
           text: "Interés a lo largo del tiempo",
@@ -106,7 +106,7 @@ const CompararDatos = () => {
           },
         },
         xAxis: {
-          type: "category",
+          type: "time",
           boundaryGap: false,
           data: cabeceras,
         },
@@ -122,7 +122,7 @@ const CompararDatos = () => {
         },
       });
     }
-  }, [resoluciones, cabeceras]);
+  }, [resoluciones]);
 
   useEffect(() => {
     if (actualFormData) {
@@ -133,12 +133,23 @@ const CompararDatos = () => {
   const obtenerResoluciones = async () => {
     try {
       setIsLoading(true);
+
+      const filteredData = Object.fromEntries(
+        Object.entries(formData).filter(
+          ([key, value]) =>
+            value !== null &&
+            value !== undefined &&
+            value !== "" &&
+            value !== "all"
+        )
+      );
+
       const { data } = await axios.get(`${endpoint}/obtener-elemento`, {
         params: {
           fecha_final: limiteSuperior,
           fecha_inicial: limiteInferior,
           numero_busqueda: numeroBusqueda,
-          ...formData,
+          ...filteredData,
         },
       });
       console.log(data);
@@ -147,7 +158,6 @@ const CompararDatos = () => {
         setResoluciones((prev) =>
           prev ? [...prev, data.resoluciones] : [data.resoluciones]
         );
-        setCabeceras(data.cabeceras);
 
         setTerminos((prev) =>
           prev.length > 0 ? [...prev, data.termino] : [data.termino]

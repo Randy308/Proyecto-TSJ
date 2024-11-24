@@ -3,65 +3,74 @@ import "../../styles/styles_randy/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
 import axios from "axios";
 import PaginationData from "./PaginationData";
-import { TbMathFunction } from "react-icons/tb";
-import { CiSearch } from "react-icons/ci";
+import { ImSearch } from "react-icons/im";
+import { MdCleaningServices } from "react-icons/md";
+import { FaSearch } from "react-icons/fa";
 import Paginate from "../../components/Paginate";
 import "../../styles/paginate.css";
+import AsyncButton from "../../components/AsyncButton";
+import Select from "../comparar/tabs/Select";
+import { useNavigate } from "react-router-dom";
+import { FaFilePdf } from "react-icons/fa6";
+
 const JurisprudenciaBusqueda = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [activo, setActivo] = useState(null);
 
   const [lastPage, setLastPage] = useState(1);
-  const [salas, setSalas] = useState([]);
-  const [departamentos, setDepartamentos] = useState([]);
+
   const [resoluciones, setResoluciones] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPDF, setIsLoadingPDF] = useState(false);
+  const [hasFetchedData, setHasFetchedData] = useState(false);
 
-  useEffect(() => {
-    getParams();
-  }, []);
+  const [data, setData] = useState(null);
 
-  const getParams = async () => {
-    try {
-      const response = await axios.get(`${endpoint}/obtener-parametros`);
-      setSalas(response.data.salas);
-      setDepartamentos(response.data.departamentos);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-    }
-  };
+  const [actualFormData, setActualFormData] = useState(null);
 
-  const [selectedDepartamento, setSelectedDepartamento] = useState("todos");
+  const [formData, setFormData] = useState({
+    tipo_resolucion: "all",
+    sala: "all",
+    departamento: "all",
+    magistrado: "all",
+    forma_resolucion: "all",
+    tipo_jurisprudencia: "all",
+    materia: "all",
+  });
+
   const [texto, setTexto] = useState("");
-  const [selectedSala, setSelectedSala] = useState("todas");
-  const [orden, setOrden] = useState("Recientes");
-  const [fechaExacta, setFechaExacta] = useState("");
-  const [fechaDesde, setFechaDesde] = useState("");
-  const [fechaHasta, setFechaHasta] = useState("");
+
+  const navigate = useNavigate();
+
   const [pageCount, setPageCount] = useState(1);
 
-  const cambiarSala = (event) => {
-    setSelectedSala(event.target.value);
-  };
-  const cambiarOrden = (event) => {
-    setOrden(event.target.value);
+  const setParams = (name, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
-  const cambiarDepartamento = (event) => {
-    setSelectedDepartamento(event.target.value);
+  const removeParam = (name) => {
+    setFormData((prevData) => {
+      const { [name]: _, ...rest } = prevData;
+      return rest;
+    });
   };
+
   const cambiarFechaExacta = (event) => {
-    setFechaExacta(event.target.value);
-    setFechaDesde("");
-    setFechaHasta("");
+    setParams("fecha_exacta", event.target.value);
+    removeParam("fecha_inicial");
+    removeParam("fecha_final");
   };
   const cambiarFechaDesde = (event) => {
-    setFechaDesde(event.target.value);
-    setFechaExacta("");
+    setParams("fecha_inicial", event.target.value);
+    removeParam("fecha_exacta");
   };
   const cambiarFechaHasta = (event) => {
-    setFechaHasta(event.target.value);
-    setFechaExacta("");
+    setParams("fecha_final", event.target.value);
+    removeParam("fecha_exacta");
   };
 
   const actualizarInput = (event) => {
@@ -69,35 +78,74 @@ const JurisprudenciaBusqueda = () => {
   };
 
   const limpiarFiltros = () => {
-    setSelectedSala("Todas");
-    setSelectedDepartamento("Todos");
     setTexto("");
-    setOrden("Recientes");
-    setFechaDesde("");
-    setFechaExacta("");
-    setFechaHasta("");
+    setFormData({
+      tipo_resolucion: "all",
+      sala: "all",
+      magistrado: "all",
+      departamento: "all",
+      forma_resolucion: "all",
+      tipo_jurisprudencia: "all",
+      materia: "all",
+    });
   };
 
   const handlePageClick = (e) => {
     const selectedPage = Math.min(e.selected + 1, lastPage);
-    //setPage(selectedPage);
     obtenerResoluciones(selectedPage);
   };
+
+  useEffect(() => {
+    if (!hasFetchedData) {
+      getSelect();
+    }
+  }, []);
+
+  const getSelect = async () => {
+    try {
+      const { data } = await axios.get(`${endpoint}/get-params`);
+      setData(data);
+      setHasFetchedData(true);
+    } catch (error) {
+      console.error("Error al realizar la solicitud:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (actualFormData) {
+      obtenerResoluciones(1);
+    }
+  }, [actualFormData]);
+
   const obtenerResoluciones = async (page) => {
     try {
-      const response = await axios.get(`${endpoint}/filtrar-resoluciones`, {
+      setIsLoading(true);
+
+      // Ensure 'page' is a valid number, defaulting to 1 if it's not
+      const validPage = page && !isNaN(page) && page > 0 ? page : 1;
+
+      const filteredData = Object.fromEntries(
+        Object.entries(formData).filter(
+          ([key, value]) =>
+            value !== null &&
+            value !== undefined &&
+            value !== "" &&
+            value !== "all"
+        )
+      );
+
+      console.log(filteredData);
+
+      const response = await axios.get(`${endpoint}/filtrar-autos-supremos`, {
         params: {
-          texto: texto,
-          departamento: selectedDepartamento,
-          selectedSala: selectedSala,
-          orden: orden,
-          fecha_exacta: fechaExacta,
-          fecha_desde: fechaDesde,
-          fecha_hasta: fechaHasta,
-          page: page,
+          term: texto,
+          ...filteredData,
+          ...actualFormData,
+          page: validPage,
         },
       });
       console.log(response.data);
+
       if (response.data.data.length > 0) {
         setResoluciones(response.data.data);
         setLastPage(response.data.last_page);
@@ -105,168 +153,177 @@ const JurisprudenciaBusqueda = () => {
       } else {
         alert("No existen datos");
       }
+
+      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
+      setIsLoading(false);
     }
   };
 
-  const cambiarEstado = () => {
-    if (activo === true) {
-      setActivo(false);
-    } else {
-      setActivo(true);
+  const generarPdf = async () => {
+    try {
+      setIsLoadingPDF(true);
+
+      const filteredData = Object.fromEntries(
+        Object.entries(formData).filter(
+          ([key, value]) =>
+            value !== null &&
+            value !== undefined &&
+            value !== "" &&
+            value !== "all"
+        )
+      );
+
+      const response = await axios.get(`${endpoint}/resoluciones-documento`, {
+        params: {
+          term: texto,
+          ...filteredData,
+        },
+
+        responseType: "blob",
+      });
+
+      setIsLoadingPDF(false);
+      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      navigate("/Jurisprudencia/Cronologias/Resultados", {
+        state: { pdfUrl: pdfUrl },
+      });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setIsLoadingPDF(false);
     }
   };
 
   return (
-    <div
-      className="md:container mx-auto px-40 custom:px-0"
-      id="jurisprudencia-busqueda"
-    >
-      <div className="row p-4">
+    <div className="container mx-auto">
+      <div className="p-4">
         <p className="m-4 p-4 text-center font-bold text-2xl titulo">
-          Análisis de Jurisprudencia Avanzada
+          Análisis Avanzado
         </p>
-        <div className="flex flex-col bg-white rounded-lg border border-slate-400">
-          <div className="bg-[#450920] p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
+        <div className="flex flex-col bg-white dark:bg-gray-700 rounded-lg border border-slate-400">
+          <div className="bg-[#7C3145] dark:bg-gray-900 p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
             <FaFilter></FaFilter> <p>Campos de filtrado</p>
           </div>
-          <div className="p-4 m-4 custom:m-0 rounded-b-lg flex flex-row flex-wrap ">
-            <div className="p-2 flex justify-center items-center border border-black border-r-0 rounded-l-lg">
-              <TbMathFunction></TbMathFunction>
-            </div>
-            <div className="flex border border-black border-r-0 max-lg:border-r max-lg:rounded-r-md max-lg:flex-grow">
-              <select>
-                <option disabled>Variable</option>
-                <option>contenido</option>
-              </select>
-            </div>
 
-            <div className="flex-grow flex input-group-append border rounded-lg rounded-l-none border-slate-500 custom:rounded-l-md">
-              <input
-                id="search-bar"
-                type="text"
-                value={texto}
-                onChange={actualizarInput}
-                className="form-control p-3 rounded-l-lg rounded-t-lg rounded-b-lg flex-grow"
-                placeholder="Buscar..."
-              />
-              <button
-                type="button"
-                id="BottonFiltrado"
-                className="btn btn-info bg-slate-400 p-4 rounded-r-lg"
-                onClick={() => cambiarEstado()}
-              >
-                <FaFilter></FaFilter>
-              </button>
+          <div className="relative mx-5 my-3">
+            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <ImSearch className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </div>
+            <input
+              type="search"
+              value={texto}
+              onChange={actualizarInput}
+              id="default-search"
+              className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+              placeholder="Buscar por termino de busqueda..."
+              required
+            />
           </div>
+
           <div
             id="filtrosEvento"
             className={`p-4 m-4 ${activo === true ? " " : "FiltroInvisible"}`}
           >
-            <div className="grid grid-row-2 gap-4">
-              <div className="row-select">
-                <div className="select-form">
-                  <p>Ordenar por:</p>
-                  <select
-                    className="form-control border border-gray-300"
-                    value={orden}
-                    onChange={cambiarOrden}
-                  >
-                    <option value="Recientes">Recientes</option>
-                    <option value="Antiguos">Antiguos</option>
-                  </select>
-                </div>
+            <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+              {data &&
+                Object.entries(data).map(([key, items]) => (
+                  <Select
+                    key={key}
+                    formData={formData}
+                    items={items}
+                    fieldName={key}
+                    setFormData={setFormData}
+                  />
+                ))}
 
-                <div className="select-form">
-                  <p>Filtrar por Departamento:</p>
-                  <select
-                    value={selectedDepartamento}
-                    className="form-control p-2 border border-gray-300"
-                    onChange={cambiarDepartamento}
-                  >
-                    <option value="todos">Todos</option>
-                    {departamentos.map((item, index) => (
-                      <option value={item.nombre} key={index}>
-                        {item.nombre}{" "}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="select-form">
-                  <p>Filtrar por Sala:</p>
-                  <select
-                    className="form-control p-2 border border-gray-300"
-                    onChange={cambiarSala}
-                    value={selectedSala}
-                  >
-                    <option value="todas">Todas</option>
-                    {salas.map((item, index) => (
-                      <option value={item.nombre} key={index}>
-                        {item.nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="select-form text-black dark:text-white">
+                <p>Fecha Desde</p>
+                <input
+                  value={formData.fecha_inicial || ""}
+                  className="w-full p-2 border bg-gray-50 dark:[color-scheme:dark] border-gray-300 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 dark:text-white"
+                  type="date"
+                  onChange={cambiarFechaDesde}
+                ></input>
               </div>
-              <div className="row-select">
-                <div className="select-form">
-                  <p>Fecha Exacta</p>
-                  <input
-                    value={fechaExacta}
-                    className="form-control p-2 border border-gray-300"
-                    type="date"
-                    onChange={cambiarFechaExacta}
-                  ></input>
-                </div>
 
-                <div className="select-form">
-                  <p>Fecha Desde</p>
-                  <input
-                    value={fechaDesde}
-                    className="form-control p-2 border border-gray-300"
-                    type="date"
-                    onChange={cambiarFechaDesde}
-                  ></input>
-                </div>
-
-                <div className="select-form">
-                  <p>Fecha Hasta</p>
-                  <input
-                    value={fechaHasta}
-                    className="form-control p-2 border border-gray-300"
-                    type="date"
-                    onChange={cambiarFechaHasta}
-                  ></input>
-                </div>
+              <div className="select-form text-black dark:text-white">
+                <p>Fecha Hasta</p>
+                <input
+                  value={formData.fecha_final || ""}
+                  className="w-full p-2 border bg-gray-50 dark:[color-scheme:dark] border-gray-300 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 dark:text-white"
+                  type="date"
+                  onChange={cambiarFechaHasta}
+                ></input>
+              </div>
+              <div className="select-form text-black dark:text-white">
+                <p>Fecha Exacta</p>
+                <input
+                  value={formData.fecha_exacta || ""}
+                  className="w-full p-2 border bg-gray-50 dark:[color-scheme:dark] border-gray-300 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 dark:text-white"
+                  type="date"
+                  onChange={cambiarFechaExacta}
+                ></input>
               </div>
             </div>
           </div>
-          <div className="p-4 my-4 flex justify-end content-end gap-4">
+          <div className="p-4 my-4 flex flex-wrap justify-end gap-4 custom:justify-center">
+            <div>
+              <AsyncButton
+                asyncFunction={obtenerResoluciones}
+                isLoading={isLoading}
+                name="Buscar"
+                Icon={FaSearch}
+              />
+            </div>
+
+            <div>
+              <AsyncButton
+                asyncFunction={generarPdf}
+                isLoading={isLoadingPDF}
+                name="Generar Pdf"
+                Icon={FaFilePdf}
+              />
+            </div>
+
             <button
-              className="rounded-lg bg-blue-500 hover:bg-blue-800 p-3 text-white"
-              onClick={() => obtenerResoluciones(1)}
+              type="button"
+              onClick={() => limpiarFiltros()}
+              className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              Buscar
-            </button>
-            <button
-              className="rounded-lg bg-blue-500 hover:bg-blue-800 text-white p-3"
-              onClick={limpiarFiltros}
-            >
+              <MdCleaningServices className="w-3.5 h-3.5 text-white me-2" />
               Limpiar
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActivo((prev) => !prev)}
+              className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            >
+              <FaFilter className="w-3.5 h-3.5 text-white me-2" />
+              Ocultar
             </button>
           </div>
         </div>
       </div>
 
-      <div className="row p-4">
-        {resoluciones.length > 0 && <PaginationData data={resoluciones} />}
-        <Paginate
-          handlePageClick={handlePageClick}
-          pageCount={pageCount}
-        ></Paginate>
+      <div className="p-4">
+        {resoluciones.length > 0 && (
+          <>
+            <PaginationData
+              data={resoluciones}
+              {...(texto.length > 2 ? { resumen: true } : {})}
+              setFormData={setActualFormData}
+            />
+
+            <Paginate
+              handlePageClick={handlePageClick}
+              pageCount={pageCount}
+            ></Paginate>
+          </>
+        )}
       </div>
     </div>
   );

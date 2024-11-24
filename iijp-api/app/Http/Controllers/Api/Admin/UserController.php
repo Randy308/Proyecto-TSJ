@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -30,7 +31,11 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user = User::findOrFail($id);
+        $user = User::with('roles')->findOrFail($id);
+
+        $user->role = $user->getRoleNames()->first();
+
+
         return response()->json($user, 200);
     }
 
@@ -45,8 +50,13 @@ class UserController extends Controller
             'role' => 'required|string|max:255|exists:roles,name',
         ]);
 
-
         $validatedData['password'] = bcrypt($validatedData['password']);
+
+
+        $role = Role::where('name', $validatedData['role'])->first();
+        if (!$role) {
+            return response()->json(['error' => 'Role not found'], 400);
+        }
 
         $user = User::create($validatedData);
 
@@ -65,6 +75,8 @@ class UserController extends Controller
             'password' => 'nullable|min:8',
             'role' => 'nullable|string|max:255|exists:roles,name',
         ]);
+
+        
 
         $user = User::findOrFail($id);
 
@@ -106,5 +118,4 @@ class UserController extends Controller
             'message' => 'Usuario eliminado correctamente',
         ], 200);
     }
-
 }

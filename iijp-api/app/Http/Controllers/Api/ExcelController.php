@@ -23,14 +23,14 @@ class ExcelController extends Controller
     public function upload_jurisprudencia(Request $request)
     {
 
+        $response['success'] = false;
+        $file = $request->file('excelFile');
         if (Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
             $response['mensaje'] = "el usuario cuenta con el permiso";
         } else {
             $response['mensaje'] = "el usuario no cuenta con el permiso necesario";
             return response()->json($response, 200);
         }
-
-        $file = $request->file('excelFile');
         $extension = $file->getClientOriginalExtension();
 
 
@@ -42,7 +42,7 @@ class ExcelController extends Controller
             return response()->json(['error' => 'Tipo de archivo no soportado.'], 400);
         }
 
-        $data = [];
+        //$data = [];
         $resolucionMap = [];
 
 
@@ -62,19 +62,19 @@ class ExcelController extends Controller
                     'restrictor' => !empty($row['restrictor']) ? $row['restrictor'] : null,
                     'descriptor' => !empty($row['descriptor']) ? $row['descriptor'] : null,
                     'tipo_jurisprudencia' => !empty($row['tipo_jurisprudencia']) ? $row['tipo_jurisprudencia'] : null,
-                    'ratio' => !empty($row['precedente']) ? $row['precedente'] : null,
+                    'ratio' => !empty($row['ratio']) ? $row['ratio'] : null,
                 ]);
 
 
                 $jurisprudencia->save();
 
-                $data[] = $jurisprudencia;
+                //$data[] = $jurisprudencia;
             }
         });
 
 
 
-        return response()->json($data);
+        return response()->json("completado");
     }
     public function upload(Request $request)
     {
@@ -82,13 +82,13 @@ class ExcelController extends Controller
 
         $response['success'] = false;
 
-        if(Auth::user()->hasPermissionTo('subir_resoluciones')){
+        if (Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
             $response['mensaje'] = "el usuario cuenta con el permiso";
-
-        }else{
+        } else {
             $response['mensaje'] = "el usuario no cuenta con el permiso necesario";
             return response()->json($response, 200);
         }
+
         $file = $request->file('excelFile');
         $extension = $file->getClientOriginalExtension();
 
@@ -101,7 +101,7 @@ class ExcelController extends Controller
             return response()->json(['error' => 'Tipo de archivo no soportado.'], 400);
         }
 
-        $data = [];
+        //$data = [];
         $departamentoMap = [];
         $salaMap = [];
         $tipoResolucionMap = [];
@@ -114,7 +114,7 @@ class ExcelController extends Controller
             $departamentoNombre = $row['departamento'];
             $formaResolucionNombre = $row['forma_resolucion'];
             $magistradoNombre = $row['magistrado'];
-            $temaID = $row['tema_id'];
+            $temaID = $row['id_tema'];
 
             if (!isset($tipoResolucionMap[$tipoResolucionNombre])) {
                 $tipoResolucion = TipoResolucions::firstOrCreate(['nombre' => $tipoResolucionNombre]);
@@ -163,15 +163,15 @@ class ExcelController extends Controller
             ]);
 
 
-
             if ($temaID) {
-                if (isset($temasMap[$temaID]) || ($tema = Temas::where('id', $temaID)->first())) {
-
-                    if (!isset($temaID[$temaID])) {
-                        $temasMap[$temaID] = $tema->id;
-                    }
-
+                if (isset($temasMap[$temaID])) {
                     $resolucion->tema_id = $temasMap[$temaID];
+                } else {
+                    $tema = Temas::where('id', $temaID)->first();
+                    if ($tema) { // Solo agregar si el tema existe
+                        $temasMap[$temaID] = $tema->id;
+                        $resolucion->tema_id = $tema->id;
+                    }
                 }
             }
 
@@ -192,9 +192,11 @@ class ExcelController extends Controller
 
             $mapeo->save();
 
-            $data[] = $resolucion;
+            //$data[] = $resolucion;
         });
 
-        return response()->json($data);
+        return response()->json("completado");
+
+        //return response()->json($data);
     }
 }

@@ -30,8 +30,8 @@ const JurisprudenciaLista = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
   const [resoluciones, setResoluciones] = useState([]);
   const [jurisprudencia, setJurisprudencia] = useState([]);
-  const [xAxis, setXAxis] = useState([]);
-  const [legend, setLegend] = useState([]);
+  const [maxRes, setMaxRes] = useState([]);
+  const [maxJuris, setMaxJuris] = useState([]);
   useEffect(() => {
     getAllSalas();
   }, []);
@@ -39,35 +39,32 @@ const JurisprudenciaLista = () => {
   const getAllSalas = async () => {
     try {
       const response = await axios.get(`${endpoint}/all-resoluciones`);
-      setLegend(Object.keys(response.data));
-      setXAxis(response.data.Resoluciones.map((item) => item.year));
-      setResoluciones(response.data.Resoluciones.map((item) => item.cantidad));
+      setMaxRes(response.data.max_res);
+       setMaxJuris(response.data.max_juris);
+      setResoluciones(response.data.resoluciones);
 
       setJurisprudencia(
-        response.data.Jurisprudencia.map((item) => item.cantidad)
-      );
+        response.data.jurisprudencia);
     } catch (error) {
       console.error("Error al realizar la solicitud:", error);
     }
   };
 
   const option = {
-
     visualMap: [
       {
         show: false,
         type: "continuous",
         seriesIndex: 0,
         min: 0,
-        max: Math.max(...resoluciones),
+        max: maxRes,
       },
       {
         show: false,
         type: "continuous",
         seriesIndex: 1,
-        dimension: 0,
         min: 0,
-        max: jurisprudencia.length - 1,
+        max: maxJuris ,
       },
     ],
     toolbox: {
@@ -76,8 +73,8 @@ const JurisprudenciaLista = () => {
           show: true,
           type: ["line", "bar"],
           title: {
-            line: "Línea", 
-            bar: "Barras", 
+            line: "Línea",
+            bar: "Barras",
           },
         },
         saveAsImage: {
@@ -103,10 +100,10 @@ const JurisprudenciaLista = () => {
     },
     xAxis: [
       {
-        data: xAxis,
+        type: "time",
       },
       {
-        data: xAxis,
+        type: "time",
         gridIndex: 1,
       },
     ],
@@ -119,7 +116,7 @@ const JurisprudenciaLista = () => {
     grid: [
       {
         bottom: "60%",
-        left: "5%", 
+        left: "5%",
         right: "5%",
         containLabel: true,
       },

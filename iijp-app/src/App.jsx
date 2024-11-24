@@ -27,6 +27,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AnalisisSala from "./pages/analisis/AnalisisSala";
 import Usuarios from "./pages/admin/Usuarios";
+import TablaJurisprudenciaCSV from "./pages/datos/TablaJurisprudenciaCSV";
 
 function App() {
   return (
@@ -48,10 +49,7 @@ function App() {
                 path="/jurisprudencia/lista-de-analisis"
                 element={<JurisprudenciaLista />}
               />
-              <Route
-                path="/jurisprudencia/busqueda"
-                element={<JurisprudenciaBusqueda />}
-              />
+              <Route path="/busqueda" element={<JurisprudenciaBusqueda />} />
               <Route
                 path="/jurisprudencia/cronologias"
                 element={<JurisprudenciaCronologia />}
@@ -83,6 +81,7 @@ function App() {
               <Route path="/" element={<LayoutAdmin />}>
                 <Route path="/admin" element={<PanelAdmin />} />
                 <Route path="/admin/subir" element={<TablaCSV />} />
+                <Route path="/admin/subir-jurisprudencia" element={<TablaJurisprudenciaCSV />} />
                 <Route path="/admin/usuarios" element={<Usuarios />} />
               </Route>
             </Route>
