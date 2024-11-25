@@ -85,7 +85,7 @@ const Login = () => {
           />
         </div>
 
-        <div className="flex items-start mb-6">
+        {/* <div className="flex items-start mb-6">
           <div className="flex items-center h-5">
             <input
               id="remember"
@@ -108,7 +108,7 @@ const Login = () => {
             </a>
             .
           </label>
-        </div>
+        </div> */}
         <button
           type="submit"
           onClick={submitForm}

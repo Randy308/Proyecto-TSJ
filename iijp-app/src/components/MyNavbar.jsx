@@ -9,6 +9,7 @@ import { FaUsers } from "react-icons/fa";
 import { RiDashboard2Fill } from "react-icons/ri";
 import { MdLiveHelp } from "react-icons/md";
 import { FaGear } from "react-icons/fa6";
+import { FaUsersGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
 import { useToggleContext, useThemeContext } from "./ThemeProvider";
@@ -155,6 +156,18 @@ const MyNavbar = () => {
                 <span className="flex-1 ms-3 whitespace-nowrap">
                   Resoluciones
                 </span>
+              </NavLink>
+            </li>
+          )}
+
+          {can("crear_roles") && (
+            <li>
+              <NavLink
+                to="/admin/roles"
+                className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+              >
+                <FaUsersGear className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <span className="ms-3">Roles</span>
               </NavLink>
             </li>
           )}

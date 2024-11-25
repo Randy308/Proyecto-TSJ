@@ -12,6 +12,9 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens, HasRoles;
+
+    protected $guard_name = 'sanctum';
+    
     /**
      * The attributes that are mass assignable.
      *
@@ -42,5 +45,5 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    
+
 }

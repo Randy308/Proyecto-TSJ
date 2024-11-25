@@ -64,15 +64,15 @@ class PermissionsSeeder extends Seeder
 
         // Map the permissions to the format required by the Permission model
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
-            return ["name" => $permission, "guard_name" => "web"];
+            return ["name" => $permission, "guard_name" => "sanctum"];
         });
 
         // Insert the permissions into the database
         Permission::insert($permissions->toArray());
 
         // Create roles and assign permissions
-        Role::create(["name" => "admin"])->givePermissionTo(Permission::all());
-        Role::create(["name" => "editor"])->givePermissionTo([
+        Role::create(["name" => "admin", 'guard_name' => 'sanctum'])->givePermissionTo(Permission::all());
+        Role::create(["name" =>"editor", 'guard_name' => 'sanctum'])->givePermissionTo([
             "acceder_resoluciones",
             "subir_resoluciones",
             "actualizar_resoluciones",
@@ -95,7 +95,7 @@ class PermissionsSeeder extends Seeder
             "eliminar_perfil",
             "ver_perfil",
         ]);
-        Role::create(["name" => "user"])->givePermissionTo([
+        Role::create(["name" => "user", 'guard_name' => 'sanctum'])->givePermissionTo([
             "realizar_prediccion",
             "refinar_busqueda",
             "crear_estilos",

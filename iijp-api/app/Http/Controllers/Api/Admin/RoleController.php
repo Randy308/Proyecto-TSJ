@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -28,8 +29,8 @@ class RoleController extends Controller
         $role_name = $request->roleName;
         $role = Role::create(['name' => $role_name]);
 
-
-        $permissions = $request->permissions;
+        $permissions = Permission::find($request->permissions);
+        //$permissions = $request->permissions;
         $role->givePermissionTo($permissions);
 
         return response()->json([
@@ -42,11 +43,13 @@ class RoleController extends Controller
     {
 
         $role = Role::with('permissions')->findOrFail($id);
+        $responseData = [
+            'id' => $role->id,
+            'roleName' => $role->name,
+            'permissions' => $role->permissions->pluck('id'),
+        ];
 
-        return response()->json([
-            'role' => $role,
-            'permissions' => $role->permissions,
-        ], 200);
+        return response()->json($responseData, 200);
     }
 
 
@@ -57,6 +60,7 @@ class RoleController extends Controller
             'roleName' => 'required|string|max:255|unique:roles,name,' . $id,
             'permissions' => 'required|array',
         ]);
+
 
         $role = Role::findOrFail($id);
 

@@ -28,6 +28,9 @@ import "react-toastify/dist/ReactToastify.css";
 import AnalisisSala from "./pages/analisis/AnalisisSala";
 import Usuarios from "./pages/admin/Usuarios";
 import TablaJurisprudenciaCSV from "./pages/datos/TablaJurisprudenciaCSV";
+import WebScrapping from "./pages/datos/WebScrapping";
+import SubirResoluciones from "./pages/datos/SubirResoluciones";
+import ListaRoles from "./pages/admin/Roles/ListaRoles";
 
 function App() {
   return (
@@ -80,9 +83,22 @@ function App() {
             <Route path="/" element={<ProtectedRoutes />}>
               <Route path="/" element={<LayoutAdmin />}>
                 <Route path="/admin" element={<PanelAdmin />} />
+                <Route path="/admin/subir" element={<SubirResoluciones />} />
+                <Route
+                  path="/admin/subir/autos-supremos"
+                  element={<TablaCSV />}
+                />
+                <Route
+                  path="/admin/subir/jurisprudencia"
+                  element={<TablaJurisprudenciaCSV />}
+                />
                 <Route path="/admin/subir" element={<TablaCSV />} />
-                <Route path="/admin/subir-jurisprudencia" element={<TablaJurisprudenciaCSV />} />
+                <Route
+                  path="/admin/subir-automatico"
+                  element={<WebScrapping />}
+                />
                 <Route path="/admin/usuarios" element={<Usuarios />} />
+                <Route path="/admin/roles" element={<ListaRoles />} />
               </Route>
             </Route>
             //rutas user
