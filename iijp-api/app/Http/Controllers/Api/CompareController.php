@@ -24,6 +24,7 @@ class CompareController extends Controller
 
 
     {
+  
         $validator = Validator::make($request->all(), [
             'materia' => 'nullable|string',
             'tipo_jurisprudencia' => 'nullable|string',

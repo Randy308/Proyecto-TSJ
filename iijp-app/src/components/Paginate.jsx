@@ -3,7 +3,7 @@ import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 import { HiDotsHorizontal } from "react-icons/hi";
 import ReactPaginate from "react-paginate";
 
-const Paginate = ({handlePageClick, pageCount}) => {
+const Paginate = ({handlePageClick, pageCount,actualPage}) => {
   return (
     <div>
       <ReactPaginate
@@ -25,6 +25,7 @@ const Paginate = ({handlePageClick, pageCount}) => {
             <BsChevronLeft />
           </span>
         }
+        forcePage={actualPage}
         containerClassName="flex items-center justify-center my-4 gap-1 text-xs"
         pageClassName="block w-10 h-10 flex items-center justify-center border border-gray-300 
             rounded-md text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 dark:border-gray-700"

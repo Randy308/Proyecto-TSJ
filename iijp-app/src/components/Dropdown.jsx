@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
+import { useLocalStorage } from "./useLocalStorage";
+import { useSessionStorage } from "./useSessionStorage";
+import { useNavigate } from "react-router-dom";
 const Dropdown = ({
   item,
-  setActualFormData,
   removeItemById,
   obtenerSerieTemporal,
 }) => {
@@ -15,6 +17,28 @@ const Dropdown = ({
     );
   }
 
+  sessionStorage.removeItem('formData');
+  const [formData, setFormData] = useSessionStorage("formData", {
+    tipo_resolucion: "all",
+    sala: "all",
+    magistrado: "all",
+    departamento: "all",
+    forma_resolucion: "all",
+    tipo_jurisprudencia: "all",
+    materia: "all",
+  });
+  const navigate = useNavigate();
+  const guardar = (item) => {
+    if (typeof item === "object" && item !== null) {
+      
+      const updatedFormData = { ...formData, ...item };
+
+      setFormData(updatedFormData);
+    }
+
+    console.log(item);
+    navigate("/busqueda",{ state: { flag: true } });
+  };
   return (
     <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
       <div className="flex justify-end px-4 pt-4">
@@ -37,7 +61,7 @@ const Dropdown = ({
           <ul className="py-2" aria-labelledby="dropdownButton">
             <li>
               <a
-                onClick={() => setActualFormData(item.detalles)}
+                onClick={() => guardar(item.detalles)}
                 className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >
                 Ver resoluciones

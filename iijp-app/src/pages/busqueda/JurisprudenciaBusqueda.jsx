@@ -10,30 +10,38 @@ import Paginate from "../../components/Paginate";
 import "../../styles/paginate.css";
 import AsyncButton from "../../components/AsyncButton";
 import Select from "../comparar/tabs/Select";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaFilePdf } from "react-icons/fa6";
+import { useSessionStorage } from "../../components/useSessionStorage";
 
 const JurisprudenciaBusqueda = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
-  const [activo, setActivo] = useState(null);
+  const [activo, setActivo] = useState(true);
+  const { state } = useLocation();
+  const { flag } = state || false;
 
-  const [lastPage, setLastPage] = useState(1);
+  const [lastPage, setLastPage] = useSessionStorage("lastPage", 1);
+  const [actualPage, setActualPage] = useSessionStorage("actualPage", 0);
+  const [pageCount, setPageCount] = useSessionStorage("pageCount", 1);
+  const [resoluciones, setResoluciones] = useSessionStorage("resoluciones", []);
 
-  const [resoluciones, setResoluciones] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPDF, setIsLoadingPDF] = useState(false);
-  const [hasFetchedData, setHasFetchedData] = useState(false);
 
-  const [data, setData] = useState(null);
+  const [data, setData] = useSessionStorage("data", {});
+  const [hasFetchedData, setHasFetchedData] = useSessionStorage(
+    "hasFetchedData",
+    false
+  );
 
   const [actualFormData, setActualFormData] = useState(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useSessionStorage("formData", {
     tipo_resolucion: "all",
     sala: "all",
-    departamento: "all",
     magistrado: "all",
+    departamento: "all",
     forma_resolucion: "all",
     tipo_jurisprudencia: "all",
     materia: "all",
@@ -43,20 +51,20 @@ const JurisprudenciaBusqueda = () => {
 
   const navigate = useNavigate();
 
-  const [pageCount, setPageCount] = useState(1);
-
   const setParams = (name, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
+    const updatedFormData = {
+      ...formData,
       [name]: value,
-    }));
+    };
+
+    setFormData(updatedFormData);
   };
 
   const removeParam = (name) => {
-    setFormData((prevData) => {
-      const { [name]: _, ...rest } = prevData;
-      return rest;
-    });
+    const updatedFormData = { ...formData };
+    delete updatedFormData[name];
+
+    setFormData(updatedFormData);
   };
 
   const cambiarFechaExacta = (event) => {
@@ -79,7 +87,7 @@ const JurisprudenciaBusqueda = () => {
 
   const limpiarFiltros = () => {
     setTexto("");
-    setFormData({
+    updatedFormData = {
       tipo_resolucion: "all",
       sala: "all",
       magistrado: "all",
@@ -87,11 +95,14 @@ const JurisprudenciaBusqueda = () => {
       forma_resolucion: "all",
       tipo_jurisprudencia: "all",
       materia: "all",
-    });
+    };
+
+    setFormData(updatedFormData);
   };
 
   const handlePageClick = (e) => {
     const selectedPage = Math.min(e.selected + 1, lastPage);
+    setActualPage(e.selected);
     obtenerResoluciones(selectedPage);
   };
 
@@ -121,7 +132,6 @@ const JurisprudenciaBusqueda = () => {
     try {
       setIsLoading(true);
 
-      // Ensure 'page' is a valid number, defaulting to 1 if it's not
       const validPage = page && !isNaN(page) && page > 0 ? page : 1;
 
       const filteredData = Object.fromEntries(
@@ -197,37 +207,64 @@ const JurisprudenciaBusqueda = () => {
     }
   };
 
+  useEffect(() => {
+    if (flag) {
+      obtenerResoluciones(1);
+    }
+  }, []);
+
   return (
     <div className="container mx-auto">
-      <div className="p-4">
-        <p className="m-4 p-4 text-center font-bold text-2xl titulo">
+      <div className="row p-4">
+        {/* <p className="m-4 p-4 text-center font-bold text-2xl titulo">
           Análisis Avanzado
-        </p>
-        <div className="flex flex-col bg-white dark:bg-gray-700 rounded-lg border border-slate-400">
-          <div className="bg-[#7C3145] dark:bg-gray-900 p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
+        </p> */}
+        <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
+          {/* <div className="bg-[#7C3145] dark:bg-gray-900 p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
             <FaFilter></FaFilter> <p>Campos de filtrado</p>
-          </div>
+          </div> */}
 
-          <div className="relative mx-5 my-3">
-            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-              <ImSearch className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          <div className="w-full p-4 text-center bg-white rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
+            <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400 m-4">
+              <li className="w-full focus-within:z-10">
+                <Link
+                  to="/comparar-datos"
+                  className="inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+                >
+                  Series Temporales
+                </Link>
+              </li>
+              <li className="w-full focus-within:z-10">
+                <a
+                  to="/comparar-datos"
+                  className="inline-block w-full p-4 text-gray-900 bg-gray-100 border-r border-gray-200 dark:border-gray-700 rounded-s-lg focus:ring-4 focus:ring-blue-300 active focus:outline-none dark:bg-gray-700 dark:text-white"
+                  aria-current="page"
+                >
+                  Busqueda de Resoluciones
+                </a>
+              </li>
+            </ul>
+            <div className="mx-5 my-3 flex gap-4 text-gray-900 rounded-lg bg-gray-50 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white border border-gray-300 dark:border-gray-600">
+              <input
+                type="search"
+                value={texto}
+                onChange={actualizarInput}
+                id="default-search"
+                className="block w-full p-4 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
+                placeholder="Buscar por termino de busqueda..."
+                required
+              />
+              <div className="inset-y-0 start-0 flex items-center pe-3 pointer-events-none">
+                <ImSearch className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              </div>
             </div>
-            <input
-              type="search"
-              value={texto}
-              onChange={actualizarInput}
-              id="default-search"
-              className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
-              placeholder="Buscar por termino de busqueda..."
-              required
-            />
           </div>
 
           <div
-            id="filtrosEvento"
-            className={`p-4 m-4 ${activo === true ? " " : "FiltroInvisible"}`}
+          
+            className={`p-4 m-4 ${activo ? " " : "hidden"}`}
           >
-            <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data &&
                 Object.entries(data).map(([key, items]) => (
                   <Select
@@ -321,6 +358,7 @@ const JurisprudenciaBusqueda = () => {
             <Paginate
               handlePageClick={handlePageClick}
               pageCount={pageCount}
+              actualPage={actualPage}
             ></Paginate>
           </>
         )}

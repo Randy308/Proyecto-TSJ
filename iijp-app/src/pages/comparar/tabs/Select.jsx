@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 
 const Select = ({ fieldName, items, setFormData, formData }) => {
-  const [selectedTipo, setSelectedTipo] = useState("all");
+  const [selectedTipo, setSelectedTipo] = useState(formData[fieldName] || "all");
 
   useEffect(() => {
     const setParametros = (name, value) => {
-      setFormData((prevData) => ({
-        ...prevData,
+      const updatedFormData = {
+        ...formData,
         [name]: value,
-      }));
+      };
+
+      setFormData(updatedFormData);
     };
 
     setParametros(fieldName, selectedTipo);
-  }, [selectedTipo, setFormData, fieldName]);
+  }, [selectedTipo, fieldName]);
 
   const cambiarOpcion = (event) => {
     setSelectedTipo(event.target.value);
@@ -20,8 +22,8 @@ const Select = ({ fieldName, items, setFormData, formData }) => {
 
   const convertirTitulo = (name) => {
     return String(name)
-      .replace(/_/g, " ") 
-      .replace(/\b\w/g, (char) => char.toUpperCase()); 
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   };
   useEffect(() => {
     if (formData[fieldName] === "all") {
@@ -29,10 +31,10 @@ const Select = ({ fieldName, items, setFormData, formData }) => {
     }
   }, [formData, fieldName]);
   return (
-    <div className="max-w-sm">
+    <div className="full-w">
       <label
         htmlFor={fieldName}
-        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white text-start"
       >
         Filtrar por {convertirTitulo(fieldName)}:
       </label>

@@ -3,10 +3,10 @@ export const comparacionItems = [
     id: 1,
     title: "Series Temporales",
   },
-  {
-    id: 2,
-    title: "Busqueda de resoluciones",
-  },
+  // {
+  //   id: 2,
+  //   title: "Busqueda de resoluciones",
+  // },
   {
     id: 3,
     title: "Analisis de datos",

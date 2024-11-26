@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/tabla.css";
 import Cabecera from "../../components/Cabecera";
+import { Link } from "react-router-dom";
 const PaginationData = ({ data, setFormData, resumen=false }) => {
   const listaCabeceras = [
     {
@@ -77,14 +78,13 @@ const PaginationData = ({ data, setFormData, resumen=false }) => {
               <td className="px-6 py-4">{item.sala}</td>
               {resumen && <td className="px-6 py-4">{item.resumen}</td>}
               <td className="px-6 py-4">
-                <a
-                  href={`http://localhost:3000/jurisprudencia/resolucion/${item.id}`}
-                  target="_blank"
+                <Link
+                  to={`/jurisprudencia/resolucion/${item.id}`}
                   rel="noopener noreferrer"
                   className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                 >
                   Ver resolución
-                </a>
+                </Link>
               </td>
             </tr>
           ))}

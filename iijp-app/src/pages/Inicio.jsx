@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { FaMagnifyingGlassChart } from "react-icons/fa6";
 import { FaChartPie } from "react-icons/fa";
 import "../styles/inicio.css";
+// "baseUrl": ".",
+// "paths": {
+//   "@/*": ["./src/*"]
+// }
 const Inicio = () => {
   const tarjetas = [
     {
@@ -17,10 +21,10 @@ const Inicio = () => {
     },
   ];
   return (
-    <div className="flex p-4 m-4 justify-center items-center custom:flex-col gap-3 text-black dark:text-white">
-      <div>
+    <div className="flex flex-row  flex-wrap p-4 m-4 custom:p-0 justify-center items-center custom:flex-col gap-3 text-black dark:text-white">
+      <div className="p-4 grow-0">
         <p className="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-2xl lg:text-2xl dark:text-white">Sistemas Gestión y Analisis de Metricas de la Justicia Ordinaria</p>
-        <div className="mb-6 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-16 dark:text-gray-400">
+        <div className="mb-4 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400 max-w-[700px] text-justify custom:max-w-none">
           A través de este sistema web, se facilita el análisis de los Autos
           Supremos y otras resoluciones del Tribunal Supremo de Justicia,
           proporcionando una herramienta para organizar y comprender datos
@@ -30,8 +34,8 @@ const Inicio = () => {
           Bolivia. 
         </div>
       </div>
-      <div>
-        <p className="inline-flex items-center text-lg text-black dark:text-white">Enlaces de interés</p>
+      <div className="p-4 grow flex flex-col items-center">
+        <p className="inline-flex items-center text-start mb-4 text-lg text-black dark:text-white">Enlaces de interés</p>
         <div className="flex gap-4 justify-center card-container custom:flex-col text-black dark:text-white">
           {tarjetas.map((tarjeta) => {
             return (

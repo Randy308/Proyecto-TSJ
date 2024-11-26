@@ -5,36 +5,46 @@ import axios from "axios";
 import "../../styles/paginate.css";
 import Loading from "../../components/Loading";
 import { comparacionItems } from "../../data/ComparacionItems";
-import ResolucionesTab from "./tabs/ResolucionesTab";
 import Dropdown from "../../components/Dropdown";
 import Select from "./tabs/Select";
 import SimpleChart from "../../components/SimpleChart";
 import Prediccion from "./tabs/Prediccion";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
+import { Link } from "react-router-dom";
+import { useSessionStorage } from "../../components/useSessionStorage";
 const CompararDatos = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState(null);
-  const [limiteSuperior, setLimiteSuperior] = useState(null);
-  const [limiteInferior, setLimiteInferior] = useState(null);
+  const [limiteSuperior, setLimiteSuperior] = useSessionStorage(
+    "limiteSuperior",
+    ""
+  );
+  const [limiteInferior, setLimiteInferior] = useSessionStorage(
+    "limiteInferior",
+    ""
+  );
   const [numeroBusqueda, setNumeroBusqueda] = useState(1);
-  const [cabeceras, setCabeceras] = useState(null);
 
-  const [hasFetchedDates, setHasFetchedDates] = useState(false);
+  const [hasFetchedDates, setHasFetchedDates] = useSessionStorage(
+    "hasFetchedDates",
+    false
+  );
 
-  const [hasFetchedData, setHasFetchedData] = useState(false);
+  const [data, setData] = useSessionStorage("data", {});
+  const [hasFetchedData, setHasFetchedData] = useSessionStorage(
+    "hasFetchedData",
+    false
+  );
 
   const [terminos, setTerminos] = useState([]);
-
-  const [data, setData] = useState(null);
 
   const [timeSeries, setTimeSeries] = useState(null);
   const [proyeccion, setProyeccion] = useState(null);
 
   const [option, setOption] = useState({});
-  const [busqueda, setBusqueda] = useState([]);
-  const [actualFormData, setActualFormData] = useState(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     tipo_resolucion: "all",
@@ -108,27 +118,21 @@ const CompararDatos = () => {
         xAxis: {
           type: "time",
           boundaryGap: false,
-          data: cabeceras,
         },
         yAxis: {
           type: "value",
         },
         series: resoluciones.map((item) => item),
         grid: {
-          top: "10%", // Adjust top padding
-          bottom: "10%", // Adjust bottom padding
-          left: "10%", // Adjust left padding
-          right: "10%", // Adjust right padding
+          top: "10%", 
+          bottom: "10%", 
+          left: "10%", 
+          right: "10%", 
         },
       });
     }
   }, [resoluciones]);
 
-  useEffect(() => {
-    if (actualFormData) {
-      realizarBusqueda(1);
-    }
-  }, [actualFormData]);
 
   const obtenerResoluciones = async () => {
     try {
@@ -173,14 +177,14 @@ const CompararDatos = () => {
   };
 
   const obtenerSerieTemporal = (id) => {
-    // Find the item by id
+    
     const item = resoluciones.find((item) => item.id === id);
 
-    // If the item is found, set the data, otherwise set an empty array or handle the error
+    
     if (item) {
       setTimeSeries(item.data);
     } else {
-      setTimeSeries([]); // Or handle as needed, e.g., show an error message
+      setTimeSeries([]);
     }
   };
 
@@ -205,31 +209,16 @@ const CompararDatos = () => {
     });
   };
 
-  const realizarBusqueda = async (page) => {
-    try {
-      const { data } = await axios.get(`${endpoint}/buscar-resoluciones`, {
-        params: {
-          ...actualFormData,
-          page: page,
-        },
-      });
-      setBusqueda(data);
-      console.log(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
 
-  const realizarProyeccion = async (page) => {
+
+  const realizarProyeccion = async () => {
     try {
       const { data } = await axios.get(`${endpoint}/realizar-prediccion`, {
         params: {
           data: timeSeries,
-          periodo: cabeceras,
         },
       });
       setProyeccion(data);
-      console.log(data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -259,20 +248,6 @@ const CompararDatos = () => {
             )}
           </>
         );
-      case 2:
-        return (
-          <>
-            {actualFormData ? (
-              <ResolucionesTab
-                setActualFormData={setActualFormData}
-                data={busqueda}
-                realizarBusqueda={realizarBusqueda}
-              />
-            ) : (
-              <p className="text-gray-500 dark:text-white">No existen datos</p>
-            )}
-          </>
-        );
       case 3:
         return (
           <>
@@ -291,24 +266,40 @@ const CompararDatos = () => {
   };
 
   return (
-    <div
-      className="md:container mx-auto px-40 custom:px-0"
-      id="jurisprudencia-busqueda"
-    >
+    <div className="container mx-auto custom:px-0" id="jurisprudencia-busqueda">
       <div className="row p-4">
         <div className="flex flex-col bg-white dark:bg-[#111827] rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
-          <div className="custom-gradient p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
+          {/* <div className="custom-gradient p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
             <FaFilter></FaFilter> <p>Campos de filtrado</p>
-          </div>
+          </div> */}
 
           <div className="w-full p-4 text-center bg-white border border-gray-200 rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
-            <h5 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
+            <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400 m-4">
+              <li className="w-full focus-within:z-10">
+                <a
+                  className="inline-block w-full p-4 text-gray-900 bg-gray-100 border-r border-gray-200 dark:border-gray-700 rounded-s-lg focus:ring-4 focus:ring-blue-300 active focus:outline-none dark:bg-gray-700 dark:text-white"
+                  aria-current="page"
+                >
+                  Series Temporales
+                </a>
+              </li>
+              <li className="w-full focus-within:z-10">
+                <Link
+                  to="/busqueda"
+                  className="inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+                >
+                  Busqueda de Resoluciones
+                </Link>
+              </li>
+            </ul>
+
+            {/* <h5 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
               Análisis de datos
             </h5>
             <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
               Comparación de datos atreves del tiempo.
-            </p>
-            <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+            </p> */}
+            <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data &&
                 Object.entries(data).map(([key, items]) => (
                   <Select
@@ -349,7 +340,6 @@ const CompararDatos = () => {
               obtenerSerieTemporal={obtenerSerieTemporal}
               item={item}
               removeItemById={removeItemById}
-              setActualFormData={setActualFormData}
             />
           ))}
       </div>

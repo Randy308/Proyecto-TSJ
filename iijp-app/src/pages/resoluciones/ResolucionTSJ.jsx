@@ -73,7 +73,7 @@ const ResolucionTSJ = () => {
             <div className="p-4 text-center bg-[#561427] text-white ">
               <p className="flex flex-row gap-4 justify-center items-center">
                 <button
-                  onClick={() => navigate("/Jurisprudencia/Busqueda")}
+                  onClick={() => navigate("/busqueda")}
                   className="hover:text-gray-400"
                 >
                   {" "}
