@@ -181,7 +181,7 @@ const ListaSalas = () => {
               <button
                 type="button"
                 onClick={() => setSelectedIds([])}
-                className="inline-flex items-center text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-3 text-center"
+                className="inline-flex items-center text-white bg-gradient-to-r bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-3 text-center"
               >
                 <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
                 <span>Limpiar</span>
@@ -214,7 +214,7 @@ const ListaSalas = () => {
                 <button
                   onClick={() => setActual((prev) => !prev)}
                   type="button"
-                  className="w-full mt-2 text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                  className="w-full mt-2 text-white bg-gradient-to-r dark:from-blue-700 dark:to-blue-800 from-red-octopus-500 to-secondary hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
                 >
                   {actual ? "Mostrar Tabla " : "Mostrar Grafico"}
                 </button>

@@ -8,6 +8,8 @@ use DateTime;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use InvalidArgumentException;
 use PhpArima\ArimaModel;
 use PhpArima\ArmaMath;
 use PhpArima\TimeSeries;
@@ -181,16 +183,193 @@ class ArimaController extends Controller
     }
 
 
+    public function obtenerSerieTemporal(Request $request)
+
+
+    {
+
+        $validator = Validator::make($request->all(), [
+            'materia' => 'nullable|string',
+            'tipo_jurisprudencia' => 'nullable|string',
+            'tipo_resolucion' => [
+                'nullable',
+                'integer',
+            ],
+            'sala' => [
+                'nullable',
+                'integer',
+            ],
+            'departamento' => [
+                'nullable',
+                'integer',
+            ],
+            'magistrado' => [
+                'nullable',
+                'integer',
+            ],
+            'forma_resolucion' => [
+                'nullable',
+                'integer',
+            ],
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $fecha_final = $request->input('fecha_final');
+        $fecha_inicial = $request->input('fecha_inicial');
+        $intervalo = $request->input('intervalo');
+
+        $intervalo = "quarter";
+        $validIntervals = ['day', 'month', 'year', 'week', 'quarter'];
+        if (!in_array($intervalo, $validIntervals)) {
+            throw new InvalidArgumentException("Invalid interval specified.");
+        }
+
+        $query = DB::table('resolutions AS r')
+            ->selectRaw('COUNT(r.id) AS cantidad');
+
+        switch ($intervalo) {
+            case 'day':
+                $query->selectRaw('DATE(r.fecha_emision) AS periodo');
+                $query->groupBy(DB::raw('DATE(r.fecha_emision)'));
+                $query->orderBy(DB::raw('DATE(r.fecha_emision)'));
+                break;
+            case 'week':
+                $query->selectRaw('DATE_TRUNC(\'week\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
+                break;
+            case 'month':
+                $query->selectRaw('DATE_TRUNC(\'month\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
+                break;
+            case 'quarter':
+
+                $query->selectRaw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
+                break;
+            case 'year':
+
+                $query->selectRaw('DATE_TRUNC(\'year\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
+                break;
+        }
+
+
+        if ($request->has('limite')) {
+            $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 2005');
+        }
+        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 1999');
+        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) < 2025');
+        if ($request->has('magistrado')) {
+            $query->where('r.magistrado_id', $request->magistrado);
+        }
+        if ($request->has('forma_resolucion')) {
+            $query->where('r.forma_resolucion_id', $request->forma_resolucion);
+        }
+        if ($request->has('tipo_resolucion')) {
+            $query->where('r.tipo_resolucion_id', $request->tipo_resolucion);
+        }
+        if ($request->has('sala')) {
+            $query->where('r.sala_id', $request->sala);
+        }
+        if ($request->has('departamento')) {
+            $query->where('r.departamento_id', $request->departamento);
+        }
+
+        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
+            $tipo_jurisprudencia = $request->tipo_jurisprudencia ?? 'all';
+            $materia = $request->materia ?? 'all';
+
+            $query->join(DB::raw("(SELECT resolution_id FROM jurisprudencias
+            WHERE ('{$tipo_jurisprudencia}' = 'all' OR tipo_jurisprudencia = '{$tipo_jurisprudencia}')
+            AND ('{$materia}' = 'all' OR descriptor LIKE '{$materia}%')) AS j"), 'j.resolution_id', '=', 'r.id');
+        }
+
+        $resolutions = $query->get();
+
+        $cantidad = $resolutions->pluck('cantidad')->toArray();
+        $periodo = $resolutions->pluck('periodo')->toArray();
+        sort($periodo);
+
+        $intervalMap = [
+            'day' => 'P1D',
+            'week' => 'P7D',
+            'month' => 'P1M',
+            'quarter' => 'P3M',
+            'year' => 'P1Y',
+        ];
+
+        $intervalo = $intervalMap[$intervalo] ?? null;
+
+        if ($intervalo) {
+            $inicio = new DateTime(reset($periodo));
+            $fin = new DateTime(end($periodo));
+            $rangoFechas = [];
+            $resultado = [];
+
+            while ($inicio <= $fin) {
+                $rangoFechas[] = $inicio->format('Y-m-d');
+                $inicio->add(new DateInterval($intervalo));
+            }
+
+            foreach ($rangoFechas as $fecha) {
+                $key = array_search($fecha, $periodo);
+                if ($key !== false) {
+                    $resultado[] = [
+                        'periodo' => $fecha,
+                        'cantidad' => $cantidad[$key],
+                    ];
+                } else {
+                    $resultado[] = [
+                        'periodo' => $fecha,
+                        'cantidad' => 0,
+                    ];
+                }
+            }
+        }
+
+        $periodoCompleto = array_column($resultado, 'periodo');
+        $cantidadCompleta = array_column($resultado, 'cantidad');
+
+        $window = 4;
+        return [
+            'cantidad' => $cantidadCompleta,
+            'periodo' => $periodoCompleto,
+            'window' => $window,
+            'prediccion' => 3,
+        ];
+    }
+
+
+    public function crearMatrix($resolutions){
+        $result = $resolutions->map(function ($item) {
+            return [$item->periodo, $item->cantidad];
+        })->toArray();
+        return $result;
+    }
+
     public function realizar_prediccion(Request $request)
     {
 
-        $data = array_map('intval', $request->data);
-
-        $window = 12;
+        $serie_temporal =  ArimaController::obtenerSerieTemporal($request);
+        //return $serie_temporal;
+        $data = array_map('intval', $serie_temporal['cantidad']);
+        $periodos = $serie_temporal['periodo'];
+        $window = $serie_temporal['window'];
+        $cantidad_predecir = $serie_temporal['prediccion'];
 
         $media_movil = ArimaController::calcularMediaMovil($data, $window);
         $media_movil = ArimaController::modificarClaves($media_movil, $window);
-        // Aplicar media móvil centralizada
+
         $centered_window = $window % 2 == 0 ? 2 : 3;
         $media_movil_centrada = ArimaController::calcularMediaMovil($media_movil, $centered_window);
         $media_movil_centrada = ArimaController::modificarClaves($media_movil_centrada, $centered_window);
@@ -200,30 +379,52 @@ class ArimaController extends Controller
 
         $regresion_lineal = new RegresionLineal;
         $regresion = $regresion_lineal->regresion_lineal($data);
+
         $a = $regresion['a'];
         $b = $regresion['b'];
 
-        $y_pred = $regresion_lineal->get_predicted_array_completed($data, $a, $b, $window);
+        $y_pred = $regresion_lineal->get_predicted_array_completed($data, $a, $b, $cantidad_predecir);
 
-        $periodos = $request->periodo;
 
-        // Convertir la última fecha de $periodos a un objeto DateTime
         $lastDate = new DateTime(end($periodos));
 
-        // Calcular la diferencia de longitud entre $periodos y $y_pred
         $missingPeriods = count($y_pred) - count($periodos);
 
-        // Agregar los periodos faltantes
-        for ($i = 0; $i < $missingPeriods; $i++) {
-            $lastDate->add(new DateInterval("P1M")); // Añadir un mes manteniendo el día original
-            $periodos[] = $lastDate->format('Y-m-d'); // Agregar la nueva fecha al array $periodos con el mismo día
+        if (!empty($periodos)) {
+            // Calcular la variación entre los periodos
+            foreach ($periodos as $key => $value) {
+                if (isset($periodos[$key + 1])) {
+                    $fechaActual = new DateTime($value);
+                    $fechaSiguiente = new DateTime($periodos[$key + 1]);
+
+                    // Calcular la diferencia en meses
+                    $diff = $fechaActual->diff($fechaSiguiente);
+                    $variacion[$key] = $diff->m + ($diff->y * 12); // Meses totales
+                }
+            }
+
+            // Comprobar si todas las variaciones son iguales
+            $intervaloConsistente = count(array_unique($variacion)) === 1 ? $variacion[0] : null;
+
+            if ($intervaloConsistente !== null) {
+                // Convertir la última fecha en `periodos` a un objeto DateTime
+                $lastDate = new DateTime(end($periodos));
+
+                // Agregar las fechas faltantes según el intervalo consistente
+                for ($i = 0; $i < $missingPeriods; $i++) {
+                    $lastDate->add(new DateInterval("P{$intervaloConsistente}M"));
+                    $periodos[] = $lastDate->format('Y-m-d');
+                }
+            } else {
+                throw new Exception("Los intervalos entre periodos no son consistentes.");
+            }
         }
 
         $y_pred_multiplied = [];
         $indices_count = count($indices);
 
         for ($i = 0; $i < count($y_pred); $i++) {
-            // Use modulo to loop through indices if $y_pred is larger than $indices
+
             $index = $indices[$i % $indices_count];
             $y_pred_multiplied[$i] = ceil($y_pred[$i] * $index);
         }
@@ -235,7 +436,6 @@ class ArimaController extends Controller
             'Media movil centrada' => $media_movil_centrada,
             'Indices Estacionarios' => $indices
         ], 200);
-        // Imprimir el resultado
     }
 
     public function test_arima()

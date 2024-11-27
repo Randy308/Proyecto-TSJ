@@ -260,10 +260,7 @@ const JurisprudenciaBusqueda = () => {
             </div>
           </div>
 
-          <div
-          
-            className={`p-4 m-4 ${activo ? " " : "hidden"}`}
-          >
+          <div className={`p-4 m-4 ${activo ? " " : "hidden"}`}>
             <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data &&
                 Object.entries(data).map(([key, items]) => (
@@ -328,7 +325,7 @@ const JurisprudenciaBusqueda = () => {
             <button
               type="button"
               onClick={() => limpiarFiltros()}
-              className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 rounded-lg text-center  dark:focus:ring-blue-800"
             >
               <MdCleaningServices className="w-3.5 h-3.5 text-white me-2" />
               Limpiar
@@ -337,10 +334,10 @@ const JurisprudenciaBusqueda = () => {
             <button
               type="button"
               onClick={() => setActivo((prev) => !prev)}
-              className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 rounded-lg text-center  dark:focus:ring-blue-800"
             >
               <FaFilter className="w-3.5 h-3.5 text-white me-2" />
-              Ocultar
+              {activo ? "Ocultar" : "Mostrar"}
             </button>
           </div>
         </div>

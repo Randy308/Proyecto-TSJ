@@ -24,7 +24,7 @@ class CompareController extends Controller
 
 
     {
-  
+
         $validator = Validator::make($request->all(), [
             'materia' => 'nullable|string',
             'tipo_jurisprudencia' => 'nullable|string',
@@ -62,11 +62,7 @@ class CompareController extends Controller
         $intervalo = $request->input('intervalo');
         $numero_busqueda = $request->input('numero_busqueda');
 
-        $intervalo = "year";
-        $validIntervals = ['day', 'month', 'year', 'week', 'quarter'];
-        if (!in_array($intervalo, $validIntervals)) {
-            throw new InvalidArgumentException("Invalid interval specified.");
-        }
+        $intervalo = "quarter";
 
         $validIntervals = ['day', 'week', 'month', 'quarter', 'year'];
 

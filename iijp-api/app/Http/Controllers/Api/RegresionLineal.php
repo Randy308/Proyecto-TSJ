@@ -83,13 +83,15 @@ class RegresionLineal extends Controller
     {
         $pred = [];
 
-
-        foreach ($x as $key => $value) {
-            $pred[$key] = $a + $b * $value;
-        }
-
         $n = count($x);
-        $next_multiple = ceil($n / $periodo) * $periodo;
+        for ($value = 0; $value < $n; $value++) {
+            $pred[$value] = $a + $b  * ($value + 1);
+        }
+        // foreach ($x as $key => $value) {
+        //     $pred[$key] = $a + $b * $value;
+        // }
+
+        $next_multiple = $n + $periodo;
 
         for ($i = $n; $i < $next_multiple; $i++) {
             $pred[$i] = $a + $b * ($i + 1);
@@ -97,6 +99,7 @@ class RegresionLineal extends Controller
 
         return $pred;
     }
+
 
 
     public function test_reg()

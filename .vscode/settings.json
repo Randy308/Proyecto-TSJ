@@ -8,5 +8,6 @@
     "description": "@while...@endwhile",
     "disabled": false,
     "snippet": "@while (${1:condition}) \n\t$TM_SELECTED_TEXT\n@endwhile$0"
-  }
+  },
+  "terminal.integrated.fontWeightBold": "bold"
 }

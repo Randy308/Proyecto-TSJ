@@ -5,6 +5,16 @@ const CronologiasResultados = () => {
   const location = useLocation();
   const [pdfUrl, setPdfUrl] = useState(null);
 
+  const generateFilename = () => {
+    const now = new Date();
+    const formattedDate = now
+      .toISOString()
+      .replace(/T/, "_")
+      .replace(/:/g, "-")
+      .split(".")[0];
+    return `cronología_jurídica_${formattedDate}.pdf`;
+  };
+
   useEffect(() => {
     if (location.state?.pdfUrl) {
       setPdfUrl(location.state.pdfUrl);
@@ -28,7 +38,7 @@ const CronologiasResultados = () => {
           <div>
             <a
               href={pdfUrl}
-              download="prueba.pdf"
+              download={generateFilename()}
               className="p-4 m-4 bg-blue-600 rounded-lg text-white"
             >
               Descargar PDF

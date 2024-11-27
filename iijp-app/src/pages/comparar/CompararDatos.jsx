@@ -94,7 +94,7 @@ const CompararDatos = () => {
     if (resoluciones) {
       setOption({
         title: {
-          text: "Interés a lo largo del tiempo",
+          text: "Cantidad de resoluciones a lo largo del tiempo",
           padding: [20, 20, 10, 20],
         },
         tooltip: {
@@ -156,7 +156,6 @@ const CompararDatos = () => {
           ...filteredData,
         },
       });
-      console.log(data);
       if (data.resoluciones.data.length > 0) {
         setNumeroBusqueda((prev) => prev + 1);
         setResoluciones((prev) =>
@@ -166,6 +165,8 @@ const CompararDatos = () => {
         setTerminos((prev) =>
           prev.length > 0 ? [...prev, data.termino] : [data.termino]
         );
+
+        limpiarFiltros();
       } else {
         alert("No existen datos");
       }
@@ -176,16 +177,9 @@ const CompararDatos = () => {
     }
   };
 
-  const obtenerSerieTemporal = (id) => {
+  const obtenerSerieTemporal = (item) => {
     
-    const item = resoluciones.find((item) => item.id === id);
-
-    
-    if (item) {
-      setTimeSeries(item.data);
-    } else {
-      setTimeSeries([]);
-    }
+    console.log(item.detalles);
   };
 
   const removeItemById = (id) => {
@@ -211,11 +205,11 @@ const CompararDatos = () => {
 
 
 
-  const realizarProyeccion = async () => {
+  const realizarProyeccion = async (data) => {
     try {
       const { data } = await axios.get(`${endpoint}/realizar-prediccion`, {
         params: {
-          data: timeSeries,
+          ...data,
         },
       });
       setProyeccion(data);
@@ -224,15 +218,6 @@ const CompararDatos = () => {
     }
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
-
-  useEffect(() => {
-    if (timeSeries && timeSeries.length > 0) {
-      realizarProyeccion();
-    }
-  }, [timeSeries]);
 
   const renderContent = (number) => {
     switch (number) {
@@ -288,7 +273,7 @@ const CompararDatos = () => {
                   to="/busqueda"
                   className="inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
                 >
-                  Busqueda de Resoluciones
+                  Búsqueda de Resoluciones
                 </Link>
               </li>
             </ul>
@@ -320,7 +305,7 @@ const CompararDatos = () => {
                 />
               </div>
               <button
-                className="inline-flex items-center px-4 py-3 rounded-lg text-xs bg-blue-500 hover:bg-blue-800 text-white"
+                className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 rounded-lg text-center  dark:focus:ring-blue-800"
                 onClick={limpiarFiltros}
               >
                 <MdCleaningServices className="fill-current w-4 h-4 mr-2" />

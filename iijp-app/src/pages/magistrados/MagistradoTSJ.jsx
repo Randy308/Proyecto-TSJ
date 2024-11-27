@@ -196,11 +196,11 @@ const MagistradoTSJ = () => {
     <div className="container mx-auto border border-gray-300 rounded-lg p-4 mt-4 ">
       <div className="flex flex-row gap-4 p-4">
         <div className="flex justify-end">
-          <ImUserTie className="w-20 h-20 p-4 dark:text-white border border-gray-200 dark:border-gray-700 rounded-lg" />
+          <ImUserTie className="w-[120px] h-[120px] custom:w-[90px] custom:h-[90px] dark:text-white rounded-lg" />
         </div>
         <div>
           <span
-            className="bg-blue-100 text-blue-800 text-md font-semibold px-2.5 
+            className="bg-red-octopus-50 text-red-octopus-900 text-md font-semibold px-2.5 
           py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ms-3 mb-4"
           >
             Magistrado
@@ -214,7 +214,7 @@ const MagistradoTSJ = () => {
 
       <div className="border-b border-gray-200 dark:border-gray-700">
         <ul className="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-          {magistradoItems.map((item ,index) => (
+          {magistradoItems.map((item, index) => (
             <li key={index} className="me-2">
               <a
                 href="#"
@@ -243,10 +243,7 @@ const MagistradoTSJ = () => {
           {magistradoItems.map(
             (item) =>
               item.id === activeTab && (
-                <div key={item.id}>
-                  
-                  {renderContent(item.id)}
-                </div>
+                <div key={item.id}>{renderContent(item.id)}</div>
               )
           )}
         </div>

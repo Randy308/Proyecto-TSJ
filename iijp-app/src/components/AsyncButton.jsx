@@ -18,12 +18,12 @@ const AsyncButton = ({
       }rounded-lg font-medium ${
         isLoading
           ? "text-gray-900 bg-white cursor-not-allowed"
-          : "text-white bg-blue-700 active dark:bg-blue-600 hover:bg-blue-800 text-xs"
+          : "text-white  active bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 text-xs"
       }`}
       disabled={isLoading}
     >
       {isLoading ? (
-        <CgSpinner className="inline w-5 h-5 me-3 text-blue-500 animate-spin dark:text-gray-600" />
+        <CgSpinner className="inline w-5 h-5 me-3 text-red-octopus-500 animate-spin dark:text-gray-600" />
       ) : (
         <Icon className="fill-current w-4 h-4 mr-2" />
       )}

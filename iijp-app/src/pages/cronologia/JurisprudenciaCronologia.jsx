@@ -207,7 +207,7 @@ const JurisprudenciaCronologia = () => {
                 href="#"
                 className={`inline-flex items-center px-4 py-3 rounded-lg w-full ${
                   item.id == tabActivo
-                    ? "text-white bg-blue-700  active dark:bg-blue-600"
+                    ? "text-white bg-red-octopus-500  active dark:bg-blue-600"
                     : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
                 }`}
                 aria-current="page"
