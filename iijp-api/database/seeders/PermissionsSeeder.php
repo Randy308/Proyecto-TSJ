@@ -33,7 +33,11 @@ class PermissionsSeeder extends Seeder
             "eliminar_roles",
             "actualizar_roles",
             "ver_roles",
+            "ver_rol",
+            "ver_usuario",
+            "web_scrapping",
             "asignar_permisos",
+            "dashboard",
             "quitar_permisos",
             //Codificador
             "acceder_resoluciones",

@@ -5,10 +5,21 @@ import axios from "axios";
 import UserService from "../../services/UserService";
 import Loading from "../../components/Loading";
 const VerUsuario = ({ id, setCounter }) => {
-  const { getToken } = AuthUser();
+  const { getToken ,can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const token = getToken();
   const [formData, setFormData] = useState([]);
 
+  useEffect(() => {
+    if (!can("ver_usuario")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
+  
   useEffect(() => {
     UserService.getUser(id,token)
       .then(({ data }) => {

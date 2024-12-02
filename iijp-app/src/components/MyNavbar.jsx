@@ -23,6 +23,7 @@ const MyNavbar = () => {
   const ajustesRef = useRef(null);
   const listaRef = useRef(null);
   const toggleContext = useToggleContext();
+  const { getToken, getLogout, can } = AuthUser();
 
   const [timer, setTimer] = useState(null);
 
@@ -100,7 +101,6 @@ const MyNavbar = () => {
   useEffect(() => {
     handleShowList();
   }, []);
-  const { getToken, getLogout, rol, can } = AuthUser();
 
   const logoutUser = async () => {
     await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
@@ -137,7 +137,7 @@ const MyNavbar = () => {
           {can("ver_usuarios") && (
             <li>
               <NavLink
-                to="/admin/usuarios"
+                to="/usuarios"
                 className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
               >
                 <FaUsers className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
@@ -149,7 +149,7 @@ const MyNavbar = () => {
           {can("acceder_resoluciones") && (
             <li>
               <NavLink
-                to="/admin/subir"
+                to="/subir-resoluciones"
                 className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
               >
                 <FaDatabase className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
@@ -160,10 +160,10 @@ const MyNavbar = () => {
             </li>
           )}
 
-          {can("crear_roles") && (
+          {can("ver_roles") && (
             <li>
               <NavLink
-                to="/admin/roles"
+                to="/roles"
                 className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
               >
                 <FaUsersGear className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
@@ -172,21 +172,22 @@ const MyNavbar = () => {
             </li>
           )}
 
-          {can("ver_roles") && (
-            <li>
-              <NavLink
-                to="/admin"
-                className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
-              >
-                <RiDashboard2Fill className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                <span className="ms-3">Dashboard</span>
-              </NavLink>
-            </li>
-          )}
+          <li>
+            <NavLink
+              to="/dashboard"
+              className="flex items-center py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700"
+            >
+              <RiDashboard2Fill className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+              <span className="ms-3">Dashboard</span>
+            </NavLink>
+          </li>
         </>
       );
     }
+
+    return null; // Ensure the function always returns something
   };
+
   const renderLinks = () => {
     if (getToken()) {
       return (

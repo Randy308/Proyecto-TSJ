@@ -3,12 +3,24 @@ import AuthUser from "../../auth/AuthUser";
 import axios from "axios";
 import UserService from "../../services/UserService";
 import Loading from "../../components/Loading";
+import { useNavigate } from "react-router-dom";
 
 const EditarUsuario = ({ id, setCounter, roles }) => {
-  const { getToken } = AuthUser();
+  const { getToken ,can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const token = getToken();
   const [formData, setFormData] = useState([]);
 
+  useEffect(() => {
+    if (!can("actualizar_usuarios")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
+  
   const setParams = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,

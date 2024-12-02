@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { usePapaParse } from "react-papaparse";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -7,9 +7,13 @@ import { useThemeContext } from "../../components/ThemeProvider";
 import axios from "axios";
 import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
+import { useNavigate } from "react-router-dom";
 
 const TablaCSV = () => {
-  const { getToken, getLogout, rol } = AuthUser();
+  const { getToken, can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const [isLoading, setIsLoading] = useState(false);
   const { readString } = usePapaParse();
   const [columnDefs, setColumnDefs] = useState([]);
@@ -17,6 +21,7 @@ const TablaCSV = () => {
   const [totalData, setTotalData] = useState([]);
   const [error, setError] = useState(null);
   const [archivo, setArchivo] = useState(null);
+  const isDarkMode = useThemeContext();
   const sampleData = (data, samplePercentage) => {
     const sampleSize = Math.ceil(data.length * samplePercentage);
     const shuffledData = [...data].sort(() => 0.5 - Math.random()); // Shuffle array randomly
@@ -100,7 +105,15 @@ const TablaCSV = () => {
     }
   };
 
-  const isDarkMode = useThemeContext();
+  
+  useEffect(() => {
+    if (!can("subir_resoluciones")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
+
   return (
     <div className="flex flex-col justify-center items-center">
       <div

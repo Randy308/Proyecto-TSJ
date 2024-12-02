@@ -6,7 +6,10 @@ import RoleService from "../../services/RoleService";
 import UserService from "../../services/UserService";
 
 const CrearUsuario = ({ setCounter, roles }) => {
-  const { getToken } = AuthUser();
+  const { getToken ,can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const token = getToken();
   const [name, setName] = useState("pedro");
   const [email, setEmail] = useState("");
@@ -17,7 +20,13 @@ const CrearUsuario = ({ setCounter, roles }) => {
     setSelectedRol(event.target.value);
   };
 
-
+  useEffect(() => {
+    if (!can("ver_usuarios")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
 
   const submitForm = async (e) => {
     e.preventDefault();

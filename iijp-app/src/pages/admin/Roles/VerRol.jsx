@@ -3,12 +3,22 @@ import Loading from "../../../components/Loading";
 import AuthUser from "../../../auth/AuthUser";
 import RoleService from "../../../services/RoleService";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const VerRol = ({ id, permissions, setCounter }) => {
-  const { getToken } = AuthUser();
+  const { getToken, can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const token = getToken();
   const [formData, setFormData] = useState([]);
-
+  useEffect(() => {
+    if (!can("ver_rol")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
   useEffect(() => {
     RoleService.getRole(id, token)
       .then(({ data }) => {

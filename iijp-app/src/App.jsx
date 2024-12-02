@@ -87,7 +87,7 @@ function App() {
               <Route path="/registrar" element={<Register />} />
             </Route>
             //rutas admin
-            <Route path="/" element={<ProtectedRoutes />}>
+            {/* <Route path="/" element={<ProtectedRoutes />}>
               <Route path="/" element={<LayoutAdmin />}>
                 <Route path="/admin" element={<PanelAdmin />} />
                 <Route path="/admin/subir" element={<SubirResoluciones />} />
@@ -107,11 +107,28 @@ function App() {
                 <Route path="/admin/usuarios" element={<Usuarios />} />
                 <Route path="/admin/roles" element={<ListaRoles />} />
               </Route>
-            </Route>
+            </Route> */}
             //rutas user
             <Route path="/" element={<ProtectedRoutes />}>
               <Route path="/" element={<LayoutUser />}>
                 <Route path="/user" element={<PanelUser />} />
+                <Route path="/dashboard" element={<PanelAdmin />} />
+                <Route path="/subir-resoluciones" element={<SubirResoluciones />} />
+                <Route
+                  path="/admin/subir/autos-supremos"
+                  element={<TablaCSV />}
+                />
+                <Route
+                  path="/admin/subir/jurisprudencia"
+                  element={<TablaJurisprudenciaCSV />}
+                />
+                <Route path="/admin/subir" element={<TablaCSV />} />
+                <Route
+                  path="/admin/subir-automatico"
+                  element={<WebScrapping />}
+                />
+                <Route path="/usuarios" element={<Usuarios />} />
+                <Route path="/roles" element={<ListaRoles />} />
               </Route>
             </Route>
           </Routes>

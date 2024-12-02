@@ -14,9 +14,22 @@ import EliminarUsuario from "./EliminarUsuario";
 import VerUsuario from "./VerUsuario";
 import RoleService from "../../services/RoleService";
 import EditarUsuario from "./EditarUsuario";
+import { useNavigate } from "react-router-dom";
 const Usuarios = () => {
-  const { getToken } = AuthUser();
+  const { getToken, can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const token = getToken();
+
+  useEffect(() => {
+    if (!can("ver_usuarios")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
+
   const [users, setUsers] = useState([]);
 
   const [counter, setCounter] = useState(1);
@@ -61,14 +74,16 @@ const Usuarios = () => {
       <div className="container mx-auto my-4 p-4 flex flex-row gap-4 justify-between">
         <div>Usuarios</div>
 
-        <div>
-          <PortalButton
-            name="Crear nuevo usuario"
-            Icon={TiUserAdd}
-            title="Crear usuario"
-            content={<CrearUsuario setCounter={setCounter} roles={roles} />}
-          />
-        </div>
+        {can("crear_usuarios") && (
+          <div>
+            <PortalButton
+              name="Crear nuevo usuario"
+              Icon={TiUserAdd}
+              title="Crear usuario"
+              content={<CrearUsuario setCounter={setCounter} roles={roles} />}
+            />
+          </div>
+        )}
       </div>
 
       <div>
@@ -110,45 +125,51 @@ const Usuarios = () => {
                       <td className="px-6 py-4">{item.email}</td>
                       <td className="px-6 py-4 capitalize">{item.role}</td>
                       <td className="px-6 py-4 flex flex-row gap-2 items-center">
-                        <div>
-                          <PortalButton
-                            Icon={MdDeleteForever}
-                            color="red"
-                            content={
-                              <EliminarUsuario
-                                setCounter={setCounter}
-                                id={item.id}
-                              />
-                            }
-                          />
-                        </div>
-                        <div>
-                          <PortalButton
-                            Icon={FaRegEye}
-                            color="green"
-                            title="Ver usuario"
-                            content={
-                              <VerUsuario
-                                setCounter={setCounter}
-                                id={item.id}
-                              />
-                            }
-                          />
-                        </div>
-                        <div>
-                          <PortalButton
-                            Icon={FaEdit}
-                            title="Editar usuario"
-                            color="yellow"
-                            content={
-                              <EditarUsuario
-                                roles={roles}
-                                setCounter={setCounter}
-                                id={item.id}
-                              />
-                            }
-                          />
-                        </div>
+                        {can("eliminar_usuarios") && (
+                          <div>
+                            <PortalButton
+                              Icon={MdDeleteForever}
+                              color="red"
+                              content={
+                                <EliminarUsuario
+                                  setCounter={setCounter}
+                                  id={item.id}
+                                />
+                              }
+                            />
+                          </div>
+                        )}
+                        {can("ver_usuario") && (
+                          <div>
+                            <PortalButton
+                              Icon={FaRegEye}
+                              color="green"
+                              title="Ver usuario"
+                              content={
+                                <VerUsuario
+                                  setCounter={setCounter}
+                                  id={item.id}
+                                />
+                              }
+                            />
+                          </div>
+                        )}
+                        {can("actualizar_usuarios") && (
+                          <div>
+                            <PortalButton
+                              Icon={FaEdit}
+                              title="Editar usuario"
+                              color="yellow"
+                              content={
+                                <EditarUsuario
+                                  roles={roles}
+                                  setCounter={setCounter}
+                                  id={item.id}
+                                />
+                              }
+                            />
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}

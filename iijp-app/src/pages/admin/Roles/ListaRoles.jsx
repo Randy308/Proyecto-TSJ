@@ -1,5 +1,3 @@
-
-
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import React, { useEffect, useState } from "react";
@@ -14,14 +12,26 @@ import EliminarRol from "./EliminarRol";
 import VerRol from "./VerRol";
 import EditarRol from "./EditarRol";
 import CrearRol from "./CrearRol";
+import { useNavigate } from "react-router-dom";
 
 const ListaRoles = () => {
-  const { getToken } = AuthUser();
+  const { getToken, can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const token = getToken();
 
   const [counter, setCounter] = useState(1);
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    if (!can("ver_roles")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
 
   useEffect(() => {
     RoleService.getPermissions(token)
@@ -41,22 +51,23 @@ const ListaRoles = () => {
       .catch((error) => console.error("Error fetching users:", error));
   }, [token, counter]);
 
-
   return (
     <div>
       <div className="container mx-auto my-4 p-4 flex flex-row gap-4 justify-between">
         <div>Lista de roles</div>
 
-        <div>
-          <PortalButton
-            name="Crear nuevo rol"
-            Icon={TiUserAdd}
-            title="Crear rol"
-            content={
-              <CrearRol setCounter={setCounter} permissions={permissions} />
-            }
-          />
-        </div>
+        {can("crear_roles") && (
+          <div>
+            <PortalButton
+              name="Crear nuevo rol"
+              Icon={TiUserAdd}
+              title="Crear rol"
+              content={
+                <CrearRol setCounter={setCounter} permissions={permissions} />
+              }
+            />
+          </div>
+        )}
       </div>
 
       <div>
@@ -90,46 +101,54 @@ const ListaRoles = () => {
                         {item.name}
                       </td>
                       <td className="px-6 py-4 flex flex-row gap-2 items-center">
-                        <div>
-                          <PortalButton
-                            Icon={MdDeleteForever}
-                            color="red"
-                            content={
-                              <EliminarRol
-                                setCounter={setCounter}
-                                id={item.id}
-                              />
-                            }
-                          />
-                        </div>
-                        <div>
-                          <PortalButton
-                            Icon={FaRegEye}
-                            color="green"
-                            title="Ver usuario"
-                            content={
-                              <VerRol
-                                setCounter={setCounter}
-                                id={item.id}
-                                permissions={permissions}
-                              />
-                            }
-                          />
-                        </div>
-                        <div>
-                          <PortalButton
-                            Icon={FaEdit}
-                            title="Editar usuario"
-                            color="yellow"
-                            content={
-                              <EditarRol
-                                permissions={permissions}
-                                setCounter={setCounter}
-                                id={item.id}
-                              />
-                            }
-                          />
-                        </div>
+                        {can("eliminar_roles") && (
+                          <div>
+                            <PortalButton
+                              Icon={MdDeleteForever}
+                              color="red"
+                              content={
+                                <EliminarRol
+                                  setCounter={setCounter}
+                                  id={item.id}
+                                />
+                              }
+                            />
+                          </div>
+                        )}
+
+                        {can("ver_rol") && (
+                          <div>
+                            <PortalButton
+                              Icon={FaRegEye}
+                              color="green"
+                              title="Ver usuario"
+                              content={
+                                <VerRol
+                                  setCounter={setCounter}
+                                  id={item.id}
+                                  permissions={permissions}
+                                />
+                              }
+                            />
+                          </div>
+                        )}
+
+                        {can("actualizar_roles") && (
+                          <div>
+                            <PortalButton
+                              Icon={FaEdit}
+                              title="Editar usuario"
+                              color="yellow"
+                              content={
+                                <EditarRol
+                                  permissions={permissions}
+                                  setCounter={setCounter}
+                                  id={item.id}
+                                />
+                              }
+                            />
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}

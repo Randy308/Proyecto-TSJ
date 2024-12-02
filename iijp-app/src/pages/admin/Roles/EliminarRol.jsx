@@ -5,12 +5,24 @@ import RoleService from '../../../services/RoleService';
 import Loading from '../../../components/Loading';
 import { ImWarning } from 'react-icons/im';
 import { FaUser } from 'react-icons/fa6';
+import { useNavigate } from 'react-router-dom';
 
 const EliminarRol = ({ id, setCounter }) => {
-  const { getToken } = AuthUser();
+  const { getToken ,can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  
   const [formData, setFormData] = useState([]);
   const token = getToken();
-
+  useEffect(() => {
+    if (!can("eliminar_roles")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
+  
   useEffect(() => {
     RoleService.getRole(id, token)
       .then(({ data }) => {

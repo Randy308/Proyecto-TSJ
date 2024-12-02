@@ -11,6 +11,8 @@ const PanelAdmin = () => {
     "eliminar_usuarios",
     "actualizar_usuarios",
     "ver_usuarios",
+    "ver_usuario",
+    "ver_rol",
     "crear_roles",
     "eliminar_roles",
     "actualizar_roles",
@@ -26,7 +28,7 @@ const PanelAdmin = () => {
     "subir_jurisprudencia",
     "actualizar_jurisprudencia",
     "eliminar_jurisprudencia",
-
+    "web_scrapping",
     "crear_publicacion",
     "eliminar_publicacion",
     "ver_publicacion",

@@ -5,10 +5,22 @@ import { FaUser } from "react-icons/fa";
 import UserService from "../../services/UserService";
 import { ImWarning } from "react-icons/im";
 import Loading from "../../components/Loading";
+import { useNavigate } from "react-router-dom";
 const EliminarUsuario = ({ id, setCounter }) => {
-  const { getToken } = AuthUser();
+  const { getToken ,can } = AuthUser();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState([]);
   const token = getToken();
+
+  useEffect(() => {
+    if (!can("eliminar_usuarios")) {
+      navigate("/");
+    } else {
+      setLoading(false);
+    }
+  }, [can, navigate]);
 
   useEffect(() => {
     UserService.getUser(id, token)

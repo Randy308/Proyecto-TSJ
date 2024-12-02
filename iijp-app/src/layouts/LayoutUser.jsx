@@ -1,23 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "../components/Footer";
 import MyNavbar from "../components/MyNavbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import AuthUser from "../auth/AuthUser";
+import Loading from "../components/Loading";
 
 const LayoutUser = () => {
-  const { rol } = AuthUser();
+  const { hasAccess , user } = AuthUser();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (rol !== "user" && rol !== "editor") {
+    if (!hasAccess(user)) {
       navigate("/");
+    } else {
+      setLoading(false);
     }
-  }, [rol, navigate]);
+  }, [hasAccess, navigate]);
+
+  if (loading) {
+    return <Loading/>;
+  }
+
   return (
     <>
-      <MyNavbar></MyNavbar>
-      <Outlet></Outlet>
-      <Footer></Footer>
+      <MyNavbar />
+      <Outlet />
+      <Footer />
     </>
   );
 };
