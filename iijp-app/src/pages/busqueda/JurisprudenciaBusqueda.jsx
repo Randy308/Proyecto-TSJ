@@ -313,14 +313,14 @@ const JurisprudenciaBusqueda = () => {
               />
             </div>
 
-            <div>
+            {/* <div>
               <AsyncButton
                 asyncFunction={generarPdf}
                 isLoading={isLoadingPDF}
                 name="Generar Pdf"
                 Icon={FaFilePdf}
               />
-            </div>
+            </div> */}
 
             <button
               type="button"

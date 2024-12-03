@@ -8,6 +8,7 @@ import axios from "axios";
 import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const TablaJurisprudenciaCSV = () => {
   const { getToken, can } = AuthUser();
@@ -46,6 +47,7 @@ const TablaJurisprudenciaCSV = () => {
               field: header,
               sortable: true,
               resizable: true,
+              flex: 1,
             }));
             setColumnDefs(headers);
           }
@@ -73,8 +75,15 @@ const TablaJurisprudenciaCSV = () => {
   };
 
   const handleClick = async () => {
+    if (!archivo) {
+      toast.warning("Por favor, selecciona un archivo antes de continuar.");
+      return;
+    }
+
     try {
       setIsLoading(true);
+
+      // Obtener token CSRF
       await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
@@ -83,6 +92,7 @@ const TablaJurisprudenciaCSV = () => {
       const formData = new FormData();
       formData.append("excelFile", archivo);
 
+      // Realizar la solicitud
       const { data } = await axios.post(
         `${endpoint}/v1/excel/upload-jurisprudencia`,
         formData,
@@ -90,16 +100,48 @@ const TablaJurisprudenciaCSV = () => {
           headers: {
             "Content-Type": "multipart/form-data",
             accept: "application/json",
-            Authorization: "Bearer " + getToken(),
+            Authorization: `Bearer ${getToken()}`,
           },
           withCredentials: true,
         }
       );
 
-      console.log(data);
-      setIsLoading(false);
+      // Verificar respuesta del servidor
+      if (data.success) {
+        const successMessage = data.mensaje || "Datos cargados exitosamente.";
+        const detailsMessage = `Total de registros procesados: ${data.total_records}, Registros omitidos: ${data.skipped_records}`;
+
+        toast.success(`${successMessage} ${detailsMessage}`);
+        console.log("Resultado:", data);
+      } else {
+        toast.warning(
+          data.mensaje || "El servidor no pudo completar la operación."
+        );
+      }
     } catch (error) {
-      console.log("Error al realizar la solicitud: " + error.message);
+      console.error("Error al realizar la solicitud:", error);
+
+      // Manejo de errores detallado
+      if (error.response) {
+        // Error del servidor con detalles en la respuesta
+        const { status, data } = error.response;
+        console.error(`Error ${status}:`, data);
+
+        if (data.error) {
+          toast.error(data.error);
+        } else {
+          toast.error("Ocurrió un error en el servidor.");
+        }
+      } else if (error.request) {
+        // La solicitud fue enviada pero no se recibió respuesta
+        toast.error(
+          "No se pudo contactar al servidor. Por favor, inténtalo más tarde."
+        );
+      } else {
+        // Otro tipo de error
+        toast.error(`Error inesperado: ${error.message}`);
+      }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -121,10 +163,10 @@ const TablaJurisprudenciaCSV = () => {
         style={{ height: 500, width: "95%" }}
       >
         <label
-          className="text-2xl roboto-bold dark:text-white"
+          className="text-2xl font-extrabold dark:text-white"
           htmlFor="file_input"
         >
-          Subir archivo CSV
+          Subir jurisprudencia en CSV
         </label>
         <input
           accept=".csv"

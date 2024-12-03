@@ -26,7 +26,6 @@ const LayoutUser = () => {
     <>
       <MyNavbar />
       <Outlet />
-      <Footer />
     </>
   );
 };

@@ -8,6 +8,7 @@ import axios from "axios";
 import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const TablaCSV = () => {
   const { getToken, can } = AuthUser();
@@ -40,7 +41,7 @@ const TablaCSV = () => {
           console.error(results.errors);
         } else {
           setTotalData(results.data.length);
-          const sampledData = sampleData(results.data, 0.1);
+          const sampledData = sampleData(results.data, 1);
           setRowData(sampledData);
           if (results.data.length > 0) {
             const headers = Object.keys(results.data[0]).map((header) => ({
@@ -73,9 +74,12 @@ const TablaCSV = () => {
     }
   };
 
+
   const handleClick = async () => {
     try {
       setIsLoading(true);
+
+      // Obtener CSRF token
       await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
@@ -84,6 +88,7 @@ const TablaCSV = () => {
       const formData = new FormData();
       formData.append("excelFile", archivo);
 
+      // Enviar el archivo al endpoint
       const { data } = await axios.post(
         `${endpoint}/v1/excel/upload`,
         formData,
@@ -97,15 +102,40 @@ const TablaCSV = () => {
         }
       );
 
-      console.log(data);
+      // Manejar respuesta exitosa
+      if (data.success) {
+        const { mensaje, total_filas, filas_omitidas } = data;
+
+        // Mostrar información detallada en el toast
+        toast.success(
+          `${mensaje} Total filas procesadas: ${total_filas}. Filas omitidas: ${filas_omitidas}.`,
+          {
+            position: "top-right",
+            autoClose: 5000,
+            closeOnClick: true,
+            draggable: true,
+          }
+        );
+      } else {
+        // Manejar casos inesperados
+        toast.error("El procesamiento no se completó correctamente.", {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      }
+
       setIsLoading(false);
     } catch (error) {
-      console.log("Error al realizar la solicitud: " + error.message);
+      // Manejar errores de red o excepciones
+      console.error("Error al realizar la solicitud:", error);
+      toast.error(`Error al realizar la solicitud: ${error.message}`, {
+        position: "top-right",
+        autoClose: 5000,
+      });
       setIsLoading(false);
     }
   };
 
-  
   useEffect(() => {
     if (!can("subir_resoluciones")) {
       navigate("/");
@@ -121,10 +151,10 @@ const TablaCSV = () => {
         style={{ height: 500, width: "95%" }}
       >
         <label
-          className="text-2xl roboto-bold dark:text-white"
+          className="text-2xl font-extrabold dark:text-white"
           htmlFor="file_input"
         >
-          Subir archivo CSV
+          Subir Autos supremos en CSV
         </label>
         <input
           accept=".csv"

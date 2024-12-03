@@ -15,6 +15,7 @@ use App\Models\Temas;
 use App\Models\TipoResolucions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Spatie\SimpleExcel\SimpleExcelReader;
 
 class ExcelController extends Controller
@@ -22,181 +23,220 @@ class ExcelController extends Controller
 
     public function upload_jurisprudencia(Request $request)
     {
-
         $response['success'] = false;
+
         $file = $request->file('excelFile');
-        if (Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
-            $response['mensaje'] = "el usuario cuenta con el permiso";
-        } else {
-            $response['mensaje'] = "el usuario no cuenta con el permiso necesario";
-            return response()->json($response, 200);
+
+        // Verificar permisos
+        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+            return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
         }
+
+        // Validar la extensión del archivo
         $extension = $file->getClientOriginalExtension();
-
-
-        if ($extension == 'csv') {
-            $rows = SimpleExcelReader::create($file->getPathname(), 'csv')->getRows();
-        } elseif (in_array($extension, ['xls', 'xlsx'])) {
-            $rows = SimpleExcelReader::create($file->getPathname(), 'xlsx')->getRows();
-        } else {
+        if (!in_array($extension, ['csv', 'xls', 'xlsx'])) {
             return response()->json(['error' => 'Tipo de archivo no soportado.'], 400);
         }
 
-        //$data = [];
+        // Leer el archivo
+        $rows = SimpleExcelReader::create($file->getPathname(), $extension === 'csv' ? 'csv' : 'xlsx')->getRows();
+
         $resolucionMap = [];
+        $totalRecords = 0; // Contador de registros procesados
+        $skippedRecords = 0; // Contador de registros omitidos
 
+        // Procesar cada fila
+        $rows->each(function (array $row) use (&$resolucionMap, &$totalRecords, &$skippedRecords) {
+            $totalRecords++; // Incrementar el contador de registros procesados
 
-        $rows->each(function (array $row) use (&$resolucionMap, &$data) {
-            $resolucionId = $row['id_resolucion'];
+            // Verificar si solo tiene `id_resolucion` y los demás valores son nulos o vacíos
+            $soloIdResolucion = isset($row['id_resolucion']) && array_filter($row, fn($value) => $value !== null && $value !== '') === ['id_resolucion'];
 
-
-            if (isset($resolucionMap[$resolucionId]) || ($mapeo = Mapeos::where('external_id', $resolucionId)->first())) {
-
-                if (!isset($resolucionMap[$resolucionId])) {
-                    $resolucionMap[$resolucionId] = $mapeo->resolution_id;
-                }
-
-
-                $jurisprudencia = new Jurisprudencias([
-                    'resolution_id' => $resolucionMap[$resolucionId],
-                    'restrictor' => !empty($row['restrictor']) ? $row['restrictor'] : null,
-                    'descriptor' => !empty($row['descriptor']) ? $row['descriptor'] : null,
-                    'tipo_jurisprudencia' => !empty($row['tipo_jurisprudencia']) ? $row['tipo_jurisprudencia'] : null,
-                    'ratio' => !empty($row['ratio']) ? $row['ratio'] : null,
-                ]);
-
-
-                $jurisprudencia->save();
-
-                //$data[] = $jurisprudencia;
+            if ($soloIdResolucion) {
+                $skippedRecords++; // Incrementar el contador de registros omitidos
+                return; // Saltar esta fila
             }
+
+            // Obtener resolución mapeada o buscarla en la base de datos
+            $resolucionId = $row['id_resolucion'];
+            if (!isset($resolucionMap[$resolucionId]) && $mapeo = Mapeos::where('external_id', $resolucionId)->first()) {
+                $resolucionMap[$resolucionId] = $mapeo->resolution_id;
+            }
+
+            // Si no se encuentra resolución, omitir esta fila
+            if (!isset($resolucionMap[$resolucionId])) {
+                $skippedRecords++; // Incrementar el contador de registros omitidos
+                return;
+            }
+
+            // Verificar si ya existe el registro con la misma combinación de valores
+            $exists = Jurisprudencias::where('resolution_id', $resolucionMap[$resolucionId])
+                ->where('restrictor', $row['restrictor'] ?? null)
+                ->where('descriptor', $row['descriptor'] ?? null)
+                ->where('tipo_jurisprudencia', $row['tipo_jurisprudencia'] ?? null)
+                ->where('ratio', $row['ratio'] ?? null)
+                ->exists();
+
+            if ($exists) {
+                $skippedRecords++; // Incrementar el contador de registros omitidos
+                return; // Si existe, no se inserta el registro
+            }
+
+            // Crear y guardar jurisprudencia si no existe
+            Jurisprudencias::create([
+                'resolution_id' => $resolucionMap[$resolucionId],
+                'restrictor' => $row['restrictor'] ?? null,
+                'descriptor' => $row['descriptor'] ?? null,
+                'tipo_jurisprudencia' => $row['tipo_jurisprudencia'] ?? null,
+                'ratio' => $row['ratio'] ?? null,
+            ]);
         });
 
-
-
-        return response()->json("completado");
+        return response()->json([
+            'mensaje' => 'Carga completada exitosamente.',
+            'success' => true,
+            'total_records' => $totalRecords, // Total de registros procesados
+            'skipped_records' => $skippedRecords, // Total de registros omitidos
+        ]);
     }
+
+
     public function upload(Request $request)
     {
+        $response = ['success' => false];
 
-
-        $response['success'] = false;
-
-        if (Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
-            $response['mensaje'] = "el usuario cuenta con el permiso";
-        } else {
-            $response['mensaje'] = "el usuario no cuenta con el permiso necesario";
-            return response()->json($response, 200);
+        // Verificar permisos del usuario
+        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+            $response['mensaje'] = "El usuario no cuenta con el permiso necesario";
+            return response()->json($response, 403);
         }
 
+        // Validar archivo de entrada
         $file = $request->file('excelFile');
-        $extension = $file->getClientOriginalExtension();
+        if (!$file) {
+            return response()->json(['error' => 'No se proporcionó un archivo.'], 400);
+        }
 
-
-        if ($extension == 'csv') {
-            $rows = SimpleExcelReader::create($file->getPathname(), 'csv')->getRows();
-        } elseif (in_array($extension, ['xls', 'xlsx'])) {
-            $rows = SimpleExcelReader::create($file->getPathname(), 'xlsx')->getRows();
-        } else {
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ['csv', 'xls', 'xlsx'])) {
             return response()->json(['error' => 'Tipo de archivo no soportado.'], 400);
         }
 
-        //$data = [];
-        $departamentoMap = [];
-        $salaMap = [];
-        $tipoResolucionMap = [];
-        $magistradoMap = [];
-        $formaResolucionMap = [];
-        $temasMap = [];
-        $rows->each(function (array $row) use (&$departamentoMap, &$tipoResolucionMap, &$salaMap, &$magistradoMap, &$temasMap, &$formaResolucionMap, &$data) {
-            $salaId = $row['sala'];
-            $tipoResolucionNombre = $row['tipo_resolucion'];
-            $departamentoNombre = $row['departamento'];
-            $formaResolucionNombre = $row['forma_resolucion'];
-            $magistradoNombre = $row['magistrado'];
-            $temaID = $row['id_tema'];
+        // Leer las filas del archivo
+        $rows = SimpleExcelReader::create($file->getPathname(), $extension === 'csv' ? 'csv' : 'xlsx')->getRows();
 
-            if (!isset($tipoResolucionMap[$tipoResolucionNombre])) {
-                $tipoResolucion = TipoResolucions::firstOrCreate(['nombre' => $tipoResolucionNombre]);
-                $tipoResolucionMap[$tipoResolucionNombre] = $tipoResolucion->id;
-            }
+        // Mapas para cachear IDs y contador de filas omitidas
+        $maps = [
+            'departamento' => [],
+            'sala' => [],
+            'tipoResolucion' => [],
+            'magistrado' => [],
+            'formaResolucion' => [],
+            'temas' => []
+        ];
+        $totalFilas = 0;
+        $filasOmitidas = 0;
 
+        // Procesar cada fila
+        try {
+            $rows->each(function (array $row) use (&$maps, &$totalFilas, &$filasOmitidas) {
+                $totalFilas++;
 
-            if (!isset($salaMap[$salaId])) {
-                $sala = Salas::firstOrCreate(['nombre' => $salaId]);
-                $salaMap[$salaId] = $sala->id;
-            }
-
-            if (!isset($departamentoMap[$departamentoNombre])) {
-
-                $departamento = Departamentos::firstOrCreate(['nombre' =>  $departamentoNombre]);
-                $departamentoMap[$departamentoNombre] = $departamento->id;
-            }
-
-            if (!isset($magistradoMap[$magistradoNombre])) {
-
-                $magistrado = Magistrados::firstOrCreate(['nombre' =>  $magistradoNombre]);
-                $magistradoMap[$magistradoNombre] = $magistrado->id;
-            }
-            if (!isset($formaResolucionMap[$formaResolucionNombre])) {
-
-                $forma_resolucion = FormaResolucions::firstOrCreate(['nombre' =>  $formaResolucionNombre]);
-                $formaResolucionMap[$formaResolucionNombre] = $forma_resolucion->id;
-            }
-
-            $resolucion = new Resolutions([
-                'magistrado_id' => $magistradoMap[$magistradoNombre] ?? null,
-                'forma_resolucion_id' => $formaResolucionMap[$formaResolucionNombre] ?? null,
-                'sala_id' => $salaMap[$salaId] ?? null,
-                'departamento_id' => $departamentoMap[$departamentoNombre] ?? null,
-                'tipo_resolucion_id' => $tipoResolucionMap[$tipoResolucionNombre] ?? null,
-                'nro_resolucion' => $row['nro_resolucion'] ?? null,
-                'nro_expediente' => !empty($row['nro_expediente']) ? $row['nro_expediente'] : null,
-                'fecha_emision' => !empty($row['fecha_emision']) ? $row['fecha_emision'] : null,
-                'fecha_publicacion' => !empty($row['fecha_publicacion']) ? $row['fecha_publicacion'] : null,
-                'proceso' => !empty($row['proceso']) ? $row['proceso'] : null,
-                'precedente' => !empty($row['precedente']) ? $row['precedente'] : null,
-                'demandante' => !empty($row['demandante']) ? $row['demandante'] : null,
-                'demandado' => !empty($row['demandado']) ? $row['demandado'] : null,
-                'maxima' => !empty($row['maxima']) ? $row['maxima'] : null,
-                'sintesis' => !empty($row['sintesis']) ? $row['sintesis'] : null,
-            ]);
-
-
-            if ($temaID) {
-                if (isset($temasMap[$temaID])) {
-                    $resolucion->tema_id = $temasMap[$temaID];
-                } else {
-                    $tema = Temas::where('id', $temaID)->first();
-                    if ($tema) { // Solo agregar si el tema existe
-                        $temasMap[$temaID] = $tema->id;
-                        $resolucion->tema_id = $tema->id;
-                    }
+                // Verificar si el registro ya existe en `Mapeos` por `external_id`
+                if (Mapeos::where('external_id', $row['id'])->exists()) {
+                    $filasOmitidas++;
+                    return; // Omitir esta fila
                 }
+
+                // Manejar relaciones
+                $salaId = $this->getOrCreateId(Salas::class, 'nombre', $row['sala'], $maps['sala']);
+                $tipoResolucionId = $this->getOrCreateId(TipoResolucions::class, 'nombre', $row['tipo_resolucion'], $maps['tipoResolucion']);
+                $departamentoId = $this->getOrCreateId(Departamentos::class, 'nombre', $row['departamento'], $maps['departamento']);
+                $magistradoId = $this->getOrCreateId(Magistrados::class, 'nombre', $row['magistrado'], $maps['magistrado']);
+                $formaResolucionId = $this->getOrCreateId(FormaResolucions::class, 'nombre', $row['forma_resolucion'], $maps['formaResolucion']);
+                $temaId = $row['id_tema'] ? $this->getTemaId($row['id_tema'], $maps['temas']) : null;
+
+                // Crear resolución
+                $data = [
+                    'magistrado_id' => $magistradoId,
+                    'forma_resolucion_id' => $formaResolucionId,
+                    'sala_id' => $salaId,
+                    'departamento_id' => $departamentoId,
+                    'tipo_resolucion_id' => $tipoResolucionId,
+                    'nro_resolucion' => $row['nro_resolucion'] ?? null,
+                    'nro_expediente' => $row['nro_expediente'] ?? null,
+                    'fecha_emision' => !empty($row['fecha_emision']) && strtotime($row['fecha_emision'])
+                        ? date('Y-m-d', strtotime($row['fecha_emision']))
+                        : null,
+                    'fecha_publicacion' => !empty($row['fecha_publicacion']) && strtotime($row['fecha_publicacion'])
+                        ? date('Y-m-d', strtotime($row['fecha_publicacion']))
+                        : null,
+                    'proceso' => $row['proceso'] ?? null,
+                    'precedente' => $row['precedente'] ?? null,
+                    'demandante' => $row['demandante'] ?? null,
+                    'demandado' => $row['demandado'] ?? null,
+                    'maxima' => $row['maxima'] ?? null,
+                    'sintesis' => $row['sintesis'] ?? null,
+                    'tema_id' => $temaId
+                ];
+
+                // Filtrar valores nulos
+                $data = array_filter($data, fn($value) => !is_null($value));
+
+                // Crear resolución con manejo de excepciones
+                try {
+                    $resolucion = Resolutions::create($data);
+                    // Crear contenido
+                    Contents::create([
+                        'contenido' => $row['contenido'],
+                        'resolution_id' => $resolucion->id,
+                    ]);
+
+                    // Registrar mapeo
+                    Mapeos::create([
+                        'external_id' => $row['id'],
+                        'resolution_id' => $resolucion->id,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Error al crear resolución: ' . $e->getMessage(), ['data' => $data]);
+                    throw $e; // Opcional: Re-lanzar la excepción
+                }
+            });
+
+            return response()->json([
+                'success' => true,
+                'mensaje' => 'Procesamiento completado exitosamente.',
+                'total_filas' => $totalFilas,
+                'filas_omitidas' => $filasOmitidas
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Ocurrió un error al procesar los datos.', 'detalles' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Obtener o crear un ID para una entidad dada.
+     */
+    private function getOrCreateId($model, $field, $value, &$map)
+    {
+        if (!isset($map[$value])) {
+            $instance = $model::firstOrCreate([$field => $value]);
+            $map[$value] = $instance->id;
+        }
+        return $map[$value];
+    }
+
+    /**
+     * Obtener el ID de un tema existente.
+     */
+    private function getTemaId($temaID, &$map)
+    {
+        if (!isset($map[$temaID])) {
+            $tema = Temas::find($temaID);
+            if ($tema) {
+                $map[$temaID] = $tema->id;
             }
-
-
-            $resolucion->save();
-
-            $contenido = new Contents([
-                'contenido' => $row['contenido'],
-                'resolution_id' => $resolucion->id,
-            ]);
-
-            $contenido->save();
-
-            $mapeo = new Mapeos([
-                'external_id' => $row['id'],
-                'resolution_id' => $resolucion->id,
-            ]);
-
-            $mapeo->save();
-
-            //$data[] = $resolucion;
-        });
-
-        return response()->json("completado");
-
-        //return response()->json($data);
+        }
+        return $map[$temaID] ?? null;
     }
 }

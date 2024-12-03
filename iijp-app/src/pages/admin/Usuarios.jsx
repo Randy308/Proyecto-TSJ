@@ -72,7 +72,9 @@ const Usuarios = () => {
   return (
     <div>
       <div className="container mx-auto my-4 p-4 flex flex-row gap-4 justify-between">
-        <div>Usuarios</div>
+        <div className="text-3xl font-extrabold dark:text-white">
+          Lista de usuarios
+        </div>
 
         {can("crear_usuarios") && (
           <div>
