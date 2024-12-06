@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import AuthUser from '../../../auth/AuthUser';
-import RoleService from '../../../services/RoleService';
-import axios from 'axios';
-import Loading from '../../../components/Loading';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import AuthUser from "../../../auth/AuthUser";
+import RoleService from "../../../services/RoleService";
+import axios from "axios";
+import Loading from "../../../components/Loading";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const CrearRol = ({ permissions, setCounter }) => {
-  const { getToken ,can } = AuthUser();
+const CrearRol = ({ setCounter, permissions, showModal, setShowModal }) => {
+  const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  
   const token = getToken();
   const [formData, setFormData] = useState([]);
 
@@ -40,30 +40,29 @@ const CrearRol = ({ permissions, setCounter }) => {
     setParams(event.target.name, event.target.value);
   };
 
-const actualizarPermisos = (e) => {
-  const { value, checked } = e.target;
-  const permisoId = parseInt(value, 10);
+  const actualizarPermisos = (e) => {
+    const { value, checked } = e.target;
+    const permisoId = parseInt(value, 10);
 
-  setFormData((prevData) => {
-    // Ensure permissions is always an array
-    const currentPermissions = Array.isArray(prevData.permissions)
-      ? prevData.permissions
-      : [];
+    setFormData((prevData) => {
+      // Ensure permissions is always an array
+      const currentPermissions = Array.isArray(prevData.permissions)
+        ? prevData.permissions
+        : [];
 
-    if (checked) {
-      return {
-        ...prevData,
-        permissions: [...currentPermissions, permisoId],
-      };
-    } else {
-      return {
-        ...prevData,
-        permissions: currentPermissions.filter((id) => id !== permisoId),
-      };
-    }
-  });
-};
-
+      if (checked) {
+        return {
+          ...prevData,
+          permissions: [...currentPermissions, permisoId],
+        };
+      } else {
+        return {
+          ...prevData,
+          permissions: currentPermissions.filter((id) => id !== permisoId),
+        };
+      }
+    });
+  };
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -75,7 +74,6 @@ const actualizarPermisos = (e) => {
       console.log("CSRF token retrieved successfully.");
 
       await RoleService.createRole(
-        
         {
           ...formData,
         },
@@ -84,7 +82,9 @@ const actualizarPermisos = (e) => {
         .then(({ data }) => {
           if (data) {
             console.log(data);
+            setShowModal(false);
             setCounter((prev) => prev + 1);
+            toast.success("El rol ha sido creado exitosamente");
           }
         })
         .catch(({ err }) => {
@@ -101,7 +101,6 @@ const actualizarPermisos = (e) => {
       }
     }
   };
-
 
   return (
     <div className="container mx-auto pt-4 mt-4">
@@ -136,7 +135,7 @@ const actualizarPermisos = (e) => {
           >
             {permissions.map((item) => (
               <li key={item.id}>
-                <div className="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                <label className="inline-flex items-center my-2 cursor-pointer">
                   <input
                     id={`checkbox-item-${item.name}`}
                     type="checkbox"
@@ -147,15 +146,13 @@ const actualizarPermisos = (e) => {
                       false
                     }
                     onChange={(e) => actualizarPermisos(e)}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                    className="sr-only peer"
                   />
-                  <label
-                    htmlFor={`checkbox-item-${item.name}`}
-                    className="w-full ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300"
-                  >
+                  <div className="relative w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
                     {item.name}
-                  </label>
-                </div>
+                  </span>
+                </label>
               </li>
             ))}
           </ul>
@@ -172,4 +169,4 @@ const actualizarPermisos = (e) => {
   );
 };
 
-export default CrearRol
+export default CrearRol;

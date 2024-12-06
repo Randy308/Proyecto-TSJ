@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { IoMdClose } from "react-icons/io";
-import Login from "../auth/Login"; // Default content
+import Login from "../auth/Login"; 
 
 export default function ModalContent({ onClose, title, content }) {
   return ReactDOM.createPortal(
@@ -27,7 +27,6 @@ export default function ModalContent({ onClose, title, content }) {
           </button>
         </div>
         <div className="modal-body">{content || <Login />}</div>{" "}
-        {/* Default content is Login */}
       </div>
     </div>,
     document.body

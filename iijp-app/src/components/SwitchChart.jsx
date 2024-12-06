@@ -1,8 +1,7 @@
 export const SwitchChart = (option, action, flag = false) => {
-  // Copy option to ensure a new reference is returned
+
   let newOption = JSON.parse(JSON.stringify(option));
 
-  // Select x and y based on existing data
   let x = newOption.xAxis.type ? newOption.xAxis : newOption.yAxis;
   let y = !newOption.xAxis.type ? newOption.xAxis : newOption.yAxis;
 
@@ -111,7 +110,6 @@ export const SwitchChart = (option, action, flag = false) => {
   }
 
   if (flag) {
-    // Invert axis
     let filas = newOption.dataset.source.length;
     let columnas = newOption.dataset.source[0].length;
     let serieData = newOption.series[0];

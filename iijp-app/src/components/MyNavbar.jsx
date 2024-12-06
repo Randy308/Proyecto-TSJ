@@ -185,7 +185,7 @@ const MyNavbar = () => {
       );
     }
 
-    return null; // Ensure the function always returns something
+    return null;
   };
 
   const renderLinks = () => {

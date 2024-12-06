@@ -4,9 +4,10 @@ import axios from "axios";
 import UserService from "../../services/UserService";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const EditarUsuario = ({ id, setCounter, roles }) => {
-  const { getToken ,can } = AuthUser();
+const EditarUsuario = ({ id, setCounter, roles, showModal, setShowModal }) => {
+  const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +21,7 @@ const EditarUsuario = ({ id, setCounter, roles }) => {
       setLoading(false);
     }
   }, [can, navigate]);
-  
+
   const setParams = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -47,8 +48,6 @@ const EditarUsuario = ({ id, setCounter, roles }) => {
       })
       .catch((error) => console.error("Error fetching user:", error));
   }, [token]);
-
-
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -78,7 +77,12 @@ const EditarUsuario = ({ id, setCounter, roles }) => {
         .then(({ data }) => {
           if (data) {
             console.log(data);
+
+            setShowModal(false);
             setCounter((prev) => prev + 1);
+            toast.success(
+              "La información del usuario se ha actualizado exitosamente"
+            );
           }
         })
         .catch(({ err }) => {

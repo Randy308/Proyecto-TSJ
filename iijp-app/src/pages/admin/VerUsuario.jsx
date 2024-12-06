@@ -4,8 +4,8 @@ import AuthUser from "../../auth/AuthUser";
 import axios from "axios";
 import UserService from "../../services/UserService";
 import Loading from "../../components/Loading";
-const VerUsuario = ({ id, setCounter }) => {
-  const { getToken ,can } = AuthUser();
+const VerUsuario = ({ id, setCounter, showModal, setShowModal }) => {
+  const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
@@ -19,9 +19,9 @@ const VerUsuario = ({ id, setCounter }) => {
       setLoading(false);
     }
   }, [can, navigate]);
-  
+
   useEffect(() => {
-    UserService.getUser(id,token)
+    UserService.getUser(id, token)
       .then(({ data }) => {
         console.log(data);
         setFormData(data);
@@ -68,14 +68,14 @@ const VerUsuario = ({ id, setCounter }) => {
     }
   };
 
-      if (formData.length <= 0) {
-        return (
-          <div className="h-[300px]">
-            <Loading></Loading>
-          </div>
-        );
-    }
-    
+  if (formData.length <= 0) {
+    return (
+      <div className="h-[300px]">
+        <Loading></Loading>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto pt-4 mt-4">
       <form>

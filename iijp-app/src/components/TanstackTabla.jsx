@@ -59,13 +59,13 @@ const TanstackTabla = ({ data , selectedIds}) => {
       enableSorting: true,
     },
     {
-      accessorKey: "id", // O `accessorKey: 'id'`
+      accessorKey: "id", 
       header: "Acción",
-      id: "res_id", // Define un ID único para la columna
+      id: "res_id",
       cell: ({ cell, row }) => {
         return (
           <button
-            onClick={() => guardarID(row.original.id)} // Guardar el ID de la fila
+            onClick={() => guardarID(row.original.id)} fila
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
           >
             Ver grafica

@@ -3,12 +3,14 @@ import Config from "./Config";
 import { useNavigate } from "react-router-dom";
 import AuthUser from "./AuthUser";
 import axios from "axios";
+import PasswordInput from "../components/PasswordInput";
 
 const Login = () => {
   const { getToken, saveToken } = AuthUser();
 
   const [email, setEmail] = useState("admin@example.com");
   const [password, setPassword] = useState("password");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,8 +48,11 @@ const Login = () => {
   };
 
   return (
-    <div className="container mx-auto pt-4 mt-4">
-      <form>
+    <div className="pt-4 mt-4">
+      <div className="text-center text-black dark:text-white text-4xl font-bold">
+        SAMED
+      </div>
+      <form className="max-w-sm mx-auto p-4 m-4 bg-white dark:bg-gray-700 dark:border-gray-900 border border-gray-300 rounded-md">
         <div className="mb-6">
           <label
             htmlFor="email"
@@ -73,16 +78,9 @@ const Login = () => {
           >
             Contraseña
           </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            id="password"
-            name="password"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="•••••••••"
-            required
-          />
+          <div className="flex flex-row">
+            <PasswordInput password={password} setPassword={setPassword} />
+          </div>
         </div>
 
         {/* <div className="flex items-start mb-6">
@@ -109,13 +107,15 @@ const Login = () => {
             .
           </label>
         </div> */}
-        <button
-          type="submit"
-          onClick={submitForm}
-          className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          Enviar
-        </button>
+        <div>
+          <button
+            type="submit"
+            onClick={submitForm}
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Acceder
+          </button>
+        </div>
       </form>
     </div>
   );

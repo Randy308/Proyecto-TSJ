@@ -1,9 +1,8 @@
 import { useFreeApi } from "../hooks/api/useFreeApi";
 import React from "react";
-import { useNavigate } from "react-router-dom"; // Importar navigate
+import { useNavigate } from "react-router-dom";
 import "../styles/styles_randy/analisis-magistrados.css";
 import Loading from "./Loading";
-import { BsPersonVcardFill } from "react-icons/bs";
 const Lista = ({ url, texto, enlace }) => {
   const { contenido, isLoading, error } = useFreeApi(url);
   const navigate = useNavigate();

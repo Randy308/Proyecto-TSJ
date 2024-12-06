@@ -6,8 +6,9 @@ import UserService from "../../services/UserService";
 import { ImWarning } from "react-icons/im";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
-const EliminarUsuario = ({ id, setCounter }) => {
-  const { getToken ,can } = AuthUser();
+import { toast } from "react-toastify";
+const EliminarUsuario = ({ id, setCounter, showModal, setShowModal }) => {
+  const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
@@ -44,7 +45,9 @@ const EliminarUsuario = ({ id, setCounter }) => {
         .then(({ data }) => {
           if (data) {
             console.log(data);
+            setShowModal(false);
             setCounter((prev) => prev + 1);
+            toast.success("El usuario ha sido eliminado exitosamente");
           }
         })
         .catch(({ err }) => {
@@ -62,15 +65,14 @@ const EliminarUsuario = ({ id, setCounter }) => {
     }
   };
 
-    
-      if (formData.length <= 0) {
-        return (
-          <div className="h-[200px]">
-            <Loading></Loading>
-          </div>
-        );
-    }
-    
+  if (formData.length <= 0) {
+    return (
+      <div className="h-[200px]">
+        <Loading></Loading>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto pt-4 mt-4">
       <form>

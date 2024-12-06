@@ -3,7 +3,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { useLocalStorage } from "./useLocalStorage";
 import { useSessionStorage } from "./useSessionStorage";
 import { useNavigate } from "react-router-dom";
-const Dropdown = ({ item, removeItemById, obtenerSerieTemporal }) => {
+const Dropdown = ({ item, removeItemById }) => {
   const [visible, setVisible] = useState(false);
   const [oculto, setOculto] = useState(true);
   function toTitleCase(str) {

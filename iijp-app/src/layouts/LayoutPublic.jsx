@@ -5,13 +5,13 @@ import MyNavbar from "../components/MyNavbar";
 
 const LayoutPublic = () => {
   const location = useLocation();
-  const noNavbarRoutes = ["/jurisprudencia/resolucion/:id"]; // Agrega más rutas según sea necesario
-  const noFooterRoutes = [
-    "/jurisprudencia/resolucion/:id",
-    "/jurisprudencia/busqueda",
-    "/jurisprudencia/cronologias",
+  const noNavbarRoutes = ["/jurisprudencia/resolucion/:id", "/iijp-login"]; 
+
+  const FooterRoutes = [
+    "/inicio",
+    "/novedades",
+    "/jurisprudencia",
   ];
-  const FooterRoutes = ["/inicio", "/novedades", "/jurisprudencia"];
   const shouldShowNavbar = !noNavbarRoutes.some((route) =>
     location.pathname.match(new RegExp(`^${route.replace(":id", "\\d+")}$`))
   );

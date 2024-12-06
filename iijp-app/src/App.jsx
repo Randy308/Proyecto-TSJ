@@ -83,7 +83,7 @@ function App() {
                 element={<ListaSalas />}
               />
               <Route path="/analisis/sala/:id" element={<AnalisisSala />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/iijp-login" element={<Login />} />
               <Route path="/registrar" element={<Register />} />
             </Route>
             //rutas admin

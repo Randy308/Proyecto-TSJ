@@ -4,9 +4,11 @@ import AuthUser from "../../auth/AuthUser";
 import axios from "axios";
 import RoleService from "../../services/RoleService";
 import UserService from "../../services/UserService";
+import PasswordInput from "../../components/PasswordInput";
+import { toast } from "react-toastify";
 
-const CrearUsuario = ({ setCounter, roles }) => {
-  const { getToken ,can } = AuthUser();
+const CrearUsuario = ({ setCounter, roles, showModal, setShowModal }) => {
+  const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
@@ -49,7 +51,9 @@ const CrearUsuario = ({ setCounter, roles }) => {
         .then(({ data }) => {
           if (data) {
             console.log(data);
+            setShowModal(false);
             setCounter((prev) => prev + 1);
+            toast.success("El usuario ha sido creado exitosamente");
           }
         })
         .catch(({ err }) => {
@@ -72,7 +76,7 @@ const CrearUsuario = ({ setCounter, roles }) => {
         <div className="mb-6">
           <label
             htmlFor="name"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+            className="block mb-2 text-sm font-medium text-gray-900 dark:text-2xl dark:text-white"
           >
             Nombre completo
           </label>
@@ -112,16 +116,9 @@ const CrearUsuario = ({ setCounter, roles }) => {
           >
             Contraseña
           </label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            id="password"
-            name="password"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="•••••••••"
-            required
-          />
+          <div className="flex flex-row">
+            <PasswordInput password={password} setPassword={setPassword} />
+          </div>
         </div>
         <div className="mb-6">
           <label

@@ -6,13 +6,13 @@ import Loading from '../../../components/Loading';
 import { ImWarning } from 'react-icons/im';
 import { FaUser } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-const EliminarRol = ({ id, setCounter }) => {
-  const { getToken ,can } = AuthUser();
+const EliminarRol = ({ id, setCounter, showModal, setShowModal }) => {
+  const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  
   const [formData, setFormData] = useState([]);
   const token = getToken();
   useEffect(() => {
@@ -22,7 +22,7 @@ const EliminarRol = ({ id, setCounter }) => {
       setLoading(false);
     }
   }, [can, navigate]);
-  
+
   useEffect(() => {
     RoleService.getRole(id, token)
       .then(({ data }) => {
@@ -45,7 +45,9 @@ const EliminarRol = ({ id, setCounter }) => {
         .then(({ data }) => {
           if (data) {
             console.log(data);
+            setShowModal(false);
             setCounter((prev) => prev + 1);
+            toast.success("El rol ha sido eliminado exitosamente");
           }
         })
         .catch(({ err }) => {
@@ -113,7 +115,6 @@ const EliminarRol = ({ id, setCounter }) => {
       </form>
     </div>
   );
-
 };
 
 export default EliminarRol

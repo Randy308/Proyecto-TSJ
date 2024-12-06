@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/styles_randy/jurisprudencia-busqueda.css";
-import { FaFilter } from "react-icons/fa";
 import axios from "axios";
 import "../../styles/paginate.css";
 import Loading from "../../components/Loading";
-import { comparacionItems } from "../../data/ComparacionItems";
 import Dropdown from "../../components/Dropdown";
 import Select from "./tabs/Select";
 import SimpleChart from "../../components/SimpleChart";
-import Prediccion from "./tabs/Prediccion";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
 import { Link } from "react-router-dom";
@@ -40,9 +37,6 @@ const CompararDatos = () => {
 
   const [terminos, setTerminos] = useState([]);
 
-  const [timeSeries, setTimeSeries] = useState(null);
-  const [proyeccion, setProyeccion] = useState(null);
-
   const [option, setOption] = useState({});
 
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +49,6 @@ const CompararDatos = () => {
     materia: "all",
   });
 
-  const [varActiva, setVarActiva] = useState(1);
 
   useEffect(() => {
     if (!hasFetchedDates) {
@@ -124,15 +117,14 @@ const CompararDatos = () => {
         },
         series: resoluciones.map((item) => item),
         grid: {
-          top: "10%", 
-          bottom: "10%", 
-          left: "10%", 
-          right: "10%", 
+          top: "10%",
+          bottom: "10%",
+          left: "10%",
+          right: "10%",
         },
       });
     }
   }, [resoluciones]);
-
 
   const obtenerResoluciones = async () => {
     try {
@@ -177,10 +169,6 @@ const CompararDatos = () => {
     }
   };
 
-  const obtenerSerieTemporal = (item) => {
-    
-    console.log(item.detalles);
-  };
 
   const removeItemById = (id) => {
     setResoluciones((prevResoluciones) =>
@@ -203,61 +191,10 @@ const CompararDatos = () => {
     });
   };
 
-
-
-  const realizarProyeccion = async (data) => {
-    try {
-      const { data } = await axios.get(`${endpoint}/realizar-prediccion`, {
-        params: {
-          ...data,
-        },
-      });
-      setProyeccion(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-
-  const renderContent = (number) => {
-    switch (number) {
-      case 1:
-        return (
-          <>
-            {resoluciones && resoluciones.length > 0 ? (
-              <SimpleChart option={option} border={false}></SimpleChart>
-            ) : (
-              <div className="h-[500px]">
-                <Loading></Loading>
-              </div>
-            )}
-          </>
-        );
-      case 3:
-        return (
-          <>
-            {proyeccion ? (
-              <Prediccion proyeccion={proyeccion} />
-            ) : (
-              <p className="text-gray-500 dark:text-white">No existen datos</p>
-            )}
-          </>
-        );
-      default:
-        return (
-          <p className="text-gray-500 dark:text-white">No existen datos</p>
-        );
-    }
-  };
-
   return (
     <div className="container mx-auto custom:px-0" id="jurisprudencia-busqueda">
       <div className="row p-4">
         <div className="flex flex-col bg-white dark:bg-[#111827] rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
-          {/* <div className="custom-gradient p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
-            <FaFilter></FaFilter> <p>Campos de filtrado</p>
-          </div> */}
-
           <div className="w-full p-4 text-center bg-white border border-gray-200 rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
             <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400 m-4">
               <li className="w-full focus-within:z-10">
@@ -278,12 +215,6 @@ const CompararDatos = () => {
               </li>
             </ul>
 
-            {/* <h5 className="mb-2 text-3xl font-bold text-gray-900 dark:text-white">
-              Análisis de datos
-            </h5>
-            <p className="mb-5 text-base text-gray-500 sm:text-lg dark:text-gray-400">
-              Comparación de datos atreves del tiempo.
-            </p> */}
             <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data &&
                 Object.entries(data).map(([key, items]) => (
@@ -322,43 +253,20 @@ const CompararDatos = () => {
           terminos.map((item, index) => (
             <Dropdown
               key={index}
-              obtenerSerieTemporal={obtenerSerieTemporal}
               item={item}
               removeItemById={removeItemById}
             />
           ))}
       </div>
 
-      <div>
-        <ul className="flex flex-wrap text-sm font-medium text-center text-gray-500 dark:text-gray-400 p-4 m-4">
-          {comparacionItems.map((item) => (
-            <li className="me-2" key={item.id}>
-              <a
-                className={`inline-block px-4 py-3 rounded-lg  ${
-                  item.id === varActiva
-                    ? "text-white bg-[#7E3045] dark:bg-gray-900  active"
-                    : "hover:text-gray-900 hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
-                }`}
-                onClick={() => setVarActiva(item.id)}
-              >
-                {item.title}
-              </a>
-            </li>
-          ))}
-        </ul>
-        <div>
-          {comparacionItems.map(
-            (item) =>
-              item.id === varActiva && (
-                <div
-                  key={item.id}
-                  className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full"
-                >
-                  {renderContent(item.id)}
-                </div>
-              )
-          )}
-        </div>
+      <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
+        {resoluciones && resoluciones.length > 0 ? (
+          <SimpleChart option={option} border={false}></SimpleChart>
+        ) : (
+          <div className="h-[500px]">
+            <Loading></Loading>
+          </div>
+        )}
       </div>
     </div>
   );

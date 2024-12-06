@@ -19,7 +19,7 @@ export function ThemeProvider(props) {
     setIsDark(!isDark);
   };
 
-  // Apply the theme to the body element when isDark changes
+ 
   useEffect(() => {
     if (isDark) {
       document.body.classList.add("dark-theme");

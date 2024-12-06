@@ -8,29 +8,23 @@ const PortalButton = ({
   name,
   Icon = FaPlay,
   full = true,
-  content,
-  color = "blue", 
+  content, 
+  color = "blue",
 }) => {
-  const showMyModal = () => {
-    setShowModal(true);
-  };
-
   const [showModal, setShowModal] = useState(false);
-
 
   const buttonColorClasses = {
     blue: "bg-blue-700 hover:bg-blue-800 active:bg-blue-600",
     red: "bg-red-700 hover:bg-red-800 active:bg-red-600",
     green: "bg-green-700 hover:bg-green-800 active:bg-green-600",
     yellow: "bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-400",
-
   };
 
   return (
     <>
       <button
         type="button"
-        onClick={() => showMyModal()}
+        onClick={() => setShowModal(true)}
         className={`inline-flex items-center px-4 py-3 ${
           full ? "w-full" : ""
         } rounded-lg font-medium text-white ${
@@ -46,7 +40,7 @@ const PortalButton = ({
           <ModalContent
             title={title}
             onClose={() => setShowModal(false)}
-            content={content}
+            content={content(showModal, setShowModal)}
           />,
           document.body
         )}

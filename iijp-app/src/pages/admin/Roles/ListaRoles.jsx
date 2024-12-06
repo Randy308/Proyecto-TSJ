@@ -64,9 +64,14 @@ const ListaRoles = () => {
               name="Crear nuevo rol"
               Icon={TiUserAdd}
               title="Crear rol"
-              content={
-                <CrearRol setCounter={setCounter} permissions={permissions} />
-              }
+              content={(showModal, setShowModal) => (
+                <CrearRol
+                  setCounter={setCounter}
+                  permissions={permissions}
+                  showModal={showModal}
+                  setShowModal={setShowModal}
+                />
+              )}
             />
           </div>
         )}
@@ -108,12 +113,14 @@ const ListaRoles = () => {
                             <PortalButton
                               Icon={MdDeleteForever}
                               color="red"
-                              content={
+                              content={(showModal, setShowModal) => (
                                 <EliminarRol
                                   setCounter={setCounter}
                                   id={item.id}
+                                  showModal={showModal}
+                                  setShowModal={setShowModal}
                                 />
-                              }
+                              )}
                             />
                           </div>
                         )}
@@ -124,13 +131,15 @@ const ListaRoles = () => {
                               Icon={FaRegEye}
                               color="green"
                               title="Ver usuario"
-                              content={
+                              content={(showModal, setShowModal) => (
                                 <VerRol
                                   setCounter={setCounter}
                                   id={item.id}
                                   permissions={permissions}
+                                  showModal={showModal}
+                                  setShowModal={setShowModal}
                                 />
-                              }
+                              )}
                             />
                           </div>
                         )}
@@ -141,13 +150,15 @@ const ListaRoles = () => {
                               Icon={FaEdit}
                               title="Editar usuario"
                               color="yellow"
-                              content={
+                              content={(showModal, setShowModal) => (
                                 <EditarRol
-                                  permissions={permissions}
                                   setCounter={setCounter}
                                   id={item.id}
+                                  permissions={permissions}
+                                  showModal={showModal}
+                                  setShowModal={setShowModal}
                                 />
-                              }
+                              )}
                             />
                           </div>
                         )}

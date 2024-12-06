@@ -82,7 +82,14 @@ const Usuarios = () => {
               name="Crear nuevo usuario"
               Icon={TiUserAdd}
               title="Crear usuario"
-              content={<CrearUsuario setCounter={setCounter} roles={roles} />}
+              content={(showModal, setShowModal) => (
+                <CrearUsuario
+                  setCounter={setCounter}
+                  roles={roles}
+                  showModal={showModal}
+                  setShowModal={setShowModal}
+                />
+              )}
             />
           </div>
         )}
@@ -132,12 +139,14 @@ const Usuarios = () => {
                             <PortalButton
                               Icon={MdDeleteForever}
                               color="red"
-                              content={
+                              content={(showModal, setShowModal) => (
                                 <EliminarUsuario
                                   setCounter={setCounter}
                                   id={item.id}
+                                  showModal={showModal}
+                                  setShowModal={setShowModal}
                                 />
-                              }
+                              )}
                             />
                           </div>
                         )}
@@ -147,12 +156,14 @@ const Usuarios = () => {
                               Icon={FaRegEye}
                               color="green"
                               title="Ver usuario"
-                              content={
+                              content={(showModal, setShowModal) => (
                                 <VerUsuario
                                   setCounter={setCounter}
                                   id={item.id}
+                                  showModal={showModal}
+                                  setShowModal={setShowModal}
                                 />
-                              }
+                              )}
                             />
                           </div>
                         )}
@@ -162,13 +173,15 @@ const Usuarios = () => {
                               Icon={FaEdit}
                               title="Editar usuario"
                               color="yellow"
-                              content={
+                              content={(showModal, setShowModal) => (
                                 <EditarUsuario
-                                  roles={roles}
                                   setCounter={setCounter}
+                                  roles={roles}
                                   id={item.id}
+                                  showModal={showModal}
+                                  setShowModal={setShowModal}
                                 />
-                              }
+                              )}
                             />
                           </div>
                         )}
