@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../../components/useLocalStorage";
 import { headingItems } from "../../data/HeadingItems";
 import AsyncButton from "../../components/AsyncButton";
+import { FaSearch } from "react-icons/fa";
+import JurisprudenciaService from "../../services/JurisprudenciaService";
 const endpoint = process.env.REACT_APP_BACKEND;
 const JurisprudenciaCronologia = () => {
   const [currentID, setCurrentID] = useState(null);
@@ -30,6 +32,8 @@ const JurisprudenciaCronologia = () => {
   });
   const [activador, setActivador] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+  const [resultados, setResultados] = useState([]);
   const eliminarNodo = (idBuscado) => {
     if (tabActivo == 1) {
       const indice = arbol.findIndex((elemento) => elemento.id === idBuscado);
@@ -40,7 +44,9 @@ const JurisprudenciaCronologia = () => {
       }
     }
   };
-
+  const actualizarInput = (e) => {
+    setBusqueda(e.target.value);
+  };
   const vaciarNodo = () => {
     if (tabActivo == 1) {
       setArbol([]);
@@ -89,16 +95,101 @@ const JurisprudenciaCronologia = () => {
     }
   };
 
+  const actualizarNodos = async (descriptor) => {
+    try {
+      JurisprudenciaService.actualizarNodo({
+        busqueda: descriptor,
+      })
+        .then(({ data }) => {
+          if (data) {
+            console.log(data);
+            setArbol(data.nodos);
+            setCurrentID(data.last);
+            setResultados([]);
+          }
+        })
+        .catch(({ err }) => {
+          console.log("Existe un error " + err);
+        });
+    } catch (error) {
+      const message = error.response?.data?.error || "Ocurrió un error";
+      console.error("Error fetching data:", message);
+      console.error("Error :", error);
+    }
+  };
+
+  const search = async () => {
+    try {
+      const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
+      console.log(arbol);
+      JurisprudenciaService.searchTermino({
+        busqueda: busqueda,
+        descriptor: nombresTemas,
+      })
+        .then(({ data }) => {
+          if (data) {
+            setResultados(data);
+          }
+        })
+        .catch(({ err }) => {
+          console.log("Existe un error " + err);
+        });
+    } catch (error) {
+      const message = error.response?.data?.error || "Ocurrió un error";
+      console.error("Error fetching data:", message);
+      console.error("Error :", error);
+    }
+  };
+
   const renderContent = (id) => {
     switch (id) {
       case 1:
         return (
-          <ArbolJurisprudencial
-            currentID={currentID}
-            setCurrentID={setCurrentID}
-            setArbol={setArbol}
-            arbol={arbol}
-          />
+          <>
+            <div>
+              <div className="relative w-full mb-4">
+                <input
+                  type="text"
+                  id="voice-search"
+                  value={busqueda}
+                  onChange={(e) => actualizarInput(e)}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Buscar en el arbol jurisprudencial...."
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => search()}
+                  className="absolute inset-y-0 end-0 flex items-center pe-3"
+                >
+                  <FaSearch className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
+                </button>
+              </div>
+
+              <div className="bg-white p-4">
+                {resultados && resultados.length > 0 ? (
+                  resultados.map((item, index) => (
+                    <div
+                      className="flex justify-between items-center bg-gray-50 hover:bg-gray-200 rounded-md p-3 my-2 cursor-pointer transition-all ease-in-out duration-200"
+                      key={index}
+                      onClick={() => actualizarNodos(item.descriptor)}
+                    >
+                      <span className="text-black font-semibold">{item.descriptor}</span>
+                      <span className="text-gray-600 text-sm">{item.cantidad}</span>
+                    </div>
+                  ))
+                ) : (
+                  <ArbolJurisprudencial
+                    currentID={currentID}
+                    setCurrentID={setCurrentID}
+                    setArbol={setArbol}
+                    arbol={arbol}
+                  />
+                )}
+              </div>
+            </div>
+            
+          </>
         );
       case 2:
         return (
@@ -173,7 +264,7 @@ const JurisprudenciaCronologia = () => {
       <div className="header-container">
         <div>
           <p className="text-bold text-3xl text-center my-4 arimo text-black dark:text-white">
-            Generación de Cronologías Jurídicas
+            Generación de Cronojurídicas
           </p>
           <div className="flex flex-row gap-1 flex-wrap arrow-steps my-4">
             <div
@@ -241,10 +332,6 @@ const JurisprudenciaCronologia = () => {
               item.id === tabActivo ? "" : "hidden"
             }`}
           >
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
-              {item.title} Tab
-            </h3>
-
             {renderContent(item.id)}
           </div>
         ))}

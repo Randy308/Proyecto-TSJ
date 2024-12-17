@@ -2,13 +2,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "../../../components/Loading";
 import "../../../styles/styles_randy/cronologia-jurisprudencia.css";
-
-
-const ArbolJurisprudencial = ({currentID,setCurrentID,arbol,setArbol}) => {
+import { FaSearch } from "react-icons/fa";
+const ArbolJurisprudencial = ({ currentID, setCurrentID, arbol, setArbol }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [temas, setTemas] = useState(null);
-
 
   const getNodos = useCallback(async () => {
     try {
@@ -27,8 +25,9 @@ const ArbolJurisprudencial = ({currentID,setCurrentID,arbol,setArbol}) => {
 
   useEffect(() => {
     if (currentID === null) return;
-    const nombre = temas.find((tema) => tema.id === currentID)?.nombre;
-    if(arbol.find((tema) => tema.id === currentID)?.nombre) return;
+    const nombre = Array.isArray(temas) ? temas.find((tema) => tema.id === currentID)?.nombre : null;
+  
+    if (arbol.find((tema) => tema.id === currentID)?.nombre) return;
     if (nombre) {
       setTemas([]);
       setArbol((prevArbol) => [...prevArbol, { id: currentID, nombre }]);
@@ -44,7 +43,7 @@ const ArbolJurisprudencial = ({currentID,setCurrentID,arbol,setArbol}) => {
     );
   }
   return (
-    <div className="m-2 p-2 custom:p-0 custom:m-0" id="temas-container">
+    <div className="m-2 p-2 custom:p-0 custom:m-0">
       <div className="slider-container">
         {temas &&
           temas.map((tema) => (

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ArimaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\Api\ExcelController;
+use App\Http\Controllers\Api\JurisprudenciasController;
 use App\Http\Controllers\Api\MagistradosController;
 use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
@@ -46,6 +47,10 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
+
+    Route::get('/search-term-jurisprudencia', [JurisprudenciasController::class, 'busquedaTerminos']);
+    Route::get('/actualizar-nodo', [JurisprudenciasController::class, 'actualizarNodo']);
+    
 });
 
 
