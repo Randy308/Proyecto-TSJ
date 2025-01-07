@@ -35,9 +35,9 @@ const Dropdown = ({ item, removeItemById }) => {
     navigate("/busqueda", { state: { flag: true } });
   };
 
-  const navegar = (item) => {
+  const navegar = (item , ruta="/proyeccion") => {
     
-    navigate("/proyeccion", { state: { parametros: item } });
+    navigate(ruta, { state: { parametros: item } });
   };
 
   return (
@@ -74,6 +74,14 @@ const Dropdown = ({ item, removeItemById }) => {
                 className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >
                 Realizar proyección
+              </a>
+            </li>
+            <li>
+              <a
+                onClick={() => navegar(item.detalles , "/jurisprudencia/avanzado")}
+                className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+              >
+                Realizar analisis
               </a>
             </li>
             <li>

@@ -182,6 +182,7 @@ class ArimaController extends Controller
         return $newArray;
     }
 
+    
 
     public function obtenerSerieTemporal(Request $request)
 
@@ -360,7 +361,7 @@ class ArimaController extends Controller
     public function realizar_prediccion(Request $request)
     {
 
-        $serie_temporal =  ArimaController::obtenerSerieTemporal($request);
+        $serie_temporal =  $this->obtenerSerieTemporal($request);
         //return $serie_temporal;
         $data = array_map('intval', $serie_temporal['cantidad']);
         $periodos = $serie_temporal['periodo'];

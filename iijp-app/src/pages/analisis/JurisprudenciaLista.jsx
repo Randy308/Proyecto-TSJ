@@ -5,6 +5,7 @@ import SimpleChart from "../../components/SimpleChart";
 import Loading from "../../components/Loading";
 import { IoPeopleCircleSharp } from "react-icons/io5";
 import { HiMiniBuildingLibrary } from "react-icons/hi2";
+import { CgDisplayGrid } from "react-icons/cg";
 const JurisprudenciaLista = () => {
   const jurisprudenciaItems = [
 
@@ -25,6 +26,15 @@ const JurisprudenciaLista = () => {
       path: "/jurisprudencia/lista-salas",
       cName: "tool-item",
       icon: <HiMiniBuildingLibrary className="h-8 w-8" />,
+    },
+    {
+      id: 4,
+      title: "Análisis avanzado",
+      descripcion:
+        "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
+      path: "/jurisprudencia/avanzado",
+      cName: "tool-item",
+      icon: <CgDisplayGrid className="h-8 w-8" />,
     },
   ];
   const endpoint = process.env.REACT_APP_BACKEND;

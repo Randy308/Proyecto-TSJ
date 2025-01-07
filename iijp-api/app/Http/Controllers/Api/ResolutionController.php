@@ -11,11 +11,14 @@ use App\Models\Resolutions;
 use App\Models\Salas;
 use App\Models\TipoResolucions;
 use Carbon\Carbon;
+use DateInterval;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Validator;
+use InvalidArgumentException;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -692,4 +695,125 @@ class ResolutionController extends Controller
             'data' => $data,
         ]);
     }
+
+
+
+    public function obtenerSerieTemporal(Request $request)
+
+
+    {
+
+        $validator = Validator::make($request->all(), [
+            'materia' => 'nullable|string',
+            'tipo_jurisprudencia' => 'nullable|string',
+            'tipo_resolucion' => [
+                'nullable',
+                'integer',
+            ],
+            'sala' => [
+                'nullable',
+                'integer',
+            ],
+            'departamento' => [
+                'nullable',
+                'integer',
+            ],
+            'magistrado' => [
+                'nullable',
+                'integer',
+            ],
+            'forma_resolucion' => [
+                'nullable',
+                'integer',
+            ],
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $fecha_final = $request->input('fecha_final');
+        $fecha_inicial = $request->input('fecha_inicial');
+        $intervalo = $request->input('intervalo');
+
+        $intervalo = "quarter";
+        $validIntervals = ['day', 'month', 'year', 'week', 'quarter'];
+        if (!in_array($intervalo, $validIntervals)) {
+            throw new InvalidArgumentException("Invalid interval specified.");
+        }
+
+        $query = DB::table('resolutions AS r')
+            ->selectRaw('COUNT(r.id) AS cantidad');
+
+        switch ($intervalo) {
+            case 'day':
+                $query->selectRaw('DATE(r.fecha_emision) AS periodo');
+                $query->groupBy(DB::raw('DATE(r.fecha_emision)'));
+                $query->orderBy(DB::raw('DATE(r.fecha_emision)'));
+                break;
+            case 'week':
+                $query->selectRaw('DATE_TRUNC(\'week\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
+                break;
+            case 'month':
+                $query->selectRaw('DATE_TRUNC(\'month\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
+                break;
+            case 'quarter':
+
+                $query->selectRaw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
+                break;
+            case 'year':
+
+                $query->selectRaw('DATE_TRUNC(\'year\', r.fecha_emision)::date AS periodo');
+                $query->groupBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
+                $query->orderBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
+                break;
+        }
+
+
+        if ($request->has('limite')) {
+            $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 2005');
+        }
+        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 1999');
+        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) < 2025');
+        if ($request->has('magistrado')) {
+            $query->where('r.magistrado_id', $request->magistrado);
+        }
+        if ($request->has('forma_resolucion')) {
+            $query->where('r.forma_resolucion_id', $request->forma_resolucion);
+        }
+        if ($request->has('tipo_resolucion')) {
+            $query->where('r.tipo_resolucion_id', $request->tipo_resolucion);
+        }
+        if ($request->has('sala')) {
+            $query->where('r.sala_id', $request->sala);
+        }
+        if ($request->has('departamento')) {
+            $query->where('r.departamento_id', $request->departamento);
+        }
+
+        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
+            $tipo_jurisprudencia = $request->tipo_jurisprudencia ?? 'all';
+            $materia = $request->materia ?? 'all';
+
+            $query->join(DB::raw("(SELECT resolution_id FROM jurisprudencias
+            WHERE ('{$tipo_jurisprudencia}' = 'all' OR tipo_jurisprudencia = '{$tipo_jurisprudencia}')
+            AND ('{$materia}' = 'all' OR descriptor LIKE '{$materia}%')) AS j"), 'j.resolution_id', '=', 'r.id');
+        }
+
+        $resolutions = $query->get();
+
+        return [
+            'resolutions' => $resolutions,
+        ];
+    }
+    
 }

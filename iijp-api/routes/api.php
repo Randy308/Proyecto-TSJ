@@ -155,3 +155,5 @@ Route::get('/realizar-prediccion', [ArimaController::class, 'realizar_prediccion
 
 Route::get('/obtencion-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);
 Route::get('/filtrar-autos-supremos', [ResolutionController::class, 'filtrarResolucionesContenido']);
+
+Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);

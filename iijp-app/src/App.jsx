@@ -32,6 +32,7 @@ import WebScrapping from "./pages/datos/WebScrapping";
 import SubirResoluciones from "./pages/datos/SubirResoluciones";
 import ListaRoles from "./pages/admin/Roles/ListaRoles";
 import Prediccion from "./pages/prediccion/Prediccion";
+import AnalisisAvanzado from "./pages/analisis/AnalisisAvanzado";
 
 function App() {
   return (
@@ -63,10 +64,7 @@ function App() {
                 element={<MagistradoTSJ />}
               />
 
-              <Route
-                path="/proyeccion"
-                element={<Prediccion />}
-              />
+              <Route path="/proyeccion" element={<Prediccion />} />
 
               <Route
                 path="/jurisprudencia/resolucion/:id"
@@ -82,6 +80,9 @@ function App() {
                 path="/jurisprudencia/lista-salas"
                 element={<ListaSalas />}
               />
+
+              <Route path="/jurisprudencia/avanzado" element={<AnalisisAvanzado />} />
+
               <Route path="/analisis/sala/:id" element={<AnalisisSala />} />
               <Route path="/iijp-login" element={<Login />} />
               <Route path="/registrar" element={<Register />} />
@@ -113,7 +114,10 @@ function App() {
               <Route path="/" element={<LayoutUser />}>
                 <Route path="/user" element={<PanelUser />} />
                 <Route path="/dashboard" element={<PanelAdmin />} />
-                <Route path="/subir-resoluciones" element={<SubirResoluciones />} />
+                <Route
+                  path="/subir-resoluciones"
+                  element={<SubirResoluciones />}
+                />
                 <Route
                   path="/admin/subir/autos-supremos"
                   element={<TablaCSV />}
