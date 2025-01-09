@@ -157,3 +157,4 @@ Route::get('/obtencion-resoluciones', [ResolutionController::class, 'obtenerReso
 Route::get('/filtrar-autos-supremos', [ResolutionController::class, 'filtrarResolucionesContenido']);
 
 Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);
+

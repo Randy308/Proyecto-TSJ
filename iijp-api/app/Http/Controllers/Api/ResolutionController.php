@@ -811,9 +811,96 @@ class ResolutionController extends Controller
 
         $resolutions = $query->get();
 
-        return [
+        return response()->json([
+
             'resolutions' => $resolutions,
-        ];
+        ]);
+    }
+
+    function getTerminosX($procesoColumn)
+    {
+    
+        $searchTerms = ['Despojo', 'Difamación', 'Cumplimiento'];
+    
+        $results = DB::table('resolutions as r')
+            
+            ->selectRaw("
+                CASE
+                    WHEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g')) IN (" . implode(',', array_map(fn($term) => "'$term'", $searchTerms)) . ") 
+                    THEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g'))
+                    ELSE 'Otro'
+                END AS termino,
+                COUNT(*) AS cantidad
+            ")
+            ->whereNotNull("r.$procesoColumn")
+            ->groupBy(DB::raw("termino"))
+            ->orderByDesc('cantidad')
+            ->get();
+    
+        return response()->json($results);
+    }
+
+    function getTerminosXY($procesoColumn)
+    {
+    
+        $searchTerms = ['Despojo', 'Difamación', 'Cumplimiento'];
+    
+        $results = DB::table('resolutions as r')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->selectRaw("
+                CASE
+                    WHEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g')) IN (" . implode(',', array_map(fn($term) => "'$term'", $searchTerms)) . ") 
+                    THEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g'))
+                    ELSE 'Otro'
+                END AS termino,
+                fr.nombre AS nombre,
+                COUNT(*) AS cantidad
+            ")
+            ->whereNotNull("r.$procesoColumn")
+            ->groupBy(DB::raw("termino, fr.nombre"))
+            ->orderByDesc('cantidad')
+            ->get();
+    
+        // Devolver los resultados como JSON
+        return response()->json($results);
+    }
+
+
+    
+    function obtenerTerminos(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'tabla' => 'required|string',
+            'columna' => 'required|string',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $tableName = $request->input('tabla');
+        $columnName = $request->input('columna');
+    
+
+        $results = DB::table($tableName.' as t')
+            ->selectRaw("
+                INITCAP(REGEXP_REPLACE(SPLIT_PART(t.$columnName, ' ', 1), '[^\\w]', '', 'g')) AS terminos,
+                COUNT(*) AS cantidad
+            ")
+            ->whereNotNull("t.$columnName") 
+            ->groupBy(DB::raw("INITCAP(REGEXP_REPLACE(SPLIT_PART(t.$columnName, ' ', 1), '[^\\w]', '', 'g'))"))
+            ->havingRaw('COUNT(*) > 10')
+            ->orderByDesc('terminos')
+            ->get();
+
+        //ordenar por cantidad
+        $results = $results->sortByDesc('cantidad');
+    
+        return response()->json($results);
     }
     
 }
