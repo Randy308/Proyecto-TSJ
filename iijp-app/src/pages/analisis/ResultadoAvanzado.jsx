@@ -9,20 +9,18 @@ import Select from "../../components/Select";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import AsyncButton from "../../components/AsyncButton";
 const endpoint = process.env.REACT_APP_BACKEND;
-import variablesAnalisis from "../../data/VariablesAnalisis";
-const AnalisisAvanzado = () => {
-    const { state } = useLocation();
-    const { parametros } = state || {}; 
-    
 
+const ResultadoAvanzado = () => {
   const { id } = useParams();
-
+  const location = useLocation();
+  const navigate = useNavigate();
+  const receivedData = location.state;
 
   const [data, setData] = useState(null);
-  const [formaResolution, setFormaResolution] = useState(null);
+  const [columna, setColumna] = useState(null);
 
   const [option, setOption] = useState({});
-  const [salas, setSalas] = useState(null);
+  const [terminos, setTerminos] = useState(null);
   const [params, setParams] = useState(null);
   const [columns, setColumns] = useState(null);
 
@@ -30,12 +28,17 @@ const AnalisisAvanzado = () => {
   const [lista, setLista] = useState([]);
   const [multiVariable, setMultiVariable] = useState(false);
 
+  const [nombre, setNombre] = useState("Nombre");
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    if (parametros && Object.keys(parametros).length > 0) {
+    if (terminos && id && columna) {
       axios
-        .get(`${endpoint}/obtener-serie-temporal`, {
-          params: parametros,
+        .get(`${endpoint}/obtener-parametros-terminos`, {
+          params: {
+            terminos: terminos,
+            tabla: id,
+            columna: columna,
+          },
         })
         .then(({ data }) => {
           setParams(data);
@@ -45,15 +48,25 @@ const AnalisisAvanzado = () => {
           console.error("Error fetching data", error);
         });
     }
-  }, [parametros]);
-  
+  }, [terminos, id]);
 
   const memoizedParams = useMemo(() => params, [params]);
   const [limite, setLimite] = useState(0);
   const [listaX, setListaX] = useState([]);
   const [checkedX, setCheckedX] = useState(false);
 
-
+  useEffect(() => {
+    if (receivedData === null || !Array.isArray(receivedData.data)) {
+      navigate("/analisis/avanzado");
+    } else {
+      console.log(receivedData);
+      setTerminos(receivedData.terminos);
+      setData(receivedData.data.length > 0 ? receivedData.data : []);
+      setColumna(receivedData.columna);
+      setMultiVariable(receivedData.multiVariable);
+      setNombre(receivedData.nombre);
+    }
+  }, [receivedData]);
 
   const createSeries = (length) => {
     const series = [];
@@ -64,12 +77,12 @@ const AnalisisAvanzado = () => {
   };
   useEffect(() => {
     if (data && data.length > 0) {
-      const totalCounts = { sala: "Total" };
+      const totalCounts = { [nombre]: "Total" };
 
       const processedData = multiVariable
         ? data.map((item) => {
             const total = Object.entries(item).reduce(
-              (sum, [key, value]) => (key !== "sala" ? sum + value : sum),
+              (sum, [key, value]) => (key !== nombre ? sum + value : sum),
               0
             );
             return { ...item, Total: total };
@@ -78,7 +91,7 @@ const AnalisisAvanzado = () => {
 
       processedData.forEach((entry) => {
         Object.keys(entry).forEach((key) => {
-          if (key !== "sala") {
+          if (key !== nombre) {
             totalCounts[key] = (totalCounts[key] || 0) + entry[key];
           }
         });
@@ -126,12 +139,12 @@ const AnalisisAvanzado = () => {
       : `${endpoint}/estadisticas-x`;
     const params = isMultiVariable
       ? {
-          salas,
+          terminos,
           formaId: id,
           idsY: listaX[0].ids,
           nombreY: listaX[0].name,
         }
-      : { salas, formaId: id };
+      : { terminos, formaId: id };
 
     axios
       .get(endpointPath, { params })
@@ -195,10 +208,10 @@ const AnalisisAvanzado = () => {
   return (
     <div className="grid grid-cols-4 gap-2 p-4 m-4 custom:grid-cols-1">
       <div className="p-4 m-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
-        {parametros && (
+        {columna && (
           <p className="text-black dark:text-white pb-4">
-            Forma de resolucion:
-            <span className="italic font-bold"> {JSON.stringify(parametros)}</span>
+            Variable:
+            <span className="italic font-bold"> {columna}</span>
           </p>
         )}
         <div>
@@ -312,4 +325,4 @@ const AnalisisAvanzado = () => {
   );
 };
 
-export default AnalisisAvanzado;
+export default ResultadoAvanzado;

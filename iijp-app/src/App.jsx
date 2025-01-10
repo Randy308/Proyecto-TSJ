@@ -33,6 +33,7 @@ import SubirResoluciones from "./pages/datos/SubirResoluciones";
 import ListaRoles from "./pages/admin/Roles/ListaRoles";
 import Prediccion from "./pages/prediccion/Prediccion";
 import AnalisisAvanzado from "./pages/analisis/AnalisisAvanzado";
+import ResultadoAvanzado from "./pages/analisis/ResultadoAvanzado";
 
 function App() {
   return (
@@ -81,8 +82,8 @@ function App() {
                 element={<ListaSalas />}
               />
 
-              <Route path="/jurisprudencia/avanzado" element={<AnalisisAvanzado />} />
-
+              <Route path="/analisis/avanzado" element={<AnalisisAvanzado />} />
+              <Route path="/analisis/avanzado/:id" element={<ResultadoAvanzado />} />
               <Route path="/analisis/sala/:id" element={<AnalisisSala />} />
               <Route path="/iijp-login" element={<Login />} />
               <Route path="/registrar" element={<Register />} />

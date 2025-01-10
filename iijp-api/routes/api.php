@@ -161,5 +161,3 @@ Route::get('/obtener-terminos-avanzados', [ResolutionController::class, 'obtener
 Route::get('/buscar-terminos', [ResolutionController::class, 'buscarTerminos']);
 Route::get('/obtener-estadistica-avanzada-x', [ResolutionController::class, 'getTerminosX']);
 Route::get('/obtener-estadistica-avanzada-xy', [ResolutionController::class, 'getTerminosXY']);
-
-

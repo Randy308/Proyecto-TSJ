@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { BsCheck2All } from "react-icons/bs";
 import { MdOutlineRemoveCircle } from "react-icons/md";
-const SelectDropdown = ({ name,tabla, listaX, setListaX, contenido }) => {
+const SelectDropdown = ({
+  name,
+  tabla,
+  listaX,
+  setListaX,
+  contenido,
+}) => {
+
+  const [limite,setLimite] = useState(2);
   const handleCheckboxChange = (event) => {
     const itemId = event.target.name;
 
@@ -13,19 +21,54 @@ const SelectDropdown = ({ name,tabla, listaX, setListaX, contenido }) => {
           ? existingItem.ids.filter((id) => id !== itemId)
           : [...existingItem.ids, itemId];
 
-        return updatedIds.length > 0 ? [{ name,tabla, ids: updatedIds }] : [];
+        // Si los ids de este item quedan vacíos, eliminar este objeto
+        if (updatedIds.length === 0) {
+          return prev.filter((item) => item.name !== name);
+        }
+
+        // Actualizar el item con los ids modificados
+        return prev.map((item) =>
+          item.name === name ? { ...item, ids: updatedIds } : item
+        );
       } else {
-        return [{ name, tabla, ids: [itemId] }];
+        // Agregar un nuevo item si no existe y el límite no se ha excedido
+        if (prev.length < limite) {
+          return [...prev, { name, tabla, ids: [itemId] }];
+        } else {
+          alert(`No se pueden agregar más de ${limite} variables.`);
+          return prev;
+        }
       }
     });
   };
 
   const clearList = () => {
-    setListaX([]);
+    setListaX((prev) => prev.filter((item) => !(item.name === name && item.tabla === tabla)));
   };
+  
 
   const selectAll = () => {
-    setListaX([{ name: name, tabla:tabla, ids: contenido.map((item) => item.termino) }]);
+    setListaX((prev) => {
+      const existingItem = prev.find((item) => item.name === name);
+
+      // Actualizar o crear un nuevo item
+      const newItem = {
+        name,
+        tabla,
+        ids: contenido.map((item) => item.termino),
+      };
+
+      if (existingItem) {
+        return prev.map((item) => (item.name === name ? newItem : item));
+      } else {
+        if (prev.length < limite) {
+          return [...prev, newItem];
+        } else {
+          alert(`No se pueden agregar más de ${limite} variables.`);
+          return prev;
+        }
+      }
+    });
   };
 
   return (

@@ -32,7 +32,7 @@ const JurisprudenciaLista = () => {
       title: "Análisis avanzado",
       descripcion:
         "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
-      path: "/jurisprudencia/avanzado",
+      path: "/analisis/avanzado",
       cName: "tool-item",
       icon: <CgDisplayGrid className="h-8 w-8" />,
     },

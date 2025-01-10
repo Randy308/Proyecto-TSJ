@@ -880,57 +880,92 @@ class ResolutionController extends Controller
                 ->get();
         }
 
-        return response()->json($results);
+        //return response()->json($results);
+
+        return response()->json([
+
+            'data' => $results,
+            'tabla' => $tableName,
+            'columna' => $columnName,
+            'terminos' => $terminos,
+            'nombre' => $columnName,
+            'multiVariable'=> false
+        ]);
     }
 
     function getTerminosXY(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'tabla' => 'required|string|in:jurisprudencias,resolutions',
-            'columna' => 'required|string',
-            'terminos' => 'required|array',
-            'terminos.*' => 'required|string',
+            'terminosX' => 'required|array',
+            'terminosX.*' => 'required|string',
+            'terminosY' => 'required|array',
+            'terminosY.*' => 'required|string',
+            'columnaX' => 'required|string',
+            'tablaX' => 'required|string',
+            'columnaY' => 'required|string',
+            'tablaY' => 'required|string',
         ]);
-
 
         if ($validator->fails()) {
             return response()->json([
                 'errors' => $validator->errors()
             ], 422);
         }
-        $tableName = $request->input('tabla');
-        $columnName = $request->input('columna');
-        $terminos = $request->input('terminos');
 
-        // Construir dinámicamente las condiciones del CASE
-        $caseConditions = array_map(function ($termino) use ($columnName) {
-            return "WHEN r.$columnName ~* '^" . preg_quote($termino, '/') . "' THEN '$termino'";
-        }, $terminos);
 
-        // Combinar las condiciones en una sola cadena
-        $caseStatement = implode("\n", $caseConditions);
+        $salasArray = $request['terminosX'];
+        $tableArray = $request['terminosY'];
+        $columnaX = $request['columnaX'];
+        $columnaY = $request['columnaY'];
+        $combinations = [];
 
-        // Agregar la condición para "Otro"
-        $caseStatement .= "\nELSE 'Otro'";
+        foreach ($salasArray as $sala) {
+            foreach ($tableArray as $row) {
+                $combinations[] = [
+                    $columnaX => $sala,
+                    $columnaY => $row,
+                    "cantidad" => 0,
+                ];
+            }
+        }
 
-        // Ejecutar la consulta
-        $results = DB::table("$tableName as r")
-            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
-            ->selectRaw("
-            CASE
-                $caseStatement
-            END AS termino,
-            fr.nombre AS nombre,
-            COUNT(*) AS cantidad
-        ")
-            ->whereNotNull("r.$columnName")
-            ->groupBy(DB::raw("termino, fr.nombre"))
-            ->orderByDesc('cantidad')
-            ->get();
+        //return response()->json($combinations);
+        $datos = $this->generarConsulta([
+            (object)[
+                "nombre" => $request->columnaX,
+                "tabla" => $request->tablaX,
+                "ids" => $request->terminosX,
+            ],
+            (object)[
+                "nombre" => $request->columnaY,
+                "tabla" => $request->tablaY,
+                "ids" => $request->terminosY,
+            ]
+        ]);
 
-        // Devolver los resultados como JSON
-        return response()->json($results);
+
+        
+        $datoLookup = [];
+        foreach ($datos as $dato) {
+            $datoLookup[$dato->$columnaX][$dato->$columnaY] = $dato->cantidad;
+        }
+
+
+        foreach ($combinations as &$item) {
+            $item['cantidad'] = $datoLookup[$item[$columnaX]][$item[$columnaY]] ?? 0;
+        }
+
+
+        return response()->json([
+
+            'data' => $this->ordenarArrayXY($combinations, $columnaX ,$columnaY),
+            'tabla' => $request->tablaX,
+            'columna' => $request->columnaX,
+            'nombre' => $request->columnaY,
+            'terminos' => $request->terminosX,
+            'multiVariable'=> true
+        ]);
+
     }
 
 
@@ -991,20 +1026,130 @@ class ResolutionController extends Controller
             ], 422);
         }
 
-        // Obtener los parámetros de la solicitud
+
         $tableName = $request->input('tabla');
         $columnName = $request->input('columna');
         $termino = $request->input('termino');
-        $pagina = $request->input('pagina', 1);  // Página por defecto es 1
+        $pagina = $request->input('pagina', 1);
 
-        // Realizar la consulta con un filtro que busque los registros cuyo valor en la columna coincida con el término (like) sin distinción de mayúsculas/minúsculas
         $results = DB::table($tableName . ' as t')
-            ->select("t.$columnName as nombre")  // Seleccionar la columna de interés
-            ->whereNotNull("t.$columnName")  // Asegurar que el valor no sea nulo
-            ->whereRaw("LOWER(t.$columnName) LIKE ?", [strtolower($termino) . '%'])  // Filtro de búsqueda sin distinción de mayúsculas y minúsculas
-            ->groupBy("t.$columnName")->paginate(10, ['*'], 'pagina', $pagina);  // Paginación de resultados, mostrando 10 resultados por página
+            ->select("t.$columnName as nombre")
+            ->whereNotNull("t.$columnName")
+            ->whereRaw("LOWER(t.$columnName) LIKE ?", [mb_strtolower($termino, 'UTF-8') . '%'])
+            ->groupBy("t.$columnName")
+            ->paginate(10, ['*'], 'pagina', $pagina);
 
-        // Retornar los resultados como respuesta JSON
         return response()->json($results);
+    }
+
+
+    public function generarConsulta($tablas)
+    {
+        // Base query
+        $query = DB::table("resolutions as r")
+            ->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+
+        $selects = ["COALESCE(COUNT(r.id), 0) AS cantidad"];
+        $group_by = [];
+        $having = [];
+
+        foreach ($tablas as $tabla) {
+            $tableName = $tabla->tabla;
+            $values = $tabla->ids;
+            $columnName = $tabla->nombre;
+
+            if ($tableName && $values) {
+                $lista = ['tipo_resolucion', 'departamento', 'sala', 'magistrado'];
+
+                if (in_array($columnName, $lista)) {
+                    $table = $columnName . 's';
+                    $column = $columnName . '_id';
+
+                    // Join with the related table
+                    $query->join("$table as t_$columnName", "t_$columnName.id", "=", "r.$column");
+
+                    // Add to select and group by
+                    $selects[] = "t_$columnName.nombre AS $columnName";
+                    $group_by[] = "t_$columnName.nombre";
+
+                    // Add where condition for filtering by values
+                    $query->whereIn("t_$columnName.nombre", $values);
+                } else {
+                    // Dynamically handle CASE statements based on the table
+                    $caseConditions = array_map(function ($termino) use ($columnName, $tableName) {
+                        $columnTable = $tableName === 'resolutions' ? 'r' : 'j';  // Check if the table is 'resolutions' or 'jurisprudencias'
+                        return "WHEN $columnTable.$columnName ~* '^" . preg_quote($termino, '/') . "' THEN '$termino'";
+                    }, $values);
+
+                    // Join the conditions directly in the CASE statement
+                    $caseStatement = implode("\n", $caseConditions);
+
+                    // Add to select
+                    $selects[] = "CASE $caseStatement END AS $columnName";
+
+                    // In the group by, use the CASE expression itself instead of the column
+                    $group_by[] = "CASE $caseStatement END";
+
+                    // If no match exists, exclude it from the results
+                    $having[] = "CASE $caseStatement END IS NOT NULL";
+                }
+            }
+        }
+
+        // Finalize the query with selects, group by, and having
+        $query->selectRaw(implode(", ", $selects))
+            ->groupByRaw(implode(", ", $group_by));
+
+        if (count($having) > 0) {
+            $query->havingRaw(implode(" AND ", $having));
+        }
+
+        $query->orderByDesc('cantidad');
+
+        // Return the results
+        return $query->get();
+    }
+
+
+    public function ordenarArrayXY($combinations, $nombreX ,$nombreY)
+    {
+        $variableX = $nombreX;
+        $variableY = $nombreY;
+
+        $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX) {
+            return $item[$variableX];
+        })->unique()->values()->all();
+
+        $resultado = [];
+        $uniqueItems = collect($combinations)->pluck($variableY)->unique();
+
+        $combinations = collect($combinations);
+
+        foreach ($uniqueItems as $mainValue) {
+
+            $row = [$variableY => $mainValue];
+
+            foreach ($uniqueColumns as $column) {
+
+                $colValue = $column;
+
+                $entry = $combinations->first(function ($element) use ($mainValue, $variableX, $variableY, $colValue) {
+                    return $element[$variableY] === $mainValue
+                        && $element[$variableX] === $colValue;
+                });
+
+                $row[$column] = $entry ? $entry['cantidad'] : 0;
+
+                if ($entry) {
+                    $combinations = $combinations->reject(function ($element) use ($entry) {
+                        return $element === $entry;
+                    });
+                }
+            }
+
+            $resultado[] = $row;
+        }
+
+        return $resultado;
     }
 }
