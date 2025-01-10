@@ -817,61 +817,129 @@ class ResolutionController extends Controller
         ]);
     }
 
-    function getTerminosX($procesoColumn)
+    function getTerminosX(Request $request)
     {
-    
-        $searchTerms = ['Despojo', 'Difamación', 'Cumplimiento'];
-    
-        $results = DB::table('resolutions as r')
-            
-            ->selectRaw("
-                CASE
-                    WHEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g')) IN (" . implode(',', array_map(fn($term) => "'$term'", $searchTerms)) . ") 
-                    THEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g'))
-                    ELSE 'Otro'
-                END AS termino,
-                COUNT(*) AS cantidad
-            ")
-            ->whereNotNull("r.$procesoColumn")
-            ->groupBy(DB::raw("termino"))
-            ->orderByDesc('cantidad')
-            ->get();
-    
+
+        $validator = Validator::make($request->all(), [
+            'tabla' => 'required|string|in:jurisprudencias,resolutions',
+            'columna' => 'required|string',
+            'terminos' => 'required|array',
+            'terminos.*' => 'required|string',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $tableName = $request->input('tabla');
+        $columnName = $request->input('columna');
+        $terminos = $request->input('terminos');
+
+
+        $lista = ['tipo_resolucion', 'departamento', 'sala', 'magistrado'];
+
+        if (in_array($columnName, $lista)) {
+            $table = $columnName . 's';
+            $column = $columnName . '_id';
+
+            $results = DB::table("resolutions as r")
+                ->join("$table as t", 't.id', '=', "r.$column")
+                ->selectRaw("
+            t.nombre AS nombre,
+            COUNT(*) AS cantidad
+        ")->whereIn("t.nombre", $terminos)
+                ->whereNotNull("t.nombre")
+                ->groupBy(DB::raw("t.nombre"))
+                ->orderByDesc('cantidad')
+                ->get();
+        } else {
+
+            $caseConditions = array_map(function ($termino) use ($columnName) {
+                return "WHEN r.$columnName ~* '^" . preg_quote($termino, '/') . "' THEN '$termino'";
+            }, $terminos);
+
+
+            $caseStatement = implode("\n", $caseConditions);
+
+
+            $caseStatement .= "\nELSE 'Otro'";
+
+
+            $results = DB::table("$tableName as r")
+                ->selectRaw("
+            CASE
+                $caseStatement
+            END AS termino,
+            COUNT(*) AS cantidad
+        ")
+                ->whereNotNull("r.$columnName")
+                ->groupBy('termino')
+                ->orderByDesc('cantidad')
+                ->get();
+        }
+
         return response()->json($results);
     }
 
-    function getTerminosXY($procesoColumn)
+    function getTerminosXY(Request $request)
     {
-    
-        $searchTerms = ['Despojo', 'Difamación', 'Cumplimiento'];
-    
-        $results = DB::table('resolutions as r')
+
+        $validator = Validator::make($request->all(), [
+            'tabla' => 'required|string|in:jurisprudencias,resolutions',
+            'columna' => 'required|string',
+            'terminos' => 'required|array',
+            'terminos.*' => 'required|string',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $tableName = $request->input('tabla');
+        $columnName = $request->input('columna');
+        $terminos = $request->input('terminos');
+
+        // Construir dinámicamente las condiciones del CASE
+        $caseConditions = array_map(function ($termino) use ($columnName) {
+            return "WHEN r.$columnName ~* '^" . preg_quote($termino, '/') . "' THEN '$termino'";
+        }, $terminos);
+
+        // Combinar las condiciones en una sola cadena
+        $caseStatement = implode("\n", $caseConditions);
+
+        // Agregar la condición para "Otro"
+        $caseStatement .= "\nELSE 'Otro'";
+
+        // Ejecutar la consulta
+        $results = DB::table("$tableName as r")
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->selectRaw("
-                CASE
-                    WHEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g')) IN (" . implode(',', array_map(fn($term) => "'$term'", $searchTerms)) . ") 
-                    THEN INITCAP(REGEXP_REPLACE(SPLIT_PART(r.$procesoColumn, ' ', 1), '[^\\w]', '', 'g'))
-                    ELSE 'Otro'
-                END AS termino,
-                fr.nombre AS nombre,
-                COUNT(*) AS cantidad
-            ")
-            ->whereNotNull("r.$procesoColumn")
+            CASE
+                $caseStatement
+            END AS termino,
+            fr.nombre AS nombre,
+            COUNT(*) AS cantidad
+        ")
+            ->whereNotNull("r.$columnName")
             ->groupBy(DB::raw("termino, fr.nombre"))
             ->orderByDesc('cantidad')
             ->get();
-    
+
         // Devolver los resultados como JSON
         return response()->json($results);
     }
 
 
-    
+
     function obtenerTerminos(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
-            'tabla' => 'required|string',
+            'tabla' => 'required|string|in:jurisprudencias,resolutions',
             'columna' => 'required|string',
         ]);
 
@@ -884,23 +952,59 @@ class ResolutionController extends Controller
 
         $tableName = $request->input('tabla');
         $columnName = $request->input('columna');
-    
 
-        $results = DB::table($tableName.' as t')
-            ->selectRaw("
-                INITCAP(REGEXP_REPLACE(SPLIT_PART(t.$columnName, ' ', 1), '[^\\w]', '', 'g')) AS terminos,
+        $lista = ['tipo_resolucion', 'departamento', 'sala', 'magistrado', 'forma_resolucion'];
+
+        if (in_array($columnName, $lista)) {
+            $table = $columnName . 's';
+            $results = DB::table("$table as t")->get(['t.nombre as termino', 't.id as cantidad']);
+        } else {
+            $results = DB::table($tableName . ' as t')
+                ->selectRaw("
+                INITCAP(REGEXP_REPLACE(SPLIT_PART(t.$columnName, ' ', 1), '[^\\w]', '', 'g')) AS termino,
                 COUNT(*) AS cantidad
             ")
-            ->whereNotNull("t.$columnName") 
-            ->groupBy(DB::raw("INITCAP(REGEXP_REPLACE(SPLIT_PART(t.$columnName, ' ', 1), '[^\\w]', '', 'g'))"))
-            ->havingRaw('COUNT(*) > 10')
-            ->orderByDesc('terminos')
-            ->get();
-
-        //ordenar por cantidad
-        $results = $results->sortByDesc('cantidad');
-    
+                ->whereNotNull("t.$columnName")
+                ->groupBy(DB::raw("INITCAP(REGEXP_REPLACE(SPLIT_PART(t.$columnName, ' ', 1), '[^\\w]', '', 'g'))"))
+                ->havingRaw('COUNT(*) > 5')
+                ->orderByDesc('cantidad')
+                ->get();
+        }
         return response()->json($results);
     }
-    
+
+
+    function buscarTerminos(Request $request)
+    {
+        // Validación de parámetros
+        $validator = Validator::make($request->all(), [
+            'tabla' => 'required|string|in:jurisprudencias,resolutions',
+            'columna' => 'required|string',
+            'termino' => 'required|string',
+            'pagina' => 'required|integer|min:1',  // Agregar validación de página
+        ]);
+
+        // Si la validación falla, retornar un error
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Obtener los parámetros de la solicitud
+        $tableName = $request->input('tabla');
+        $columnName = $request->input('columna');
+        $termino = $request->input('termino');
+        $pagina = $request->input('pagina', 1);  // Página por defecto es 1
+
+        // Realizar la consulta con un filtro que busque los registros cuyo valor en la columna coincida con el término (like) sin distinción de mayúsculas/minúsculas
+        $results = DB::table($tableName . ' as t')
+            ->select("t.$columnName as nombre")  // Seleccionar la columna de interés
+            ->whereNotNull("t.$columnName")  // Asegurar que el valor no sea nulo
+            ->whereRaw("LOWER(t.$columnName) LIKE ?", [strtolower($termino) . '%'])  // Filtro de búsqueda sin distinción de mayúsculas y minúsculas
+            ->groupBy("t.$columnName")->paginate(10, ['*'], 'pagina', $pagina);  // Paginación de resultados, mostrando 10 resultados por página
+
+        // Retornar los resultados como respuesta JSON
+        return response()->json($results);
+    }
 }

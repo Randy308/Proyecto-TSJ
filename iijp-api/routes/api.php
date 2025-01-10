@@ -157,4 +157,9 @@ Route::get('/obtencion-resoluciones', [ResolutionController::class, 'obtenerReso
 Route::get('/filtrar-autos-supremos', [ResolutionController::class, 'filtrarResolucionesContenido']);
 
 Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);
+Route::get('/obtener-terminos-avanzados', [ResolutionController::class, 'obtenerTerminos']);
+Route::get('/buscar-terminos', [ResolutionController::class, 'buscarTerminos']);
+Route::get('/obtener-estadistica-avanzada-x', [ResolutionController::class, 'getTerminosX']);
+Route::get('/obtener-estadistica-avanzada-xy', [ResolutionController::class, 'getTerminosXY']);
+
 
