@@ -1,313 +1,232 @@
-import Loading from "../../components/Loading";
-import SimpleChart from "../../components/SimpleChart";
-import TablaX from "../../components/TablaX";
-import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { SwitchChart } from "../../components/SwitchChart";
+import React, { useEffect, useState } from "react";
+import { variablesAnalisis } from "../../data/VariablesAnalisis";
+import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import axios from "axios";
-import Select from "../../components/Select";
-import { MdOutlineCleaningServices } from "react-icons/md";
+import SelectDropdown from "./SelectDropdown";
 import AsyncButton from "../../components/AsyncButton";
+import { MdOutlineCleaningServices } from "react-icons/md";
 const endpoint = process.env.REACT_APP_BACKEND;
 
 const AnalisisAvanzado = () => {
-    const { state } = useLocation();
-    const { parametros } = state || {}; 
-    
+  const [activo, setActivo] = useState(null);
+  const [items, setItems] = useState([]);
+  const [cache, setCache] = useState({}); // Estado para almacenar los datos cacheados
 
-  const { id } = useParams();
+  const [limite, setLimite] = useState(0);
 
+  const [variableActual, setVariableActual] = useState(null);
+  const [listaX, setListaX] = useState([]);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [termino, setTermino] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const [busqueda, setBusqueda] = useState([]);
+  const [total, setTotal] = useState(0);
+  const showTerminos = (variable) => {
+    // Verificamos si los datos ya están en cache
+    if (activo && variable.columna === activo.columna) {
+      setItems([]);
+      setActivo(null);
+      return;
+    }
+    if (cache[variable.columna]) {
+      setItems(cache[variable.columna]);
+      setActivo(variable);
 
-  const [data, setData] = useState(null);
-  const [formaResolution, setFormaResolution] = useState(null);
-
-  const [option, setOption] = useState({});
-  const [salas, setSalas] = useState(null);
-  const [params, setParams] = useState(null);
-  const [columns, setColumns] = useState(null);
-
-  const [actual, setActual] = useState(true);
-  const [lista, setLista] = useState([]);
-  const [multiVariable, setMultiVariable] = useState(false);
-
-  const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    if (parametros && Object.keys(parametros).length > 0) {
+      console.log("Datos cargados desde cache");
+    } else {
       axios
-        .get(`${endpoint}/obtener-serie-temporal`, {
-          params: parametros,
+        .get(`${endpoint}/obtener-terminos-avanzados`, {
+          params: variable,
         })
         .then(({ data }) => {
-          setParams(data);
-          console.log(data);
+          setItems(data);
+          setCache((prevCache) => ({
+            ...prevCache,
+            [variable.columna]: data, // Guardamos los datos en cache
+          }));
+          setActivo(variable);
+          console.log("Datos cargados desde API");
         })
         .catch((error) => {
           console.error("Error fetching data", error);
         });
+      console.log("Llamada a la API:", variable);
     }
-  }, [parametros]);
-  
-
-  const memoizedParams = useMemo(() => params, [params]);
-  const [limite, setLimite] = useState(0);
-  const [listaX, setListaX] = useState([]);
-  const [checkedX, setCheckedX] = useState(false);
-
-
-
-  const createSeries = (length) => {
-    const series = [];
-    for (let index = 0; index < length; index++) {
-      series.push({ type: "bar", seriesLayoutBy: "column" });
-    }
-    return series;
   };
-  useEffect(() => {
-    if (data && data.length > 0) {
-      const totalCounts = { sala: "Total" };
 
-      const processedData = multiVariable
-        ? data.map((item) => {
-            const total = Object.entries(item).reduce(
-              (sum, [key, value]) => (key !== "sala" ? sum + value : sum),
-              0
-            );
-            return { ...item, Total: total };
-          })
-        : data;
-
-      processedData.forEach((entry) => {
-        Object.keys(entry).forEach((key) => {
-          if (key !== "sala") {
-            totalCounts[key] = (totalCounts[key] || 0) + entry[key];
-          }
-        });
-      });
-
-      setLista([...processedData, totalCounts]);
-
-      const headers = Object.keys(data[0]).map(
-        (item) => item.charAt(0).toUpperCase() + item.slice(1)
+  const getDatos = async () => {
+    setIsLoadingData(true);
+    try {
+      const { data } = await axios.get(
+        `${endpoint}/obtener-estadistica-avanzada-x`,
+        {
+          params: {
+            tabla: listaX[0].tabla,
+            columna: listaX[0].name,
+            terminos: listaX[0].ids,
+          },
+        }
       );
-      const values = processedData.map((item) => Object.values(item));
 
-      setOption({
-        legend: {},
-        tooltip: { trigger: "item" },
-        dataset: { source: [headers, ...values] },
-        toolbox: { feature: { saveAsImage: {} } },
-        xAxis: { type: "category", boundaryGap: true },
-        yAxis: {},
-        series: createSeries(headers.length - 1),
-      });
+      console.log("Datos cargados desde API", data);
+    } catch (error) {
+      console.error("Error fetching data", error);
+    } finally {
+      setIsLoadingData(false);
     }
-  }, [data]);
-
-  const handleChartTypeChange = (type) => {
-    setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
 
-  const updateCheck = () => {
-    const change = !checkedX;
-    setCheckedX(change);
-    if (!change) {
-      setListaX([]);
-      setLimite(0);
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (termino && activo) {
+        buscarTermino(activo);
+      }
+    }, 500); // 500 ms de retraso
+
+    return () => clearTimeout(delayDebounceFn); // Limpiar el timeout si el valor cambia rápidamente
+  }, [termino, activo]);
+
+  const buscarTermino = async (variable) => {
+    setIsLoadingData(true);
+    try {
+      const { data } = await axios.get(`${endpoint}/buscar-terminos`, {
+        params: {
+          tabla: variable.tabla,
+          columna: variable.columna,
+          termino: termino,
+          pagina: pagina,
+        },
+      });
+
+      console.log("Datos cargados desde API", data.data);
+      setBusqueda(data.data);
+      setTotal(data.total);
+    } catch (error) {
+      console.error("Error fetching data", error);
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
+  const agregarTermino = () => {
+    // Verificar si el término ya existe en la lista
+    if (!items.some((item) => item.termino === termino)) {
+      // Agregar el término a la lista items como un objeto
+      const nuevaLista = [...items, { termino: termino, cantidad: 1 }];
+      setItems(nuevaLista);
+
+      // Guardar la nueva lista en el cache
+      setCache((prevCache) => ({
+        ...prevCache,
+        [activo.columna]: nuevaLista, // Guardamos los datos en cache
+      }));
+
+      // Limpiar el campo de búsqueda
+      setTermino("");
+      setBusqueda([]);
     } else {
-      setLimite(1);
+      console.log("El término ya existe en la lista");
     }
   };
 
-  const realizarAnalisis = () => {
-    const isMultiVariable = listaX.length > 0 && checkedX;
-    setIsLoading(true);
-    const endpointPath = isMultiVariable
-      ? `${endpoint}/estadisticas-xy`
-      : `${endpoint}/estadisticas-x`;
-    const params = isMultiVariable
-      ? {
-          salas,
-          formaId: id,
-          idsY: listaX[0].ids,
-          nombreY: listaX[0].name,
-        }
-      : { salas, formaId: id };
-
-    axios
-      .get(endpointPath, { params })
-      .then(({ data }) => {
-        setData(data.data.length > 0 ? data.data : []);
-        setMultiVariable(isMultiVariable);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setIsLoading(false);
-      });
-  };
-  function transposeArray(data) {
-    const transposed = {};
-    data.forEach((item) => {
-      Object.keys(item).forEach((key) => {
-        if (!transposed[key]) {
-          transposed[key] = [];
-        }
-        transposed[key].push(item[key]);
-      });
-    });
-
-    const result = Object.entries(transposed).map(([key, values]) => [
-      key,
-      ...values,
-    ]);
-    const headers = result[0];
-
-    const keyValueArray = result.slice(1).map((row) => {
-      return headers.reduce((obj, header, index) => {
-        obj[header] = row[index];
-        return obj;
-      }, {});
-    });
-    return keyValueArray;
-  }
-
-  const invertirAxis = () => {
-    setOption((prevOption) => SwitchChart(prevOption, "default", true));
-    const transposed = transposeArray(lista);
-    console.log(transposed);
-    setLista(transposed);
-  };
-
-  useEffect(() => {
-    if (lista && lista.length > 0) {
-      let keys = Object.keys(lista[0]);
-      setColumns(
-        keys.map((item) => ({
-          accessorKey: item,
-          header: item
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase()),
-          enableSorting: true,
-        }))
-      );
-    }
-  }, [lista]);
   return (
-    <div className="grid grid-cols-4 gap-2 p-4 m-4 custom:grid-cols-1">
-      <div className="p-4 m-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
-        {parametros && (
-          <p className="text-black dark:text-white pb-4">
-            Forma de resolucion:
-            <span className="italic font-bold"> {JSON.stringify(parametros)}</span>
-          </p>
-        )}
+    <div className="grid grid-cols-3 xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2  sm:grid-cols-1 custom:grid-cols-1 gap-4">
+      <div className="p-4 m-4 bg-gray-100 rounded-lg">
         <div>
-          <div>
-            <label
-              htmlFor="charts"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Tipo de graficos
-            </label>
-            <select
-              id="charts"
-              onChange={(e) => handleChartTypeChange(e.target.value)}
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            >
-              <option disabled defaultValue>
-                Elige un tipo de gráfico
-              </option>
-              <option value="bar">Barras</option>
-              <option value="column">Columnas</option>
-              <option value="area">Área</option>
+          <p>Selecciona una variable</p>
+        </div>
+        <div className="flex flex-wrap gap-2 py-4 justify-center">
+          <button
+            type="button"
+            onClick={() => setListaX([])}
+            className="inline-flex items-center text-white bg-gradient-to-r bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 font-medium rounded-lg text-sm px-5 py-3 text-center"
+          >
+            <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
+            <span>Limpiar</span>
+          </button>
 
-              {multiVariable ? (
-                <>
-                  <option value="stacked-bar">Barras Apiladas</option>
-                  <option value="stacked-column">Columnas Apiladas</option>
-                </>
-              ) : (
-                <>
-                  <option value="pie">Circular</option>
-                  <option value="donut">Dona</option>
-                </>
-              )}
-            </select>
-          </div>
-          <div>
-            <label className="inline-flex items-center cursor-pointer m-4">
-              <input
-                type="checkbox"
-                checked={checkedX}
-                onChange={() => updateCheck()}
-                className="sr-only peer"
-              />
-              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-              <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-                Cruce por una variable
-              </span>
-            </label>
-          </div>
-          <div className={` ${checkedX ? "" : "hidden"}  `}>
-            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-              Variables
-            </label>
-            {memoizedParams && (
-              <Select
-                memoizedParams={memoizedParams}
-                limite={limite}
-                listaX={listaX}
-                setListaX={setListaX}
-              ></Select>
-            )}
-            <div className="grid grid-cols-2 gap-2 pb-2">
-              <button
-                type="button"
-                onClick={() => invertirAxis()}
-                className="inline-flex items-center text-white bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600  font-medium rounded-lg text-sm px-5 py-3 text-center"
+          <AsyncButton
+            name={"Realizar analisis"}
+            asyncFunction={getDatos}
+            isLoading={isLoadingData}
+            full={false}
+          />
+        </div>
+
+        {variablesAnalisis.map((variable, index) => (
+          <div key={index}>
+            {activo && activo.columna === variable.columna ? (
+              <div
+                className="bg-gray-700 text-white p-4 m-4 rounded-lg flex justify-between cursor-pointer text-sm "
+                onClick={() => showTerminos(variable)}
               >
-                <MdOutlineCleaningServices className="fill-current w-4 h-4 mr-2" />
-                <span>Invertir Axis</span>
-              </button>
+                <div>{variable.nombre}</div>
+                <IoIosArrowUp className="text-white w-4 h-4" />
+              </div>
+            ) : (
+              <div
+                className="bg-gray-500 text-white p-4 m-4 rounded-lg flex justify-between cursor-pointer text-sm "
+                onClick={() => showTerminos(variable)}
+              >
+                <div>{variable.nombre}</div>
+                <IoIosArrowDown className="text-white w-4 h-4" />
+              </div>
+            )}
 
-              <AsyncButton
-                name={"Analizar"}
-                asyncFunction={realizarAnalisis}
-                isLoading={isLoading}
-                full={false}
-              />
-            </div>
-          </div>
-        </div>
+            {activo &&
+              activo.columna === variable.columna &&
+              items.length > 0 && (
+                <div className="p-4 m-4 rounded-lg">
+                  {variable.busqueda && (
+                    <form className="max-w-md mx-auto pb-2 mb-2">
+                      <label
+                        htmlFor="default-search"
+                        className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+                      >
+                        Buscar
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="search"
+                          onChange={(e) => setTermino(e.target.value)} // Actualiza el estado del término
+                          value={termino}
+                          id="default-search"
+                          className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                          placeholder="Encontrar termino de busqueda..."
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => agregarTermino()}
+                          className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                        >
+                          Agregar
+                        </button>
+                      </div>
 
-        {data && data.length > 0 ? (
-          <div className="max-w-sm mx-auto mt-4">
-            <button
-              onClick={() => setActual((prev) => !prev)}
-              type="button"
-              className="w-full mt-2 text-white bg-gradient-to-r  dark:from-blue-700 dark:to-blue-800 from-red-octopus-500 to-secondary hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-            >
-              {actual ? "Mostrar Tabla " : "Mostrar Grafico"}
-            </button>
+                      {busqueda.length > 0 && (
+                        <div className="p-4">
+                          {busqueda.map((item) => (
+                            <div key={item.id} className="m-2 p-2 text-sm">
+                              {item.nombre}
+                            </div>
+                          ))}
+                          <div>Total de resultados encontrados: {total}</div>
+                        </div>
+                      )}
+                    </form>
+                  )}
+                  <SelectDropdown
+                    listaX={listaX}
+                    setListaX={setListaX}
+                    contenido={items}
+                    tabla={variable.tabla}
+                    name={variable.columna}
+                  />
+                </div>
+              )}
           </div>
-        ) : (
-          ""
-        )}
+        ))}
       </div>
-
-      {data && data.length > 0 ? (
-        <div className="col-span-3 grid grid-cols-1">
-          {!actual ? (
-            <TablaX data={lista} columns={columns} />
-          ) : (
-            <SimpleChart option={option} />
-          )}
-        </div>
-      ) : (
-        <div>
-          <Loading />
-        </div>
-      )}
     </div>
   );
 };

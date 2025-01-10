@@ -1,0 +1,32 @@
+export const variablesAnalisis = [
+  { tabla: "resolutions", columna: "precedente", nombre: "Precedente", busqueda: false },
+  {
+    tabla: "resolutions",
+    columna: "tipo_resolucion",
+    nombre: "Tipo resolución",
+    busqueda: false,
+  },
+  { tabla: "resolutions", columna: "departamento", nombre: "Departamento", busqueda: false },
+  { tabla: "resolutions", columna: "sala", nombre: "Sala", busqueda: false },
+  { tabla: "resolutions", columna: "magistrado", nombre: "Magistrado", busqueda: false },
+  {
+    tabla: "resolutions",
+    columna: "forma_resolucion",
+    nombre: "Forma de resolución",
+    busqueda: false,
+  },
+  { tabla: "resolutions", columna: "proceso", nombre: "Proceso", busqueda: true },
+  { tabla: "resolutions", columna: "demandante", nombre: "Demandante", busqueda: true },
+  { tabla: "resolutions", columna: "demandado", nombre: "Demandado", busqueda: true },
+  { tabla: "resolutions", columna: "maxima", nombre: "Maxima", busqueda: true },
+  { tabla: "resolutions", columna: "sintesis", nombre: "Sintesis", busqueda: true },
+  { tabla: "jurisprudencias", columna: "descriptor", nombre: "Descriptor", busqueda: true },
+  { tabla: "jurisprudencias", columna: "restrictor", nombre: "Restrictor", busqueda: true },
+  {
+    tabla: "jurisprudencias",
+    columna: "tipo_jurisprudencia",
+    nombre: "Tipo de jurisprudencia",
+    busqueda: false,
+  },
+  { tabla: "jurisprudencias", columna: "ratio", nombre: "Ratio", busqueda: true },
+];
