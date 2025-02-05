@@ -235,7 +235,7 @@ class TemaController extends Controller
             'current' => $current,
             'data' => $results->toArray()
         ];
-        
+
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
 
 

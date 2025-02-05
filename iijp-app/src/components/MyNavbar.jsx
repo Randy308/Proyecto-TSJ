@@ -215,19 +215,20 @@ const MyNavbar = () => {
           </ul>
         </>
       );
-    } else {
-      return (
-        <>
-          <li>
-            <Portal
-              setSettingsOpen={setSettingsOpen}
-              titulo={"Iniciar sesión"}
-              status={"Iniciar sesión"}
-            />
-          </li>
-        </>
-      );
     }
+    // } else {
+    //   return (
+    //     <>
+    //       <li>
+    //         <Portal
+    //           setSettingsOpen={setSettingsOpen}
+    //           titulo={"Iniciar sesión"}
+    //           status={"Iniciar sesión"}
+    //         />
+    //       </li>
+    //     </>
+    //   );
+    // }
   };
 
   return (

@@ -26,17 +26,16 @@ const SubirResoluciones = () => {
       nombre: "Carga Automática (Web Scraping)",
       path: "/admin/subir-automatico",
       icon: <FaMagnifyingGlassChart className="text-white w-[50px] h-[50px]" />,
-      permiso: "web_scrapping",
+      permiso: "web_scrappings",
     },
   ];
-
 
   useEffect(() => {
     if (
       !hasAnyPermission([
         "subir_resoluciones",
         "subir_jurisprudencia",
-        "web_scrapping",
+        "web_scrappings",
       ])
     ) {
       navigate("/");
