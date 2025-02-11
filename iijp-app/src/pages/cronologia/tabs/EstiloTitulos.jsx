@@ -1,4 +1,4 @@
-import { useLocalStorage } from "../../../components/useLocalStorage";
+import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import React, { useEffect, useState } from "react";
 
 import "../../../fonts/trebuc.ttf";

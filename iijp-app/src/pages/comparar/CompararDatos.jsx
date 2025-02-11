@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import "../../styles/styles_randy/jurisprudencia-busqueda.css";
+import "../../styles/jurisprudencia-busqueda.css";
 import axios from "axios";
 import "../../styles/paginate.css";
 import Loading from "../../components/Loading";
 import Dropdown from "../../components/Dropdown";
 import Select from "./tabs/Select";
-import SimpleChart from "../../components/SimpleChart";
+import SimpleChart from "../../components/charts/SimpleChart";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
 import { Link } from "react-router-dom";
-import { useSessionStorage } from "../../components/useSessionStorage";
+import { useSessionStorage } from "../../hooks/useSessionStorage";
 const CompararDatos = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
@@ -48,7 +48,6 @@ const CompararDatos = () => {
     tipo_jurisprudencia: "all",
     materia: "all",
   });
-
 
   useEffect(() => {
     if (!hasFetchedDates) {
@@ -169,7 +168,6 @@ const CompararDatos = () => {
     }
   };
 
-
   const removeItemById = (id) => {
     setResoluciones((prevResoluciones) =>
       prevResoluciones.filter((item) => item.id !== id)
@@ -251,11 +249,7 @@ const CompararDatos = () => {
         {terminos &&
           terminos.length > 0 &&
           terminos.map((item, index) => (
-            <Dropdown
-              key={index}
-              item={item}
-              removeItemById={removeItemById}
-            />
+            <Dropdown key={index} item={item} removeItemById={removeItemById} />
           ))}
       </div>
 

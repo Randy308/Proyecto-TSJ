@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
-import { useLocalStorage } from "./useLocalStorage";
-import { useSessionStorage } from "./useSessionStorage";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useNavigate } from "react-router-dom";
 const Dropdown = ({ item, removeItemById }) => {
   const [visible, setVisible] = useState(false);
@@ -35,8 +35,7 @@ const Dropdown = ({ item, removeItemById }) => {
     navigate("/busqueda", { state: { flag: true } });
   };
 
-  const navegar = (item , ruta="/proyeccion") => {
-    
+  const navegar = (item, ruta = "/proyeccion") => {
     navigate(ruta, { state: { parametros: item } });
   };
 
@@ -78,7 +77,9 @@ const Dropdown = ({ item, removeItemById }) => {
             </li>
             <li>
               <a
-                onClick={() => navegar(item.detalles , "/jurisprudencia/avanzado")}
+                onClick={() =>
+                  navegar(item.detalles, "/jurisprudencia/avanzado")
+                }
                 className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >
                 Realizar analisis

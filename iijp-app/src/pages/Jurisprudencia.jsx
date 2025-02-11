@@ -1,7 +1,7 @@
 import React from "react";
 import { jurisprudenciaItems } from "../data/JurisprudenciaItems";
 import { Link } from "react-router-dom";
-import "../styles/styles_randy/jurisprudencia.css";
+import "../styles/jurisprudencia.css";
 const Jurisprudencia = () => {
   return (
     <div className="py-4 my-4">

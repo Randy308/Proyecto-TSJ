@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GiInjustice } from "react-icons/gi";
 import axios from "axios";
-import TanstackTabla from "../../components/TanstackTabla";
+import TanstackTabla from "../../components/tables/TanstackTabla";
 import LineChart from "./LineChart";
 import { toast } from "react-toastify";
 import { MdOutlineCleaningServices } from "react-icons/md";

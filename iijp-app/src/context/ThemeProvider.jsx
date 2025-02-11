@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useLocalStorage } from "./useLocalStorage";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 const themeContext = React.createContext();
 const themeToggleContext = React.createContext();
@@ -19,7 +19,6 @@ export function ThemeProvider(props) {
     setIsDark(!isDark);
   };
 
- 
   useEffect(() => {
     if (isDark) {
       document.body.classList.add("dark-theme");
@@ -33,7 +32,10 @@ export function ThemeProvider(props) {
   return (
     <themeContext.Provider value={isDark}>
       <themeToggleContext.Provider value={toggleTheme}>
-        <div id="parent-container" className={isDark ? "dark-theme" : "light-theme"}>
+        <div
+          id="parent-container"
+          className={isDark ? "dark-theme" : "light-theme"}
+        >
           {props.children}
         </div>
       </themeToggleContext.Provider>

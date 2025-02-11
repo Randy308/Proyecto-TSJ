@@ -5,7 +5,7 @@ import Inicio from "./pages/Inicio";
 import Jurisprudencia from "./pages/Jurisprudencia";
 import JurisprudenciaBusqueda from "./pages/busqueda/JurisprudenciaBusqueda";
 import JurisprudenciaCronologia from "./pages/cronologia/JurisprudenciaCronologia";
-import { ThemeProvider } from "./components/ThemeProvider";
+import { ThemeProvider } from "./context/ThemeProvider";
 import ResolucionTSJ from "./pages/resoluciones/ResolucionTSJ";
 import CronologiasResultados from "./pages/cronologia/CronologiasResultados";
 import JurisprudenciaLista from "./pages/analisis/JurisprudenciaLista";
@@ -83,7 +83,10 @@ function App() {
               />
 
               <Route path="/analisis/avanzado" element={<AnalisisAvanzado />} />
-              <Route path="/analisis/avanzado/:id" element={<ResultadoAvanzado />} />
+              <Route
+                path="/analisis/avanzado/:id"
+                element={<ResultadoAvanzado />}
+              />
               <Route path="/analisis/sala/:id" element={<AnalisisSala />} />
               <Route path="/iijp-login" element={<Login />} />
               <Route path="/registrar" element={<Register />} />

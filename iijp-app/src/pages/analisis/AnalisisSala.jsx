@@ -1,9 +1,9 @@
 import Loading from "../../components/Loading";
-import SimpleChart from "../../components/SimpleChart";
-import TablaX from "../../components/TablaX";
+import SimpleChart from "../../components/charts/SimpleChart";
+import TablaX from "../../components/tables/TablaX";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { SwitchChart } from "../../components/SwitchChart";
+import { SwitchChart } from "../../components/charts/SwitchChart";
 import axios from "axios";
 import Select from "../../components/Select";
 import { MdOutlineCleaningServices } from "react-icons/md";

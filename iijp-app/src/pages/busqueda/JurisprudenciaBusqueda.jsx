@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import "../../styles/styles_randy/jurisprudencia-busqueda.css";
+import "../../styles/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
 import axios from "axios";
 import PaginationData from "./PaginationData";
 import { ImSearch } from "react-icons/im";
 import { MdCleaningServices } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
-import Paginate from "../../components/Paginate";
+import Paginate from "../../components/tables/Paginate";
 import "../../styles/paginate.css";
 import AsyncButton from "../../components/AsyncButton";
 import Select from "../comparar/tabs/Select";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaFilePdf } from "react-icons/fa6";
-import { useSessionStorage } from "../../components/useSessionStorage";
+import { useSessionStorage } from "../../hooks/useSessionStorage";
 
 const JurisprudenciaBusqueda = () => {
   const endpoint = process.env.REACT_APP_BACKEND;

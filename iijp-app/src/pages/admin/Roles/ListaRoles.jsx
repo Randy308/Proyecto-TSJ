@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 import { TiUserAdd } from "react-icons/ti";
 import { FaRegEye } from "react-icons/fa";
-import PortalButton from "../../../components/PortalButton";
+import PortalButton from "../../../components/modal/PortalButton";
 
 import RoleService from "../../../services/RoleService";
 import AuthUser from "../../../auth/AuthUser";

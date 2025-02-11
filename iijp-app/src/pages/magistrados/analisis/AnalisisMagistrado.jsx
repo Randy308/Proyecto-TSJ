@@ -1,7 +1,7 @@
 import Loading from "../../../components/Loading";
-import SimpleChart from "../../../components/SimpleChart";
-import TablaX from "../../../components/TablaX";
-import { SwitchChart } from "../../../components/SwitchChart";
+import SimpleChart from "../../../components/charts/SimpleChart";
+import TablaX from "../../../components/tables/TablaX";
+import { SwitchChart } from "../../../components/charts/SwitchChart";
 import Select from "../../../components/Select";
 
 import React, { useEffect, useMemo, useState } from "react";

@@ -153,12 +153,12 @@ input.form-control {
   border-radius: 0.5rem;
 }
 
-.arrow-steps .step:hover {
+.arrow-steps .activo.step:hover {
   background-color: red;
   color: white;
   cursor: pointer;
 }
-.arrow-steps .step:hover:after {
+.arrow-steps .activo.step:hover:after {
   border-left: 17px solid red;
 }
 

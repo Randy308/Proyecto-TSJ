@@ -12,10 +12,10 @@ import { FaGear } from "react-icons/fa6";
 import { FaUsersGear } from "react-icons/fa6";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
-import { useToggleContext, useThemeContext } from "./ThemeProvider";
+import { useToggleContext, useThemeContext } from "../context/ThemeProvider";
 import AuthUser from "../auth/AuthUser";
 import axios from "axios";
-import Portal from "./Portal";
+import Portal from "./modal/Portal";
 import LogoUmss from "../images/Logo_umss.png";
 const MyNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);

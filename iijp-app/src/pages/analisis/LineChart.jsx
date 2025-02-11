@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import ReactECharts from "echarts-for-react"; // import reactecharts
 import "../../data/dark.js"; // Import the dark theme
 import "../../data/shine.js"; // Import the dark theme
-import { useThemeContext } from "../../components/ThemeProvider";
+import { useThemeContext } from "../../context/ThemeProvider.jsx";
 const LineChart = ({ option, setData }) => {
   const isDarkMode = useThemeContext();
 

@@ -3,11 +3,10 @@ import boliviaJson from "../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
-import "../../data/dark.js"; 
-import "../../data/vintage.js"; 
-import { useThemeContext } from "../../components/ThemeProvider";
+import "../../data/dark.js";
+import "../../data/vintage.js";
+import { useThemeContext } from "../../context/ThemeProvider";
 const EChart = ({ contenido }) => {
-
   const isDarkMode = useThemeContext();
 
   registerMap("Bolivia", boliviaJson);
@@ -15,7 +14,9 @@ const EChart = ({ contenido }) => {
   const projection = geoMercator();
 
   if (!Array.isArray(contenido) || contenido.length === 0) {
-    return <p className="text-black dark:text-white">No hay datos disponibles.</p>;
+    return (
+      <p className="text-black dark:text-white">No hay datos disponibles.</p>
+    );
   }
 
   const option = {
@@ -129,4 +130,3 @@ const EChart = ({ contenido }) => {
 };
 
 export default EChart;
-

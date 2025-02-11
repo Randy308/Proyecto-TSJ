@@ -1,16 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import ReactECharts from "echarts-for-react"; 
-import "../../data/dark.js"; 
-import { useThemeContext } from "../../components/ThemeProvider";
+import ReactECharts from "echarts-for-react";
+import "../../data/dark.js";
+import { useThemeContext } from "../../context/ThemeProvider.jsx";
 const MagistradoChart = ({ option, setData }) => {
   const isDarkMode = useThemeContext();
   const chartRef = useRef(null);
 
-
   useEffect(() => {
     let instance = chartRef.current.getEchartsInstance();
     instance.on("click", (params) => {
-        setData(params.name);
+      setData(params.name);
     });
   }, []);
 

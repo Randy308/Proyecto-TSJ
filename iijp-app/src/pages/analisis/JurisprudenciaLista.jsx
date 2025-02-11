@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import SimpleChart from "../../components/SimpleChart";
+import SimpleChart from "../../components/charts/SimpleChart";
 import Loading from "../../components/Loading";
 import { IoPeopleCircleSharp } from "react-icons/io5";
 import { HiMiniBuildingLibrary } from "react-icons/hi2";

@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../../../styles/paginate.css";
-import Paginate from "../../../components/Paginate";
+import Paginate from "../../../components/tables/Paginate";
 import PaginationData from "../../busqueda/PaginationData";
-const ResolucionesTab = ({ setActualFormData ,data ,realizarBusqueda }) => {
-
+const ResolucionesTab = ({ setActualFormData, data, realizarBusqueda }) => {
   const [resoluciones, setResoluciones] = useState([]);
   const [lastPage, setLastPage] = useState(1);
   const [totalRes, setTotalRes] = useState(0);
@@ -23,8 +22,6 @@ const ResolucionesTab = ({ setActualFormData ,data ,realizarBusqueda }) => {
       setTotalRes(data.total);
     }
   }, [data]);
-
-
 
   return (
     <div>

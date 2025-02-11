@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
-import SimpleChart from "../../components/SimpleChart";
+import SimpleChart from "../../components/charts/SimpleChart";
 import { useLocation } from "react-router-dom";
 
 const Prediccion = () => {

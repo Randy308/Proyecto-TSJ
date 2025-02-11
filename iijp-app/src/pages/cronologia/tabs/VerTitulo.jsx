@@ -1,4 +1,4 @@
-import { useLocalStorage } from "../../../components/useLocalStorage";
+import { useLocalStorage } from "../../../hooks/useLocalStorage";
 import React, { useEffect } from "react";
 
 const VerTitulo = ({ titulo, estiloDefault, contenido, setTituloActual }) => {

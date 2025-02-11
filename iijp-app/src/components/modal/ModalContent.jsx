@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { IoMdClose } from "react-icons/io";
-import Login from "../auth/Login"; 
+import Login from "../../auth/Login"; 
 
 export default function ModalContent({ onClose, title, content }) {
   return ReactDOM.createPortal(

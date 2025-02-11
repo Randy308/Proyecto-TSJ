@@ -1,4 +1,4 @@
-import Paginate from "../../components/Paginate";
+import Paginate from "../../components/tables/Paginate";
 import AuthUser from "../../auth/AuthUser";
 import UserService from "../../services/UserService";
 import axios from "axios";
@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { TiUserAdd } from "react-icons/ti";
 import { FaRegEye } from "react-icons/fa";
-import PortalButton from "../../components/PortalButton";
+import PortalButton from "../../components/modal/PortalButton";
 import CrearUsuario from "./CrearUsuario";
 import EliminarUsuario from "./EliminarUsuario";
 import VerUsuario from "./VerUsuario";

@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Tipografia from "./tabs/Tipografia";
 import { useNavigate } from "react-router-dom";
-import { useLocalStorage } from "../../components/useLocalStorage";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { headingItems } from "../../data/HeadingItems";
 import AsyncButton from "../../components/AsyncButton";
 import { FaSearch } from "react-icons/fa";
@@ -138,8 +138,7 @@ const JurisprudenciaCronologia = () => {
   };
 
   const search = async () => {
-
-    if (!checkSearch(busqueda)) { 
+    if (!checkSearch(busqueda)) {
       return;
     }
     try {
@@ -321,7 +320,9 @@ const JurisprudenciaCronologia = () => {
           </p>
           <div className="flex flex-row gap-1 flex-wrap arrow-steps my-4">
             <div
-              className={`step custom:text-xs roboto-medium`}
+              className={`step custom:text-xs roboto-medium ${
+                tabActivo === 1 ? "activo" : "noactivo"
+              }`}
               key={0}
               onClick={() => vaciarNodo()}
             >
@@ -332,7 +333,7 @@ const JurisprudenciaCronologia = () => {
                 <div
                   className={`step custom:text-xs roboto-medium ${
                     tema.id === arbol[arbol.length - 1].id ? "current" : ""
-                  }`}
+                  } ${tabActivo === 1 ? "activo" : "noactivo"}`}
                   key={tema.id}
                   id={tema.id}
                   onClick={() => eliminarNodo(tema.id)}

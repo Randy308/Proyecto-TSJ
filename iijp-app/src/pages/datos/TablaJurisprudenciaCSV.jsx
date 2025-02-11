@@ -3,7 +3,7 @@ import { usePapaParse } from "react-papaparse";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { useThemeContext } from "../../components/ThemeProvider";
+import { useThemeContext } from "../../context/ThemeProvider";
 import axios from "axios";
 import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";

@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { ImUserTie } from "react-icons/im";
-import "../../styles/styles_randy/magistradosTSJ.css";
-
+import "../../styles/magistradosTSJ.css";
 import "../../styles/tabs.css";
 
 import { magistradoItems } from "../../data/MagistradoItems";

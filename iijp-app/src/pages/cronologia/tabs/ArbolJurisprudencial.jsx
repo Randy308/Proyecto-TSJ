@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Loading from "../../../components/Loading";
-import "../../../styles/styles_randy/cronologia-jurisprudencia.css";
+import "../../../styles/cronologia-jurisprudencia.css";
 import { FaSearch } from "react-icons/fa";
 const ArbolJurisprudencial = ({ currentID, setCurrentID, arbol, setArbol }) => {
   const endpoint = process.env.REACT_APP_BACKEND;
