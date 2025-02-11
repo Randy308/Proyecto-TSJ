@@ -14,6 +14,7 @@ const EstiloTitulos = ({
   isPreview = false,
   id,
   setVisible,
+  contenido,
   visible,
 }) => {
   const [estilo, setEstilo] = useLocalStorage(titulo, estiloDefault);
@@ -99,7 +100,12 @@ const EstiloTitulos = ({
       {isPreview ? (
         // Renderiza solo el título en modo previsualización
         <div>
-          <div style={tempEstilo}>{transformTitle(titulo)}</div>
+          <div
+            className="border border-b-gray-500 border-dashed cursor-pointer"
+            style={tempEstilo}
+          >
+            {contenido}
+          </div>
         </div>
       ) : (
         // En el modo normal, renderiza el título con controles para personalizar el estilo
@@ -275,9 +281,7 @@ const EstiloTitulos = ({
             </div>
             {/* Título que muestra el estilo seleccionado */}
             <div className="bg-white">
-              <h1 style={tempEstilo}>
-                Este es el título con estilo personalizado
-              </h1>
+              <h1 style={tempEstilo}>{contenido}</h1>
             </div>
           </div>
         </div>

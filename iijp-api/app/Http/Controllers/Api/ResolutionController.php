@@ -944,7 +944,7 @@ class ResolutionController extends Controller
         ]);
 
 
-        
+
         $datoLookup = [];
         foreach ($datos as $dato) {
             $datoLookup[$dato->$columnaX][$dato->$columnaY] = $dato->cantidad;
@@ -1005,6 +1005,15 @@ class ResolutionController extends Controller
                 ->orderByDesc('cantidad')
                 ->get();
         }
+
+        foreach ($results as $key => $result) {
+            if (strlen($result->termino) < 3) {
+                unset($results[$key]);
+            }
+        }
+        $results = array_values($results->toArray());
+
+
         return response()->json($results);
     }
 

@@ -11,6 +11,7 @@ import { useLocalStorage } from "../../components/useLocalStorage";
 import { headingItems } from "../../data/HeadingItems";
 import AsyncButton from "../../components/AsyncButton";
 import { FaSearch } from "react-icons/fa";
+import { FaInfo } from "react-icons/fa";
 import JurisprudenciaService from "../../services/JurisprudenciaService";
 const endpoint = process.env.REACT_APP_BACKEND;
 const JurisprudenciaCronologia = () => {
@@ -31,6 +32,7 @@ const JurisprudenciaCronologia = () => {
     seccion: true,
   });
   const [activador, setActivador] = useState(false);
+  const [errorBusqueda, setErrorBusqueda] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [resultados, setResultados] = useState([]);
@@ -44,9 +46,26 @@ const JurisprudenciaCronologia = () => {
       }
     }
   };
-  const actualizarInput = (e) => {
-    setBusqueda(e.target.value);
+
+  const checkSearch = (valor) => {
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'’-]+$/;
+
+    if (regex.test(valor) || valor === "") {
+      return true;
+    } else {
+      return false;
+    }
   };
+  const actualizarInput = (e) => {
+    const valor = e.target.value;
+    if (checkSearch(valor)) {
+      setBusqueda(valor);
+      setErrorBusqueda("");
+    } else {
+      setErrorBusqueda("No se permiten caracteres especiales");
+    }
+  };
+
   const vaciarNodo = () => {
     if (tabActivo == 1) {
       setArbol([]);
@@ -119,6 +138,10 @@ const JurisprudenciaCronologia = () => {
   };
 
   const search = async () => {
+
+    if (!checkSearch(busqueda)) { 
+      return;
+    }
     try {
       const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
       console.log(arbol);
@@ -153,8 +176,8 @@ const JurisprudenciaCronologia = () => {
                   id="voice-search"
                   value={busqueda}
                   onChange={(e) => actualizarInput(e)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  placeholder="Buscar en el arbol jurisprudencial...."
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Buscar en el árbol jurisprudencial...."
                   required
                 />
                 <button
@@ -166,18 +189,49 @@ const JurisprudenciaCronologia = () => {
                 </button>
               </div>
 
-              <div className="bg-white p-4">
+              {errorBusqueda.length > 0 && (
+                <div
+                  id="alert-2"
+                  class="flex items-center p-4 mb-4 text-red-800 rounded-lg  dark:bg-gray-800 dark:text-red-400"
+                  role="alert"
+                >
+                  <FaInfo class="shrink-0 w-4 h-4" />
+                  <div class="ms-3 text-sm font-medium">{errorBusqueda}</div>
+                </div>
+              )}
+
+              <div className="bg-white p-4 dark:bg-gray-800">
                 {resultados && resultados.length > 0 ? (
-                  resultados.map((item, index) => (
-                    <div
-                      className="flex justify-between items-center bg-gray-50 hover:bg-gray-200 rounded-md p-3 my-2 cursor-pointer transition-all ease-in-out duration-200"
-                      key={index}
-                      onClick={() => actualizarNodos(item.descriptor)}
-                    >
-                      <span className="text-black font-semibold">{item.descriptor}</span>
-                      <span className="text-gray-600 text-sm">{item.cantidad}</span>
+                  <>
+                    <div className="flex justify-between items-center bg-gray-50 dark:bg-gray-800 rounded-md p-3 my-2">
+                      <span>
+                        La búsqueda genero:{" "}
+                        {resultados.length > 1
+                          ? resultados.length + " resultados"
+                          : "un resultado"}
+                      </span>
+                      <span
+                        onClick={() => setResultados([])}
+                        className="cursor-pointer underline"
+                      >
+                        Limpiar Resultados
+                      </span>
                     </div>
-                  ))
+                    {resultados.map((item, index) => (
+                      <div
+                        className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 hover:dark:bg-gray-700 hover:bg-gray-200 rounded-md p-3 my-2 cursor-pointer transition-all ease-in-out duration-200"
+                        key={index}
+                        onClick={() => actualizarNodos(item.descriptor)}
+                      >
+                        <span className="text-black font-semibold dark:text-white ">
+                          {item.descriptor}
+                        </span>
+                        <span className="text-gray-600 text-sm dark:text-gray-400">
+                          {item.cantidad}
+                        </span>
+                      </div>
+                    ))}
+                  </>
                 ) : (
                   <ArbolJurisprudencial
                     currentID={currentID}
@@ -188,7 +242,6 @@ const JurisprudenciaCronologia = () => {
                 )}
               </div>
             </div>
-            
           </>
         );
       case 2:

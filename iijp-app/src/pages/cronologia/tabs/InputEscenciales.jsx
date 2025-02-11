@@ -1,7 +1,29 @@
+import { FaInfo } from "react-icons/fa6";
 import Loading from "../../../components/Loading";
-import React from "react";
+import React, { useState } from "react";
 
 const InputEscenciales = ({ formData, setFormData, resultado }) => {
+  const [errorBusqueda, setErrorBusqueda] = useState("");
+  const checkSearch = (valor) => {
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'’-]+$/;
+
+    if (regex.test(valor) || valor === "") {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  const actualizarInput = (e) => {
+    const valor = e.target.value;
+    if (checkSearch(valor)) {
+      setParametros("subtitulo", valor);
+      setErrorBusqueda("");
+    } else {
+      setErrorBusqueda("No se permiten caracteres especiales");
+    }
+  };
+
   const cambiarFechaExacta = (e) => {
     setParametros("fecha_exacta", e.target.value);
     setParametros("fecha_desde", "");
@@ -28,7 +50,7 @@ const InputEscenciales = ({ formData, setFormData, resultado }) => {
     resultado === null ||
     Object.keys(resultado).length === 0
   ) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   return (
@@ -37,10 +59,10 @@ const InputEscenciales = ({ formData, setFormData, resultado }) => {
         <p className="titulo">Campos de Filtrado</p>
       </div>
 
-      <div class="mb-6">
+      <div className="mb-2">
         <label
-          for="email"
-          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          htmlFor="email"
+          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
         >
           Subtitulo
         </label>
@@ -48,12 +70,23 @@ const InputEscenciales = ({ formData, setFormData, resultado }) => {
           type="text"
           id="text"
           value={formData.subtitulo}
-          onChange={(e) => setParametros("subtitulo", e.target.value)}
-          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          onChange={(e) => actualizarInput(e)}
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="Agregar un subtitulo"
           required
         />
       </div>
+      {errorBusqueda.length > 0 && (
+        <div
+          id="alert-2"
+          class="flex items-center p-2 mb-6 text-red-800 rounded-lg  dark:bg-gray-800 dark:text-red-400"
+          role="alert"
+        >
+          <FaInfo class="shrink-0 w-4 h-4" />
+          <div class="ms-3 text-sm font-medium">{errorBusqueda}</div>
+        </div>
+      )}
+
       <div className="grid gap-6 mb-6 md:grid-cols-2">
         <div>
           <label

@@ -1,41 +1,55 @@
 import React, { useState } from "react";
-import { FaEye } from "react-icons/fa";
-import { FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-const PasswordInput = ({password, setPassword}) => {
-  const [type, setType] = useState("password");
-  const [visible, setVisible] = useState(false);
+const PasswordInput = ({
+  password,
+  setPassword,
+  passwordError,
+  setPasswordError,
+}) => {
+  const [isVisible, setIsVisible] = useState(false);
 
-  const cambiarEstado = () => {
-    if (type === "password") {
-      setVisible(true);
-      setType("text");
+  const toggleVisibility = () => setIsVisible((prev) => !prev);
+
+  const validatePassword = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+
+    if (!value) {
+      setPasswordError("El campo contraseña es requerido");
+    } else if (value.length < 8) {
+      setPasswordError("La contraseña debe tener al menos 8 caracteres");
     } else {
-      setVisible(false);
-      setType("password");
+      setPasswordError("");
     }
   };
 
   return (
-    <>
-      <input
-        type={type}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        id="password"
-        name="password"
-        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        placeholder="•••••••••"
-        required
-      />
-      <button
-        type="button"
-        className="text-black dark:text-white p-2"
-        onClick={() => cambiarEstado()}
-      >
-        {!visible ? <FaEye /> : <FaEyeSlash />}
-      </button>
-    </>
+    <div>
+      <div className="flex items-center border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+        <input
+          type={isVisible ? "text" : "password"}
+          value={password}
+          onChange={validatePassword}
+          id="password"
+          name="password"
+          className="flex-grow bg-transparent text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          placeholder="•••••••••"
+          required
+        />
+        <button
+          type="button"
+          className="p-2 text-gray-700 dark:text-white focus:outline-none"
+          onClick={toggleVisibility}
+          aria-label={isVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+        >
+          {isVisible ? <FaEyeSlash /> : <FaEye />}
+        </button>
+      </div>
+      {passwordError && (
+        <p className="text-red-400 text-sm mt-1">{passwordError}</p>
+      )}
+    </div>
   );
 };
 

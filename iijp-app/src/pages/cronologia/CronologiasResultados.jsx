@@ -4,7 +4,8 @@ import { useLocation } from "react-router-dom";
 const CronologiasResultados = () => {
   const location = useLocation();
   const [pdfUrl, setPdfUrl] = useState(null);
-
+  const [pdfName, setPdfName] = useState(null);
+  
   const generateFilename = () => {
     const now = new Date();
     const formattedDate = now

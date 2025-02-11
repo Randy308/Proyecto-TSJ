@@ -20,12 +20,33 @@ class MagistradosController extends Controller
 
     public function index()
     {
-
-        $magistrados = Magistrados::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
-
+        $magistrados = DB::table('magistrados as m')
+        ->selectRaw("m.id, m.nombre,
+                     MAX(r.fecha_emision) as fecha_max,
+                     MIN(r.fecha_emision) as fecha_min,
+                     TRIM(BOTH ', ' FROM CONCAT(
+                        CASE WHEN EXTRACT(YEAR FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) > 0
+                             THEN EXTRACT(YEAR FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) || ' años, '
+                             ELSE ''
+                        END,
+                        CASE WHEN EXTRACT(MONTH FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) > 0
+                             THEN EXTRACT(MONTH FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) || ' meses, '
+                             ELSE ''
+                        END,
+                        CASE WHEN EXTRACT(DAY FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) > 0
+                             THEN EXTRACT(DAY FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) || ' días'
+                             ELSE ''
+                        END
+                     )) as duracion")
+        ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
+        ->groupBy('m.id')
+        ->orderBy('m.id')
+        ->get();
 
         return response()->json($magistrados, 200);
     }
+
+
 
     public function magistradosParamentros(Request $request)
     {

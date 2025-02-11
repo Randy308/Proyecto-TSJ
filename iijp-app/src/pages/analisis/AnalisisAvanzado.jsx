@@ -164,9 +164,9 @@ const AnalisisAvanzado = () => {
 
   return (
     <div className="grid grid-cols-3 xl:grid-cols-3 lg:grid-cols-3 md:grid-cols-2  sm:grid-cols-1 custom:grid-cols-1 gap-4">
-      <div className="p-4 m-4 bg-gray-100 rounded-lg">
+      <div className="p-4 m-4 bg-gray-100 rounded-lg dark:bg-gray-600">
         <div>
-          <p>Selecciona una variable</p>
+          <p className="text-black dark:text-white">Selecciona una variable</p>
         </div>
         <div className="flex flex-wrap gap-2 py-4 justify-center">
           <button
@@ -191,8 +191,8 @@ const AnalisisAvanzado = () => {
             <div
               className={`text-white p-4 m-2 rounded-lg flex justify-between text-sm  ${
                 activo && activo.columna === variable.columna
-                  ? "bg-gray-700"
-                  : "bg-gray-500"
+                  ? "bg-gray-800 dark:bg-gray-800"
+                  : "bg-gray-700 dark:bg-gray-700"
               } `}
             >
               <div>{variable.nombre}</div>
@@ -210,7 +210,7 @@ const AnalisisAvanzado = () => {
                   )}
 
                 <button
-                  className="p-2 rounded-lg cursor-pointer border border-gray-300 "
+                  className="p-2 rounded-lg cursor-pointer border border-gray-400 dark:border-gray-600 "
                   onClick={() => showTerminos(variable)}
                 >
                   {activo && activo.columna === variable.columna ? (

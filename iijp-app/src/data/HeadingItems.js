@@ -1,6 +1,7 @@
 export const headingItems = [
   {
     titulo: "descriptor0",
+    contenido: "Derecho Penal",
     estiloDefault: {
       fontFamily: "cambria",
       fontWeight: "normal",
@@ -16,11 +17,12 @@ export const headingItems = [
   },
   {
     titulo: "descriptor1",
+    contenido: "Derecho Procesal Penal",
     estiloDefault: {
       fontFamily: "cambria",
       fontWeight: "normal",
       fontSize: "22pt",
-      marginLeft:  "0%",
+      marginLeft: "0%",
       paddingBottom: 5,
       marginTop: 0,
       color: "#000000",
@@ -31,11 +33,12 @@ export const headingItems = [
   },
   {
     titulo: "descriptor2",
+    contenido: "Recursos",
     estiloDefault: {
       fontFamily: "trebuchet_ms",
       fontWeight: "normal",
       fontSize: "16pt",
-      marginLeft:  "2%",
+      marginLeft: "2%",
       paddingBottom: 5,
       marginTop: 0,
       color: "#000000",
@@ -46,11 +49,12 @@ export const headingItems = [
   },
   {
     titulo: "descriptor3",
+    contenido: "Recurso de apelación restringida",
     estiloDefault: {
       fontFamily: "trebuchet_ms",
       fontWeight: "normal",
       fontSize: "15pt",
-      marginLeft:  "5%",
+      marginLeft: "5%",
       paddingBottom: 5,
       marginTop: 0,
       color: "#000000",
@@ -61,11 +65,12 @@ export const headingItems = [
   },
   {
     titulo: "descriptor4",
+    contenido: "Resolución",
     estiloDefault: {
       fontFamily: "trebuchet_ms",
       fontWeight: "normal",
       fontSize: "14pt",
-      marginLeft:  "8%",
+      marginLeft: "8%",
       paddingBottom: 5,
       marginTop: 0,
       color: "#000000",
@@ -76,11 +81,12 @@ export const headingItems = [
   },
   {
     titulo: "descriptor5",
+    contenido: "Legal",
     estiloDefault: {
       fontFamily: "trebuchet_ms",
       fontWeight: "normal",
       fontSize: "13pt",
-      marginLeft:  "11%",
+      marginLeft: "11%",
       paddingBottom: 5,
       marginTop: 0,
       color: "#000000",
@@ -91,11 +97,12 @@ export const headingItems = [
   },
   {
     titulo: "descriptor6",
+    contenido: "Por no vulnerar derechos constitucionales y principios",
     estiloDefault: {
       fontFamily: "trebuchet_ms",
       fontWeight: "normal",
       fontSize: "12pt",
-      marginLeft:  "14%",
+      marginLeft: "14%",
       paddingBottom: 5,
       marginTop: 0,
       color: "#000000",
@@ -106,11 +113,13 @@ export const headingItems = [
   },
   {
     titulo: "restrictor",
+    contenido:
+      "En aplicación de los principios de trascendencia y conservación",
     estiloDefault: {
       fontFamily: "times_new_roman",
       fontWeight: "normal",
       fontSize: "12pt",
-      marginLeft:  "30%",
+      marginLeft: "30%",
       paddingBottom: 0,
       marginTop: 10,
       color: "#000000",
@@ -121,6 +130,8 @@ export const headingItems = [
   },
   {
     titulo: "contenido",
+    contenido:
+      "...aspecto que corroboran que fue plenamente identificado e individualizado en la fundamentación de la Sentencia, por lo que en base a los principios de trascendencia y conservación que rige el sistema de nulidad procesal, al no evidenciarse que el fundamento evasivo del Tribunal de alzada haya provocado lesión alguna al principio-derecho-garantía del debido proceso, corresponde declarar infundado el motivo analizado.",
     estiloDefault: {
       fontFamily: "times_new_roman",
       fontWeight: "normal",

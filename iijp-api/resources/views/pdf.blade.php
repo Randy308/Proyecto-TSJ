@@ -181,6 +181,71 @@
             /* Número de página nivel 6 */
         }
 
+        /* Nivel 6 */
+        div.mpdf_toc_level_7 {
+            /* Línea completa nivel 6 */
+            margin-left: 13em;
+            text-indent: -2em;
+            padding-right: 0em;
+        }
+
+        span.mpdf_toc_t_level_7 {
+            /* Título nivel 6 */
+            font-style: italic;
+            color: #7f7f7f;
+            /* Color muy claro */
+            font-weight: lighter;
+            font-size: 0.9em;
+            /* Tamaño más pequeño */
+        }
+
+        span.mpdf_toc_p_level_7 {
+            /* Número de página nivel 6 */
+        }
+
+        /* Nivel 6 */
+        div.mpdf_toc_level_8 {
+            /* Línea completa nivel 6 */
+            margin-left: 14em;
+            text-indent: -2em;
+            padding-right: 0em;
+        }
+
+        span.mpdf_toc_t_level_8 {
+            /* Título nivel 6 */
+            font-style: italic;
+            color: #7f7f7f;
+            /* Color muy claro */
+            font-weight: lighter;
+            font-size: 0.9em;
+            /* Tamaño más pequeño */
+        }
+
+        span.mpdf_toc_p_level_8 {
+            /* Número de página nivel 6 */
+        }
+
+        /* Nivel 6 */
+        div.mpdf_toc_level_9 {
+            /* Línea completa nivel 6 */
+            margin-left: 15em;
+            text-indent: -2em;
+            padding-right: 0em;
+        }
+
+        span.mpdf_toc_t_level_9 {
+            /* Título nivel 6 */
+            font-style: italic;
+            color: #7f7f7f;
+            /* Color muy claro */
+            font-weight: lighter;
+            font-size: 0.9em;
+            /* Tamaño más pequeño */
+        }
+
+        span.mpdf_toc_p_level_9 {
+            /* Número de página nivel 6 */
+        }
 
         .titulo-portada {
             font-family: 'cambria', sans-serif;
@@ -356,9 +421,10 @@
         </div>
 
     </div>
+    <pagebreak even-footer-value="-1" resetpagenum="1" />
+
 
     <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />
-
 
 
 
