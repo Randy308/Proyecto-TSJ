@@ -16,6 +16,7 @@ import { useToggleContext, useThemeContext } from "./ThemeProvider";
 import AuthUser from "../auth/AuthUser";
 import axios from "axios";
 import Portal from "./Portal";
+import LogoUmss from "../images/Logo_umss.png";
 const MyNavbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -245,7 +246,7 @@ const MyNavbar = () => {
               className="hidden h-12 custom:block"
             />
             <img
-              src="https://www.umss.edu.bo/wp-content/uploads/2022/08/Logo_umss.png"
+              src={LogoUmss}
               alt="first-logo"
               className="h-12 self-center custom:hidden"
             />
