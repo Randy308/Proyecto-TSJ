@@ -34,117 +34,102 @@ import ListaRoles from "./pages/admin/Roles/ListaRoles";
 import Prediccion from "./pages/prediccion/Prediccion";
 import AnalisisAvanzado from "./pages/analisis/AnalisisAvanzado";
 import ResultadoAvanzado from "./pages/analisis/ResultadoAvanzado";
+import { MagistradosContextProvider } from "./context/magistradosContext";
+import { HistoricContextProvider } from "./context/historicContext";
 
 function App() {
   return (
     <ThemeProvider>
-      <main>
-        <React.Fragment>
-          <Routes>
-            //rutas publicas
-            <Route path="/" element={<LayoutPublic />}>
-              <Route index element={<Navigate to="/inicio" />} />
-              <Route path="inicio" element={<Inicio />} />
-              <Route path="/novedades" element={<Novedades />} />
-              <Route path="/jurisprudencia" element={<Jurisprudencia />} />
-              <Route
-                path="/jurisprudencia/lista-Magistrados"
-                element={<ListaMagistrados />}
-              />
-              <Route
-                path="/jurisprudencia/lista-de-analisis"
-                element={<JurisprudenciaLista />}
-              />
-              <Route path="/busqueda" element={<JurisprudenciaBusqueda />} />
-              <Route
-                path="/jurisprudencia/cronologias"
-                element={<JurisprudenciaCronologia />}
-              />
-              <Route
-                path="/jurisprudencia/magistrado/:id"
-                element={<MagistradoTSJ />}
-              />
+      <MagistradosContextProvider>
+        <HistoricContextProvider>
+          <main>
+            <Routes>
+              {/* Rutas públicas */}
+              <Route path="/" element={<LayoutPublic />}>
+                <Route index element={<Navigate to="/inicio" />} />
+                <Route path="inicio" element={<Inicio />} />
+                <Route path="novedades" element={<Novedades />} />
+                <Route path="jurisprudencia" element={<Jurisprudencia />} />
 
-              <Route path="/proyeccion" element={<Prediccion />} />
-
-              <Route
-                path="/jurisprudencia/resolucion/:id"
-                element={<ResolucionTSJ />}
-              />
-
-              <Route path="/comparar-datos" element={<CompararDatos />} />
-              <Route
-                path="/jurisprudencia/cronologias/resultados"
-                element={<CronologiasResultados />}
-              />
-              <Route
-                path="/jurisprudencia/lista-salas"
-                element={<ListaSalas />}
-              />
-
-              <Route path="/analisis/avanzado" element={<AnalisisAvanzado />} />
-              <Route
-                path="/analisis/avanzado/:id"
-                element={<ResultadoAvanzado />}
-              />
-              <Route path="/analisis/sala/:id" element={<AnalisisSala />} />
-              <Route path="/iijp-login" element={<Login />} />
-              <Route path="/registrar" element={<Register />} />
-            </Route>
-            //rutas admin
-            {/* <Route path="/" element={<ProtectedRoutes />}>
-              <Route path="/" element={<LayoutAdmin />}>
-                <Route path="/admin" element={<PanelAdmin />} />
-                <Route path="/admin/subir" element={<SubirResoluciones />} />
                 <Route
-                  path="/admin/subir/autos-supremos"
-                  element={<TablaCSV />}
+                  path="jurisprudencia/lista-Magistrados"
+                  element={<ListaMagistrados />}
                 />
                 <Route
-                  path="/admin/subir/jurisprudencia"
-                  element={<TablaJurisprudenciaCSV />}
+                  path="jurisprudencia/magistrado/:id"
+                  element={<MagistradoTSJ />}
                 />
-                <Route path="/admin/subir" element={<TablaCSV />} />
+
                 <Route
-                  path="/admin/subir-automatico"
-                  element={<WebScrapping />}
+                  path="jurisprudencia/lista-de-analisis"
+                  element={<JurisprudenciaLista />}
                 />
-                <Route path="/admin/usuarios" element={<Usuarios />} />
-                <Route path="/admin/roles" element={<ListaRoles />} />
+                <Route path="busqueda" element={<JurisprudenciaBusqueda />} />
+                <Route
+                  path="jurisprudencia/cronologias"
+                  element={<JurisprudenciaCronologia />}
+                />
+                <Route path="proyeccion" element={<Prediccion />} />
+                <Route
+                  path="jurisprudencia/resolucion/:id"
+                  element={<ResolucionTSJ />}
+                />
+                <Route path="comparar-datos" element={<CompararDatos />} />
+                <Route
+                  path="jurisprudencia/cronologias/resultados"
+                  element={<CronologiasResultados />}
+                />
+                <Route
+                  path="jurisprudencia/lista-salas"
+                  element={<ListaSalas />}
+                />
+                <Route
+                  path="analisis/avanzado"
+                  element={<AnalisisAvanzado />}
+                />
+                <Route
+                  path="analisis/avanzado/:id"
+                  element={<ResultadoAvanzado />}
+                />
+                <Route path="analisis/sala/:id" element={<AnalisisSala />} />
+                <Route path="iijp-login" element={<Login />} />
+                <Route path="registrar" element={<Register />} />
               </Route>
-            </Route> */}
-            //rutas user
-            <Route path="/" element={<ProtectedRoutes />}>
-              <Route path="/" element={<LayoutUser />}>
-                <Route path="/user" element={<PanelUser />} />
-                <Route path="/dashboard" element={<PanelAdmin />} />
-                <Route
-                  path="/subir-resoluciones"
-                  element={<SubirResoluciones />}
-                />
-                <Route
-                  path="/admin/subir/autos-supremos"
-                  element={<TablaCSV />}
-                />
-                <Route
-                  path="/admin/subir/jurisprudencia"
-                  element={<TablaJurisprudenciaCSV />}
-                />
-                <Route path="/admin/subir" element={<TablaCSV />} />
-                <Route
-                  path="/admin/subir-automatico"
-                  element={<WebScrapping />}
-                />
-                <Route path="/usuarios" element={<Usuarios />} />
-                <Route path="/roles" element={<ListaRoles />} />
+
+              {/* Rutas protegidas */}
+              <Route element={<ProtectedRoutes />}>
+                <Route path="/" element={<LayoutUser />}>
+                  <Route path="user" element={<PanelUser />} />
+                  <Route path="dashboard" element={<PanelAdmin />} />
+                  <Route
+                    path="subir-resoluciones"
+                    element={<SubirResoluciones />}
+                  />
+                  <Route
+                    path="admin/subir/autos-supremos"
+                    element={<TablaCSV />}
+                  />
+                  <Route
+                    path="admin/subir/jurisprudencia"
+                    element={<TablaJurisprudenciaCSV />}
+                  />
+                  <Route path="admin/subir" element={<TablaCSV />} />
+                  <Route
+                    path="admin/subir-automatico"
+                    element={<WebScrapping />}
+                  />
+                  <Route path="usuarios" element={<Usuarios />} />
+                  <Route path="roles" element={<ListaRoles />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
-        </React.Fragment>
-      </main>
-      <ToastContainer />
+            </Routes>
+          </main>
+          <ToastContainer />
+        </HistoricContextProvider>
+      </MagistradosContextProvider>
     </ThemeProvider>
   );
 }
 
 export default App;
+

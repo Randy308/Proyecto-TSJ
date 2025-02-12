@@ -6,9 +6,9 @@ import Loading from "../../components/Loading";
 import { IoPeopleCircleSharp } from "react-icons/io5";
 import { HiMiniBuildingLibrary } from "react-icons/hi2";
 import { CgDisplayGrid } from "react-icons/cg";
+import { useHistoricContext } from "../../context/historicContext";
 const JurisprudenciaLista = () => {
   const jurisprudenciaItems = [
-
     {
       id: 2,
       title: "Análisis por Magistrados",
@@ -37,28 +37,24 @@ const JurisprudenciaLista = () => {
       icon: <CgDisplayGrid className="h-8 w-8" />,
     },
   ];
-  const endpoint = process.env.REACT_APP_BACKEND;
+
+  const { historic } = useHistoricContext();
+
   const [resoluciones, setResoluciones] = useState([]);
   const [jurisprudencia, setJurisprudencia] = useState([]);
   const [maxRes, setMaxRes] = useState([]);
   const [maxJuris, setMaxJuris] = useState([]);
+
   useEffect(() => {
-    getAllSalas();
-  }, []);
-
-  const getAllSalas = async () => {
-    try {
-      const response = await axios.get(`${endpoint}/all-resoluciones`);
-      setMaxRes(response.data.max_res);
-       setMaxJuris(response.data.max_juris);
-      setResoluciones(response.data.resoluciones);
-
-      setJurisprudencia(
-        response.data.jurisprudencia);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
+    if (historic && historic.max_res && historic.max_juris) {
+      setMaxRes(historic.max_res);
+      setMaxJuris(historic.max_juris);
+      setResoluciones(historic.resoluciones || []);
+      setJurisprudencia(historic.jurisprudencia || []);
+    } else {
+      console.error("El objeto 'historic' no contiene los datos necesarios");
     }
-  };
+  }, [historic]);
 
   const option = {
     visualMap: [
@@ -74,7 +70,7 @@ const JurisprudenciaLista = () => {
         type: "continuous",
         seriesIndex: 1,
         min: 0,
-        max: maxJuris ,
+        max: maxJuris,
       },
     ],
     toolbox: {

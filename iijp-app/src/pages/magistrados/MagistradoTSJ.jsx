@@ -185,7 +185,13 @@ const MagistradoTSJ = () => {
           />
         );
       case 4:
-        return <Mapa contenido={departamentos} />;
+        return (
+          <Mapa
+            contenido={departamentos}
+            setDepartamentos={setDepartamentos}
+            id={id}
+          />
+        );
       default:
         return <div>Contenido por defecto</div>;
     }

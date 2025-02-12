@@ -21,97 +21,40 @@ class CompareController extends Controller
     //
 
     public function obtenerElemento(Request $request)
-
-
     {
-
         $validator = Validator::make($request->all(), [
             'materia' => 'nullable|string',
             'tipo_jurisprudencia' => 'nullable|string',
-            'tipo_resolucion' => [
-                'nullable',
-                'integer',
-            ],
-            'sala' => [
-                'nullable',
-                'integer',
-            ],
-            'departamento' => [
-                'nullable',
-                'integer',
-            ],
-            'magistrado' => [
-                'nullable',
-                'integer',
-            ],
-            'forma_resolucion' => [
-                'nullable',
-                'integer',
-            ],
+            'tipo_resolucion' => 'nullable|integer',
+            'sala' => 'nullable|integer',
+            'departamento' => 'nullable|integer',
+            'magistrado' => 'nullable|integer',
+            'forma_resolucion' => 'nullable|integer',
         ]);
 
-
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $fecha_final = $request->input('fecha_final');
         $fecha_inicial = $request->input('fecha_inicial');
-        $intervalo = $request->input('intervalo');
+        $intervalo = $request->input('intervalo') ?? 'year';
         $numero_busqueda = $request->input('numero_busqueda');
 
-        $intervalo = "quarter";
-
-        $validIntervals = ['day', 'week', 'month', 'quarter', 'year'];
-
+        $validIntervals = ['month', 'quarter', 'year'];
         if (!in_array($intervalo, $validIntervals)) {
             throw new InvalidArgumentException("Invalid interval specified.");
         }
-        $query = DB::table('resolutions AS r')
-            ->selectRaw('COUNT(r.id) AS cantidad');
 
-        // Adjust the query based on the selected interval
-        switch ($intervalo) {
-            case 'day':
-                // Select the date only, ignoring the time part
-                $query->selectRaw('DATE(r.fecha_emision) AS periodo');
-                $query->groupBy(DB::raw('DATE(r.fecha_emision)'));
-                $query->orderBy(DB::raw('DATE(r.fecha_emision)'));
-                break;
-            case 'week':
-                // Select the start of the week, truncating to the date
-                $query->selectRaw('DATE_TRUNC(\'week\', r.fecha_emision)::date AS periodo');
-                $query->groupBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
-                $query->orderBy(DB::raw('DATE_TRUNC(\'week\', r.fecha_emision)::date'));
-                break;
-            case 'month':
-                // Select the start of the month, truncating to the date
-                $query->selectRaw('DATE_TRUNC(\'month\', r.fecha_emision)::date AS periodo');
-                $query->groupBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
-                $query->orderBy(DB::raw('DATE_TRUNC(\'month\', r.fecha_emision)::date'));
-                break;
-            case 'quarter':
-                // Select the start of the quarter, truncating to the date
-                $query->selectRaw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date AS periodo');
-                $query->groupBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
-                $query->orderBy(DB::raw('DATE_TRUNC(\'quarter\', r.fecha_emision)::date'));
-                break;
-            case 'year':
-                // Select the start of the year, truncating to the date
-                $query->selectRaw('DATE_TRUNC(\'year\', r.fecha_emision)::date AS periodo');
-                $query->groupBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
-                $query->orderBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
-                break;
-        }
+        // Construcción de la consulta principal
+        $query = DB::table('resolutions AS r')->selectRaw('COUNT(r.id) AS cantidad');
 
-        // Apply additional filters if they are present
         if ($request->has('limite')) {
             $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 2005');
         }
-        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 1999');
-        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) < 2025');
+
+        $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) BETWEEN 2000 AND 2024');
+
         if ($request->has('magistrado')) {
             $query->where('r.magistrado_id', $request->magistrado);
         }
@@ -124,9 +67,6 @@ class CompareController extends Controller
         if ($request->has('sala')) {
             $query->where('r.sala_id', $request->sala);
         }
-        if ($request->has('departamento')) {
-            $query->where('r.departamento_id', $request->departamento);
-        }
 
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $tipo_jurisprudencia = $request->tipo_jurisprudencia ?? 'all';
@@ -137,9 +77,61 @@ class CompareController extends Controller
             AND ('{$materia}' = 'all' OR descriptor LIKE '{$materia}%')) AS j"), 'j.resolution_id', '=', 'r.id');
         }
 
+        // Clonar la consulta para la agrupación por departamento
+        //$agrupar_departamentos = clone $query;
+
+        // Aplicar agrupación por periodo
+        switch ($intervalo) {
+            case 'month':
+                $query->selectRaw("DATE_TRUNC('month', r.fecha_emision)::date AS periodo")
+                ->groupBy(DB::raw("DATE_TRUNC('month', r.fecha_emision)::date"))
+                ->orderBy(DB::raw("DATE_TRUNC('month', r.fecha_emision)::date"));
+                break;
+            case 'quarter':
+                $query->selectRaw("DATE_TRUNC('quarter', r.fecha_emision)::date AS periodo")
+                ->groupBy(DB::raw("DATE_TRUNC('quarter', r.fecha_emision)::date"))
+                ->orderBy(DB::raw("DATE_TRUNC('quarter', r.fecha_emision)::date"));
+                break;
+            case 'year':
+                $query->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo")
+                ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
+                ->orderBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"));
+                break;
+        }
+
         $resolutions = $query->get();
 
-        // Transform results into the desired format
+        // Modificar la consulta de agrupación por departamentos
+        $agrupar_departamentos = DB::table('resolutions AS r')
+        ->selectRaw('d.nombre as name, COUNT(r.id) AS termino_'.$numero_busqueda)
+        ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+        ->groupBy('d.nombre')
+        ->orderByDesc('termino_' . $numero_busqueda);
+
+        if ($request->has('magistrado')) {
+            $agrupar_departamentos->where('r.magistrado_id', $request->magistrado);
+        }
+        if ($request->has('forma_resolucion')) {
+            $agrupar_departamentos->where('r.forma_resolucion_id', $request->forma_resolucion);
+        }
+        if ($request->has('tipo_resolucion')) {
+            $agrupar_departamentos->where('r.tipo_resolucion_id', $request->tipo_resolucion);
+        }
+        if ($request->has('sala')) {
+            $agrupar_departamentos->where('r.sala_id', $request->sala);
+        }
+
+        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
+            $tipo_jurisprudencia = $request->tipo_jurisprudencia ?? 'all';
+            $materia = $request->materia ?? 'all';
+
+            $agrupar_departamentos->join(DB::raw("(SELECT resolution_id FROM jurisprudencias
+            WHERE ('{$tipo_jurisprudencia}' = 'all' OR tipo_jurisprudencia = '{$tipo_jurisprudencia}')
+            AND ('{$materia}' = 'all' OR descriptor LIKE '{$materia}%')) AS j"), 'j.resolution_id', '=', 'r.id');
+        }
+
+        $departamentos = $agrupar_departamentos->get();
+        // Formatear los resultados de resoluciones
         $result = $resolutions->map(function ($item) {
             return [$item->periodo, $item->cantidad];
         })->toArray();
@@ -148,8 +140,6 @@ class CompareController extends Controller
         $request["orden"] = "asc";
 
         return response()->json([
-
-
             'termino' => [
                 'name' => "Titulo",
                 'id' => $numero_busqueda,
@@ -161,10 +151,10 @@ class CompareController extends Controller
                 'type' => 'line',
                 'id' => $numero_busqueda,
                 'data' => $result
-            ]
+            ],
+            'departamentos' => $departamentos
         ]);
     }
-
 
 
     public function obtenerResoluciones(Request $request)

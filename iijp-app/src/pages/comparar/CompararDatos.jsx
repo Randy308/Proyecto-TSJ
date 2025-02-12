@@ -10,10 +10,12 @@ import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
+import GeoChart from "../../components/charts/GeoChart";
 const CompararDatos = () => {
   const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState(null);
+  const [geoData, setGeoData] = useState([]);
   const [limiteSuperior, setLimiteSuperior] = useSessionStorage(
     "limiteSuperior",
     ""
@@ -125,6 +127,10 @@ const CompararDatos = () => {
     }
   }, [resoluciones]);
 
+  useEffect(() => {
+    console.log(geoData);
+  }, [geoData]);
+  
   const obtenerResoluciones = async () => {
     try {
       setIsLoading(true);
@@ -156,6 +162,37 @@ const CompararDatos = () => {
         setTerminos((prev) =>
           prev.length > 0 ? [...prev, data.termino] : [data.termino]
         );
+
+      setGeoData((prevGeoData) => {
+        // Si no hay datos previos, simplemente se usa la nueva data
+        if (prevGeoData.length === 0) {
+          return data.departamentos;
+        }
+
+        // Convertir prevGeoData en un Map para acceso rápido por nombre
+        const geoDataMap = new Map(prevGeoData.map((d) => [d.name, { ...d }]));
+
+        data.departamentos.forEach((nuevoDepartamento) => {
+          const nombre = nuevoDepartamento.name;
+          const nuevoIndice = `termino_${numeroBusqueda}`;
+
+          if (geoDataMap.has(nombre)) {
+            // Si ya existe, actualizar el término correspondiente
+            geoDataMap.get(nombre)[nuevoIndice] =
+              nuevoDepartamento[nuevoIndice];
+          } else {
+            // Si no existe, agregar el nuevo departamento
+            geoDataMap.set(nombre, {
+              name: nombre,
+              [nuevoIndice]: nuevoDepartamento[nuevoIndice],
+            });
+          }
+        });
+
+        // Convertir el Map de vuelta a un array
+        return Array.from(geoDataMap.values());
+      });
+
 
         limpiarFiltros();
       } else {
@@ -254,12 +291,14 @@ const CompararDatos = () => {
       </div>
 
       <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
-        {resoluciones && resoluciones.length > 0 ? (
+        {resoluciones && resoluciones.length > 0 && (
           <SimpleChart option={option} border={false}></SimpleChart>
-        ) : (
-          <div className="h-[500px]">
-            <Loading></Loading>
-          </div>
+        )}
+      </div>
+
+      <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px]">
+        {geoData && geoData.length > 0 && (
+          <GeoChart contenido={geoData}></GeoChart>
         )}
       </div>
     </div>

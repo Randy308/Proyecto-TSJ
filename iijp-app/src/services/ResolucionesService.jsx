@@ -11,8 +11,8 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-const MagistradoService = {
-  getAllMagistrados: () => instance.get(`/magistrados`),
+const ResolucionesService = {
+  getStats: () => instance.get(`/obtener-historico`),
 
   getDataDepartamentos: (id, params) =>
     instance.get(`/magistrado-estadisticas-departamentos/${id}`, {
@@ -20,5 +20,4 @@ const MagistradoService = {
     }),
 };
 
-
-export default MagistradoService;
+export default ResolucionesService;

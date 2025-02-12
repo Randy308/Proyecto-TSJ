@@ -50,7 +50,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/search-term-jurisprudencia', [JurisprudenciasController::class, 'busquedaTerminos']);
     Route::get('/actualizar-nodo', [JurisprudenciasController::class, 'actualizarNodo']);
-    
+
 });
 
 
@@ -95,7 +95,7 @@ Route::get('/magistrados', [MagistradosController::class, 'index'])->name('obten
 Route::get('/magistrado-estadisticas/{id}', [MagistradosController::class, 'obtenerEstadisticas'])->name('obtener-estadisticas-magistrado');
 
 
-Route::get('/all-resoluciones', [ResolutionController::class, 'index'])->name('all-resolutions');
+Route::get('/obtener-historico', [ResolutionController::class, 'index'])->name('obtener-historico');
 
 Route::get('/obtener-resoluciones-magistrado', [MagistradosController::class, 'obtenerResoluciones'])->name('obtener-resoluciones-magistrado');
 

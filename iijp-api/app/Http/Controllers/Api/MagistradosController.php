@@ -591,26 +591,64 @@ class MagistradosController extends Controller
             ], 500);
         }
     }
-    public function obtenerResolucionesDepartamento($id)
+
+    public function obtenerResolucionesDepartamento($id, Request $request)
     {
+        // Obtener las fechas del request
+        $fecha_min = $request->input('min_date');
+        $fecha_max = $request->input('max_date');
 
         try {
+            // Verificar si las fechas son válidas
+            if ($fecha_min && !Carbon::hasFormat($fecha_min, 'Y-m-d')) {
+                return response()->json([
+                    'error' => 'Formato de fecha mínima no válido.'
+                ], 400);
+            }
 
+            if ($fecha_max && !Carbon::hasFormat($fecha_max, 'Y-m-d')) {
+                return response()->json([
+                    'error' => 'Formato de fecha máxima no válido.'
+                ], 400);
+            }
+
+            // Buscar el magistrado por ID
             $magistrado = Magistrados::where('id', $id)->firstOrFail();
+
+            // Construir la consulta para obtener las resoluciones por departamento
             $res_departamentos = DB::table('resolutions as r')
-                ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
-                ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
-                ->select(
-                    'd.nombre as name',
-                    DB::raw('count(*) as value')
-                )
-                ->where('r.magistrado_id', '=', $magistrado->id)->where('d.nombre', '!=', 'Desconocido')
+            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+            ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
+            ->select(
+                'd.nombre as name',
+                DB::raw('count(*) as value')
+            )
+                ->where('r.magistrado_id', '=', $magistrado->id)
+                ->where('d.nombre', '!=', 'Desconocido')
                 ->groupBy('d.nombre')
-                ->orderBy('d.nombre')
-                ->get();
+                ->orderBy('d.nombre');
+
+            // Filtrar por fecha mínima
+            if ($fecha_min) {
+                // Convertir la fecha mínima a formato Carbon
+                $fecha_min = Carbon::createFromFormat('Y-m-d', $fecha_min)->startOfDay();
+                $res_departamentos = $res_departamentos->where('r.fecha_emision', '>=', $fecha_min);
+            }
+
+            // Filtrar por fecha máxima
+            if ($fecha_max) {
+                // Convertir la fecha máxima a formato Carbon
+                $fecha_max = Carbon::createFromFormat('Y-m-d', $fecha_max)->endOfDay();
+                $res_departamentos = $res_departamentos->where('r.fecha_emision', '<=', $fecha_max);
+            }
+
+            // Obtener los resultados de la consulta
+            $res_departamentos = $res_departamentos->get();
+
+            // Retornar los resultados en formato JSON
             return response()->json($res_departamentos, 200);
         } catch (ModelNotFoundException $e) {
-
+            // Si el magistrado no fue encontrado
             return response()->json([
                 'error' => 'Magistrado no encontrado'
             ], 404);
@@ -621,6 +659,7 @@ class MagistradosController extends Controller
             ], 500);
         }
     }
+
 
     public function create()
     {
