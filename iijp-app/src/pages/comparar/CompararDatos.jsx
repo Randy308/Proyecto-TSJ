@@ -84,6 +84,7 @@ const CompararDatos = () => {
     }
   };
 
+
   useEffect(() => {
     if (resoluciones) {
       setOption({
@@ -130,7 +131,7 @@ const CompararDatos = () => {
   useEffect(() => {
     console.log(geoData);
   }, [geoData]);
-  
+
   const obtenerResoluciones = async () => {
     try {
       setIsLoading(true);
@@ -145,7 +146,7 @@ const CompararDatos = () => {
         )
       );
 
-      const { data } = await axios.get(`${endpoint}/obtener-elemento`, {
+      const response = await axios.get(`${endpoint}/obtener-elemento`, {
         params: {
           fecha_final: limiteSuperior,
           fecha_inicial: limiteInferior,
@@ -153,46 +154,47 @@ const CompararDatos = () => {
           ...filteredData,
         },
       });
-      if (data.resoluciones.data.length > 0) {
+      if (response.data.resoluciones.data.length > 0) {
         setNumeroBusqueda((prev) => prev + 1);
         setResoluciones((prev) =>
-          prev ? [...prev, data.resoluciones] : [data.resoluciones]
+          prev ? [...prev, response.data.resoluciones] : [response.data.resoluciones]
         );
 
         setTerminos((prev) =>
-          prev.length > 0 ? [...prev, data.termino] : [data.termino]
+          prev.length > 0 ? [...prev, response.data.termino] : [response.data.termino]
         );
 
-      setGeoData((prevGeoData) => {
-        // Si no hay datos previos, simplemente se usa la nueva data
-        if (prevGeoData.length === 0) {
-          return data.departamentos;
-        }
-
-        // Convertir prevGeoData en un Map para acceso rápido por nombre
-        const geoDataMap = new Map(prevGeoData.map((d) => [d.name, { ...d }]));
-
-        data.departamentos.forEach((nuevoDepartamento) => {
-          const nombre = nuevoDepartamento.name;
-          const nuevoIndice = `termino_${numeroBusqueda}`;
-
-          if (geoDataMap.has(nombre)) {
-            // Si ya existe, actualizar el término correspondiente
-            geoDataMap.get(nombre)[nuevoIndice] =
-              nuevoDepartamento[nuevoIndice];
-          } else {
-            // Si no existe, agregar el nuevo departamento
-            geoDataMap.set(nombre, {
-              name: nombre,
-              [nuevoIndice]: nuevoDepartamento[nuevoIndice],
-            });
+        setGeoData((prevGeoData) => {
+          // Si no hay datos previos, simplemente se usa la nueva data
+          if (prevGeoData.length === 0) {
+            return response.data.departamentos;
           }
+
+          // Convertir prevGeoData en un Map para acceso rápido por nombre
+          const geoDataMap = new Map(
+            prevGeoData.map((d) => [d.name, { ...d }])
+          );
+
+          response.data.departamentos.forEach((nuevoDepartamento) => {
+            const nombre = nuevoDepartamento.name;
+            const nuevoIndice = `termino_${numeroBusqueda}`;
+
+            if (geoDataMap.has(nombre)) {
+              // Si ya existe, actualizar el término correspondiente
+              geoDataMap.get(nombre)[nuevoIndice] =
+                nuevoDepartamento[nuevoIndice];
+            } else {
+              // Si no existe, agregar el nuevo departamento
+              geoDataMap.set(nombre, {
+                name: nombre,
+                [nuevoIndice]: nuevoDepartamento[nuevoIndice],
+              });
+            }
+          });
+
+          // Convertir el Map de vuelta a un array
+          return Array.from(geoDataMap.values());
         });
-
-        // Convertir el Map de vuelta a un array
-        return Array.from(geoDataMap.values());
-      });
-
 
         limpiarFiltros();
       } else {
@@ -286,21 +288,20 @@ const CompararDatos = () => {
         {terminos &&
           terminos.length > 0 &&
           terminos.map((item, index) => (
-            <Dropdown key={index} item={item} removeItemById={removeItemById} />
+            <Dropdown key={index} item={item} removeItemById={removeItemById} data={data} />
           ))}
       </div>
-
-      <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full">
-        {resoluciones && resoluciones.length > 0 && (
+      {resoluciones && resoluciones.length > 0 && (
+        <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full mb-8">
           <SimpleChart option={option} border={false}></SimpleChart>
-        )}
-      </div>
+        </div>
+      )}
 
-      <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px]">
-        {geoData && geoData.length > 0 && (
+      {geoData && geoData.length > 0 && (
+        <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px] mb-8">
           <GeoChart contenido={geoData}></GeoChart>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -3,7 +3,21 @@ import { createContext, useState, useContext } from "react";
 export const MagistradoContext = createContext();
 
 export const MagistradoContextProvider = ({ children }) => {
-  const [magistrado, setMagistrado] = useState([]);
+
+  const magistradoObj = {
+    id: 0,
+    nombre: "",
+    fecha_minima: "",
+    fecha_maxima: "",
+    formas: {},
+    salas:{},
+    series_temporales:{},
+    departamentos:{},
+    parametros:{},
+    estadisticas:{},
+  };
+
+  const [magistrado, setMagistrado] = useState(magistradoObj);
   const valor = { magistrado, setMagistrado };
 
   return (

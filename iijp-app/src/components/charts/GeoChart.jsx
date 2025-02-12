@@ -27,7 +27,6 @@ const GeoChart = ({ contenido }) => {
     termino_5: "#FFCC99", // Naranja pastel
   };
 
-  // Convertir la estructura de contenido para extraer el término dominante
   const processedData = contenido.map((item) => {
     // Extraer todos los valores dinámicos `termino_X`
     const terminos = Object.keys(item)
@@ -53,14 +52,44 @@ const GeoChart = ({ contenido }) => {
     };
   });
 
-  // Función para formatear el tooltip con el término dominante
+  // Función para formatear el tooltip
   const formatTooltip = (params) => {
-    const departmentData = params.data;
-    if (!departmentData) return params.name;
-    return `${params.name}:<br />${departmentData.maxTermino} → ${departmentData.maxValue}`;
+    const departamento = params.name;
+    const departamentoData = contenido.find(
+      (item) => item.name === departamento
+    );
+
+    if (!departamentoData) return departamento;
+
+    // Obtener todos los términos (termino_X) y sus valores
+    const terminos = Object.entries(departamentoData)
+      .filter(([key]) => key.startsWith("termino_"))
+      .map(([key, value]) => ({ key, value }));
+
+    if (terminos.length === 0) return departamento;
+
+    // Ordenar los términos por valor de mayor a menor
+    terminos.sort((a, b) => b.value - a.value);
+
+    // Determinar el término con el valor más alto
+    const maxTermino = terminos[0];
+
+    // Construir el texto del tooltip
+    const terminosTexto = terminos
+      .map(
+        ({ key, value }) =>
+          `${key.replace("termino_", "Búsqueda #")}: <b>${value}</b>`
+      )
+      .join("<br />");
+
+    return `<b>${departamento}</b>:<br />
+            ${terminosTexto}<br />
+            <b>Mayor valor:</b> ${maxTermino.key.replace(
+              "termino_",
+              "Búsqueda #"
+            )} → <b>${maxTermino.value}</b>`;
   };
 
-    
   const option = {
     title: {
       text: "Desglose comparativo de resoluciones por departamento",

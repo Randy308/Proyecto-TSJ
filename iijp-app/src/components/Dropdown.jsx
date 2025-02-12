@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useNavigate } from "react-router-dom";
-const Dropdown = ({ item, removeItemById }) => {
+const Dropdown = ({ item, removeItemById, data }) => {
   const [visible, setVisible] = useState(false);
   const [oculto, setOculto] = useState(true);
   function toTitleCase(str) {
@@ -12,6 +12,8 @@ const Dropdown = ({ item, removeItemById }) => {
       (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
     );
   }
+
+  const [terminos, setTerminos] = useState([]);
 
   sessionStorage.removeItem("formData");
   const [formData, setFormData] = useSessionStorage("formData", {
@@ -38,6 +40,35 @@ const Dropdown = ({ item, removeItemById }) => {
   const navegar = (item, ruta = "/proyeccion") => {
     navigate(ruta, { state: { parametros: item } });
   };
+
+  const transformarClave = (clave) => {
+    const nuevaClave = clave.replace(/_/g, " de "); // Reemplazar guiones bajos
+    return nuevaClave.charAt(0).toUpperCase() + nuevaClave.slice(1); // Capitalizar la primera letra
+  };
+
+  // Función para obtener los nombres de los parámetros
+
+  const obtenerNombresParametros = (detalles) => {
+    let resultado = {};
+
+    Object.entries(detalles).forEach(([clave, valor]) => {
+      if (data[clave]) {
+        // Buscar el elemento en la lista correspondiente
+        const encontrado = data[clave].find(
+          (item) => String(item.id) === valor
+        );
+        if (encontrado) {
+          resultado[clave] = encontrado.nombre; // Agregar solo si hay coincidencia
+        }
+      }
+    });
+
+    return resultado;
+  };
+
+  useEffect(() => {
+    setTerminos(obtenerNombresParametros(item.detalles));
+  }, []);
 
   return (
     <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -98,11 +129,18 @@ const Dropdown = ({ item, removeItemById }) => {
       </div>
       <div className="flex flex-col items-center pb-10">
         <h5 className="mb-1 text-lg font-medium text-gray-900 dark:text-white">
-          {toTitleCase(item.name.replace(/_/g, " "))} :<span>{item.value}</span>
+          {item.value}
         </h5>
         <span className="text-sm text-gray-500 dark:text-gray-400">
           Termino de búsqueda
         </span>
+        <div className="text-gray-400 dark:text-gray-300 text-xs mt-2">
+          {Object.entries(terminos).map(([k, v]) => (
+            <div key={k}>
+              <span className="bold">{transformarClave(k)}</span>: {v}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
