@@ -30,6 +30,11 @@ const Select = ({ fieldName, items, setFormData, formData }) => {
       setSelectedTipo("all");
     }
   }, [formData, fieldName]);
+
+
+  if (fieldName === "departamento") {
+    return;
+  }
   return (
     <div className="full-w">
       <label

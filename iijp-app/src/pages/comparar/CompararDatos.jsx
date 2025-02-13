@@ -84,7 +84,6 @@ const CompararDatos = () => {
     }
   };
 
-
   useEffect(() => {
     if (resoluciones) {
       setOption({
@@ -157,11 +156,15 @@ const CompararDatos = () => {
       if (response.data.resoluciones.data.length > 0) {
         setNumeroBusqueda((prev) => prev + 1);
         setResoluciones((prev) =>
-          prev ? [...prev, response.data.resoluciones] : [response.data.resoluciones]
+          prev
+            ? [...prev, response.data.resoluciones]
+            : [response.data.resoluciones]
         );
 
         setTerminos((prev) =>
-          prev.length > 0 ? [...prev, response.data.termino] : [response.data.termino]
+          prev.length > 0
+            ? [...prev, response.data.termino]
+            : [response.data.termino]
         );
 
         setGeoData((prevGeoData) => {
@@ -212,10 +215,31 @@ const CompararDatos = () => {
       prevResoluciones.filter((item) => item.id !== id)
     );
 
+    const key = terminos.find((item) => item.id === id).name;
+
+    setGeoData((prev) => {
+      if (!key) return prev;
+
+      return prev
+        .map((item) => {
+          const newItem = { ...item };
+          delete newItem[key]; // Eliminar la clave específica
+
+          // Si solo queda 'name', marcar para eliminación
+          return Object.keys(newItem).length === 1 && newItem.name
+            ? null
+            : newItem;
+        })
+        .filter((item) => item !== null); // Filtrar objetos vacíos
+    });
+
     setTerminos((prevTerminos) =>
       prevTerminos.filter((item) => item.id !== id)
     );
   };
+  useEffect(() => {
+    console.log(geoData);
+  }, [geoData]);
 
   const limpiarFiltros = () => {
     setFormData({
@@ -288,7 +312,12 @@ const CompararDatos = () => {
         {terminos &&
           terminos.length > 0 &&
           terminos.map((item, index) => (
-            <Dropdown key={index} item={item} removeItemById={removeItemById} data={data} />
+            <Dropdown
+              key={index}
+              item={item}
+              removeItemById={removeItemById}
+              data={data}
+            />
           ))}
       </div>
       {resoluciones && resoluciones.length > 0 && (

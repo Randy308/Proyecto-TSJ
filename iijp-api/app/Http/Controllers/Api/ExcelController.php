@@ -214,9 +214,20 @@ class ExcelController extends Controller
         }
     }
 
-    /**
-     * Obtener o crear un ID para una entidad dada.
-     */
+
+    private function crearResolucion($resolucion)
+    {
+
+
+
+
+        $totalFilas++;
+
+       
+
+        return $resolucion;
+    }
+
     private function getOrCreateId($model, $field, $value, &$map)
     {
         if (!isset($map[$value])) {
@@ -226,9 +237,6 @@ class ExcelController extends Controller
         return $map[$value];
     }
 
-    /**
-     * Obtener el ID de un tema existente.
-     */
     private function getTemaId($temaID, &$map)
     {
         if (!isset($map[$temaID])) {

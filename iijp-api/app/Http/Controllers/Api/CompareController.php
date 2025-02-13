@@ -141,7 +141,7 @@ class CompareController extends Controller
 
         return response()->json([
             'termino' => [
-                'name' => "Titulo",
+                'name' => "termino_" . $numero_busqueda,
                 'id' => $numero_busqueda,
                 'value' => "Busqueda #" . $numero_busqueda,
                 "detalles" => $request->all(),
@@ -259,7 +259,7 @@ class CompareController extends Controller
                 'j.tipo_jurisprudencia as nombre',
                 DB::raw('MIN(j.id) as id')
             )
-            ->whereNotNull('j.tipo_jurisprudencia')
+            ->whereNotNull('j.tipo_jurisprudencia')->where('j.tipo_jurisprudencia', '!=', '')
             ->groupBy('j.tipo_jurisprudencia')
             ->orderBy('j.tipo_jurisprudencia')
             ->get();

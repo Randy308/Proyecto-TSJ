@@ -443,36 +443,34 @@
                 <p class="restrictor">{{ $item->restrictor }}</p>
             </div>
             <div class="contenido">
-                <p class="resolution">
-                    Nro Resolución:
+                <span class="resolution">
                     <a href="http://127.0.0.1:3000/jurisprudencia/resolucion/{{ $item->resolution_id }}">
                         {{ $item->nro_resolucion }}
                     </a>
-                </p>
+                </span>
+                @if ($item->forma_resolucion)
+                    <span class="forma-resolucion">
+                        &nbsp;| {{ str_replace('_x000D_', "\n", $item->forma_resolucion) }}
+                    </span>
+                @endif
 
                 @if ($item->tipo_jurisprudencia)
-                    <p class="tipo-jurisprudencia">
-                        Tipo de jurisprudencia:
-                        {{ str_replace('_x000D_', "\n", $item->tipo_jurisprudencia) }}
-                    </p>
+                    <span class="tipo-jurisprudencia">
+                        | {{ str_replace('_x000D_', "\n", $item->tipo_jurisprudencia) }}
+                    </span>
                 @endif
 
-                @if ($item->forma_resolucion)
-                    <p class="forma-resolucion">
-                        Forma de Resolución: {{ str_replace('_x000D_', "\n", $item->forma_resolucion) }}
-                    </p>
-                @endif
 
                 @if ($item->proceso)
-                    <p class="proceso">
-                        Proceso: {{ str_replace('_x000D_', "\n", $item->proceso) }}
-                    </p>
+                    <span class="proceso">
+                        | {{ str_replace('_x000D_', "\n", $item->proceso) }}
+                    </span>
                 @endif
 
                 @if ($item->ratio)
-                    <p class="ratio">
-                        Ratio: {{ str_replace('_x000D_', "\n", $item->ratio) }}
-                    </p>
+                    <span class="ratio">
+                        | {{ str_replace('_x000D_', "\n", $item->ratio) }}
+                    </span>
                 @endif
 
                 @if (isset($item->resultado))

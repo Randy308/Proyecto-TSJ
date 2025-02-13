@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\WebScrappingJob;
 use App\Models\Contents;
 use App\Models\Departamentos;
 use App\Models\FormaResolucions;
 use App\Models\Jurisprudencias;
+use App\Models\Mapeos;
 use App\Models\Resolutions;
 use App\Models\Salas;
 use App\Models\TipoResolucions;
@@ -21,6 +23,7 @@ use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 use Symfony\Component\HttpClient\HttpClient;
+use Illuminate\Support\Facades\Log;
 
 class ResolutionController extends Controller
 {
@@ -320,21 +323,28 @@ class ResolutionController extends Controller
 
     public function obtenerResolucionesTSJ(Request $request)
     {
+        validator($request->all(), [
+            'iterations' => 'required|integer|max:1000',
+        ])->validate();
 
-        $httpClient = HttpClient::create([
-            'verify_peer' => false,
-            'verify_host' => false,
-        ]);
 
-        $response = $httpClient->request('GET', 'https://jurisprudencia.tsj.bo/jurisprudencia/' . $request->id);
 
-        if ($response->getStatusCode() === 200) {
-            $data = $response->toArray();
-            return ($data);
-        } else {
-            throw new \Exception("Failed to retrieve the data. Status code: " . $response->getStatusCode());
+        $isRunning = DB::table('jobs')->where('payload', 'like', '%WebScrappingJob%')->exists();
+
+        if ($isRunning) {
+            return response()->json(['message' => 'El Web Scraping ya se está ejecutando.'], 409);
         }
+
+        $iterations = $request->input('iterations', 100);
+        $lastId = Mapeos::max('external_id');
+
+        
+        Log::info("Busqueda iniciada");
+        WebScrappingJob::dispatch($iterations, $lastId);
+
+        return response()->json(['message' => 'Web Scraping iniciado.']);
     }
+
 
     public function index()
     {
@@ -889,7 +899,7 @@ class ResolutionController extends Controller
             'columna' => $columnName,
             'terminos' => $terminos,
             'nombre' => $columnName,
-            'multiVariable'=> false
+            'multiVariable' => false
         ]);
     }
 
@@ -958,14 +968,13 @@ class ResolutionController extends Controller
 
         return response()->json([
 
-            'data' => $this->ordenarArrayXY($combinations, $columnaX ,$columnaY),
+            'data' => $this->ordenarArrayXY($combinations, $columnaX, $columnaY),
             'tabla' => $request->tablaX,
             'columna' => $request->columnaX,
             'nombre' => $request->columnaY,
             'terminos' => $request->terminosX,
-            'multiVariable'=> true
+            'multiVariable' => true
         ]);
-
     }
 
 
@@ -1120,7 +1129,7 @@ class ResolutionController extends Controller
     }
 
 
-    public function ordenarArrayXY($combinations, $nombreX ,$nombreY)
+    public function ordenarArrayXY($combinations, $nombreX, $nombreY)
     {
         $variableX = $nombreX;
         $variableY = $nombreY;
