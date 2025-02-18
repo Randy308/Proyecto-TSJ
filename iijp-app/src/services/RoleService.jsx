@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const endpoint = process.env.REACT_APP_BACKEND;
-const API_PATH = "/v1/admin";
+const API_PATH = "/admin";
 
 const instance = axios.create({
   baseURL: endpoint,

@@ -3,14 +3,10 @@ import SimpleChart from "../../../components/charts/SimpleChart";
 import TablaX from "../../../components/tables/TablaX";
 import { SwitchChart } from "../../../components/charts/SwitchChart";
 import Select from "../../../components/Select";
-
-import React, { useEffect, useMemo, useState } from "react";
-import { FaPlay } from "react-icons/fa6";
-
-import axios from "axios";
-
+import React, { useEffect, useState } from "react";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import AsyncButton from "../../../components/AsyncButton";
+import MagistradoService from "../../../services/MagistradoService";
 function AnalisisMagistrado({
   params,
   data,
@@ -20,7 +16,6 @@ function AnalisisMagistrado({
   multiVariable,
   setMultiVariable,
 }) {
-  const endpoint = process.env.REACT_APP_BACKEND;
 
   const [option, setOption] = useState({});
   const [columns, setColumns] = useState(null);
@@ -94,34 +89,34 @@ function AnalisisMagistrado({
     }
   };
 
-  const realizarAnalisis = () => {
-    setIsLoading(true); // Start loading
+const realizarAnalisis = () => {
+  setIsLoading(true); // Start loading
 
-    const isMultiVariable = listaX.length > 0 && checkedX;
-    const endpointPath = isMultiVariable
-      ? `${endpoint}/magistrado-estadisticas-xy`
-      : `${endpoint}/magistrado-estadisticas-x`;
-    const params = isMultiVariable
-      ? {
-          salas,
-          magistradoId: id,
-          idsY: listaX[0].ids,
-          nombreY: listaX[0].name,
-        }
-      : { salas, magistradoId: id };
+  const isMultiVariable = listaX.length > 0 && checkedX;
+  const params = isMultiVariable
+    ? {
+        salas,
+        magistradoId: id,
+        idsY: listaX[0].ids,
+        nombreY: listaX[0].name,
+      }
+    : { salas, magistradoId: id };
 
-    axios
-      .get(endpointPath, { params })
-      .then(({ data }) => {
-        setData(data.data.length > 0 ? data.data : []);
-        setMultiVariable(isMultiVariable);
-        setIsLoading(false); // Stop loading when data is fetched
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setIsLoading(false); // Stop loading in case of an error
-      });
-  };
+  const fetchStats = isMultiVariable
+    ? MagistradoService.getStatsXY(params)
+    : MagistradoService.getStatsX(params);
+
+  fetchStats
+    .then(({ data }) => {
+      setData(data.data.length > 0 ? data.data : []);
+      setMultiVariable(isMultiVariable);
+      setIsLoading(false); // Stop loading when data is fetched
+    })
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+      setIsLoading(false); // Stop loading in case of an error
+    });
+};
 
   function transposeArray(data) {
     const transposed = {};

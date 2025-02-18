@@ -13,25 +13,25 @@ const instance = axios.create({
 
 const UserService = {
   getAllUsers: (token, page) =>
-    instance.get("/v1/admin/user", {
+    instance.get("/admin/user", {
       params: { page: page },
       headers: { Authorization: `Bearer ${token}` },
     }),
 
   getUser: (id, token) =>
-    instance.get(`/v1/admin/user/${id}`, {
+    instance.get(`/admin/user/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
   createUser: (userData, token) =>
-    instance.post("/v1/admin/user", userData, {
+    instance.post("/admin/user", userData, {
       headers: { Authorization: `Bearer ${token}` },
     }),
   updateUser: (id, userData, token) =>
-    instance.put(`/v1/admin/user/${id}`, userData, {
+    instance.put(`/admin/user/${id}`, userData, {
       headers: { Authorization: `Bearer ${token}` },
     }),
   deleteUser: (id, token) =>
-    instance.delete(`/v1/admin/user/${id}`, {
+    instance.delete(`/admin/user/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
 };

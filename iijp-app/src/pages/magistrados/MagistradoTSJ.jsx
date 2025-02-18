@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios";
+
 import { useParams } from "react-router-dom";
 import { ImUserTie } from "react-icons/im";
 import "../../styles/magistradosTSJ.css";
@@ -10,8 +10,8 @@ import Resumen from "./analisis/Resumen";
 import TimesSeries from "./analisis/TimesSeries";
 import Mapa from "./analisis/Mapa";
 import AnalisisMagistrado from "./analisis/AnalisisMagistrado";
+import MagistradoService from "../../services/MagistradoService";
 const MagistradoTSJ = () => {
-  const endpoint = process.env.REACT_APP_BACKEND;
   const { id } = useParams();
   const [magistrado, setMagistrado] = useState([]);
   const [activeTab, setActiveTab] = useState(1);
@@ -22,15 +22,16 @@ const MagistradoTSJ = () => {
 
   const handleClick = async () => {
     if (!hasFetchedDep) {
-      try {
-        const { data } = await axios.get(
-          `${endpoint}/magistrado-estadisticas-departamentos/${id}`
-        );
-        setDepartamentos(data);
-        setHasFetchedDep(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      MagistradoService.getDepartamentos(id, {})
+        .then(({ data }) => {
+          if (data) {
+            setDepartamentos(data);
+            setHasFetchedDep(true);
+          }
+        })
+        .catch(({ err }) => {
+          console.error("Error fetching data:", err);
+        });
     }
   };
 
@@ -39,21 +40,19 @@ const MagistradoTSJ = () => {
 
   const handleClickParams = async () => {
     if (!hasParams) {
-      try {
-        const { data } = await axios.get(
-          `${endpoint}/obtener-paramentros-magistrado`,
-          {
-            params: {
-              id: id,
-              salas: salasId,
-            },
+      MagistradoService.getParametros({
+        id: id,
+        salas: salasId,
+      })
+        .then(({ data }) => {
+          if (data) {
+            setParams(data);
+            setHasParams(true);
           }
-        );
-        setParams(data);
-        setHasParams(true);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+        })
+        .catch(({ err }) => {
+          console.error("Error fetching data:", err);
+        });
     }
   };
 
@@ -82,26 +81,40 @@ const MagistradoTSJ = () => {
     } else {
       actual.current = reversa ? actual.current - 1 : actual.current + 1;
       console.log(lista[actual.current]);
-      getEstadisticas();
+      getSerieTemporal();
     }
   };
 
-  const getEstadisticas = async () => {
-    try {
-      setResoluciones([]);
-      const response = await axios.get(
-        `${endpoint}/magistrado-estadisticas-v2/${id}`,
-        {
-          params: {
-            actual: lista[actual.current],
-            dato: generarFecha(),
-          },
+  useEffect(() => {
+    const obtenerResumen = async () => {
+      await MagistradoService.getResumen(id)
+        .then(({ data }) => {
+          if (data) {
+            setMagistrado(data);
+          }
+        })
+        .catch(({ err }) => {
+          console.error("Existe un error " + err);
+        });
+    };
+    obtenerResumen();
+  }, [id]);
+
+  const getSerieTemporal = async () => {
+    setResoluciones([]);
+
+    await MagistradoService.getSerieTemporal(id, {
+      actual: lista[actual.current],
+      dato: generarFecha(),
+    })
+      .then(({ data }) => {
+        if (data) {
+          setResoluciones(data.data);
         }
-      );
-      setResoluciones(response.data.data);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-    }
+      })
+      .catch(({ err }) => {
+        console.log("Existe un error " + err);
+      });
   };
 
   useEffect(() => {
@@ -109,20 +122,6 @@ const MagistradoTSJ = () => {
       recorrerLista(false);
     }
   }, [valor]);
-  useEffect(() => {
-    const obtenerResumen = async () => {
-      try {
-        const { data } = await axios.get(
-          `${endpoint}/obtener-datos-magistrado/${id}`
-        );
-        console.log(data);
-        setMagistrado(data);
-      } catch (error) {
-        console.error("Error al realizar la solicitud:", error);
-      }
-    };
-    obtenerResumen();
-  }, [id]);
 
   useEffect(() => {
     if (magistrado && magistrado.salas && magistrado.salas.length > 0) {
@@ -137,7 +136,7 @@ const MagistradoTSJ = () => {
   }, [magistrado]);
 
   useEffect(() => {
-    getEstadisticas();
+    getSerieTemporal();
   }, []);
 
   const handleTabs = (number) => {

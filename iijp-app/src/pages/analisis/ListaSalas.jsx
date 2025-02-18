@@ -1,20 +1,14 @@
 import Loading from "../../components/Loading";
-import { useFreeApi } from "../../hooks/api/useFreeApi";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { GiInjustice } from "react-icons/gi";
-import axios from "axios";
 import TanstackTabla from "../../components/tables/TanstackTabla";
 import LineChart from "./LineChart";
 import { toast } from "react-toastify";
 import { MdOutlineCleaningServices } from "react-icons/md";
-import { FaPlay } from "react-icons/fa6";
 import BtnDropdown from "../../components/BtnDropdown";
 import AsyncButton from "../../components/AsyncButton";
+import SalasService from "../../services/SalasService";
 const ListaSalas = () => {
-  const endpoint = process.env.REACT_APP_BACKEND;
-
-  const { contenido, isLoading, error } = useFreeApi(`${endpoint}/all-salas`);
 
   const [selectedIds, setSelectedIds] = useState([]);
   const [resoluciones, setResoluciones] = useState([]);
@@ -27,6 +21,17 @@ const ListaSalas = () => {
   const [visible, setVisible] = useState(true);
 
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [salas, setSalas] = useState([]);
+  useEffect(() => {
+    SalasService.getAllSalas()
+      .then(({ data }) => {
+        if (data) {
+          setSalas(data);
+        }
+      })
+      .catch(({ err }) => console.error("Existe un error " + err));
+  }, []);
+
   const option = {
     legend: {
       top: "top",
@@ -71,27 +76,25 @@ const ListaSalas = () => {
     }
 
     setIsLoadingData(true);
-    try {
-      const { data } = await axios.get(`${endpoint}/obtener-datos-salas`, {
-        params: {
-          salas: selectedIds,
-        },
+
+    SalasService.getDatos({
+      salas: selectedIds,
+    })
+      .then(({ data }) => {
+        if (data) {
+          setResoluciones(data.data);
+          setTotalRes(data.total);
+          setVisible(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error al realizar la solicitud:", error);
+        toast.warning("Error de conexión");
+      })
+      .finally(() => {
+        setIsLoadingData(false);
       });
-
-      setResoluciones(data.data);
-      setTotalRes(data.total);
-      setVisible(false);
-      setIsLoadingData(false);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-      toast.warning("Error de conexión");
-      setIsLoadingData(false);
-    }
   };
-
-  useEffect(() => {
-    console.log(selectedIds);
-  }, [selectedIds]);
 
   useEffect(() => {
     if (resoluciones && resoluciones.length > 0 && totalRes > 0) {
@@ -115,11 +118,8 @@ const ListaSalas = () => {
     }
   }, [resoluciones, totalRes, umbral]);
 
-  if (isLoading) return <Loading />;
-  if (error) return <p>{error}</p>;
-
-  if (!Array.isArray(contenido) || contenido.length === 0) {
-    return <p>No hay datos disponibles.</p>;
+  if (salas.length <= 0) {
+    return <Loading />;
   }
 
   return (
@@ -152,7 +152,7 @@ const ListaSalas = () => {
   dark:[&::-webkit-scrollbar-track]:bg-neutral-700
   dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500" ${visible ? "" : "hidden"}`}
             >
-              {contenido.map((item) => (
+              {salas.map((item) => (
                 <li key={item.id} className="px-2">
                   <input
                     type="checkbox"

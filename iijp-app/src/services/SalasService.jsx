@@ -11,23 +11,20 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-const MagistradoService = {
-  getAllMagistrados: () => instance.get(`/magistrados`),
+const SalasService = {
+  getAllSalas: () => instance.get(`/obtener-salas`),
 
   getDepartamentos: (id, params) =>
     instance.get(`/magistrado-estadisticas-departamentos/${id}`, {
       params,
     }),
 
-  getSerieTemporal: (id, params) =>
-    instance.get(`/magistrado-serie-temporal/${id}`, { params }),
+  getDatos: (params) => instance.get(`/obtener-datos-salas`, { params }),
   getResumen: (id) => instance.get(`/obtener-datos-magistrado/${id}`, {}),
   getParametros: (params) =>
-    instance.get(`/obtener-paramentros-magistrado/`, { params }),
-  getStatsX: (params) =>
-    instance.get(`/magistrado-estadisticas-x/`, { params }),
-  getStatsXY: (params) =>
-    instance.get(`/magistrado-estadisticas-xy/`, { params }),
+    instance.get(`/obtener-parametros-salas/`, { params }),
+  getStatsX: (params) => instance.get(`/estadisticas-x/`, { params }),
+  getStatsXY: (params) => instance.get(`/estadisticas-xy/`, { params }),
 };
 
-export default MagistradoService;
+export default SalasService;

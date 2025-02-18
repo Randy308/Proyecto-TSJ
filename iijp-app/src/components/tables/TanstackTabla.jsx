@@ -7,34 +7,27 @@ import {
   flexRender,
 } from "@tanstack/react-table";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-const endpoint = process.env.REACT_APP_BACKEND;
+import SalasService from "../../services/SalasService";
 
-const TanstackTabla = ({ data , selectedIds}) => {
+const TanstackTabla = ({ data, selectedIds }) => {
   const navigate = useNavigate();
   const guardarID = async (id) => {
-
-    try {
-      const { data } = await axios.get(`${endpoint}/estadisticas-x`, {
-        params: {
-          salas: selectedIds,
-          formaId: id
-        },
+    SalasService.getStatsX({
+      salas: selectedIds,
+      formaId: id,
+    })
+      .then(({ data }) => {
+        if (data) {
+          navigate(`/analisis/sala/${id}`, { state: data });
+        }
+      })
+      .catch((error) => {
+        console.error("Error al realizar la solicitud:", error);
+        toast.warning("Error de conexión");
       });
-
-      if(data){
-        navigate(`/analisis/sala/${id}`, { state: data });
-      }
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-      toast.warning("Error de conexión");
-    }
   };
-
-
-
 
   const columns = [
     { accessorKey: "name", header: "Nombre", enableSorting: true },
@@ -59,16 +52,17 @@ const TanstackTabla = ({ data , selectedIds}) => {
       enableSorting: true,
     },
     {
-      accessorKey: "id", 
+      accessorKey: "id",
       header: "Acción",
       id: "res_id",
       cell: ({ cell, row }) => {
         return (
           <button
-            onClick={() => guardarID(row.original.id)} fila
+            onClick={() => guardarID(row.original.id)}
+            fila
             className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
           >
-            Ver grafica
+            Ver gráfica
           </button>
         );
       },

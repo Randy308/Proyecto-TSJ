@@ -8,6 +8,7 @@ import axios from "axios";
 import Select from "../../components/Select";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import AsyncButton from "../../components/AsyncButton";
+import SalasService from "../../services/SalasService";
 const endpoint = process.env.REACT_APP_BACKEND;
 
 const AnalisisSala = () => {
@@ -31,16 +32,12 @@ const AnalisisSala = () => {
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     if (salas && id) {
-      axios
-        .get(`${endpoint}/obtener-parametros-salas`, {
-          params: {
-            salas: salas,
-            formaId: id,
-          },
-        })
+      SalasService.getParametros({
+        salas: salas,
+        formaId: id,
+      })
         .then(({ data }) => {
           setParams(data);
-          console.log(data);
         })
         .catch((error) => {
           console.error("Error fetching data", error);
@@ -130,11 +127,10 @@ const AnalisisSala = () => {
   };
 
   const realizarAnalisis = () => {
+    setIsLoading(true); // Start loading
+
     const isMultiVariable = listaX.length > 0 && checkedX;
-    setIsLoading(true);
-    const endpointPath = isMultiVariable
-      ? `${endpoint}/estadisticas-xy`
-      : `${endpoint}/estadisticas-x`;
+
     const params = isMultiVariable
       ? {
           salas,
@@ -144,8 +140,11 @@ const AnalisisSala = () => {
         }
       : { salas, formaId: id };
 
-    axios
-      .get(endpointPath, { params })
+    const fetchStats = isMultiVariable
+      ? SalasService.getStatsXY(params)
+      : SalasService.getStatsX(params);
+
+    fetchStats
       .then(({ data }) => {
         setData(data.data.length > 0 ? data.data : []);
         setMultiVariable(isMultiVariable);
@@ -153,9 +152,10 @@ const AnalisisSala = () => {
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
-        setIsLoading(false);
+        setIsLoading(false); 
       });
   };
+
   function transposeArray(data) {
     const transposed = {};
     data.forEach((item) => {
@@ -208,7 +208,7 @@ const AnalisisSala = () => {
       <div className="p-4 m-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
         {formaResolution && (
           <p className="text-black dark:text-white pb-4">
-            Forma de resolucion:
+            Forma de resolución:
             <span className="italic font-bold"> {formaResolution}</span>
           </p>
         )}
@@ -218,7 +218,7 @@ const AnalisisSala = () => {
               htmlFor="charts"
               className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
             >
-              Tipo de graficos
+              Tipo de gráficos
             </label>
             <select
               id="charts"

@@ -273,18 +273,11 @@ const JurisprudenciaCronologia = () => {
     try {
       setIsLoading(true);
       const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
-      const currentEstilos = estilosState.map((item) => {
-        const currentEstilo = localStorage.getItem(item.titulo);
-        return {
-          titulo: item.titulo,
-          estilo: currentEstilo ? JSON.parse(currentEstilo) : item.estilo,
-        };
-      });
+
       const response = await axios.get(`${endpoint}/cronologias`, {
         params: {
           tema_id: arbol[arbol.length - 1].id,
           descriptor: nombresTemas,
-          estilos: currentEstilos,
           ...formData,
         },
         responseType: "blob",
@@ -298,8 +291,6 @@ const JurisprudenciaCronologia = () => {
         state: { pdfUrl: pdfUrl },
       });
     } catch (error) {
-      const message =
-        error.response?.data || "An error occurred while fetching data";
       console.error("Error fetching data:", error);
       setIsLoading(false);
     }

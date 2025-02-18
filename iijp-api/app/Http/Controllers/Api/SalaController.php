@@ -66,10 +66,6 @@ class SalaController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
-        //
-    }
     public function obtenerEstadisticasXYZ(Request $request)
     {
 

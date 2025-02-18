@@ -696,7 +696,7 @@ class MagistradosController extends Controller
         //
     }
 
-    public function obtenerEstadisticas($id, Request $request)
+    public function obtenerSerieTemporal($id, Request $request)
     {
 
         $magistrado = Magistrados::where('id', $id)->first();

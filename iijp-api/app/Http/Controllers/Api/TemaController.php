@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Departamentos;
+use App\Models\Estilos;
 use App\Models\FormaResolucions;
 use App\Models\Resolutions;
 use App\Models\Salas;
@@ -239,8 +240,11 @@ class TemaController extends Controller
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
 
 
+        $estilos = Estilos::where('tipo','Default')->get();
+
+        //return $estilos;
         //return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $request->estilos, 'subtitulo' => $request->subtitulo ,"fechaActual"=>$fechaActual], [], [
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo ,"fechaActual"=>$fechaActual], [], [
             'format'          => 'letter',
             'margin_left'     => 25,  // 2.5 cm in mm
             'margin_right'    => 25,  // 2.5 cm in mm

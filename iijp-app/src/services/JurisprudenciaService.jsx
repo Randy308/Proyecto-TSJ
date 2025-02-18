@@ -13,11 +13,11 @@ const instance = axios.create({
 
 const JurisprudenciaService = {
   searchTermino: (jurisprudenciaData) =>
-    instance.get("/v1/search-term-jurisprudencia", {
+    instance.get("/search-term-jurisprudencia", {
       params: jurisprudenciaData,
     }),
   actualizarNodo: (jurisprudenciaData) =>
-    instance.get("/v1/actualizar-nodo", {
+    instance.get("/actualizar-nodo", {
       params: jurisprudenciaData,
     }),
 };

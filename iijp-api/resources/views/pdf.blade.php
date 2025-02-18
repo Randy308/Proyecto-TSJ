@@ -17,17 +17,17 @@
         }
 
         @foreach ($estilos as $elemento)
-            .{{ $elemento['titulo'] }} {
-                font-family: '{{ $elemento['estilo']['fontFamily'] }}', sans-serif;
-                font-weight: {{ $elemento['estilo']['fontWeight'] }};
-                font-size: {{ $elemento['estilo']['fontSize'] }};
-                margin-left: {{ $elemento['estilo']['marginLeft'] }};
-                padding-bottom: {{ $elemento['estilo']['paddingBottom'] }}px;
-                margin-top: {{ $elemento['estilo']['marginTop'] }}px;
-                text-align: {{ $elemento['estilo']['textAlign'] }};
-                font-style: {{ $elemento['estilo']['fontStyle'] }};
-                text-decoration: {{ $elemento['estilo']['textDecoration'] }};
-                color: {{ $elemento['estilo']['color'] }};
+            .{{ $elemento['nombre'] }} {
+                font-family: '{{ $elemento['fontFamily'] }}', sans-serif;
+                font-weight: {{ $elemento['fontWeight'] }};
+                font-size: {{ $elemento['fontSize'] }};
+                margin-left: {{ $elemento['marginLeft'] === 'auto' ? 'auto' : $elemento['marginLeft'].'%' }};
+                padding-bottom: {{ $elemento['paddingBottom'] }}px;
+                margin-top: {{ $elemento['marginTop'] }}px;
+                text-align: {{ $elemento['textAlign'] }};
+                font-style: {{ $elemento['fontStyle'] }};
+                text-decoration: {{ $elemento['textDecoration'] }};
+                color: {{ $elemento['color'] }};
             }
         @endforeach
 
