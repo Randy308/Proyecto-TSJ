@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
-import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useNavigate } from "react-router-dom";
 const Dropdown = ({ item, removeItemById, data }) => {
@@ -113,7 +112,7 @@ const Dropdown = ({ item, removeItemById, data }) => {
                 }
                 className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >
-                Realizar analisis
+                Realizar análisis
               </a>
             </li>
             <li>

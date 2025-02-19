@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import MagistradoService from "../../services/MagistradoService";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useMagistradosContext } from "../../context/magistradosContext";
 

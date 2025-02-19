@@ -1,22 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
-import axios from "axios";
 import Loading from "../../../components/Loading";
 import "../../../styles/cronologia-jurisprudencia.css";
-import { FaSearch } from "react-icons/fa";
+import JurisprudenciaService from "../../../services/JurisprudenciaService";
 const ArbolJurisprudencial = ({ currentID, setCurrentID, arbol, setArbol }) => {
-  const endpoint = process.env.REACT_APP_BACKEND;
 
   const [temas, setTemas] = useState(null);
 
   const getNodos = useCallback(async () => {
-    try {
-      const response = await axios.get(`${endpoint}/obtener-nodos`, {
-        params: { id: currentID },
-      });
-      setTemas(response.data);
-    } catch (error) {
+
+    JurisprudenciaService.obtenerNodos({ id: currentID }).then(({ data }) => {
+      setTemas(data);
+    }).catch((error) => {
       console.error("Error al realizar la solicitud:", error);
-    }
+    });
+
   }, [currentID]);
 
   useEffect(() => {

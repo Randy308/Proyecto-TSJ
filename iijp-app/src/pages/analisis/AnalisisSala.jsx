@@ -4,12 +4,10 @@ import TablaX from "../../components/tables/TablaX";
 import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { SwitchChart } from "../../components/charts/SwitchChart";
-import axios from "axios";
 import Select from "../../components/Select";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import AsyncButton from "../../components/AsyncButton";
 import SalasService from "../../services/SalasService";
-const endpoint = process.env.REACT_APP_BACKEND;
 
 const AnalisisSala = () => {
   const { id } = useParams();

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/jurisprudencia-busqueda.css";
 import { FaFilter } from "react-icons/fa";
-import axios from "axios";
 import PaginationData from "./PaginationData";
 import { ImSearch } from "react-icons/im";
 import { MdCleaningServices } from "react-icons/md";
@@ -10,12 +9,11 @@ import Paginate from "../../components/tables/Paginate";
 import "../../styles/paginate.css";
 import AsyncButton from "../../components/AsyncButton";
 import Select from "../comparar/tabs/Select";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaFilePdf } from "react-icons/fa6";
+import { Link, useLocation } from "react-router-dom";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
+import ResolucionesService from "../../services/ResolucionesService";
 
 const JurisprudenciaBusqueda = () => {
-  const endpoint = process.env.REACT_APP_BACKEND;
 
   const [activo, setActivo] = useState(true);
   const { state } = useLocation();
@@ -27,7 +25,6 @@ const JurisprudenciaBusqueda = () => {
   const [resoluciones, setResoluciones] = useSessionStorage("resoluciones", []);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingPDF, setIsLoadingPDF] = useState(false);
 
   const [data, setData] = useSessionStorage("data", {});
   const [hasFetchedData, setHasFetchedData] = useSessionStorage(
@@ -48,8 +45,6 @@ const JurisprudenciaBusqueda = () => {
   });
 
   const [texto, setTexto] = useState("");
-
-  const navigate = useNavigate();
 
   const setParams = (name, value) => {
     const updatedFormData = {
@@ -113,13 +108,14 @@ const JurisprudenciaBusqueda = () => {
   }, []);
 
   const getSelect = async () => {
-    try {
-      const { data } = await axios.get(`${endpoint}/get-params`);
-      setData(data);
-      setHasFetchedData(true);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-    }
+    ResolucionesService.obtenerParametros()
+      .then(({ data }) => {
+        setData(data);
+        setHasFetchedData(true);
+      })
+      .catch((error) => {
+        console.error("Error al realizar la solicitud:", error);
+      });
   };
 
   useEffect(() => {
@@ -129,82 +125,41 @@ const JurisprudenciaBusqueda = () => {
   }, [actualFormData]);
 
   const obtenerResoluciones = async (page) => {
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
 
-      const validPage = page && !isNaN(page) && page > 0 ? page : 1;
+    const validPage = page && !isNaN(page) && page > 0 ? page : 1;
 
-      const filteredData = Object.fromEntries(
-        Object.entries(formData).filter(
-          ([key, value]) =>
-            value !== null &&
-            value !== undefined &&
-            value !== "" &&
-            value !== "all"
-        )
-      );
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(
+        ([key, value]) =>
+          value !== null &&
+          value !== undefined &&
+          value !== "" &&
+          value !== "all"
+      )
+    );
 
-      console.log(filteredData);
-
-      const response = await axios.get(`${endpoint}/filtrar-autos-supremos`, {
-        params: {
-          term: texto,
-          ...filteredData,
-          ...actualFormData,
-          page: validPage,
-        },
+    ResolucionesService.buscarResoluciones({
+      term: texto,
+      ...filteredData,
+      ...actualFormData,
+      page: validPage,
+    })
+      .then((response) => {
+        if (response.data.data.length > 0) {
+          setResoluciones(response.data.data);
+          setLastPage(response.data.last_page);
+          setPageCount(response.data.last_page);
+        } else {
+          console.log("No existen datos");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-      console.log(response.data);
-
-      if (response.data.data.length > 0) {
-        setResoluciones(response.data.data);
-        setLastPage(response.data.last_page);
-        setPageCount(response.data.last_page);
-      } else {
-        alert("No existen datos");
-      }
-
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setIsLoading(false);
-    }
-  };
-
-  const generarPdf = async () => {
-    try {
-      setIsLoadingPDF(true);
-
-      const filteredData = Object.fromEntries(
-        Object.entries(formData).filter(
-          ([key, value]) =>
-            value !== null &&
-            value !== undefined &&
-            value !== "" &&
-            value !== "all"
-        )
-      );
-
-      const response = await axios.get(`${endpoint}/resoluciones-documento`, {
-        params: {
-          term: texto,
-          ...filteredData,
-        },
-
-        responseType: "blob",
-      });
-
-      setIsLoadingPDF(false);
-      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-
-      navigate("/Jurisprudencia/Cronologias/Resultados", {
-        state: { pdfUrl: pdfUrl },
-      });
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setIsLoadingPDF(false);
-    }
   };
 
   useEffect(() => {
@@ -216,14 +171,7 @@ const JurisprudenciaBusqueda = () => {
   return (
     <div className="container mx-auto">
       <div className="row p-4">
-        {/* <p className="m-4 p-4 text-center font-bold text-2xl titulo">
-          Análisis Avanzado
-        </p> */}
         <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
-          {/* <div className="bg-[#7C3145] dark:bg-gray-900 p-4 text-white font-bold rounded-t-lg flex flex-row flex-wrap gap-4 items-center justify-start">
-            <FaFilter></FaFilter> <p>Campos de filtrado</p>
-          </div> */}
-
           <div className="w-full p-4 text-center bg-white rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
             <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400 m-4">
               <li className="w-full focus-within:z-10">

@@ -31,10 +31,6 @@ function validarModelo($modelClassName, $field, $value)
 class TemaController extends Controller
 {
 
-    public function index()
-    {
-        //
-    }
 
     public function obtenerNodos(Request $request)
     {
@@ -55,18 +51,6 @@ class TemaController extends Controller
         }
     }
 
-
-    public function verTemasGenerales()
-    {
-        $temas_generales = DB::table('temas')->select('id', 'nombre', 'tema_id')->whereNull('tema_id')->get();
-        return $temas_generales;
-    }
-    public function obtenerHijos($id)
-    {
-
-        $hijos = Temas::where('tema_id', '=', $id)->get();
-        return $hijos->toJson();
-    }
 
 
     public function obtenerParametrosCronologia(Request $request)
@@ -326,26 +310,4 @@ class TemaController extends Controller
         return $data;
     }
 
-
-    public function store(Request $request)
-    {
-        //
-    }
-
-
-    public function show($id)
-    {
-        //
-    }
-
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-
-    public function destroy($id)
-    {
-        //
-    }
 }

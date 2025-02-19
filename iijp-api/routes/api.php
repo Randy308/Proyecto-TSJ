@@ -32,7 +32,7 @@ Route::prefix('v2')->group(function () {
 
     #rutas validadas
 
-    //rutas estadisticas basicas para magistrado
+    //rutas estadísticas básicas para magistrado
     Route::get('/obtener-historico', [ResolutionController::class, 'index']);
     Route::get('/magistrados', [MagistradosController::class, 'index']);
     Route::get('/obtener-datos-magistrado/{id}', [MagistradosController::class, 'obtenerDatos']);
@@ -40,20 +40,45 @@ Route::prefix('v2')->group(function () {
     Route::get('/obtener-paramentros-magistrado', [MagistradosController::class, 'magistradosParamentros']);
     Route::get('/magistrado-estadisticas-xy', [MagistradosController::class, 'obtenerEstadisticasXY']);
     Route::get('/magistrado-estadisticas-x', [MagistradosController::class, 'obtenerEstadisticasX']);
-    Route::get('/magistrado-serie-temporal/{id}', [MagistradosController::class, 'obtenerSerieTemporal'])->name('obtener-estadisticas-magistrado');
+    Route::get('/magistrado-serie-temporal/{id}', [MagistradosController::class, 'obtenerSerieTemporal']);
 
 
-    //rutas estadisticas basicas para salas
+    //rutas estadísticas básicas para salas
     Route::get('/obtener-parametros-salas', [SalaController::class, 'getParamsSalas']);
     Route::get('/obtener-salas', [SalaController::class, 'getSalas']);
     Route::get('/estadisticas-x', [SalaController::class, 'obtenerEstadisticasX']);
     Route::get('/estadisticas-xy', [SalaController::class, 'obtenerEstadisticasXY']);
-    Route::get('/obtener-datos-salas', [SalaController::class, 'getbyIDs']);
+    Route::get('/obtener-datos-salas', [SalaController::class, 'getByIDs']);
+
+    //rutas estadísticas avanzadas
+    Route::get('/obtener-terminos-avanzados', [ResolutionController::class, 'obtenerTerminos']);
+    Route::get('/buscar-terminos', [ResolutionController::class, 'buscarTerminos']);
+    Route::get('/obtener-estadistica-avanzada-x', [ResolutionController::class, 'getTerminosX']);
+    Route::get('/obtener-estadistica-avanzada-xy', [ResolutionController::class, 'getTerminosXY']);
+    //rutas búsqueda
+    Route::get('/obtener-parametros-busqueda', [CompareController::class, 'getParams'])->name('get-params');
+    Route::get('/filtrar-autos-supremos', [ResolutionController::class, 'filtrarResolucionesContenido']);
+    Route::get('/resolucion/{id}', [ResolutionController::class, 'show']);
+    //predicción
+    Route::get('/realizar-prediction', [ArimaController::class, 'realizarPrediction']);
+
+    #Route::get('/descomponer-serie', [MagistradosController::class, 'descomponerSerie']);
 
 
-    #rutas no validadas
+    //rutas para comparar datos
+    Route::get('/obtener-fechas', [CompareController::class, 'getDates']);
+    Route::get('/obtener-elemento', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');
+
+    //rutas de cronología
+    Route::get('/buscar-termino-jurisprudencia', [JurisprudenciasController::class, 'busquedaTerminos']);
+    Route::get('/actualizar-nodo', [JurisprudenciasController::class, 'actualizarNodo']);
+    Route::get('/obtener-cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
+    Route::get('/obtener-parametros-cronologia', [TemaController::class, 'obtenerParametrosCronologia']);
+    Route::get('/obtener-nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
 
 
+
+    //rutas admin
     Route::post('auth/login', [AuthController::class, 'login']);
 
     Route::post('auth/register', [AuthController::class, 'register']);
@@ -64,117 +89,35 @@ Route::prefix('v2')->group(function () {
         Route::apiResource('admin/roles', RoleController::class);
         Route::get('admin/permisos', [PermissionController::class, 'index']);
 
-        Route::post('/excel/upload', [ExcelController::class, 'upload'])->name('excel.upload');
-        Route::post('/excel/upload-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
-
-
-
+        Route::post('/subir-resoluciones', [ExcelController::class, 'upload'])->name('excel.upload');
+        Route::post('/subir-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
     });
-
-    Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
-
-    Route::get('/search-term-jurisprudencia', [JurisprudenciasController::class, 'busquedaTerminos']);
-    Route::get('/actualizar-nodo', [JurisprudenciasController::class, 'actualizarNodo']);
-
-
-    Route::get('/resoluciones-documento', [ResolutionController::class, 'obtenerDocumentoResoluciones']);
-
-
-    Route::get('/estadisticas-xyz', [SalaController::class, 'obtenerEstadisticasXYZ']);
-   
 
     Route::middleware('auth:api')->get('/user', function (Request $request) {
         return $request->user();
     });
 
-    //salas
-
-
-    //rutas cronologias
-
-    Route::get('/nodos-principales', [TemaController::class, 'verTemasGenerales'])->name('temas-generales');
-    Route::get('/nodos-hijos/{id}', [TemaController::class, 'obtenerHijos'])->name('hijos-salas');
-
-    Route::get('/obtener-nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
+    #rutas de prueba
+    Route::get('/test-arima', [ArimaController::class, 'test_arima']);
+    Route::get('/obtencion-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);
+    Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);
 
 
 
 
-    Route::get('/resoluciones', [ResolutionController::class, 'obtenerAvg'])->name('resoluciones');
-
-    Route::get('/resolucion/{id}', [ResolutionController::class, 'show'])->name('show-resolucion');
-    Route::get('/salas', [SalaController::class, 'index'])->name('index-salas');
 
 
 
 
+
+
+
+
+    #rutas no validadas
+
+    Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
     Route::get('/obtener-parametros', [ResolutionController::class, 'obtenerParametros'])->name('obtener-parametros');
     Route::get('/filtrar-resoluciones', [ResolutionController::class, 'filtrarResoluciones'])->name('filtrar-resoluciones');
-    Route::get('/obtener-parametros-cronologia', [TemaController::class, 'obtenerParametrosCronologia'])->name('obtener-parametros-cronologia');
-
-
-
-
-
-
-    Route::get('/obtener-resoluciones-magistrado', [MagistradosController::class, 'obtenerResoluciones'])->name('obtener-resoluciones-magistrado');
-
-
-    Route::get('/obtener-filtradores', [ResolutionController::class, 'obtenerFiltradores'])->name('obtener-filtradores');
-
-    Route::get('/obtener-estadisticas-res', [ResolutionController::class, 'obtenerEstadisticasRes']);
-
-    Route::get('/obtener-coautores', [MagistradosController::class, 'obtenerCoAutores'])->name('obtener-coautores');
-
-
-
     #Route::get('/obtener-datos-sala/{id}', [SalaController::class, 'show'])->name('obtener-datos-sala');
-
-
-    //rutas magistrados
-
-
-    Route::get('/magistrado-estadisticas-salas/{id}', [MagistradosController::class, 'obtenerEstadisticaSalas'])->name('est-mag-salas');
-    Route::get('/magistrado-estadisticas-juris/{id}', [MagistradosController::class, 'obtenerEstadisticaTipoJuris'])->name('est-mag-juris');
-
-
-
-
-
-
-    //rutas de comparación de datos
-    Route::get('/obtener-elemento', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');
-    Route::get('/get-params', [CompareController::class, 'getParams'])->name('get-params');
-    Route::get('/get-dates', [CompareController::class, 'getDates']);
-
     Route::get('/buscar-resoluciones', [CompareController::class, 'obtenerResoluciones']);
-
-
-
-
-
-    Route::get('/get-time-series', [MagistradosController::class, 'generarSerieTemporal']);
-
-
-    Route::get('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
-
-
- 
-
-    Route::get('/test-arima', [ArimaController::class, 'test_arima']);
-    Route::get('/realizar-prediccion', [ArimaController::class, 'realizar_prediccion']);
-
-
-    Route::get('/obtencion-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);
-    Route::get('/filtrar-autos-supremos', [ResolutionController::class, 'filtrarResolucionesContenido']);
-
-    Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);
-    Route::get('/obtener-terminos-avanzados', [ResolutionController::class, 'obtenerTerminos']);
-    Route::get('/buscar-terminos', [ResolutionController::class, 'buscarTerminos']);
-    Route::get('/obtener-estadistica-avanzada-x', [ResolutionController::class, 'getTerminosX']);
-    Route::get('/obtener-estadistica-avanzada-xy', [ResolutionController::class, 'getTerminosXY']);
-
-
 });
-
-

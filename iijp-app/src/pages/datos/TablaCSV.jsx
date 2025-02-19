@@ -4,11 +4,11 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useThemeContext } from "../../context/ThemeProvider";
-import axios from "axios";
 import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ResolucionesService from "../../services/ResolucionesService";
 
 const TablaCSV = () => {
   const { getToken, can } = AuthUser();
@@ -75,65 +75,56 @@ const TablaCSV = () => {
   };
 
   const handleClick = async () => {
-    try {
-      setIsLoading(true);
-
-      // Obtener CSRF token
-      await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
-        withCredentials: true,
-      });
-
-      const endpoint = process.env.REACT_APP_BACKEND;
-      const formData = new FormData();
-      formData.append("excelFile", archivo);
-
-      // Enviar el archivo al endpoint
-      const { data } = await axios.post(
-        `${endpoint}/v1/excel/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            accept: "application/json",
-            Authorization: "Bearer " + getToken(),
-          },
-          withCredentials: true,
-        }
-      );
-
-      // Manejar respuesta exitosa
-      if (data.success) {
-        const { mensaje, total_filas, filas_omitidas } = data;
-
-        // Mostrar información detallada en el toast
-        toast.success(
-          `${mensaje} Total filas procesadas: ${total_filas}. Filas omitidas: ${filas_omitidas}.`,
-          {
-            position: "top-right",
-            autoClose: 5000,
-            closeOnClick: true,
-            draggable: true,
-          }
-        );
-      } else {
-        // Manejar casos inesperados
-        toast.error("El procesamiento no se completó correctamente.", {
-          position: "top-right",
-          autoClose: 5000,
-        });
-      }
-
-      setIsLoading(false);
-    } catch (error) {
-      // Manejar errores de red o excepciones
-      console.error("Error al realizar la solicitud:", error);
-      toast.error(`Error al realizar la solicitud: ${error.message}`, {
-        position: "top-right",
-        autoClose: 5000,
-      });
-      setIsLoading(false);
+    if (!archivo) {
+      toast.warning("Por favor, selecciona un archivo antes de continuar.");
+      return;
     }
+    setIsLoading(true);
+
+    TokenService.obtenerToken()
+      .then(() => {
+        const formData = new FormData();
+        formData.append("excelFile", archivo);
+
+        ResolucionesService.subirCSV(getToken(), formData)
+          .then(({ data }) => {
+            if (data.success) {
+              const { mensaje, total_filas, filas_omitidas } = data;
+
+             
+              toast.success(
+                `${mensaje} Total filas procesadas: ${total_filas}. Filas omitidas: ${filas_omitidas}.`,
+                {
+                  position: "top-right",
+                  autoClose: 5000,
+                  closeOnClick: true,
+                  draggable: true,
+                }
+              );
+            } else {
+              toast.error("El procesamiento no se completó correctamente.", {
+                position: "top-right",
+                autoClose: 5000,
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Error al realizar la solicitud:", error);
+            toast.error(`Error al realizar la solicitud: ${error.message}`, {
+              position: "top-right",
+              autoClose: 5000,
+            });
+            setIsLoading(false);
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      })
+      .catch((error) => {
+        console.log("Error de conexión " + error);
+      });
   };
+
 
   useEffect(() => {
     if (!can("subir_resoluciones")) {

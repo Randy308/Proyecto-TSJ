@@ -18,6 +18,25 @@ const ResolucionesService = {
     instance.get(`/magistrado-estadisticas-departamentos/${id}`, {
       params,
     }),
+
+  buscarResoluciones: (params) =>
+    instance.get("/filtrar-autos-supremos", {
+      params,
+    }),
+  obtenerParametros: () => instance.get("/obtener-parametros-busqueda"),
+  obtenerFechas: () => instance.get("/obtener-fechas"),
+  obtenerResolucion: (id) => instance.get(`/resolucion/${id}`),
+  obtenerPrediccion: (params) =>
+    instance.get("/realizar-prediction", { params }),
+  descomponerSerie: (params) => instance.get("/descomponer-serie", { params }),
+  subirCSV: (token, formData) =>
+    instance.post("/subir-resoluciones", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  obtenerElemento: (params) => instance.get("/obtener-elemento", { params }),
 };
 
 export default ResolucionesService;

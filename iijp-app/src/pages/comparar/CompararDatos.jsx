@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/jurisprudencia-busqueda.css";
-import axios from "axios";
 import "../../styles/paginate.css";
-import Loading from "../../components/Loading";
 import Dropdown from "../../components/Dropdown";
 import Select from "./tabs/Select";
 import SimpleChart from "../../components/charts/SimpleChart";
@@ -11,8 +9,8 @@ import { MdCleaningServices } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import GeoChart from "../../components/charts/GeoChart";
+import ResolucionesService from "../../services/ResolucionesService";
 const CompararDatos = () => {
-  const endpoint = process.env.REACT_APP_BACKEND;
 
   const [resoluciones, setResoluciones] = useState(null);
   const [geoData, setGeoData] = useState([]);
@@ -58,14 +56,15 @@ const CompararDatos = () => {
   }, []);
 
   const getParams = async () => {
-    try {
-      const { data } = await axios.get(`${endpoint}/get-dates`);
-      setLimiteInferior(data.inferior);
-      setLimiteSuperior(data.superior);
-      setHasFetchedDates(true);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-    }
+    ResolucionesService.obtenerFechas()
+      .then(({ data }) => {
+        setLimiteInferior(data.inferior);
+        setLimiteSuperior(data.superior);
+        setHasFetchedDates(true);
+      })
+      .catch((error) => {
+        console.error("Error al realizar la solicitud:", error);
+      });
   };
 
   useEffect(() => {
@@ -75,13 +74,14 @@ const CompararDatos = () => {
   }, [hasFetchedDates]);
 
   const getSelect = async () => {
-    try {
-      const { data } = await axios.get(`${endpoint}/get-params`);
-      setData(data);
-      setHasFetchedData(true);
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-    }
+    ResolucionesService.obtenerParametros()
+      .then(({ data }) => {
+        setData(data);
+        setHasFetchedData(true);
+      })
+      .catch((error) => {
+        console.error("Error al realizar la solicitud:", error);
+      });
   };
 
   useEffect(() => {
@@ -132,82 +132,85 @@ const CompararDatos = () => {
   }, [geoData]);
 
   const obtenerResoluciones = async () => {
-    try {
-      setIsLoading(true);
+    if (isLoading) {
+      return;
+    }
+    setIsLoading(true);
 
-      const filteredData = Object.fromEntries(
-        Object.entries(formData).filter(
-          ([key, value]) =>
-            value !== null &&
-            value !== undefined &&
-            value !== "" &&
-            value !== "all"
-        )
-      );
+    const filteredData = Object.fromEntries(
+      Object.entries(formData).filter(
+        ([key, value]) =>
+          value !== null &&
+          value !== undefined &&
+          value !== "" &&
+          value !== "all"
+      )
+    );
 
-      const response = await axios.get(`${endpoint}/obtener-elemento`, {
-        params: {
-          fecha_final: limiteSuperior,
-          fecha_inicial: limiteInferior,
-          numero_busqueda: numeroBusqueda,
-          ...filteredData,
-        },
-      });
-      if (response.data.resoluciones.data.length > 0) {
-        setNumeroBusqueda((prev) => prev + 1);
-        setResoluciones((prev) =>
-          prev
-            ? [...prev, response.data.resoluciones]
-            : [response.data.resoluciones]
-        );
-
-        setTerminos((prev) =>
-          prev.length > 0
-            ? [...prev, response.data.termino]
-            : [response.data.termino]
-        );
-
-        setGeoData((prevGeoData) => {
-          // Si no hay datos previos, simplemente se usa la nueva data
-          if (prevGeoData.length === 0) {
-            return response.data.departamentos;
-          }
-
-          // Convertir prevGeoData en un Map para acceso rápido por nombre
-          const geoDataMap = new Map(
-            prevGeoData.map((d) => [d.name, { ...d }])
+    ResolucionesService.obtenerElemento({
+      fecha_final: limiteSuperior,
+      fecha_inicial: limiteInferior,
+      numero_busqueda: numeroBusqueda,
+      ...filteredData,
+    })
+      .then((response) => {
+        if (response.data.resoluciones.data.length > 0) {
+          setNumeroBusqueda((prev) => prev + 1);
+          setResoluciones((prev) =>
+            prev
+              ? [...prev, response.data.resoluciones]
+              : [response.data.resoluciones]
           );
 
-          response.data.departamentos.forEach((nuevoDepartamento) => {
-            const nombre = nuevoDepartamento.name;
-            const nuevoIndice = `termino_${numeroBusqueda}`;
+          setTerminos((prev) =>
+            prev.length > 0
+              ? [...prev, response.data.termino]
+              : [response.data.termino]
+          );
 
-            if (geoDataMap.has(nombre)) {
-              // Si ya existe, actualizar el término correspondiente
-              geoDataMap.get(nombre)[nuevoIndice] =
-                nuevoDepartamento[nuevoIndice];
-            } else {
-              // Si no existe, agregar el nuevo departamento
-              geoDataMap.set(nombre, {
-                name: nombre,
-                [nuevoIndice]: nuevoDepartamento[nuevoIndice],
-              });
+          setGeoData((prevGeoData) => {
+          
+            if (prevGeoData.length === 0) {
+              return response.data.departamentos;
             }
+
+           
+            const geoDataMap = new Map(
+              prevGeoData.map((d) => [d.name, { ...d }])
+            );
+
+            response.data.departamentos.forEach((nuevoDepartamento) => {
+              const nombre = nuevoDepartamento.name;
+              const nuevoIndice = `termino_${numeroBusqueda}`;
+
+              if (geoDataMap.has(nombre)) {
+                
+                geoDataMap.get(nombre)[nuevoIndice] =
+                  nuevoDepartamento[nuevoIndice];
+              } else {
+               
+                geoDataMap.set(nombre, {
+                  name: nombre,
+                  [nuevoIndice]: nuevoDepartamento[nuevoIndice],
+                });
+              }
+            });
+
+            
+            return Array.from(geoDataMap.values());
           });
 
-          // Convertir el Map de vuelta a un array
-          return Array.from(geoDataMap.values());
-        });
-
-        limpiarFiltros();
-      } else {
-        alert("No existen datos");
-      }
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setIsLoading(false);
-    }
+          limpiarFiltros();
+        } else {
+          alert("No existen datos");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   const removeItemById = (id) => {

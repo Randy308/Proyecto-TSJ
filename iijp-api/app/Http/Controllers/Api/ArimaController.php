@@ -358,7 +358,7 @@ class ArimaController extends Controller
         return $result;
     }
 
-    public function realizar_prediccion(Request $request)
+    public function realizarPrediction(Request $request)
     {
 
         $serie_temporal =  $this->obtenerSerieTemporal($request);

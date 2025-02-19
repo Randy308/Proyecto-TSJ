@@ -37,7 +37,7 @@ const Mapa = ({ contenido, id, setDepartamentos }) => {
 
     if (endDate && startDate) {
       setIsLoading(true);
-      await MagistradoService.getDataDepartamentos(id, {
+      MagistradoService.getDepartamentos(id, {
         min_date: startDate,
         max_date: endDate,
       })

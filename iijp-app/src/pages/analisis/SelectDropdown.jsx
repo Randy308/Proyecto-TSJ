@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { BsCheck2All } from "react-icons/bs";
 import { MdOutlineRemoveCircle } from "react-icons/md";
 const SelectDropdown = ({

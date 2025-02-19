@@ -1,26 +1,25 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { TiArrowBack } from "react-icons/ti";
 import styles from "./ResolucionTSJ.module.css";
+import ResolucionesService from "../../services/ResolucionesService";
 const ResolucionTSJ = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [resolucion, setResolucion] = useState(null);
   const [fichas, setFichas] = useState(null);
   useEffect(() => {
-    const endpoint = `${process.env.REACT_APP_BACKEND}/resolucion/${id}`;
     const getResolution = async () => {
-      try {
-        const { data } = await axios.get(endpoint);
-        setResolucion(data.resolucion);
-        setFichas(data.jurisprudencias);
-        console.log(data);
-      } catch (error) {
-        console.error("Error al realizar la solicitud:", error);
-      }
+      ResolucionesService.obtenerResolucion(id)
+        .then(({ data }) => {
+          setResolucion(data.resolucion);
+          setFichas(data.jurisprudencias);
+        })
+        .catch((error) => {
+          console.error("Error al realizar la solicitud:", error);
+        });
     };
     getResolution();
   }, [id]);

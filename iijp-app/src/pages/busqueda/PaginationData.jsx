@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "../../styles/tabla.css";
 import Cabecera from "../../components/tables/Cabecera";
 import { Link } from "react-router-dom";

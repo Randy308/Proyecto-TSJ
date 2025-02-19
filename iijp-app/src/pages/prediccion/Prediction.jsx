@@ -1,43 +1,47 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Loading from "../../components/Loading";
 import SimpleChart from "../../components/charts/SimpleChart";
 import { useLocation } from "react-router-dom";
+import ResolucionesService from "../../services/ResolucionesService";
 
-const Prediccion = () => {
-  const endpoint = process.env.REACT_APP_BACKEND;
+const Prediction = () => {
   const { state } = useLocation();
   const { parametros } = state || null;
 
-  const [proyeccion, setProyeccion] = useState(null);
-  const realizarProyeccion = async (parametros) => {
-    try {
-      const { data } = await axios.get(`${endpoint}/realizar-prediccion`, {
-        params: {
-          ...parametros,
-        },
+  const [projection, setProjection] = useState(null);
+  const realizarPrediction = async () => {
+    ResolucionesService.obtenerPrediccion({
+      ...parametros,
+    })
+      .then(({ data }) => {
+        setProjection(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
       });
-      setProyeccion(data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
   };
 
   const [original, setOriginal] = useState([]);
 
-  const [prediccion, setPrediccion] = useState(null);
+  const [prediction, setPrediction] = useState(null);
   const [xAxis, setXAxis] = useState(null);
   const [option, setOption] = useState({});
   useEffect(() => {
-    if (proyeccion) {
-      setXAxis(proyeccion.periodo);
-      setPrediccion(proyeccion.prediccion);
-      setOriginal(proyeccion.original);
+    if (projection) {
+      setXAxis(projection.periodo);
+      setPrediction(projection.prediccion);
+      setOriginal(projection.original);
     }
-  }, [proyeccion]);
+  }, [projection]);
 
   useEffect(() => {
-    if (prediccion && xAxis) {
+    if (parametros) {
+      realizarPrediction();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (prediction && xAxis) {
       setOption({
         title: {
           text: "Predicción por regresión lineal",
@@ -71,7 +75,7 @@ const Prediccion = () => {
         },
         series: [
           {
-            data: prediccion.map((item) => item),
+            data: prediction.map((item) => item),
             name: "Predicción",
             type: "line",
           },
@@ -89,16 +93,12 @@ const Prediccion = () => {
         },
       });
     }
-  }, [prediccion, xAxis]);
-  useEffect(() => {
-    if (parametros) {
-      realizarProyeccion(parametros);
-    }
-  }, []);
+  }, [prediction, xAxis]);
+
   return (
     <div>
       {" "}
-      {prediccion && prediccion.length > 0 ? (
+      {prediction && prediction.length > 0 ? (
         <SimpleChart option={option} border={false}></SimpleChart>
       ) : (
         <div className="h-[500px]">
@@ -109,4 +109,4 @@ const Prediccion = () => {
   );
 };
 
-export default Prediccion;
+export default Prediction;

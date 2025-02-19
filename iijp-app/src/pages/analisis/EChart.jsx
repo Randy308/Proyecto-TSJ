@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {  } from "react";
 import boliviaJson from "../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";

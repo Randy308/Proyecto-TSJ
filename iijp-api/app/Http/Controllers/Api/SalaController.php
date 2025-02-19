@@ -33,117 +33,9 @@ class SalaController extends Controller
         return response()->json($salas, 200);
     }
 
-    public function index()
-    {
-        $data = [
-            'salas' => [],
-            'years' => []
-        ];
-
-        try {
-            $resultado = Salas::orderBy('id')->get(["nombre"]);
-            $salas = $resultado->toArray();
-            array_unshift($salas, ['nombre' => 'Todas']);
-            $data['salas'] = $salas;
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Ocurrió un error al intentar obtener las salas'
-            ], 500);
-        }
-
-        try {
-            $resultado_years = Resolutions::select(DB::raw('DISTINCT DATE_PART(\'year\', fecha_emision) AS year'))->whereNotNull('fecha_emision')->orderBy("year")->pluck('year');
-            $years = $resultado_years->toArray();
-            array_unshift($years, 'Todos');
-            $data['years'] = $years;
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Ocurrió un error al intentar obtener los years'
-            ], 500);
-        }
-
-        return response()->json($data, 200);
-    }
-
-
-    public function obtenerEstadisticasXYZ(Request $request)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'salas' => 'required|array',
-            'salas.*' => 'required|integer',
-            'formaId' => 'required|integer',
-            'idsY' => 'required|array',
-            'idsY.*' => 'required|integer',
-            'idsZ' => 'required|array',
-            'idsZ.*' => 'required|integer',
-            'nombreY' => 'required|string',
-            'nombreZ' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        $nombre_y = $request['nombreY'];
-        $ids_y = $request['idsY'];
-        $nombre_z = $request['nombreZ'];
-        $ids_z = $request['idsZ'];
-
-        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
-        $table_y = SalaController::obtenerModelo($nombre_y, $ids_y);
-        $table_z = SalaController::obtenerModelo($nombre_z, $ids_z);
-
-        $salasArray = $salas->pluck('sala')->toArray();
-        $tableYArray = $table_y->pluck($nombre_y)->toArray();
-        $tableZArray = $table_z->pluck($nombre_z)->toArray();
-
-        $combinations = [];
-        foreach ($salasArray as $sala) {
-            foreach ($tableYArray as $tipo_y) {
-                foreach ($tableZArray as $tipo_z) {
-                    $combinations[] = [
-                        'sala' => $sala,
-                        $nombre_y => $tipo_y,
-                        $nombre_z => $tipo_z,
-                        "cantidad" => 0,
-                    ];
-                }
-            }
-        }
 
 
 
-        $datos = SalaController::generarConsulta($request->formaId, $request->salas, [
-            (object)[
-                "nombre" => $nombre_y,
-                "ids" => $ids_y
-            ],
-            (object)[
-                "nombre" => $nombre_z,
-                "ids" => $ids_z
-            ]
-        ]);
-
-        $total = array_sum($datos->pluck('cantidad')->toArray());
-
-        $datoLookup = [];
-        foreach ($datos as $dato) {
-            $datoLookup[$dato->sala][$dato->$nombre_y][$dato->$nombre_z] = $dato->cantidad;
-        }
-
-        foreach ($combinations as &$item) {
-            $item['cantidad'] = $datoLookup[$item['sala']][$item[$nombre_y]][$item[$nombre_z]] ?? 0;
-        }
-
-        return response()->json([
-            'formaID' => $request->formaId,
-            'total' => $total,
-            'data' => SalaController::ordenarArrayXYZ($combinations, $nombre_y, $nombre_z),
-        ], 200);
-    }
 
     public function ordenarArrayXYZ($combinations, $nombre_y, $nombre_z)
     {
@@ -410,7 +302,7 @@ class SalaController extends Controller
         return response()->json($response, 200);
     }
 
-    public function getbyIDs(Request $request)
+    public function getByIDs(Request $request)
     {
 
 
@@ -593,14 +485,5 @@ class SalaController extends Controller
 
 
 
-    public function update(Request $request, $id)
-    {
-        //
-    }
 
-
-    public function destroy($id)
-    {
-        //
-    }
 }

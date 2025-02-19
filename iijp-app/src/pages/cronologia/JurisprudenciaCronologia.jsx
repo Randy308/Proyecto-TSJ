@@ -3,17 +3,14 @@ import ArbolJurisprudencial from "./tabs/ArbolJurisprudencial";
 import { cronologiaItems } from "../../data/CronologiaItems.js";
 import InputEscenciales from "./tabs/InputEscenciales";
 import { FaHouse } from "react-icons/fa6";
-import axios from "axios";
 import { toast } from "react-toastify";
 import Tipografia from "./tabs/Tipografia";
 import { useNavigate } from "react-router-dom";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
-import { headingItems } from "../../data/HeadingItems";
 import AsyncButton from "../../components/AsyncButton";
 import { FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
 import JurisprudenciaService from "../../services/JurisprudenciaService";
-const endpoint = process.env.REACT_APP_BACKEND;
+
 const JurisprudenciaCronologia = () => {
   const [currentID, setCurrentID] = useState(null);
   const [arbol, setArbol] = useState([]);
@@ -89,29 +86,26 @@ const JurisprudenciaCronologia = () => {
   };
 
   const getParams = async () => {
-    try {
-      const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
-      const { data } = await axios.get(
-        `${endpoint}/obtener-parametros-cronologia`,
-        {
-          params: { descriptor: nombresTemas },
+    const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
+
+    JurisprudenciaService.parametrosCronologia({
+      descriptor: nombresTemas,
+    })
+      .then(({ data }) => {
+        const { departamentos, salas, tipo_resolucions } = data;
+
+        if (
+          [departamentos, salas, tipo_resolucions].some((arr) => arr.length > 0)
+        ) {
+          setResultado(data);
+        } else {
+          alert("No existen datos");
         }
-      );
-
-      const { departamentos, salas, tipo_resolucions } = data;
-
-      if (
-        [departamentos, salas, tipo_resolucions].some((arr) => arr.length > 0)
-      ) {
-        setResultado(data);
-      } else {
-        alert("No existen datos");
-      }
-    } catch (error) {
-      const message = error.response?.data?.error || "Ocurrió un error";
-      console.error("Error fetching data:", message);
-      console.error("Error :", error);
-    }
+      })
+      .catch((error) => {
+        const message = error.response?.data?.error || "Ocurrió un error";
+        console.error("Error fetching data:", message);
+      });
   };
 
   const actualizarNodos = async (descriptor) => {
@@ -143,7 +137,7 @@ const JurisprudenciaCronologia = () => {
     }
     try {
       const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
-      console.log(arbol);
+
       JurisprudenciaService.searchTermino({
         busqueda: busqueda,
         descriptor: nombresTemas,
@@ -162,6 +156,49 @@ const JurisprudenciaCronologia = () => {
       console.error("Error :", error);
     }
   };
+
+  const navigate = useNavigate();
+  const obtenerCronologia = async (e) => {
+    e.preventDefault();
+
+    if (arbol.length <= 0) {
+      toast.error("Seleccione una materia primero");
+      return;
+    }
+    const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
+
+    const data = {
+      tema_id: arbol[arbol.length - 1].id,
+      descriptor: nombresTemas,
+      ...formData,
+    };
+
+    setIsLoading(true);
+    JurisprudenciaService.obtenerCronologia(data)
+      .then(({ data }) => {
+        const pdfBlob = new Blob([data], {
+          type: "application/pdf",
+        });
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+
+        navigate("/Jurisprudencia/Cronologias/Resultados", {
+          state: { pdfUrl: pdfUrl },
+        });
+      })
+      .catch((error) => {
+        const message = error.response?.data?.error || "Ocurrió un error";
+        console.error("Error fetching data:", message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    if (activador && arbol.length > 0) {
+      getParams();
+    }
+  }, [activador, arbol]);
 
   const renderContent = (id) => {
     switch (id) {
@@ -257,50 +294,6 @@ const JurisprudenciaCronologia = () => {
         return "Hola mundo";
     }
   };
-  const estilosState = headingItems.map((item) => {
-    const [value, setValue] = useLocalStorage(item.titulo, item.estiloDefault);
-    return { titulo: item.titulo, estilo: value, setEstilo: setValue };
-  });
-  const navigate = useNavigate();
-  const obtenerCronologia = async (e) => {
-    e.preventDefault();
-
-    if (arbol.length <= 0) {
-      toast.error("Seleccione una materia primero");
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
-
-      const response = await axios.get(`${endpoint}/cronologias`, {
-        params: {
-          tema_id: arbol[arbol.length - 1].id,
-          descriptor: nombresTemas,
-          ...formData,
-        },
-        responseType: "blob",
-      });
-
-      setIsLoading(false);
-      const pdfBlob = new Blob([response.data], { type: "application/pdf" });
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-
-      navigate("/Jurisprudencia/Cronologias/Resultados", {
-        state: { pdfUrl: pdfUrl },
-      });
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activador && arbol.length > 0) {
-      getParams();
-    }
-  }, [activador, arbol]);
 
   return (
     <div id="cronologia-container" className="p-4 m-4">

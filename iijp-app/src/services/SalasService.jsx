@@ -20,7 +20,6 @@ const SalasService = {
     }),
 
   getDatos: (params) => instance.get(`/obtener-datos-salas`, { params }),
-  getResumen: (id) => instance.get(`/obtener-datos-magistrado/${id}`, {}),
   getParametros: (params) =>
     instance.get(`/obtener-parametros-salas/`, { params }),
   getStatsX: (params) => instance.get(`/estadisticas-x/`, { params }),

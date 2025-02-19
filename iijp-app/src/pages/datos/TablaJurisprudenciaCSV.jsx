@@ -9,6 +9,8 @@ import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import TokenService from "../../services/TokenService";
+import JurisprudenciaService from "../../services/JurisprudenciaService";
 
 const TablaJurisprudenciaCSV = () => {
   const { getToken, can } = AuthUser();
@@ -79,71 +81,55 @@ const TablaJurisprudenciaCSV = () => {
       toast.warning("Por favor, selecciona un archivo antes de continuar.");
       return;
     }
+    setIsLoading(true);
 
-    try {
-      setIsLoading(true);
+    TokenService.obtenerToken()
+      .then(() => {
+        const formData = new FormData();
+        formData.append("excelFile", archivo);
 
-      // Obtener token CSRF
-      await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
-        withCredentials: true,
+        JurisprudenciaService.subirCSV(getToken(), formData)
+          .then(({ data }) => {
+            if (data.success) {
+              const successMessage =
+                data.mensaje || "Datos cargados exitosamente.";
+              const detailsMessage = `Total de registros procesados: ${data.total_records}, Registros omitidos: ${data.skipped_records}`;
+
+              toast.success(`${successMessage} ${detailsMessage}`);
+              console.log("Resultado:", data);
+            } else {
+              toast.warning(
+                data.mensaje || "El servidor no pudo completar la operación."
+              );
+            }
+          })
+          .catch((error) => {
+            console.error("Error al realizar la solicitud:", error);
+
+            if (error.response) {
+              const { status, data } = error.response;
+              console.error(`Error ${status}:`, data);
+
+              if (data.error) {
+                toast.error(data.error);
+              } else {
+                toast.error("Ocurrió un error en el servidor.");
+              }
+            } else if (error.request) {
+              toast.error(
+                "No se pudo contactar al servidor. Por favor, inténtalo más tarde."
+              );
+            } else {
+              toast.error(`Error inesperado: ${error.message}`);
+            }
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      })
+      .catch((error) => {
+        console.log("Error de conexión " + error);
       });
-
-      const endpoint = process.env.REACT_APP_BACKEND;
-      const formData = new FormData();
-      formData.append("excelFile", archivo);
-
-      // Realizar la solicitud
-      const { data } = await axios.post(
-        `${endpoint}/v1/excel/upload-jurisprudencia`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            accept: "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-          withCredentials: true,
-        }
-      );
-
-      // Verificar respuesta del servidor
-      if (data.success) {
-        const successMessage = data.mensaje || "Datos cargados exitosamente.";
-        const detailsMessage = `Total de registros procesados: ${data.total_records}, Registros omitidos: ${data.skipped_records}`;
-
-        toast.success(`${successMessage} ${detailsMessage}`);
-        console.log("Resultado:", data);
-      } else {
-        toast.warning(
-          data.mensaje || "El servidor no pudo completar la operación."
-        );
-      }
-    } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-
-      // Manejo de errores detallado
-      if (error.response) {
-        // Error del servidor con detalles en la respuesta
-        const { status, data } = error.response;
-        console.error(`Error ${status}:`, data);
-
-        if (data.error) {
-          toast.error(data.error);
-        } else {
-          toast.error("Ocurrió un error en el servidor.");
-        }
-      } else if (error.request) {
-        // La solicitud fue enviada pero no se recibió respuesta
-        toast.error(
-          "No se pudo contactar al servidor. Por favor, inténtalo más tarde."
-        );
-      } else {
-        // Otro tipo de error
-        toast.error(`Error inesperado: ${error.message}`);
-      }
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const isDarkMode = useThemeContext();

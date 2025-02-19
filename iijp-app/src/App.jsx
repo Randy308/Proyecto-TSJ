@@ -31,7 +31,7 @@ import TablaJurisprudenciaCSV from "./pages/datos/TablaJurisprudenciaCSV";
 import WebScrapping from "./pages/datos/WebScrapping";
 import SubirResoluciones from "./pages/datos/SubirResoluciones";
 import ListaRoles from "./pages/admin/Roles/ListaRoles";
-import Prediccion from "./pages/prediccion/Prediccion";
+import Prediction from "./pages/prediccion/Prediction";
 import AnalisisAvanzado from "./pages/analisis/AnalisisAvanzado";
 import ResultadoAvanzado from "./pages/analisis/ResultadoAvanzado";
 import { MagistradosContextProvider } from "./context/magistradosContext";
@@ -69,7 +69,7 @@ function App() {
                   path="jurisprudencia/cronologias"
                   element={<JurisprudenciaCronologia />}
                 />
-                <Route path="proyeccion" element={<Prediccion />} />
+                <Route path="proyeccion" element={<Prediction />} />
                 <Route
                   path="jurisprudencia/resolucion/:id"
                   element={<ResolucionTSJ />}

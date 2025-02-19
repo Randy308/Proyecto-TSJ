@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { variablesAnalisis } from "../../data/VariablesAnalisis";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
-import axios from "axios";
 import SelectDropdown from "./SelectDropdown";
 import AsyncButton from "../../components/AsyncButton";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { FaTrashAlt } from "react-icons/fa";
-
-const endpoint = process.env.REACT_APP_BACKEND;
+import StatsService from "../../services/StatsService";
 
 const AnalisisAvanzado = () => {
   const [activo, setActivo] = useState(null);
@@ -16,7 +14,9 @@ const AnalisisAvanzado = () => {
   const [cache, setCache] = useState({}); // Estado para almacenar los datos cacheados
 
   const [limite, setLimite] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
+  const [checkedX, setCheckedX] = useState(false);
   const [variableActual, setVariableActual] = useState(null);
   const [listaX, setListaX] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
@@ -28,7 +28,6 @@ const AnalisisAvanzado = () => {
   const navigate = useNavigate();
 
   const showTerminos = (variable) => {
-    // Verificamos si los datos ya están en cache
     if (activo && variable.columna === activo.columna) {
       setItems([]);
       setActivo(null);
@@ -37,43 +36,30 @@ const AnalisisAvanzado = () => {
     if (cache[variable.columna]) {
       setItems(cache[variable.columna]);
       setActivo(variable);
-
-      console.log("Datos cargados desde cache");
     } else {
-      axios
-        .get(`${endpoint}/obtener-terminos-avanzados`, {
-          params: variable,
-        })
+      StatsService.obtenerTerminos(variable)
         .then(({ data }) => {
           setItems(data);
           setCache((prevCache) => ({
             ...prevCache,
-            [variable.columna]: data, // Guardamos los datos en cache
+            [variable.columna]: data,
           }));
           setActivo(variable);
-          console.log("Datos cargados desde API");
         })
         .catch((error) => {
           console.error("Error fetching data", error);
         });
-      console.log("Llamada a la API:", variable);
     }
   };
 
-  
-
-  const getDatos = async () => {
+  const getDatos = () => {
     if (listaX.length === 0) {
       return;
     }
-    
-    const isMultiVariable = listaX.length > 1 ? true : false;
-    setIsLoadingData(true);
-    
-    const endpointPath = isMultiVariable
-      ? `${endpoint}/obtener-estadistica-avanzada-xy`
-      : `${endpoint}/obtener-estadistica-avanzada-x`;
-    
+    setIsLoading(true); // Start loading
+
+    const isMultiVariable = listaX.length > 0;
+
     const params = isMultiVariable
       ? {
           tablaX: listaX[0].tabla,
@@ -88,9 +74,11 @@ const AnalisisAvanzado = () => {
           columna: listaX[0].name,
           terminos: listaX[0].ids,
         };
-  
-    axios
-      .get(endpointPath, { params })
+    const fetchStats = isMultiVariable
+      ? StatsService.getStatsXY(params)
+      : StatsService.getStatsX(params);
+
+    fetchStats
       .then(({ data }) => {
         console.log("Datos cargados desde API", data);
         if (data) {
@@ -105,7 +93,6 @@ const AnalisisAvanzado = () => {
       });
   };
 
-  
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (termino && activo) {
@@ -118,24 +105,22 @@ const AnalisisAvanzado = () => {
 
   const buscarTermino = async (variable) => {
     setIsLoadingData(true);
-    try {
-      const { data } = await axios.get(`${endpoint}/buscar-terminos`, {
-        params: {
-          tabla: variable.tabla,
-          columna: variable.columna,
-          termino: termino,
-          pagina: pagina,
-        },
+    StatsService.buscarTermino({
+      tabla: variable.tabla,
+      columna: variable.columna,
+      termino: termino,
+      pagina: pagina,
+    })
+      .then(({ data }) => {
+        setBusqueda(data.data);
+        setTotal(data.total);
+      })
+      .catch((error) => {
+        console.error("Error fetching data", error);
+      })
+      .finally(() => {
+        setIsLoadingData(false);
       });
-
-      console.log("Datos cargados desde API", data.data);
-      setBusqueda(data.data);
-      setTotal(data.total);
-    } catch (error) {
-      console.error("Error fetching data", error);
-    } finally {
-      setIsLoadingData(false);
-    }
   };
   const agregarTermino = () => {
     // Verificar si el término ya existe en la lista
