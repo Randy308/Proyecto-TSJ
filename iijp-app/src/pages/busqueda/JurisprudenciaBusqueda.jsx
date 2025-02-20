@@ -12,6 +12,7 @@ import Select from "../comparar/tabs/Select";
 import { Link, useLocation } from "react-router-dom";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import ResolucionesService from "../../services/ResolucionesService";
+import { filterForm } from "../../utils/filterForm";
 
 const JurisprudenciaBusqueda = () => {
 
@@ -32,7 +33,7 @@ const JurisprudenciaBusqueda = () => {
     false
   );
 
-  const [actualFormData, setActualFormData] = useState(null);
+  const [searchType, setSearchType] = useState(null);
 
   const [formData, setFormData] = useSessionStorage("formData", {
     tipo_resolucion: "all",
@@ -119,30 +120,24 @@ const JurisprudenciaBusqueda = () => {
   };
 
   useEffect(() => {
-    if (actualFormData) {
+    if (searchType) {
       obtenerResoluciones(1);
     }
-  }, [actualFormData]);
+  }, [searchType]);
 
   const obtenerResoluciones = async (page) => {
     setIsLoading(true);
 
     const validPage = page && !isNaN(page) && page > 0 ? page : 1;
 
-    const filteredData = Object.fromEntries(
-      Object.entries(formData).filter(
-        ([key, value]) =>
-          value !== null &&
-          value !== undefined &&
-          value !== "" &&
-          value !== "all"
-      )
-    );
+    const validatedData = filterForm({
+      term: texto,
+      ...formData,
+      ...searchType,
+    });
 
     ResolucionesService.buscarResoluciones({
-      term: texto,
-      ...filteredData,
-      ...actualFormData,
+      ...validatedData,
       page: validPage,
     })
       .then((response) => {
@@ -297,7 +292,7 @@ const JurisprudenciaBusqueda = () => {
             <PaginationData
               data={resoluciones}
               {...(texto.length > 2 ? { resumen: true } : {})}
-              setFormData={setActualFormData}
+              setFormData={setSearchType}
             />
 
             <Paginate

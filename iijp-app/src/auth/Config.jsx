@@ -11,9 +11,9 @@ const instance = axios.create({
 });
 
 export default {
-  getRegister: (data) => instance.post(`/v1/auth/register`, data), // Correct path
-  getLogin: (data) => instance.post(`/v1/auth/login`, data), // Correct path
-  getLogout: () => instance.post(`/v1/auth/logout`), // Correct path
+  getRegister: (data) => instance.post(`/auth/register`, data), // Correct path
+  getLogin: (data) => instance.post(`/auth/login`, data), // Correct path
+  getLogout: () => instance.post(`/auth/logout`), // Correct path
 };
 
 function getCookie(name) {

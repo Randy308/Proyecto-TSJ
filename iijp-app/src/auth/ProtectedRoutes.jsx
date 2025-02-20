@@ -1,15 +1,21 @@
-import React from 'react'
-import { Navigate, Outlet } from 'react-router-dom'
-import AuthUser from './AuthUser'
+import React from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import AuthUser from "./AuthUser";
+import { RoleContextProvider } from "../context/roleContext";
+import { PermissionContextProvider } from "../context/permissionContext";
 
 const ProtectedRoutes = () => {
-  const {getToken} = AuthUser()
-  if(!getToken()){
-    return <Navigate to={'/'} />
+  const { getToken, can } = AuthUser();
+  if (!getToken()) {
+    return <Navigate to={"/"} />;
   }
   return (
-    <Outlet></Outlet>
-  )
-}
+    <RoleContextProvider>
+      <PermissionContextProvider>
+        <Outlet />
+      </PermissionContextProvider>
+    </RoleContextProvider>
+  );
+};
 
-export default ProtectedRoutes
+export default ProtectedRoutes;

@@ -15,6 +15,7 @@ import VerUsuario from "./VerUsuario";
 import RoleService from "../../services/RoleService";
 import EditarUsuario from "./EditarUsuario";
 import { useNavigate } from "react-router-dom";
+import { useRoleContext } from "../../context/roleContext";
 const Usuarios = () => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
@@ -38,21 +39,12 @@ const Usuarios = () => {
   const [totalUser, setTotalUsers] = useState(0);
 
   const [pageCount, setPageCount] = useState(1);
-  const [roles, setRoles] = useState([]);
+  const { roles, setRoles } = useRoleContext();
   const [selectedPage, setSelectedPage] = useState(1);
 
   const handlePageClick = (e) => {
     selectedPage(Math.min(e.selected + 1, lastPage));
   };
-
-  useEffect(() => {
-    RoleService.getAllRoles(token)
-      .then(({ data }) => {
-        console.log(data);
-        setRoles(data);
-      })
-      .catch((error) => console.error("Error fetching users:", error));
-  }, [token]);
 
   useEffect(() => {
     UserService.getAllUsers(token, selectedPage)

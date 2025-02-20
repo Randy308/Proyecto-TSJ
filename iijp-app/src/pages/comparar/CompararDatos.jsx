@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import GeoChart from "../../components/charts/GeoChart";
 import ResolucionesService from "../../services/ResolucionesService";
+import { filterForm } from "../../utils/filterForm";
 const CompararDatos = () => {
 
   const [resoluciones, setResoluciones] = useState(null);
@@ -137,21 +138,14 @@ const CompararDatos = () => {
     }
     setIsLoading(true);
 
-    const filteredData = Object.fromEntries(
-      Object.entries(formData).filter(
-        ([key, value]) =>
-          value !== null &&
-          value !== undefined &&
-          value !== "" &&
-          value !== "all"
-      )
-    );
+
+    const validatedForm = filterForm(formData);
 
     ResolucionesService.obtenerElemento({
       fecha_final: limiteSuperior,
       fecha_inicial: limiteInferior,
       numero_busqueda: numeroBusqueda,
-      ...filteredData,
+      ...validatedForm,
     })
       .then((response) => {
         if (response.data.resoluciones.data.length > 0) {
@@ -169,12 +163,10 @@ const CompararDatos = () => {
           );
 
           setGeoData((prevGeoData) => {
-          
             if (prevGeoData.length === 0) {
               return response.data.departamentos;
             }
 
-           
             const geoDataMap = new Map(
               prevGeoData.map((d) => [d.name, { ...d }])
             );
@@ -184,11 +176,9 @@ const CompararDatos = () => {
               const nuevoIndice = `termino_${numeroBusqueda}`;
 
               if (geoDataMap.has(nombre)) {
-                
                 geoDataMap.get(nombre)[nuevoIndice] =
                   nuevoDepartamento[nuevoIndice];
               } else {
-               
                 geoDataMap.set(nombre, {
                   name: nombre,
                   [nuevoIndice]: nuevoDepartamento[nuevoIndice],
@@ -196,7 +186,6 @@ const CompararDatos = () => {
               }
             });
 
-            
             return Array.from(geoDataMap.values());
           });
 

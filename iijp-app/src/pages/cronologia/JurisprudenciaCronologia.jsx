@@ -10,6 +10,7 @@ import AsyncButton from "../../components/AsyncButton";
 import { FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
 import JurisprudenciaService from "../../services/JurisprudenciaService";
+import { filterForm } from "../../utils/filterForm";
 
 const JurisprudenciaCronologia = () => {
   const [currentID, setCurrentID] = useState(null);
@@ -167,14 +168,14 @@ const JurisprudenciaCronologia = () => {
     }
     const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
 
-    const data = {
+
+    const validatedData = filterForm({
       tema_id: arbol[arbol.length - 1].id,
       descriptor: nombresTemas,
       ...formData,
-    };
-
+    });
     setIsLoading(true);
-    JurisprudenciaService.obtenerCronologia(data)
+    JurisprudenciaService.obtenerCronologia(validatedData)
       .then(({ data }) => {
         const pdfBlob = new Blob([data], {
           type: "application/pdf",

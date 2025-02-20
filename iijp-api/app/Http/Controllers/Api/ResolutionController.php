@@ -819,6 +819,21 @@ class ResolutionController extends Controller
             $resultado[] = $row;
         }
 
-        return $resultado;
+
+        // Obtener todas las claves excepto "magistrado"
+        $keysToCheck = array_keys(array_diff_key($resultado[0], [$variableY => ""]));
+
+        // Identificar claves que solo contienen 0 en todos los registros
+        $zeroKeys = array_filter($keysToCheck, function ($key) use ($resultado) {
+            return array_sum(array_column($resultado, $key)) === 0;
+        });
+
+        // Eliminar las claves identificadas
+        $filteredData = array_map(function ($item) use ($zeroKeys) {
+            return array_diff_key($item, array_flip($zeroKeys));
+        }, $resultado);
+
+
+        return $filteredData;
     }
 }

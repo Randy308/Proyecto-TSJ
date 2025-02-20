@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import Novedades from "./pages/Novedades";
 import Inicio from "./pages/Inicio";
 import Jurisprudencia from "./pages/Jurisprudencia";
@@ -36,6 +36,7 @@ import AnalisisAvanzado from "./pages/analisis/AnalisisAvanzado";
 import ResultadoAvanzado from "./pages/analisis/ResultadoAvanzado";
 import { MagistradosContextProvider } from "./context/magistradosContext";
 import { HistoricContextProvider } from "./context/historicContext";
+import { RoleContextProvider } from "./context/roleContext";
 
 function App() {
   return (
@@ -97,6 +98,7 @@ function App() {
               </Route>
 
               {/* Rutas protegidas */}
+
               <Route element={<ProtectedRoutes />}>
                 <Route path="/" element={<LayoutUser />}>
                   <Route path="user" element={<PanelUser />} />
@@ -118,6 +120,7 @@ function App() {
                     path="admin/subir-automatico"
                     element={<WebScrapping />}
                   />
+
                   <Route path="usuarios" element={<Usuarios />} />
                   <Route path="roles" element={<ListaRoles />} />
                 </Route>
@@ -132,4 +135,3 @@ function App() {
 }
 
 export default App;
-

@@ -498,8 +498,6 @@ class MagistradosController extends Controller
             ]
         ]);
 
-        $total = array_sum($datos->pluck('cantidad')->toArray());
-
         $datoLookup = [];
         foreach ($datos as $dato) {
             $datoLookup[$dato->sala][$dato->$nombre] = $dato->cantidad;
@@ -509,6 +507,7 @@ class MagistradosController extends Controller
         foreach ($combinations as &$item) {
             $item['cantidad'] = $datoLookup[$item['sala']][$item[$nombre]] ?? 0;
         }
+
 
         return response()->json([
             'data' => MagistradosController::ordenarArrayXY($combinations, $nombre),
@@ -567,7 +566,7 @@ class MagistradosController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        $forma = Magistrados::findOrFail($request->magistradoId);
+        $magistrado = Magistrados::findOrFail($request->magistradoId);
 
         $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $salasArray = $salas->pluck('sala')->toArray();
@@ -583,11 +582,12 @@ class MagistradosController extends Controller
             ->join('resolutions', 'resolutions.magistrado_id', '=', 'magistrados.id')
             ->join('salas', 'resolutions.sala_id', '=', 'salas.id')
             ->whereIn('resolutions.sala_id', $request->salas)
-            ->where('magistrados.id', $request->magistradoId)
+            ->where('magistrados.id', $magistrado->id)
             ->groupBy('salas.nombre')
             ->get();
 
-        $total = array_sum($datos->pluck('cantidad')->toArray());
+        //$total = array_sum($datos->pluck('cantidad')->toArray());
+        
         $datoLookup = $datos->pluck('cantidad', 'sala')->toArray();
 
         foreach ($combinations as &$item) {

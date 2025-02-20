@@ -111,13 +111,13 @@ class TemaController extends Controller
         $mi_sala = null; // Valor por defecto si forma_resolucion es "Todas"
 
         //return $request;
-        if ($sala !== "Todas") {
+        if ($sala) {
             $mi_sala = validarModelo(Salas::class, 'nombre', $sala);
         }
-        if ($tipo_resolucion !== "Todos") {
+        if ($tipo_resolucion) {
             $mi_tipo_resolucion = validarModelo(TipoResolucions::class, 'nombre', $tipo_resolucion);
         }
-        if ($departamento !== "Todos") {
+        if ($departamento) {
             $mi_departamento = validarModelo(Departamentos::class, 'nombre', $departamento);
         }
         // Encuentra el tema por ID
@@ -132,8 +132,7 @@ class TemaController extends Controller
             ->join('contents as c', 'r.id', '=', 'c.resolution_id')
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'j.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion')
-            ->where('j.descriptor', 'like', '%' . $descriptor . '%');
+            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'j.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion');
 
 
 
@@ -143,11 +142,13 @@ class TemaController extends Controller
 
         if ($excluirNodos === true) {
             // Busca términos que empiecen con el descriptor
-            $query->where('j.descriptor', 'like', '%' . $descriptor);
+            $query->where('j.descriptor', 'like',  $descriptor);
         } else {
             // Busca coincidencias parciales en cualquier posición
-            $query->where('j.descriptor', 'like', '%' . $descriptor . '%');
+            $query->where('j.descriptor', 'like',  $descriptor . '%');
         }
+
+        
 
         if ($mi_tipo_resolucion) {
             $query->where('r.tipo_resolucion_id', $mi_tipo_resolucion->id);
@@ -183,11 +184,7 @@ class TemaController extends Controller
 
         $data = [];
         $current = [];
-        //return $results;
-
-
-
-
+    
         foreach ($results as $element) {
             $pieces = explode(" / ", $element->descriptor);
             //array_push($lista, $pieces);
@@ -216,10 +213,7 @@ class TemaController extends Controller
             }
         }
 
-        $data[] = [
-            'current' => $current,
-            'data' => $results->toArray()
-        ];
+
 
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
 

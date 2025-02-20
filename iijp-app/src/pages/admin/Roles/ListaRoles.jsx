@@ -13,6 +13,8 @@ import VerRol from "./VerRol";
 import EditarRol from "./EditarRol";
 import CrearRol from "./CrearRol";
 import { useNavigate } from "react-router-dom";
+import { useRoleContext } from "../../../context/roleContext";
+import { usePermissionContext } from "../../../context/permissionContext";
 
 const ListaRoles = () => {
   const { getToken, can } = AuthUser();
@@ -22,8 +24,8 @@ const ListaRoles = () => {
   const token = getToken();
 
   const [counter, setCounter] = useState(1);
-  const [roles, setRoles] = useState([]);
-  const [permissions, setPermissions] = useState([]);
+  const { roles, setRoles } = useRoleContext();
+  const {permisos, setPermisos} = usePermissionContext();
 
   useEffect(() => {
     if (!can("ver_roles")) {
@@ -33,23 +35,6 @@ const ListaRoles = () => {
     }
   }, [can, navigate]);
 
-  useEffect(() => {
-    RoleService.getPermissions(token)
-      .then(({ data }) => {
-        console.log(data);
-        setPermissions(data);
-      })
-      .catch((error) => console.error("Error fetching roles:", error));
-  }, [token]);
-
-  useEffect(() => {
-    RoleService.getAllRoles(token)
-      .then(({ data }) => {
-        console.log(data);
-        setRoles(data);
-      })
-      .catch((error) => console.error("Error fetching users:", error));
-  }, [token, counter]);
 
   return (
     <div>
@@ -67,7 +52,7 @@ const ListaRoles = () => {
               content={(showModal, setShowModal) => (
                 <CrearRol
                   setCounter={setCounter}
-                  permissions={permissions}
+                  permissions={permisos}
                   showModal={showModal}
                   setShowModal={setShowModal}
                 />
@@ -135,7 +120,7 @@ const ListaRoles = () => {
                                 <VerRol
                                   setCounter={setCounter}
                                   id={item.id}
-                                  permissions={permissions}
+                                  permissions={permisos}
                                   showModal={showModal}
                                   setShowModal={setShowModal}
                                 />
@@ -154,7 +139,7 @@ const ListaRoles = () => {
                                 <EditarRol
                                   setCounter={setCounter}
                                   id={item.id}
-                                  permissions={permissions}
+                                  permissions={permisos}
                                   showModal={showModal}
                                   setShowModal={setShowModal}
                                 />
