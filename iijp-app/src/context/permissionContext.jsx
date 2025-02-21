@@ -29,7 +29,6 @@ export const PermissionContextProvider = ({ children }) => {
       const { data } = await RoleService.getPermissions(getToken());
       if (Array.isArray(data)) {
         setPermisos(data);
-        console.log(data);
       } else {
         console.error("Error: Los datos obtenidos no son un array", data);
         setPermisos([]); // Asegurar que el estado no sea undefined

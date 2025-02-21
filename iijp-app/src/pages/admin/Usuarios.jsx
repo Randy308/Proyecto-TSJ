@@ -1,21 +1,18 @@
 import Paginate from "../../components/tables/Paginate";
 import AuthUser from "../../auth/AuthUser";
-import UserService from "../../services/UserService";
-import axios from "axios";
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import React, { useEffect, useState } from "react";
-import { FaArrowRight } from "react-icons/fa";
 import { TiUserAdd } from "react-icons/ti";
 import { FaRegEye } from "react-icons/fa";
 import PortalButton from "../../components/modal/PortalButton";
 import CrearUsuario from "./CrearUsuario";
 import EliminarUsuario from "./EliminarUsuario";
 import VerUsuario from "./VerUsuario";
-import RoleService from "../../services/RoleService";
 import EditarUsuario from "./EditarUsuario";
 import { useNavigate } from "react-router-dom";
 import { useRoleContext } from "../../context/roleContext";
+import { useUserContext } from "../../context/userContext";
 const Usuarios = () => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
@@ -31,35 +28,18 @@ const Usuarios = () => {
     }
   }, [can, navigate]);
 
-  const [users, setUsers] = useState([]);
+  const { users, lastPage, pageCount, obtenerUsers } =
+    useUserContext();
 
   const [counter, setCounter] = useState(1);
 
-  const [lastPage, setLastPage] = useState(1);
-  const [totalUser, setTotalUsers] = useState(0);
-
-  const [pageCount, setPageCount] = useState(1);
-  const { roles, setRoles } = useRoleContext();
-  const [selectedPage, setSelectedPage] = useState(1);
+  const { roles } = useRoleContext();
 
   const handlePageClick = (e) => {
-    selectedPage(Math.min(e.selected + 1, lastPage));
+    const page = (Math.min(e.selected + 1, lastPage));
+     obtenerUsers(page);
+
   };
-
-  useEffect(() => {
-    UserService.getAllUsers(token, selectedPage)
-      .then(({ data }) => {
-        setUsers(data.data);
-        setLastPage(data.last_page);
-        setPageCount(data.last_page);
-        setTotalUsers(data.total);
-      })
-      .catch((error) => console.error("Error fetching users:", error));
-  }, [token, counter]);
-
-  useEffect(() => {
-    console.log(counter);
-  }, [counter]);
 
   return (
     <div>

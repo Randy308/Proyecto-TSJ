@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const PasswordInput = ({
@@ -12,7 +12,7 @@ const PasswordInput = ({
   const toggleVisibility = () => setIsVisible((prev) => !prev);
 
   const validatePassword = (e) => {
-    const value = e.target.value;
+    const value = e.trim();
     setPassword(value);
 
     if (!value) {
@@ -24,13 +24,23 @@ const PasswordInput = ({
     }
   };
 
+  useEffect(() => {
+    validatePassword(password);
+  }, []);
   return (
-    <div>
+    <div className="mb-6">
+      <label
+        htmlFor="password"
+        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+      >
+        Contraseña
+      </label>
+
       <div className="flex items-center border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
         <input
           type={isVisible ? "text" : "password"}
           value={password}
-          onChange={validatePassword}
+          onChange={(e) => validatePassword(e.target.value)}
           id="password"
           name="password"
           className="flex-grow bg-transparent text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"

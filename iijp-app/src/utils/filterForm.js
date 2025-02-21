@@ -1,4 +1,3 @@
-
 export const filterForm = (formData) => {
   return Object.fromEntries(
     Object.entries(formData).filter(
@@ -11,4 +10,13 @@ export const filterForm = (formData) => {
         value !== "Todas"
     )
   );
+};
+
+export const validateErrors = (lista) => {
+  for (const item of lista) {
+    if (item !== "") {
+      return false;
+    }
+  }
+  return true; 
 };

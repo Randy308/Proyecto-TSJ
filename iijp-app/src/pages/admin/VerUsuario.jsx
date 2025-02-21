@@ -1,72 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthUser from "../../auth/AuthUser";
-import axios from "axios";
-import UserService from "../../services/UserService";
 import Loading from "../../components/Loading";
-const VerUsuario = ({ id, setCounter, showModal, setShowModal }) => {
-  const { getToken, can } = AuthUser();
+import { useUserContext } from "../../context/userContext";
+const VerUsuario = ({ id }) => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-
-  const token = getToken();
+  const { users } = useUserContext();
   const [formData, setFormData] = useState([]);
 
   useEffect(() => {
     if (!can("ver_usuario")) {
       navigate("/");
-    } else {
-      setLoading(false);
     }
   }, [can, navigate]);
 
   useEffect(() => {
-    UserService.getUser(id, token)
-      .then(({ data }) => {
-        console.log(data);
-        setFormData(data);
-      })
-      .catch((error) => console.error("Error fetching user:", error));
-  }, [token]);
-
-  const submitForm = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
-        withCredentials: true,
-      });
-
-      console.log("CSRF token retrieved successfully.");
-
-      await UserService.createUser(
-        {
-          name: name,
-          email: email,
-          password: password,
-          role: selectedRol,
-        },
-        token
-      )
-        .then(({ data }) => {
-          if (data) {
-            console.log(data);
-            setCounter((prev) => prev + 1);
-          }
-        })
-        .catch(({ err }) => {
-          console.log("Existe un error " + err);
-        });
-    } catch (error) {
-      if (error.response) {
-        console.error("Server Error:", error.response.data);
-        console.error("Status Code:", error.response.status);
-      } else if (error.request) {
-        console.error("Network Error: No response received from the server.");
-      } else {
-        console.error("Error Setting Up Request:", error.message);
-      }
-    }
-  };
+    setFormData(users.find((item) => item.id === id));
+  }, [users]);
 
   if (formData.length <= 0) {
     return (

@@ -29,7 +29,6 @@ export const RoleContextProvider = ({ children }) => {
       const { data } = await RoleService.getAllRoles(getToken());
       if (Array.isArray(data)) {
         setRoles(data);
-        console.log(data);
       } else {
         console.error("Error: Los datos obtenidos no son un array", data);
         setRoles([]); // Asegurar que el estado no sea undefined

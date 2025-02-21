@@ -7,30 +7,23 @@ import { ImWarning } from "react-icons/im";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-const EliminarUsuario = ({ id, setCounter, showModal, setShowModal }) => {
+import { useUserContext } from "../../context/userContext";
+const EliminarUsuario = ({ id, setShowModal }) => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-
+  const { users, obtenerUsers } = useUserContext();
   const [formData, setFormData] = useState([]);
   const token = getToken();
 
   useEffect(() => {
     if (!can("eliminar_usuarios")) {
       navigate("/");
-    } else {
-      setLoading(false);
-    }
+    } 
   }, [can, navigate]);
 
   useEffect(() => {
-    UserService.getUser(id, token)
-      .then(({ data }) => {
-        console.log(data);
-        setFormData(data);
-      })
-      .catch((error) => console.error("Error fetching user:", error));
-  }, [token]);
+    setFormData(users.find((item) => item.id === id));
+  }, [users]);
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -44,9 +37,8 @@ const EliminarUsuario = ({ id, setCounter, showModal, setShowModal }) => {
       await UserService.deleteUser(id, token)
         .then(({ data }) => {
           if (data) {
-            console.log(data);
             setShowModal(false);
-            setCounter((prev) => prev + 1);
+            obtenerUsers(1);
             toast.success("El usuario ha sido eliminado exitosamente");
           }
         })

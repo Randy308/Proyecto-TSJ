@@ -5,20 +5,20 @@ import UserService from "../../services/UserService";
 import Loading from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useRoleContext } from "../../context/roleContext";
+import { useUserContext } from "../../context/userContext";
 
-const EditarUsuario = ({ id, setCounter, roles, showModal, setShowModal }) => {
+const EditarUsuario = ({ id, setShowModal }) => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-
+  const { roles } = useRoleContext();
+  const { users, obtenerUsers } = useUserContext();
   const token = getToken();
   const [formData, setFormData] = useState([]);
 
   useEffect(() => {
     if (!can("actualizar_usuarios")) {
       navigate("/");
-    } else {
-      setLoading(false);
     }
   }, [can, navigate]);
 
@@ -29,25 +29,13 @@ const EditarUsuario = ({ id, setCounter, roles, showModal, setShowModal }) => {
     }));
   };
 
-  const removeParam = (name) => {
-    setFormData((prevData) => {
-      const { [name]: _, ...rest } = prevData;
-      return rest;
-    });
-  };
-
   const actualizarInput = (event) => {
     setParams(event.target.name, event.target.value);
   };
 
   useEffect(() => {
-    UserService.getUser(id, token)
-      .then(({ data }) => {
-        console.log(data);
-        setFormData(data);
-      })
-      .catch((error) => console.error("Error fetching user:", error));
-  }, [token]);
+    setFormData(users.find((item) => item.id === id));
+  }, [users]);
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -55,8 +43,6 @@ const EditarUsuario = ({ id, setCounter, roles, showModal, setShowModal }) => {
       await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
-
-      console.log("CSRF token retrieved successfully.");
 
       const filteredData = Object.fromEntries(
         Object.entries(formData).filter(
@@ -76,10 +62,8 @@ const EditarUsuario = ({ id, setCounter, roles, showModal, setShowModal }) => {
       )
         .then(({ data }) => {
           if (data) {
-            console.log(data);
-
             setShowModal(false);
-            setCounter((prev) => prev + 1);
+            obtenerUsers(1);
             toast.success(
               "La información del usuario se ha actualizado exitosamente"
             );

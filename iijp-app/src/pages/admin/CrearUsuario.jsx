@@ -2,23 +2,32 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthUser from "../../auth/AuthUser";
 import axios from "axios";
-import RoleService from "../../services/RoleService";
 import UserService from "../../services/UserService";
-import PasswordInput from "../../components/PasswordInput";
+import PasswordInput from "../../components/form/PasswordInput";
 import { toast } from "react-toastify";
+import { useUserContext } from "../../context/userContext";
+import { useRoleContext } from "../../context/roleContext";
+import NameInput from "../../components/form/NameInput";
+import EmailInput from "../../components/form/EmailInput";
+import { validateErrors } from "../../utils/filterForm";
 
-const CrearUsuario = ({ setCounter, roles, showModal, setShowModal }) => {
+const CrearUsuario = ({ setShowModal }) => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
 
+  const { obtenerUsers } = useUserContext();
+  const { roles } = useRoleContext();
   const token = getToken();
-  const [name, setName] = useState("pedro");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [selectedRol, setSelectedRol] = useState("");
-  const [password, setPassword] = useState("root1234");
+  const [password, setPassword] = useState("");
 
-  const cambiarOpcion = (event) => {
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [nameError, setNameError] = useState("");
+
+  const changeRole = (event) => {
     setSelectedRol(event.target.value);
   };
 
@@ -26,12 +35,17 @@ const CrearUsuario = ({ setCounter, roles, showModal, setShowModal }) => {
     if (!can("ver_usuarios")) {
       navigate("/");
     } else {
-      setLoading(false);
+      setSelectedRol(roles[0].name);
     }
-  }, [can, navigate]);
+  }, []);
 
   const submitForm = async (e) => {
     e.preventDefault();
+    if (
+      !validateErrors(Object.values({ emailError, nameError, passwordError }))
+    ) {
+      return;
+    }
     try {
       await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
         withCredentials: true,
@@ -52,7 +66,7 @@ const CrearUsuario = ({ setCounter, roles, showModal, setShowModal }) => {
           if (data) {
             console.log(data);
             setShowModal(false);
-            setCounter((prev) => prev + 1);
+            obtenerUsers(1);
             toast.success("El usuario ha sido creado exitosamente");
           }
         })
@@ -73,53 +87,24 @@ const CrearUsuario = ({ setCounter, roles, showModal, setShowModal }) => {
   return (
     <div className="container mx-auto pt-4 mt-4">
       <form>
-        <div className="mb-6">
-          <label
-            htmlFor="name"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-2xl dark:text-white"
-          >
-            Nombre completo
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="John"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="john.doe@company.com"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Contraseña
-          </label>
-          <div className="flex flex-row">
-            <PasswordInput password={password} setPassword={setPassword} />
-          </div>
-        </div>
+        <NameInput
+          input={name}
+          setInput={setName}
+          setInputError={setNameError}
+          inputError={nameError}
+        />
+        <EmailInput
+          email={email}
+          setEmail={setEmail}
+          emailError={emailError}
+          setEmailError={setEmailError}
+        />
+        <PasswordInput
+          password={password}
+          setPassword={setPassword}
+          passwordError={passwordError}
+          setPasswordError={setPasswordError}
+        />
         <div className="mb-6">
           <label
             htmlFor="rol"
@@ -131,7 +116,7 @@ const CrearUsuario = ({ setCounter, roles, showModal, setShowModal }) => {
             id="rol"
             name="rol"
             value={selectedRol}
-            onChange={(e) => cambiarOpcion(e)}
+            onChange={(e) => changeRole(e)}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 capitalize"
           >
             <option disabled defaultValue={""}>

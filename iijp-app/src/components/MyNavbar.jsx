@@ -91,7 +91,7 @@ const MyNavbar = () => {
       const rect = ajustesRef.current.getBoundingClientRect();
       const listaHeight = ajustesRef.current.offsetHeight;
       const listaWidth = listaRef.current.offsetWidth;
-      console.log(`listaHeight ${listaHeight} listaWidth ${listaWidth} `);
+      //console.log(`listaHeight ${listaHeight} listaWidth ${listaWidth} `);
       listaRef.current.style.top = `${
         rect.bottom - rect.height + listaHeight
       }px`;
