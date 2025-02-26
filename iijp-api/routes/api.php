@@ -72,7 +72,7 @@ Route::prefix('v2')->group(function () {
     //rutas de cronología
     Route::get('/buscar-termino-jurisprudencia', [JurisprudenciasController::class, 'busquedaTerminos']);
     Route::get('/actualizar-nodo', [JurisprudenciasController::class, 'actualizarNodo']);
-    Route::get('/obtener-cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
+    Route::post('/obtener-cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
     Route::get('/obtener-parametros-cronologia', [TemaController::class, 'obtenerParametrosCronologia']);
     Route::get('/obtener-nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
 

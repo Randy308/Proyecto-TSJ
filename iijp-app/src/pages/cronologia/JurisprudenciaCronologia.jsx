@@ -177,6 +177,8 @@ const JurisprudenciaCronologia = () => {
     setIsLoading(true);
     JurisprudenciaService.obtenerCronologia(validatedData)
       .then(({ data }) => {
+
+        console.log(data)
         const pdfBlob = new Blob([data], {
           type: "application/pdf",
         });

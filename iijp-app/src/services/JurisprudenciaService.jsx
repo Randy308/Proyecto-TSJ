@@ -32,10 +32,10 @@ const JurisprudenciaService = {
       params: jurisprudenciaData,
     }),
   obtenerCronologia: (formData) =>
-    instance.get("/obtener-cronologias", {
-      params: formData,
+    instance.post("/obtener-cronologias", formData, {
       responseType: "blob",
     }),
+
   obtenerNodos: (jurisprudenciaData) =>
     instance.get("/obtener-nodos", {
       params: jurisprudenciaData,

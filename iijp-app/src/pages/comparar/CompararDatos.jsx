@@ -128,9 +128,6 @@ const CompararDatos = () => {
     }
   }, [resoluciones]);
 
-  useEffect(() => {
-    console.log(geoData);
-  }, [geoData]);
 
   const obtenerResoluciones = async () => {
     if (isLoading) {
@@ -229,9 +226,7 @@ const CompararDatos = () => {
       prevTerminos.filter((item) => item.id !== id)
     );
   };
-  useEffect(() => {
-    console.log(geoData);
-  }, [geoData]);
+
 
   const limpiarFiltros = () => {
     setFormData({

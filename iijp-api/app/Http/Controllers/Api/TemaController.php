@@ -148,7 +148,7 @@ class TemaController extends Controller
             $query->where('j.descriptor', 'like',  $descriptor . '%');
         }
 
-        
+
 
         if ($mi_tipo_resolucion) {
             $query->where('r.tipo_resolucion_id', $mi_tipo_resolucion->id);
@@ -182,47 +182,38 @@ class TemaController extends Controller
             return response()->json(['error' => 'Datos no encontrados '], 404);
         }
 
-        $data = [];
         $current = [];
-    
+
         foreach ($results as $element) {
             $pieces = explode(" / ", $element->descriptor);
-            //array_push($lista, $pieces);
             $indices = [];
-            if (count($current) > 0) {
-                foreach ($pieces as $piece) {
-                    $key = array_search($piece, $pieces);
-                    if (in_array($piece, $current)) {
 
-                        unset($pieces[$key]);
-                    } else {
-                        array_push($indices, $key);
-                        array_push($current, $piece);
+            if (!empty($current)) {
+                $newPieces = [];
+                foreach ($pieces as $key => $piece) {
+                    if (!isset($current[$piece])) {
+                        $current[$piece] = true;
+                        $indices[] = $key;
+                        $newPieces[] = $piece;
                     }
                 }
-                $element->descriptor = array_values($pieces);
-                $element->indices = $indices;
+                $element->descriptor = array_values($newPieces);
             } else {
-                $current = $pieces;
-                foreach ($pieces as $piece) {
-                    $key = array_search($piece, $pieces);
-                    array_push($indices, $key);
-                }
+                $current = array_fill_keys($pieces, true);
+                $indices = array_keys($pieces);
                 $element->descriptor = $pieces;
-                $element->indices = $indices;
             }
+
+            $element->indices = $indices;
         }
 
 
-
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
-
-
-        $estilos = Estilos::where('tipo','Default')->get();
+        $estilos = Estilos::where('tipo', 'Default')->get();
 
         //return $estilos;
         //return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo ,"fechaActual"=>$fechaActual], [], [
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, "fechaActual" => $fechaActual], [], [
             'format'          => 'letter',
             'margin_left'     => 25,  // 2.5 cm in mm
             'margin_right'    => 25,  // 2.5 cm in mm
@@ -303,5 +294,4 @@ class TemaController extends Controller
 
         return $data;
     }
-
 }
