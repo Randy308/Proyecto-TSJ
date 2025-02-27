@@ -37,6 +37,26 @@ const ResolucionesService = {
       },
     }),
   obtenerElemento: (params) => instance.get("/obtener-elemento", { params }),
+  buscarNuevasResoluciones: (token) =>
+    instance.post(
+      "/buscar-nuevas-resoluciones",
+      {}, // Cuerpo vacío porque no envías datos en el POST
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    ),
+  realizarWebScrapping: (token, formData) =>
+    instance.post(
+      "/obtencion-resoluciones",
+      formData, // Cuerpo vacío porque no envías datos en el POST
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    ),
 };
 
 export default ResolucionesService;

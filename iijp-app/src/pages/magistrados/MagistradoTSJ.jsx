@@ -205,12 +205,12 @@ const MagistradoTSJ = () => {
         <div>
           <span
             className="bg-red-octopus-50 text-red-octopus-900 text-md font-semibold px-2.5 
-          py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ms-3 mb-4"
+          py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ms-3 mb-4 titulo"
           >
             Magistrado Relator
           </span>
 
-          <h1 className="my-2 ms-3 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+          <h1 className="my-2 ms-3 uppercase text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
             {magistrado.nombre}
           </h1>
         </div>

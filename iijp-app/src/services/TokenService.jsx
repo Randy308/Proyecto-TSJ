@@ -11,7 +11,6 @@ const instance = axios.create({
 const TokenService = {
   obtenerToken: () =>
     instance.get("/sanctum/csrf-cookie", {
-      params: jurisprudenciaData,
     }),
 };
 

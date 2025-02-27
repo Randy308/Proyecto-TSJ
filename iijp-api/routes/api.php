@@ -91,6 +91,9 @@ Route::prefix('v2')->group(function () {
 
         Route::post('/subir-resoluciones', [ExcelController::class, 'upload'])->name('excel.upload');
         Route::post('/subir-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
+
+        Route::post('/buscar-nuevas-resoluciones', [ResolutionController::class, 'buscarResolucionesTSJ']);
+        Route::post('/obtencion-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);
     });
 
     Route::middleware('auth:api')->get('/user', function (Request $request) {
@@ -99,7 +102,8 @@ Route::prefix('v2')->group(function () {
 
     #rutas de prueba
     Route::get('/test-arima', [ArimaController::class, 'test_arima']);
-    Route::get('/obtencion-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);
+   
+
     Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);
 
 

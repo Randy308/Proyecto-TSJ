@@ -26,7 +26,7 @@ const SubirResoluciones = () => {
       nombre: "Carga Automática (Web Scraping)",
       path: "/admin/subir-automatico",
       icon: <FaMagnifyingGlassChart className="text-white w-[50px] h-[50px]" />,
-      permiso: "web_scrappings",
+      permiso: "web_scrapping",
     },
   ];
 
@@ -35,7 +35,7 @@ const SubirResoluciones = () => {
       !hasAnyPermission([
         "subir_resoluciones",
         "subir_jurisprudencia",
-        "web_scrappings",
+        "web_scrapping",
       ])
     ) {
       navigate("/");

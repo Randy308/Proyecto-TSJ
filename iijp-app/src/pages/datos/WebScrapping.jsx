@@ -1,12 +1,17 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
-import AuthUser from '../../auth/AuthUser';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import AuthUser from "../../auth/AuthUser";
+import ResolucionesService from "../../services/ResolucionesService";
+import AsyncButton from "../../components/AsyncButton";
+import TokenService from "../../services/TokenService";
+import { toast } from "react-toastify";
 
 const WebScrapping = () => {
-  
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [cantidad, setCantidad] = useState(0);
 
   useEffect(() => {
     if (!can("web_scrapping")) {
@@ -14,11 +19,100 @@ const WebScrapping = () => {
     } else {
       setLoading(false);
     }
-  }, [can, navigate]);
+  }, []); // Eliminamos `can` de dependencias para evitar reejecuciones innecesarias
 
-  return (
-    <div>WebScrapping</div>
-  )
-}
+  const comprobarResoluciones = async () => {
+    if (isLoading) return;
 
-export default WebScrapping
+    setIsLoading(true);
+
+    try {
+      await TokenService.obtenerToken(); // Obtener el nuevo token
+      const { data } = await ResolucionesService.buscarNuevasResoluciones(
+        getToken()
+      ); // Usar el nuevo token
+      console.log(data);
+
+      const { message, cantidad } = data;
+
+      toast.success(`${message} Resoluciones encontradas: ${cantidad}.`, {
+        position: "top-right",
+        autoClose: 5000,
+        closeOnClick: true,
+        draggable: true,
+      });
+
+      setCantidad(cantidad);
+    } catch (error) {
+      console.log("Error al comprobar resoluciones:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const realizarWebScrapping = async() => {
+    
+     if (isLoading) return;
+
+    setIsLoading(true);
+
+    try {
+      await TokenService.obtenerToken(); // Obtener el nuevo token
+      const { data } = await ResolucionesService.realizarWebScrapping(
+        getToken(),
+        {
+          iterations: 5,
+        }
+      ); // Usar el nuevo token
+      console.log(data);
+
+      const { message } = data;
+
+      toast.success(`${message}.`, {
+        position: "top-right",
+        autoClose: 5000,
+        closeOnClick: true,
+        draggable: true,
+      });
+
+      setCantidad(cantidad);
+    } catch (error) {
+      console.log("Error al comprobar resoluciones:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  if (loading) return null; // Evita mostrar el botón mientras carga
+
+return (
+  <div className="p-4">
+    <h2 className="text-xl font-semibold">Búsqueda de Resoluciones</h2>
+    <p className="text-gray-600 dark:text-gray-300 mb-4">
+      Presiona el botón para buscar nuevas resoluciones disponibles en el
+      sistema.
+    </p>
+
+    <AsyncButton
+      name="Comprobar resoluciones"
+      isLoading={isLoading}
+      full={false}
+      asyncFunction={comprobarResoluciones}
+    />
+
+    {cantidad > 0 && (
+      <div className="mt-4">
+        <AsyncButton
+          name="Realizar Web Scraping"
+          isLoading={isLoading}
+          full={false}
+          asyncFunction={realizarWebScrapping}
+        />
+      </div>
+    )}
+  </div>
+);
+
+};
+
+export default WebScrapping;

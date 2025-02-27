@@ -5,7 +5,7 @@ const CronologiasResultados = () => {
   const location = useLocation();
   const [pdfUrl, setPdfUrl] = useState(null);
   const [pdfName, setPdfName] = useState(null);
-  
+
   const generateFilename = () => {
     const now = new Date();
     const formattedDate = now
@@ -13,7 +13,7 @@ const CronologiasResultados = () => {
       .replace(/T/, "_")
       .replace(/:/g, "-")
       .split(".")[0];
-    return `cronología_jurídica_${formattedDate}.pdf`;
+    return `cronojurídica_${formattedDate}.pdf`;
   };
 
   useEffect(() => {
@@ -29,22 +29,22 @@ const CronologiasResultados = () => {
   return (
     <div className="flex items-center justify-center">
       {pdfUrl ? (
-        <div className="flex flex-row p-4 m-4">
-          <iframe
-            src={pdfUrl}
-            title="PDF Document"
-            style={{ width: "70dvw", height: "90dvh" }}
-            frameBorder="0"
-          />
-          <div>
+        <div className="flex flex-col p-4 m-4 gap-4">
+          <div className="pb-4">
             <a
               href={pdfUrl}
               download={generateFilename()}
-              className="p-4 m-4 bg-blue-600 rounded-lg text-white"
+              className="p-4 bg-blue-600 rounded-lg text-white"
             >
               Descargar PDF
             </a>
           </div>
+          <iframe
+            src={pdfUrl}
+            title="PDF Document"
+            style={{ width: "90dvw", height: "100dvh" }}
+            frameBorder="0"
+          />
         </div>
       ) : (
         <p>Cargando PDF...</p>

@@ -111,7 +111,7 @@ const MyNavbar = () => {
     try {
       const endpoint = process.env.REACT_APP_BACKEND;
       const { data } = await axios.post(
-        `${endpoint}/v1/auth/logout`,
+        `${endpoint}/auth/logout`,
         {},
         {
           headers: {

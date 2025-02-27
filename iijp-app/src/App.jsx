@@ -62,7 +62,7 @@ function App() {
                 />
 
                 <Route
-                  path="jurisprudencia/lista-de-analisis"
+                  path="estadisticas-basicas"
                   element={<JurisprudenciaLista />}
                 />
                 <Route path="busqueda" element={<JurisprudenciaBusqueda />} />

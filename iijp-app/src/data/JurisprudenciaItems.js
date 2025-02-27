@@ -4,7 +4,7 @@ export const jurisprudenciaItems = [
   {
     id: 1,
     title: "Estadisticas",
-    path: "/jurisprudencia/lista-de-analisis",
+    path: "/estadisticas-basicas",
     cName: "tool-item",
     resumen : "El módulo de Estadísticas está diseñado para recuperar la información almacenada y presentarla de manera clara y comprensible para los usuarios. ",
     icon: <FaChartLine className="icon-style"/> ,

@@ -143,6 +143,11 @@ div#parent-container.dark-theme #herramientas-tipos {
   font-weight: 900;
   font-style: italic;
 }
+
+.roboto-condensed {
+  font-family: "Roboto Condensed", sans-serif;
+}
+
 select[multiple] {
   background: none;
   width: auto;

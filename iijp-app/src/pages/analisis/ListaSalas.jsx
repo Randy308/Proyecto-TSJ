@@ -125,7 +125,7 @@ const ListaSalas = () => {
   return (
     <div>
       <div className="p-4 m-4">
-        <h3 className="text-2xl font-medium text-gray-900 dark:text-white">
+        <h3 className="text-3xl uppercase titulo font-medium text-gray-900 dark:text-white">
           Análisis por Salas
         </h3>
       </div>

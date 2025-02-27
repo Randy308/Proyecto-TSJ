@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -13,6 +14,12 @@ class UserController extends Controller
     public function index()
     {
 
+
+        $userId = Auth::id();
+        if (!$userId) {
+            return response()->json(['mensaje' => "El usuario no existe"], 403);
+        }
+        
         $users = User::whereDoesntHave('roles', function ($query) {
             $query->where('name', 'admin');
         })->paginate(20);

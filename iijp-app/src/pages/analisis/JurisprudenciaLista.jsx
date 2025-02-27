@@ -10,30 +10,22 @@ const JurisprudenciaLista = () => {
   const jurisprudenciaItems = [
     {
       id: 2,
-      title: "Análisis por Magistrados",
-      descripcion:
-        "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
+      title: "Análisis por\n Magistrados",
+      className: "bg-red-400 hover:bg-red-700 hover:text-white",
       path: "/jurisprudencia/lista-magistrados",
-      cName: "tool-item",
-      icon: <IoPeopleCircleSharp className="h-8 w-8" />,
     },
     {
       id: 3,
-      title: "Análisis por Salas",
-      descripcion:
-        "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
+      title: "Análisis por\n Salas",
+      className: "bg-yellow-300 hover:bg-yellow-500 hover:text-white",
       path: "/jurisprudencia/lista-salas",
-      cName: "tool-item",
       icon: <HiMiniBuildingLibrary className="h-8 w-8" />,
     },
     {
       id: 4,
-      title: "Análisis avanzado",
-      descripcion:
-        "Commodo fugiat sint Lorem minim tempor cupidatat enim adipisicing.",
+      title: "Análisis\n avanzado",
+      className: "bg-green-400 hover:bg-green-700 hover:text-white",
       path: "/analisis/avanzado",
-      cName: "tool-item",
-      icon: <CgDisplayGrid className="h-8 w-8" />,
     },
   ];
 
@@ -150,33 +142,33 @@ const JurisprudenciaLista = () => {
 
   return (
     <div className="lista-analisis flex flex-col items-center justify-center py-4 my-4">
+      <div className="roboto-condensed text-3xl font-bold uppercase mb-4">Principales indicadores</div>
+      <div className="flex flex-row gap-2 items-center justify-center p-4 mb-4">
+        {jurisprudenciaItems.map((item) => (
+          <Link to={item.path} key={item.id}>
+            <div
+              key={item.id}
+              className={`rounded-lg hover:cursor-pointer flex flex-row justify-center items-center gap-2 p-8 ${item.className}`}
+            >
+              <span className="text-white whitespace-pre-line uppercase roboto-condensed text-lg font-bold text-center">
+                {item.title}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
       <div className="flex justify-center">
-        <span className="font-bold text-center text-2xl titulo">
+        <span className="font-bold text-center text-3xl titulo uppercase mb-4">
           Histórico de Resoluciones
         </span>
       </div>
-      <div className="container mx-auto">
+      <div className="mx-auto w-3/4 custom:w-full">
         {resoluciones && resoluciones.length > 0 ? (
           <SimpleChart option={option}></SimpleChart>
         ) : (
           <Loading></Loading>
         )}
-      </div>
-      <div className="flex p-2 m-2 flex-col w-4/5 gap-2">
-        <div className="flex flex-row gap-2 items-center justify-center ">
-          {jurisprudenciaItems.map((item) => (
-            <Link to={item.path} key={item.id}>
-              <div
-                key={item.id}
-                className="py-4 px-2 rounded-lg bg-slate-200 hover:cursor-pointer hover:bg-slate-700 hover:text-white flex flex-row justify-center items-center gap-2"
-              >
-                {" "}
-                {item.icon}
-                <span className="font-bold"> {item.title}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
       </div>
     </div>
   );

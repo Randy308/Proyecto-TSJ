@@ -19,11 +19,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
-use Symfony\Component\HttpClient\HttpClient;
 use Illuminate\Support\Facades\Log;
+
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\Exception\{TransportExceptionInterface, ClientExceptionInterface, ServerExceptionInterface};
 
 class ResolutionController extends Controller
 {
@@ -146,6 +149,85 @@ class ResolutionController extends Controller
     }
 
 
+    public function buscarResolucionesTSJ(Request $request)
+    {
+
+        $userId = Auth::id();
+        if (!$userId) {
+            return response()->json(['mensaje' => "El usuario no existe"], 403);
+        }
+        if (!auth()->user()->hasPermissionTo('subir_jurisprudencia')) {
+            return response()->json(['mensaje' => "El usuario no cuenta con el permiso necesario"], 403);
+        }
+
+        if (DB::table('jobs')->where('payload', 'like', '%WebScrappingJob%')->exists()) {
+            return response()->json(['message' => 'El Web Scraping ya se está ejecutando.'], 409);
+        }
+
+        $httpClient = HttpClient::create([
+            'verify_peer' => false,
+            'verify_host' => false,
+            'timeout' => 10,
+        ]);
+
+        $lastId = Mapeos::max('external_id');
+        $errorCount = 0;
+        $maxErrors = 10;
+        $iterations = 10;
+        $counts = 0;
+        $ultimaRes = $lastId;
+        $maxRequests = 25; // Límite de intentos
+        $requestCount = 0;
+
+        while ($requestCount < $maxRequests) {
+            if ($errorCount > $maxErrors) {
+                Log::warning("Demasiados errores consecutivos. Deteniendo proceso.");
+                break;
+            }
+
+            try {
+                $i = $iterations + $lastId;
+                usleep(random_int(500000, 2000000));
+
+                $response = $httpClient->request('GET', "https://jurisprudencia.tsj.bo/jurisprudencia/$i");
+
+                if ($response->getStatusCode() !== 200) {
+                    throw new \Exception("Error HTTP " . $response->getStatusCode());
+                }
+
+                $data = $response->toArray();
+                if (!empty($data['resolucion'])) {
+                    $counts++;
+                    $ultimaRes = $i;
+                    $iterations += 20;
+                    $errorCount = 0; // Reiniciar contador de errores
+                } else {
+                    $errorCount++;
+                    $iterations += ($errorCount >= 3) ? 50 : 20;
+                }
+            } catch (TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | \Exception $e) {
+                Log::error("Error al procesar ID $i: " . $e->getMessage());
+                $errorCount++;
+
+                if ($errorCount > $maxErrors) {
+                    Log::error("Se alcanzó el número máximo de errores. Proceso detenido.");
+                    break;
+                }
+            }
+
+            $requestCount++;
+        }
+
+        if ($counts > 0) {
+            return response()->json([
+                'message' => 'Se han encontrado nuevas resoluciones.',
+                'cantidad' => $ultimaRes - $lastId,
+            ]);
+        } else {
+            return response()->json(['message' => 'No existen nuevas resoluciones.'], 409);
+        }
+    }
+
 
 
     public function obtenerResolucionesTSJ(Request $request)
@@ -165,7 +247,7 @@ class ResolutionController extends Controller
         $iterations = $request->input('iterations', 100);
         $lastId = Mapeos::max('external_id');
 
-        
+
         Log::info("Busqueda iniciada");
         WebScrappingJob::dispatch($iterations, $lastId);
 
@@ -212,7 +294,7 @@ class ResolutionController extends Controller
 
 
 
-   
+
 
     public function show($id): JsonResponse
     {

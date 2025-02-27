@@ -92,6 +92,7 @@ class AuthController extends Controller
     public function logout()
     {
         $response['success'] = false;
+        
         auth()->user()->tokens()->delete();
         $response['success'] = true;
         $response['message'] = 'Sesión cerrada correctamente';
