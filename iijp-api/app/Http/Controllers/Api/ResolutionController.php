@@ -257,7 +257,7 @@ class ResolutionController extends Controller
 
     public function index()
     {
-
+        
         $all_res = DB::table('resolutions as r')
             ->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date as periodo, COALESCE(COUNT(r.id), 0) AS cantidad")
             ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)"))
