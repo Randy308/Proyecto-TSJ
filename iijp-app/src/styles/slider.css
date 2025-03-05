@@ -86,14 +86,14 @@
 .novedades-container .prev{
   position: absolute;
   z-index: 999;
-  left: 0%;
+  left: 0.4rem;
   top: calc( 50% - 2.4rem);
 }
 
 .novedades-container .next{
   position: absolute;
   z-index: 999;
-  left: calc( 100% - 2.4rem);
+  left: calc( 100% - 2.8rem);
   top: calc( 50% - 2.4rem);
 }
 
