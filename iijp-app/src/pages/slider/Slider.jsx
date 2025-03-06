@@ -63,11 +63,11 @@ const Slider = () => {
                   <div className="titulo-card">
                     <h2>{slide.heading}</h2>
                   </div>
-                  <div className="desc-card text-black dark:text-gray-200">
+                  <div className="desc-card text-black dark:text-gray-200 text-justify">
                     <p>{slide.desc}</p>
-                    <button className="bg-red-octopus-500 my-2 hover:bg-red-octopus-300 text-white font-bold py-2 px-4 rounded">
+                    {/* <button className="bg-red-octopus-500 my-2 hover:bg-red-octopus-300 text-white font-bold py-2 px-4 rounded">
                       Ver mas
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>
