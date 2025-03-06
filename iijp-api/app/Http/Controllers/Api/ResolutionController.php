@@ -152,13 +152,16 @@ class ResolutionController extends Controller
     public function buscarResolucionesTSJ(Request $request)
     {
 
-        $userId = Auth::id();
-        if (!$userId) {
-            return response()->json(['mensaje' => "El usuario no existe"], 403);
+        $user = Auth::user();
+
+        if (!$user) { // Verifica si el usuario no está autenticado
+            return response()->json(['mensaje' => "El usuario no está autenticado"], 403);
         }
-        if (!auth()->user()->hasPermissionTo('subir_jurisprudencia')) {
+    
+        if (!$user->hasPermissionTo('web_scrapping')) {
             return response()->json(['mensaje' => "El usuario no cuenta con el permiso necesario"], 403);
         }
+
 
         if (DB::table('jobs')->where('payload', 'like', '%WebScrappingJob%')->exists()) {
             return response()->json(['message' => 'El Web Scraping ya se está ejecutando.'], 409);
