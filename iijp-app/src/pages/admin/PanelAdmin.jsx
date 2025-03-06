@@ -1,6 +1,8 @@
 import React from "react";
 import AuthUser from "../../auth/AuthUser";
 import Post from "../publicaciones/Post";
+import Magistrados from "./Magistrados/Magistrados";
+
 
 const PanelAdmin = () => {
   const { can } = AuthUser();
@@ -49,7 +51,7 @@ const PanelAdmin = () => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       <div className="lg:col-span-2">
-        <Post/>
+        <Magistrados/>
       </div>
     <div className="grid grid-cols-1 gap-2 p-4">
       {permissions.map(

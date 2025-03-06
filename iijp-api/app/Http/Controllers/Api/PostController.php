@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
@@ -24,9 +26,9 @@ class PostController extends Controller
             'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
         ]);
 
-
+        $user = Auth::user();
         $post = new Post();
-        $post->user_id = auth()->id(); 
+        $post->user_id = $user->id; 
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -113,5 +115,14 @@ class PostController extends Controller
         return response()->json([
             'message' => 'Publicación eliminada correctamente',
         ], 200);
+    }
+
+    public function obtenerActivos(){
+
+        $posts = Post::where('estado', 'Activo')->limit(3)->get();
+        if ($posts->isEmpty()) {
+            $posts = Post::orderBy('updated_at', 'desc')->limit(3)->get();
+        }
+        return response()->json($posts, 200);
     }
 }

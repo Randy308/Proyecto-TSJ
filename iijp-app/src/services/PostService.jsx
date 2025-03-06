@@ -41,6 +41,7 @@ const PostService = {
     instance.delete(`/admin/post/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
+  obtenerPublicaciones: () => instance.get("/publicaciones-activas"),
 };
 
 export default PostService;

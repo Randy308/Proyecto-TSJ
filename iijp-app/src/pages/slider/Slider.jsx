@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
-import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
-import { sliderData } from "../../data/SliderData";
-
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import "../../styles/slider.css";
+import { usePostContext } from "../../context/postContext";
 const Slider = () => {
+
+
+  const endpoint = process.env.REACT_APP_IMAGE_SERVER;
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slideLength = sliderData.length;
+  const { posts } = usePostContext();
+  const slideLength = posts.length;
 
   const autoScroll = false;
   let slideInterval;
@@ -42,7 +44,7 @@ const Slider = () => {
     <div className="slider bg-white dark:bg-gray-900 text-black dark:text-white">
       <IoIosArrowBack className="arrow prev" onClick={prevSlide} />
       <IoIosArrowForward className="arrow next" onClick={nextSlide} />
-      {sliderData.map((slide, index) => {
+      {posts.map((slide, index) => {
         return (
           <div
             className={index === currentSlide ? "slide current" : "slide"}
@@ -53,7 +55,7 @@ const Slider = () => {
                 <div id="image-card" className="custom:p-1">
                   <figure>
                     <img
-                      src={slide.image}
+                      src={`${endpoint}/${slide.ruta_imagen}`}
                       alt="slide"
                       className="image rounded-lg"
                     />
@@ -61,13 +63,10 @@ const Slider = () => {
                 </div>
                 <div className="content custom:p-0">
                   <div className="titulo-card">
-                    <h2>{slide.heading}</h2>
+                    <h2>{slide.titulo}</h2>
                   </div>
-                  <div className="desc-card text-black dark:text-gray-200 text-justify">
-                    <p>{slide.desc}</p>
-                    {/* <button className="bg-red-octopus-500 my-2 hover:bg-red-octopus-300 text-white font-bold py-2 px-4 rounded">
-                      Ver mas
-                    </button> */}
+                  <div className="desc-card text-black text-sm dark:text-gray-200 text-justify">
+                    <p>{slide.description}</p>
                   </div>
                 </div>
               </div>

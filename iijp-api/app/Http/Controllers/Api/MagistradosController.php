@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class MagistradosController extends Controller
@@ -21,7 +22,7 @@ class MagistradosController extends Controller
     public function index()
     {
         $magistrados = DB::table('magistrados as m')
-        ->selectRaw("m.id, m.nombre,
+        ->selectRaw("m.id, m.nombre, m.ruta_imagen,
                      MAX(r.fecha_emision) as fecha_max,
                      MIN(r.fecha_emision) as fecha_min,
                      TRIM(BOTH ', ' FROM CONCAT(
@@ -152,6 +153,7 @@ class MagistradosController extends Controller
 
         return response()->json([
             'nombre' => $magistrado->nombre,
+            'ruta_imagen' => $magistrado->ruta_imagen,
             'fecha_maxima' => $fechaMaxima,
             'fecha_minima' => $fechaMinima,
             'salas' => $salas,
@@ -170,6 +172,35 @@ class MagistradosController extends Controller
     }
 
 
+    public function update($id, Request $request)
+    {
+        $request->validate([
+            'nombre' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+        ]);
+
+        $magistrado = Magistrados::findOrFail($id);
+
+
+        if ($request->hasFile('image')) {
+            if ($magistrado->ruta_imagen && Storage::exists(str_replace('storage/', 'public/', $magistrado->ruta_imagen))) {
+                Storage::delete(str_replace('storage/', 'public/', $magistrado->ruta_imagen));
+            }
+
+            $image = $request->file('image');
+            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $path = $image->storeAs('public/magistrados', $fileName);
+            $magistrado->ruta_imagen = str_replace('public/', 'storage/', $path);
+        }
+
+        if ($request->filled('nombre')) {
+            $magistrado->nombre = $request->nombre;
+        }
+
+        $magistrado->save();
+
+        return response()->json(['message' => 'Información actualizada con éxito', 'magistrado' => $magistrado], 200);
+    }
 
     public function obtenerSerieTemporal($id, Request $request)
     {

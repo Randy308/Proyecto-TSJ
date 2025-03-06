@@ -28,6 +28,13 @@ const MagistradoService = {
     instance.get(`/magistrado-estadisticas-x/`, { params }),
   getStatsXY: (params) =>
     instance.get(`/magistrado-estadisticas-xy/`, { params }),
+  updateMagistrado: (id, data, token) =>
+    instance.post(`/admin/magistrado/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    }),
 };
 
 export default MagistradoService;

@@ -10,6 +10,7 @@ class Magistrados extends Model
     use HasFactory;
     protected $fillable = [
         'nombre',
+        'ruta_imagen'
     ];
     public function resolutions()
     {

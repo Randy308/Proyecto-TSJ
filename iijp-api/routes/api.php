@@ -9,11 +9,12 @@ use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\JurisprudenciasController;
 use App\Http\Controllers\Api\MagistradosController;
+use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
 use App\Http\Controllers\Api\TemaController;
 use App\Http\Controllers\Api\User\TimeSeriesController;
-use App\Http\Controllers\PostController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -92,6 +93,10 @@ Route::prefix('v2')->group(function () {
 
         Route::get('admin/permisos', [PermissionController::class, 'index']);
 
+
+        Route::post('admin/magistrado/{id}', [MagistradosController::class, 'update']);
+
+
         Route::post('/subir-resoluciones', [ExcelController::class, 'upload'])->name('excel.upload');
         Route::post('/subir-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
 
@@ -106,7 +111,9 @@ Route::prefix('v2')->group(function () {
 
     #rutas de prueba
     Route::get('/test-arima', [ArimaController::class, 'test_arima']);
-   
+    Route::get('/publicaciones-activas', [PostController::class, 'obtenerActivos']);
+
+
 
     Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);
 
