@@ -265,14 +265,14 @@ const JurisprudenciaBusqueda = () => {
               />
             </div> */}
 
-            <button
+            {/* <button
               type="button"
               onClick={() => limpiarFiltros()}
               className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 rounded-lg text-center  dark:focus:ring-blue-800"
             >
               <MdCleaningServices className="w-3.5 h-3.5 text-white me-2" />
               Limpiar
-            </button>
+            </button> */}
 
             <button
               type="button"

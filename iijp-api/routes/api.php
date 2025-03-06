@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
 use App\Http\Controllers\Api\TemaController;
 use App\Http\Controllers\Api\User\TimeSeriesController;
+use App\Http\Controllers\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -87,6 +88,8 @@ Route::prefix('v2')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::apiResource('admin/user', UserController::class);
         Route::apiResource('admin/roles', RoleController::class);
+        Route::apiResource('admin/post', PostController::class);
+
         Route::get('admin/permisos', [PermissionController::class, 'index']);
 
         Route::post('/subir-resoluciones', [ExcelController::class, 'upload'])->name('excel.upload');

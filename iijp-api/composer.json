@@ -11,6 +11,7 @@
         "fabpot/goutte": "^4.0",
         "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.0.1",
+        "intervention/image": "^2.7",
         "laravel/framework": "^8.54",
         "laravel/sanctum": "^2.15",
         "laravel/tinker": "^2.5",
