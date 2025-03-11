@@ -11,6 +11,7 @@ import { FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
 import JurisprudenciaService from "../../services/JurisprudenciaService";
 import { filterForm } from "../../utils/filterForm";
+import { GoDotFill } from "react-icons/go";
 
 const JurisprudenciaCronologia = () => {
   const [currentID, setCurrentID] = useState(null);
@@ -27,7 +28,7 @@ const JurisprudenciaCronologia = () => {
     cantidad: 15,
     subtitulo: "",
     recorrer: false,
-    seccion: true,
+    seccion: false,
   });
   const [activador, setActivador] = useState(false);
   const [errorBusqueda, setErrorBusqueda] = useState("");
@@ -168,7 +169,6 @@ const JurisprudenciaCronologia = () => {
     }
     const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
 
-
     const validatedData = filterForm({
       tema_id: arbol[arbol.length - 1].id,
       descriptor: nombresTemas,
@@ -177,8 +177,7 @@ const JurisprudenciaCronologia = () => {
     setIsLoading(true);
     JurisprudenciaService.obtenerCronologia(validatedData)
       .then(({ data }) => {
-
-        console.log(data)
+        console.log(data);
         const pdfBlob = new Blob([data], {
           type: "application/pdf",
         });
@@ -305,9 +304,9 @@ const JurisprudenciaCronologia = () => {
           <p className="text-bold text-3xl text-center my-4 titulo uppercase font-bold text-black dark:text-white">
             Generación de Cronojurídicas
           </p>
-          <div className="flex flex-row gap-1 flex-wrap arrow-steps my-4">
+          <div className="flex-row gap-1 flex-wrap arrow-steps my-4 hidden md:flex">
             <div
-              className={`step custom:text-xs roboto-medium ${
+              className={`step custom:text-xs roboto-medium flex items-center ${
                 tabActivo === 1 ? "activo" : "noactivo"
               }`}
               key={0}
@@ -318,7 +317,7 @@ const JurisprudenciaCronologia = () => {
             {arbol &&
               arbol.map((tema) => (
                 <div
-                  className={`step custom:text-xs roboto-medium ${
+                  className={`step roboto-medium flex items-center ${
                     tema.id === arbol[arbol.length - 1].id ? "current" : ""
                   } ${tabActivo === 1 ? "activo" : "noactivo"}`}
                   key={tema.id}
@@ -326,6 +325,43 @@ const JurisprudenciaCronologia = () => {
                   onClick={() => eliminarNodo(tema.id)}
                 >
                   {tema.nombre}
+                </div>
+              ))}
+          </div>
+          <div className="md:hidden flex flex-col gap-4 py-4 relative">
+            {/* Línea vertical limitada al contenido */}
+            <div className="absolute left-2 top-0 w-1 h-[calc(100%-1.25rem)] bg-gray-300 dark:bg-gray-600"></div>
+
+            {/* Primer nodo */}
+            <div
+              className="flex items-center gap-2 text-gray-500 relative z-10"
+              onClick={() => vaciarNodo()}
+            >
+              <GoDotFill className="w-5 h-5 bg-white dark:bg-gray-800 rounded-full" />
+              <FaHouse className="w-5 h-5" />
+            </div>
+
+            {/* Nodos de la línea de tiempo */}
+            {arbol &&
+              arbol.map((tema, index) => (
+                <div
+                  className={`flex items-center gap-2 text-sm relative z-10 ${
+                    tema.id === arbol[arbol.length - 1].id
+                      ? "current text-blue-500"
+                      : "text-gray-500"
+                  } ${tabActivo === 1 ? "activo" : "noactivo"}`}
+                  key={tema.id}
+                  id={tema.id}
+                  onClick={() => eliminarNodo(tema.id)}
+                >
+                  {/* Punto con línea que no continúa después del último nodo */}
+                  <div className="relative">
+                    <GoDotFill className="w-5 h-5 bg-white dark:bg-gray-800 rounded-full" />
+                    {index !== arbol.length - 1 && (
+                      <div className="absolute top-5 left-2 w-1 h-full bg-gray-300 dark:bg-gray-600"></div>
+                    )}
+                  </div>
+                  <span>{tema.nombre}</span>
                 </div>
               ))}
           </div>

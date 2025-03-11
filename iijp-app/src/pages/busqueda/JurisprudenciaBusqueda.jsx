@@ -13,6 +13,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import ResolucionesService from "../../services/ResolucionesService";
 import { filterForm } from "../../utils/filterForm";
+import { toast } from "react-toastify";
 
 const JurisprudenciaBusqueda = () => {
 
@@ -21,8 +22,9 @@ const JurisprudenciaBusqueda = () => {
   const { flag } = state || false;
 
   const [lastPage, setLastPage] = useSessionStorage("lastPage", 1);
-  const [actualPage, setActualPage] = useSessionStorage("actualPage", 0);
+  const [actualPage, setActualPage] = useSessionStorage("actualPage", 1);
   const [pageCount, setPageCount] = useSessionStorage("pageCount", 1);
+   const [totalCount, setTotalCount] = useSessionStorage("pageCount", 1);
   const [resoluciones, setResoluciones] = useSessionStorage("resoluciones", []);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -82,8 +84,8 @@ const JurisprudenciaBusqueda = () => {
   };
 
   const limpiarFiltros = () => {
-    setTexto("");
-    updatedFormData = {
+    
+    const updatedFormData = {
       tipo_resolucion: "all",
       sala: "all",
       magistrado: "all",
@@ -96,9 +98,9 @@ const JurisprudenciaBusqueda = () => {
     setFormData(updatedFormData);
   };
 
-  const handlePageClick = (e) => {
-    const selectedPage = Math.min(e.selected + 1, lastPage);
-    setActualPage(e.selected);
+  const handlePageClick = (page) => {
+    const selectedPage = Math.min(page, lastPage);
+    setActualPage(page);
     obtenerResoluciones(selectedPage);
   };
 
@@ -129,6 +131,9 @@ const JurisprudenciaBusqueda = () => {
     setIsLoading(true);
 
     const validPage = page && !isNaN(page) && page > 0 ? page : 1;
+    if (validPage === 1) {
+      setActualPage(1)
+    }
 
     const validatedData = filterForm({
       term: texto,
@@ -145,8 +150,9 @@ const JurisprudenciaBusqueda = () => {
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
+          setTotalCount(response.data.total)
         } else {
-          console.log("No existen datos");
+          toast.warning("No existen datos");
         }
       })
       .catch((error) => {
@@ -187,23 +193,10 @@ const JurisprudenciaBusqueda = () => {
                 </a>
               </li>
             </ul>
-            <div className="mx-5 my-3 flex gap-4 text-gray-900 rounded-lg bg-gray-50 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white border border-gray-300 dark:border-gray-600">
-              <input
-                type="search"
-                value={texto}
-                onChange={actualizarInput}
-                id="default-search"
-                className="block w-full p-4 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 dark:bg-gray-700 dark:placeholder-gray-400 dark:text-white"
-                placeholder="Buscar por termino de busqueda..."
-                required
-              />
-              <div className="inset-y-0 start-0 flex items-center pe-3 pointer-events-none">
-                <ImSearch className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              </div>
-            </div>
+
           </div>
 
-          <div className={`p-4 m-4 ${activo ? " " : "hidden"}`}>
+          <div className={`p-4 m-4 custom:m-0`}>
             <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data &&
                 Object.entries(data).map(([key, items]) => (
@@ -256,32 +249,15 @@ const JurisprudenciaBusqueda = () => {
               />
             </div>
 
-            {/* <div>
-              <AsyncButton
-                asyncFunction={generarPdf}
-                isLoading={isLoadingPDF}
-                name="Generar Pdf"
-                Icon={FaFilePdf}
-              />
-            </div> */}
-
-            {/* <button
+            <button
               type="button"
               onClick={() => limpiarFiltros()}
               className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 rounded-lg text-center  dark:focus:ring-blue-800"
             >
               <MdCleaningServices className="w-3.5 h-3.5 text-white me-2" />
               Limpiar
-            </button> */}
-
-            <button
-              type="button"
-              onClick={() => setActivo((prev) => !prev)}
-              className="px-5 py-2.5 text-sm font-medium text-white inline-flex items-center bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 rounded-lg text-center  dark:focus:ring-blue-800"
-            >
-              <FaFilter className="w-3.5 h-3.5 text-white me-2" />
-              {activo ? "Ocultar" : "Mostrar"}
             </button>
+
           </div>
         </div>
       </div>
@@ -290,8 +266,7 @@ const JurisprudenciaBusqueda = () => {
         {resoluciones.length > 0 && (
           <>
             <PaginationData
-              data={resoluciones}
-              {...(texto.length > 2 ? { resumen: true } : {})}
+              data={resoluciones}             
               setFormData={setSearchType}
             />
 
@@ -299,7 +274,9 @@ const JurisprudenciaBusqueda = () => {
               handlePageClick={handlePageClick}
               pageCount={pageCount}
               actualPage={actualPage}
-            ></Paginate>
+              totalCount={totalCount}
+              lastPage={lastPage}
+            />
           </>
         )}
       </div>

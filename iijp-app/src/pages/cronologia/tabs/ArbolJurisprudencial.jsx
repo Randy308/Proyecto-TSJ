@@ -39,13 +39,14 @@ const ArbolJurisprudencial = ({ currentID, setCurrentID, arbol, setArbol }) => {
       </div>
     );
   }
+
   return (
     <div className="m-2 p-2 custom:p-0 custom:m-0">
       <div className="slider-container">
         {temas &&
           temas.map((tema) => (
             <div
-              className="p-4 text-white  custom:text-xs text-center titulo rounded-lg materia-div bg-red-octopus-700  dark:bg-blue-500 dark:hover:bg-blue-700 hover:bg-red-octopus-900 hover:cursor-pointer"
+              className="p-4 text-white  text-xs text-center titulo rounded-lg materia-div bg-red-octopus-700  dark:bg-blue-500 dark:hover:bg-blue-700 hover:bg-red-octopus-900 hover:cursor-pointer max-w-[300px]"
               key={tema.id}
               id={tema.id}
               onClick={() => setCurrentID(tema.id)}

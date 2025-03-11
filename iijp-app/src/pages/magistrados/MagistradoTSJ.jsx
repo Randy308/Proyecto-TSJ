@@ -12,6 +12,9 @@ import Mapa from "./analisis/Mapa";
 import AnalisisMagistrado from "./analisis/AnalisisMagistrado";
 import MagistradoService from "../../services/MagistradoService";
 const MagistradoTSJ = () => {
+
+  const endpoint = process.env.REACT_APP_IMAGE_SERVER;
+
   const { id } = useParams();
   const [magistrado, setMagistrado] = useState([]);
   const [activeTab, setActiveTab] = useState(1);
@@ -199,18 +202,26 @@ const MagistradoTSJ = () => {
   return (
     <div className="container mx-auto border border-gray-300 rounded-lg p-4 mt-4 ">
       <div className="flex flex-row gap-4 p-4">
-        <div className="flex justify-end">
-          <ImUserTie className="w-[120px] h-[120px] custom:w-[90px] custom:h-[90px] dark:text-white rounded-lg" />
+        <div>
+          {magistrado.ruta_imagen ? (
+            <img
+              className="rounded-lg shadow-md w-[120px] h-[120px] custom:w-[90px] custom:h-[90px]"
+              src={endpoint +"/"+magistrado.ruta_imagen}
+              alt="Vista previa"
+            />
+          ) : (
+            <ImUserTie className="w-[120px] h-[120px] custom:w-[90px] custom:h-[90px] dark:text-white rounded-lg" />
+          )}
         </div>
         <div>
           <span
             className="bg-red-octopus-50 text-red-octopus-900 text-md font-semibold px-2.5 
-          py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ms-3 mb-4 titulo"
+          py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ms-3 mb-4 titulo custom:text-sm"
           >
             Magistrado Relator
           </span>
 
-          <h1 className="my-2 ms-3 uppercase text-3xl font-semibold tracking-tight text-gray-900 dark:text-white">
+          <h1 className="my-2 ms-3 uppercase text-3xl font-semibold tracking-tight text-gray-900 dark:text-white custom:text-sm">
             {magistrado.nombre}
           </h1>
         </div>

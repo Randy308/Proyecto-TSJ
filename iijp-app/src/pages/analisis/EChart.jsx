@@ -24,13 +24,14 @@ const EChart = ({ contenido }) => {
       text: "Cantidad de resoluciones por departamento",
       subtext: "Datos de TSJ Bolivia",
       left: "center",
+      top: "5%",
       textStyle: {
-        fontSize: 18,
+        fontSize: Math.max(12, window.innerWidth * 0.015),
         fontWeight: "bold",
         color: "#333",
       },
       subtextStyle: {
-        fontSize: 12,
+        fontSize: Math.max(10, window.innerWidth * 0.01),
         color: "#666",
       },
     },
@@ -76,7 +77,7 @@ const EChart = ({ contenido }) => {
       show: true,
       orient: "vertical",
       left: "left",
-      top: "top",
+      top: "12%",
       feature: {
         saveAsImage: {
           title: "Guardar como imagen",

@@ -8,6 +8,7 @@
 
 .arrow-steps .step {
   font-size: 11px;
+  max-width: 200px;
   text-align: center;
   color: #777;
   cursor: default;
@@ -184,5 +185,6 @@ input.form-control {
   }
   .arrow-steps .step {
     font-size: 8px;
+      padding: 10px 20px;
   }
 }

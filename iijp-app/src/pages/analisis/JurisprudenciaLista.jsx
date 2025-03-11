@@ -85,11 +85,19 @@ const JurisprudenciaLista = () => {
         left: "center",
         top: "5%",
         text: "Cantidad de Autos supremos por periodo",
+        textStyle: {
+          fontSize: Math.max(12, window.innerWidth * 0.015), // Ajusta según el tamaño de la pantalla
+          fontWeight: "bold",
+        },
       },
       {
         top: "55%",
         left: "center",
         text: "Cantidad de Jurisprudencia por periodo",
+        textStyle: {
+          fontSize: Math.max(12, window.innerWidth * 0.015), // Ajusta según el tamaño de la pantalla
+          fontWeight: "bold",
+        },
       },
     ],
     tooltip: {
@@ -142,8 +150,8 @@ const JurisprudenciaLista = () => {
 
   return (
     <div className="lista-analisis flex flex-col items-center justify-center py-4 my-4">
-      <div className="roboto-condensed text-3xl font-bold uppercase mb-4">Principales indicadores</div>
-      <div className="flex flex-row gap-2 items-center justify-center p-4 mb-4">
+      <div className="roboto-condensed text-3xl font-bold uppercase mb-4 text-center">Principales indicadores</div>
+      <div className="flex flex-row flex-wrap gap-2 items-center justify-center p-4 mb-4">
         {jurisprudenciaItems.map((item) => (
           <Link to={item.path} key={item.id}>
             <div

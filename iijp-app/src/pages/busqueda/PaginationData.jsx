@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "../../styles/tabla.css";
 import Cabecera from "../../components/tables/Cabecera";
 import { Link } from "react-router-dom";
-const PaginationData = ({ data, setFormData, resumen=false }) => {
+const PaginationData = ({ data, setFormData }) => {
   const listaCabeceras = [
     {
       id: 1,
@@ -51,12 +51,7 @@ const PaginationData = ({ data, setFormData, resumen=false }) => {
               ></Cabecera>
             ))}
 
-            {resumen && (
-              <th scope="col" key={69} className="px-6 py-3">
-                Resumen
-              </th>
-            )}
-            <th scope="col" key={6} className="px-6 py-3">
+            <th scope="col" className="px-6 py-3">
               Acción
             </th>
           </tr>
@@ -76,7 +71,6 @@ const PaginationData = ({ data, setFormData, resumen=false }) => {
               <td className="px-6 py-4">{item.nro_resolucion}</td>
               <td className="px-6 py-4">{item.departamento}</td>
               <td className="px-6 py-4">{item.sala}</td>
-              {resumen && <td className="px-6 py-4">{item.resumen}</td>}
               <td className="px-6 py-4">
                 <Link
                   to={`/jurisprudencia/resolucion/${item.id}`}

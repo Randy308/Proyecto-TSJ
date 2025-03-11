@@ -252,8 +252,8 @@ const MyNavbar = () => {
             />
           </a>
           <div className="flex items-center space-x-6 rtl:space-x-reverse">
-            <p className="text-sm  text-white dark:text-white">
-              ESTA PÁGINA SE ENCUENTRA EN CONSTRUCCIÓN.
+            <p className="text-xs text-center  text-white dark:text-white max-w-[150px]">
+              ESTA PÁGINA SE ENCUENTRA EN CONSTRUCCIÓN
             </p>
           </div>
         </div>
