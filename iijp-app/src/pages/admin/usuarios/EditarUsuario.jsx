@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import AuthUser from "../../auth/AuthUser";
+import AuthUser from "../../../auth/AuthUser";
 import axios from "axios";
-import UserService from "../../services/UserService";
-import Loading from "../../components/Loading";
+import UserService from "../../../services/UserService";
+import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useRoleContext } from "../../context/roleContext";
-import { useUserContext } from "../../context/userContext";
+import { useRoleContext } from "../../../context/roleContext";
+import { useUserContext } from "../../../context/userContext";
 
 const EditarUsuario = ({ id, setShowModal }) => {
   const { getToken, can } = AuthUser();

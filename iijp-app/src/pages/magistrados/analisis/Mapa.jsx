@@ -61,10 +61,10 @@ const Mapa = ({ contenido, id, setDepartamentos }) => {
     if (contenido && contenido.length > 0) {
       const totalCounts = { "Departamento": "Total" };
 
-     const processedData = contenido.map((item) => ({
-       Departamento: item.name,
-       Cantidad: item.value,
-     }));
+      const processedData = contenido.map((item) => ({
+        Departamento: item.name,
+        Cantidad: item.value,
+      }));
 
       processedData.forEach((entry) => {
         Object.keys(entry).forEach((key) => {
@@ -108,6 +108,7 @@ const Mapa = ({ contenido, id, setDepartamentos }) => {
             maxDate={maxDate}
             onChange={handleDateChange}
           />
+         
         </div>
         <div className="flex items-center gap-1 flex-wrap">
           <AsyncButton

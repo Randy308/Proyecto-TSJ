@@ -12,6 +12,12 @@ class Mapeos extends Model
         'external_id',
         'resolution_id'
     ];
+    
+    
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
     public function resolution()
     {
         return $this->belongsTo(Resolutions::class);

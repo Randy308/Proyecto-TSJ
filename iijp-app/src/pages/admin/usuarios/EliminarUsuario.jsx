@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import AuthUser from "../../auth/AuthUser";
+import AuthUser from "../../../auth/AuthUser";
 import axios from "axios";
 import { FaUser } from "react-icons/fa";
-import UserService from "../../services/UserService";
+import UserService from "../../../services/UserService";
 import { ImWarning } from "react-icons/im";
-import Loading from "../../components/Loading";
+import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useUserContext } from "../../context/userContext";
+import { useUserContext } from "../../../context/userContext";
 const EliminarUsuario = ({ id, setShowModal }) => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();

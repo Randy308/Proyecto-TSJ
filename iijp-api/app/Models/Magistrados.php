@@ -12,6 +12,12 @@ class Magistrados extends Model
         'nombre',
         'ruta_imagen'
     ];
+    
+    
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
     public function resolutions()
     {
         return $this->hasMany(Resolutions::class);

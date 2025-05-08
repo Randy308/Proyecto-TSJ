@@ -8,7 +8,7 @@ const ListaMagistrados = () => {
   return (
     <div className="p-4 m-4 mx-auto custom:mx-0">
       <div className="flex">
-        <span className="font-extrabold text-3xl titulo uppercase dark:text-white py-4">
+        <span className="font-extrabold text-2xl md:text-3xl text-center titulo uppercase dark:text-white py-4">
           Lista de Magistrados
         </span>
       </div>

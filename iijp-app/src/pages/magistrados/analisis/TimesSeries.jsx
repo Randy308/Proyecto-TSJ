@@ -1,7 +1,7 @@
 import Loading from "../../../components/Loading";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MagistradoChart from "../MagistradoChart";
-import { TiZoomOut } from "react-icons/ti";
+import { ImZoomOut } from "react-icons/im";
 const TimesSeries = ({ setValor, resoluciones, recorrerLista }) => {
   const [abscisas, setAbscisas] = useState([]);
   const [data, setData] = useState([]);
@@ -74,28 +74,11 @@ const TimesSeries = ({ setValor, resoluciones, recorrerLista }) => {
       },
     },
   };
-  const containerRef = useRef(null);
-  const iconRef = useRef(null);
-  const handleShowList = () => {
-    if (containerRef.current && iconRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const listaHeight = iconRef.current.offsetHeight;
-      const listaWidth = iconRef.current.offsetWidth;
-
-      iconRef.current.style.top = `${rect.bottom - 10 - listaHeight}px`;
-      iconRef.current.style.left = `${
-        rect.left + rect.width - 10 - listaWidth
-      }px`;
-    }
-  };
-  useEffect(() => {
-    handleShowList();
-  }, []);
-
+ 
   return (
     <div
-      ref={containerRef}
-      className=" h-[600px] static border border-gray-300 p-4 m-4 custom:p-2 custom:m-0 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]"
+      
+      className="relative h-[600px] border border-gray-300 p-4 m-4 custom:p-2 custom:m-0 rounded-xl shadow-lg bg-white dark:bg-[#100C2A]"
     >
       {data.length > 0 ? (
         <MagistradoChart option={option} setData={setValor} />
@@ -105,10 +88,10 @@ const TimesSeries = ({ setValor, resoluciones, recorrerLista }) => {
 
       <button
         onClick={() => recorrerLista(true)}
-        ref={iconRef}
-        className="flex absolute items-center bg-white hover:bg-gray-100 text-gray-800 font-semibold p-2 border border-gray-400 rounded shadow"
+        
+        className="absolute -bottom-0 -right-0 flex items-center bg-white hover:bg-gray-100 text-gray-800 font-semibold m-2 border border-gray-400 rounded shadow p-2"
       >
-        <TiZoomOut className="w-5 h-5" />
+        <ImZoomOut className="w-5 h-6" />
       </button>
     </div>
   );

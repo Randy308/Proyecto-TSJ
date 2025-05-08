@@ -15,12 +15,12 @@ export const cronologiaItems = [
     icon: (className) => <FaClipboardList className={className} />,
     componente:  (className, props) => <LuPencilRuler {...props} />,
   },
-  // {
-  //   id: 3,
-  //   title: "Diseño",
-  //   icon: (className) => <LuPencilRuler className={className} />,
-  //   componente:  (className, props) => <LuPencilRuler {...props} />,
-  // },
+  {
+    id: 3,
+    title: "Resoluciones",
+    icon: (className) => <LuPencilRuler className={className} />,
+    componente:  (className, props) => <LuPencilRuler {...props} />,
+  },
   {
     id: 4,
     title: "Tipografía",

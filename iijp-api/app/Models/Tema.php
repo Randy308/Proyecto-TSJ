@@ -5,13 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Salas extends Model
+class Tema extends Model
 {
     use HasFactory;
-
     protected $fillable = [
-        'nombre'
+        'nombre',
+        'tema_id',
     ];
+
+    public function tema()
+    {
+        return $this->belongsTo(Tema::class, 'tema_id');
+    }
+
+    public function temas()
+    {
+        return $this->hasMany(Tema::class, 'tema_id');
+    }
 
     public function resolutions()
     {

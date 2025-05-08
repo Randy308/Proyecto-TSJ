@@ -2,6 +2,7 @@
   --mainColor: #450920;
   --secondaryColor: #fff;
   --secondaryFontColor: #eaf8bf;
+  --second : #7C5962
 }
 
 #navbar-submenu {
@@ -9,7 +10,7 @@
   background: linear-gradient(
     107deg,
     rgba(169, 97, 112, 1) 0%,
-    rgba(137, 41, 67, 1) 24%,
+    rgb(137, 41, 67) 24%,
     rgb(111, 57, 72) 100%
   );
 }
@@ -23,7 +24,3 @@ div#parent-container.dark-theme #navbar-submenu {
   );
 }
 
-#navbar-principal .active {
-  color: var(--mainColor);
-  text-decoration: underline;
-}

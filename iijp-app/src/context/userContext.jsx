@@ -6,12 +6,14 @@ export const UserContext = createContext();
 
 export const UserContextProvider = ({ children }) => {
   const { getToken, hasAnyPermission } = AuthUser();
+  const token = getToken();
   const [users, setUsers] = useState([]);
-  const [lastPage, setLastPage] = useState(1);
+  const [current, setCurrent] = useState(1);
   const [totalUser, setTotalUsers] = useState(0);
   const [pageCount, setPageCount] = useState(1);
 
   useEffect(() => {
+    if (!token) return;
     if (
       hasAnyPermission([
         "ver_rol",
@@ -25,14 +27,15 @@ export const UserContextProvider = ({ children }) => {
     ) {
       obtenerUsers(1);
     }
-  }, []);
+  }, [token]);
 
   const obtenerUsers = async (page) => {
     try {
       const { data } = await UserService.getAllUsers(getToken(), page);
       if (Array.isArray(data.data)) {
         setUsers(data.data);
-        setLastPage(data.last_page);
+        setCurrent(data.current_page);
+        
         setPageCount(data.last_page);
         setTotalUsers(data.total);
       } else {
@@ -45,7 +48,7 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
-  const valor = { users, lastPage, totalUser, pageCount, obtenerUsers };
+  const valor = { users, totalUser, pageCount, current, obtenerUsers };
 
   return <UserContext.Provider value={valor}>{children}</UserContext.Provider>;
 };

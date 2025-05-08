@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('magistrados', function (Blueprint $table) {
-            $table->string('ruta_imagen')->nullable(); // Agregar la columna
+        Schema::create('tipo_jurisprudencias', function (Blueprint $table) {
+            $table->id();
+            $table->string('nombre');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('magistrados', function (Blueprint $table) {
-            $table->dropColumn('ruta_imagen'); // Eliminar la columna
-        });
+        Schema::dropIfExists('tipo_jurisprudencias');
     }
 };

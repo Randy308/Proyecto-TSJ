@@ -2,6 +2,7 @@ import React from "react";
 import AuthUser from "../../auth/AuthUser";
 import Post from "../publicaciones/Post";
 import Magistrados from "./Magistrados/Magistrados";
+import Sidebar from "../../components/Sidebar";
 
 
 const PanelAdmin = () => {
@@ -49,16 +50,16 @@ const PanelAdmin = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <Magistrados/>
-      </div>
-    <div className="grid grid-cols-1 gap-2 p-4">
+    <div className="p-4">
+    <div className="lg:col-span-2">
+      <Magistrados />
+    </div>
+    <div className="grid grid-cols-1 gap-2">
       {permissions.map(
         (permission) =>
           can(permission) && (
             <div
-              className="flex items-center justify-center rounded bg-gray-50 h-28 dark:bg-gray-800"
+              className="flex items-center justify-center rounded bg-gray-50 h-20 dark:bg-gray-800"
               key={permission}
             >
               <p className="text-sm text-black dark:text-white">
@@ -68,7 +69,8 @@ const PanelAdmin = () => {
           )
       )}
     </div>
-    </div>
+
+  </div>
 
   );
 };

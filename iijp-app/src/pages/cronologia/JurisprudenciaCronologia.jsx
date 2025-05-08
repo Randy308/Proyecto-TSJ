@@ -12,6 +12,9 @@ import { FaInfo } from "react-icons/fa";
 import JurisprudenciaService from "../../services/JurisprudenciaService";
 import { filterForm } from "../../utils/filterForm";
 import { GoDotFill } from "react-icons/go";
+import Resoluciones from "./tabs/Resoluciones";
+import { set } from "date-fns";
+import { use } from "react";
 
 const JurisprudenciaCronologia = () => {
   const [currentID, setCurrentID] = useState(null);
@@ -31,6 +34,7 @@ const JurisprudenciaCronologia = () => {
     seccion: false,
   });
   const [activador, setActivador] = useState(false);
+  const [ids, setIds] = useState([]);
   const [errorBusqueda, setErrorBusqueda] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -73,13 +77,10 @@ const JurisprudenciaCronologia = () => {
   };
 
   const actualizarTab = (id) => {
-    if (id != 1) {
-      if (arbol.length > 0) {
-        setActivador((prev) => !prev);
-      } else {
-        toast.warning("Debe seleccionar una materia");
-        return;
-      }
+
+    if (id != 1 && arbol.length <= 0) {
+      toast.warning("Seleccione una materia primero");
+      return
     }
 
     if (tabActivo != id) {
@@ -87,6 +88,31 @@ const JurisprudenciaCronologia = () => {
     }
   };
 
+
+  useEffect(() => {
+
+    switch (tabActivo) {
+      case 1:
+        console.log("Arbol Jurisprudencial");
+        return
+      case 2:
+        console.log("Datos Esenciales"); 
+        if (arbol.length > 0) {
+          getParams();
+        }
+        return
+      case 3:
+        console.log("Resoluciones"); 
+        return
+      case 4:
+        console.log("Tipografia"); 
+        return
+
+      default:
+        console.log("Hola mundo"); 
+        return
+    }
+  }, [currentID, tabActivo]);
   const getParams = async () => {
     const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
 
@@ -100,6 +126,7 @@ const JurisprudenciaCronologia = () => {
           [departamentos, salas, tipo_resolucions].some((arr) => arr.length > 0)
         ) {
           setResultado(data);
+          setIds(data.ids);
         } else {
           alert("No existen datos");
         }
@@ -110,7 +137,37 @@ const JurisprudenciaCronologia = () => {
       });
   };
 
-  const actualizarNodos = async (descriptor) => {
+  const obtenerResoluciones = async (page = 1) => {
+
+
+    const validPage = page && !isNaN(page) && page > 0 ? page : 1;
+    const validatedData = filterForm({
+      ids: ids,
+      page: validPage,
+    });
+
+    JurisprudenciaService.obtenerResoluciones(validatedData)
+      .then(({ data }) => {
+        if (data.data.length > 0) {
+          setResoluciones(data.data);
+          setLastPage(data.last_page);
+          setPageCount(data.last_page);
+          setTotalCount(data.total)
+        } else {
+          toast.warning("No existen datos");
+        }
+
+      })
+      .catch((error) => {
+        const message = error.response?.data?.error || "Ocurrió un error";
+        console.error("Error fetching data:", message);
+      })
+      .finally(() => {
+
+      });
+  };
+  
+  const actualizarNodos = async (descriptor, ids) => {
     try {
       JurisprudenciaService.actualizarNodo({
         busqueda: descriptor,
@@ -121,6 +178,7 @@ const JurisprudenciaCronologia = () => {
             setArbol(data.nodos);
             setCurrentID(data.last);
             setResultados([]);
+            setIds(ids);
           }
         })
         .catch(({ err }) => {
@@ -151,6 +209,8 @@ const JurisprudenciaCronologia = () => {
         })
         .catch(({ err }) => {
           console.log("Existe un error " + err);
+          setErrorBusqueda("No se encontraron resultados");
+          setResultados([]);
         });
     } catch (error) {
       const message = error.response?.data?.error || "Ocurrió un error";
@@ -196,11 +256,7 @@ const JurisprudenciaCronologia = () => {
       });
   };
 
-  useEffect(() => {
-    if (activador && arbol.length > 0) {
-      getParams();
-    }
-  }, [activador, arbol]);
+
 
   const renderContent = (id) => {
     switch (id) {
@@ -214,7 +270,7 @@ const JurisprudenciaCronologia = () => {
                   id="voice-search"
                   value={busqueda}
                   onChange={(e) => actualizarInput(e)}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Buscar en el árbol jurisprudencial...."
                   required
                 />
@@ -259,7 +315,7 @@ const JurisprudenciaCronologia = () => {
                       <div
                         className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 hover:dark:bg-gray-700 hover:bg-gray-200 rounded-md p-3 my-2 cursor-pointer transition-all ease-in-out duration-200"
                         key={index}
-                        onClick={() => actualizarNodos(item.descriptor)}
+                        onClick={() => actualizarNodos(item.descriptor, item.ids)}
                       >
                         <span className="text-black font-semibold dark:text-white ">
                           {item.descriptor}
@@ -292,6 +348,9 @@ const JurisprudenciaCronologia = () => {
         );
       case 4:
         return <Tipografia />;
+
+      case 3:
+        return <Resoluciones ids={ids} />
       default:
         return "Hola mundo";
     }
@@ -306,9 +365,8 @@ const JurisprudenciaCronologia = () => {
           </p>
           <div className="flex-row gap-1 flex-wrap arrow-steps my-4 hidden md:flex">
             <div
-              className={`step custom:text-xs roboto-medium flex items-center ${
-                tabActivo === 1 ? "activo" : "noactivo"
-              }`}
+              className={`step custom:text-xs roboto-medium flex items-center ${tabActivo === 1 ? "activo" : "noactivo"
+                }`}
               key={0}
               onClick={() => vaciarNodo()}
             >
@@ -317,9 +375,8 @@ const JurisprudenciaCronologia = () => {
             {arbol &&
               arbol.map((tema) => (
                 <div
-                  className={`step roboto-medium flex items-center ${
-                    tema.id === arbol[arbol.length - 1].id ? "current" : ""
-                  } ${tabActivo === 1 ? "activo" : "noactivo"}`}
+                  className={`step roboto-medium flex items-center ${tema.id === arbol[arbol.length - 1].id ? "current" : ""
+                    } ${tabActivo === 1 ? "activo" : "noactivo"}`}
                   key={tema.id}
                   id={tema.id}
                   onClick={() => eliminarNodo(tema.id)}
@@ -345,11 +402,10 @@ const JurisprudenciaCronologia = () => {
             {arbol &&
               arbol.map((tema, index) => (
                 <div
-                  className={`flex items-center gap-2 text-sm relative z-10 ${
-                    tema.id === arbol[arbol.length - 1].id
-                      ? "current text-blue-500"
-                      : "text-gray-500"
-                  } ${tabActivo === 1 ? "activo" : "noactivo"}`}
+                  className={`flex items-center gap-2 text-sm relative z-10 ${tema.id === arbol[arbol.length - 1].id
+                    ? "current text-blue-500"
+                    : "text-gray-500"
+                    } ${tabActivo === 1 ? "activo" : "noactivo"}`}
                   key={tema.id}
                   id={tema.id}
                   onClick={() => eliminarNodo(tema.id)}
@@ -373,19 +429,17 @@ const JurisprudenciaCronologia = () => {
             <li key={item.id}>
               <a
                 href="#"
-                className={`inline-flex items-center px-4 py-3 rounded-lg w-full ${
-                  item.id == tabActivo
-                    ? "text-white bg-red-octopus-500  active dark:bg-blue-600"
-                    : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
-                }`}
+                className={`inline-flex items-center px-4 py-3 rounded-lg w-full ${item.id == tabActivo
+                  ? "text-white bg-red-octopus-500  active dark:bg-blue-600"
+                  : "hover:text-gray-900 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:hover:text-white"
+                  }`}
                 aria-current="page"
                 onClick={() => actualizarTab(item.id)}
               >
                 {item.icon(
-                  `w-4 h-4 me-2 ${
-                    item.id === tabActivo
-                      ? "text-white"
-                      : "text-gray-500 dark:text-gray-400"
+                  `w-4 h-4 me-2 ${item.id === tabActivo
+                    ? "text-white"
+                    : "text-gray-500 dark:text-gray-400"
                   }`
                 )}
                 {item.title}
@@ -405,9 +459,8 @@ const JurisprudenciaCronologia = () => {
         {cronologiaItems.map((item) => (
           <div
             key={item.id}
-            className={`p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full ${
-              item.id === tabActivo ? "" : "hidden"
-            }`}
+            className={`p-6 bg-gray-50 text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg w-full ${item.id === tabActivo ? "" : "hidden"
+              }`}
           >
             {renderContent(item.id)}
           </div>

@@ -205,7 +205,7 @@ const MagistradoTSJ = () => {
         <div>
           {magistrado.ruta_imagen ? (
             <img
-              className="rounded-lg shadow-md w-[120px] h-[120px] custom:w-[90px] custom:h-[90px]"
+              className="rounded-lg object-cover shadow-md w-[120px] h-[120px] custom:w-[90px] custom:h-[90px]"
               src={endpoint +"/"+magistrado.ruta_imagen}
               alt="Vista previa"
             />

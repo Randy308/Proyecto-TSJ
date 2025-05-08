@@ -7,8 +7,9 @@ export const PermissionContext = createContext();
 export const PermissionContextProvider = ({ children }) => {
   const { getToken, hasAnyPermission } = AuthUser();
   const [permisos, setPermisos] = useState([]);
-
+  const token = getToken();
   useEffect(() => {
+    if (!token) return;
     if (
       hasAnyPermission([
         "ver_rol",
@@ -22,7 +23,7 @@ export const PermissionContextProvider = ({ children }) => {
     ) {
       obtenerPermisos();
     }
-  }, []);
+  }, [token]);
 
   const obtenerPermisos = async () => {
     try {

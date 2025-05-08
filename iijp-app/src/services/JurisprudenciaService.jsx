@@ -40,6 +40,10 @@ const JurisprudenciaService = {
     instance.get("/obtener-nodos", {
       params: jurisprudenciaData,
     }),
+  obtenerResoluciones: (jurisprudenciaData) =>
+    instance.get("/obtener-resoluciones-cronologia", {
+      params: jurisprudenciaData,
+    }),
 };
 
 export default JurisprudenciaService;

@@ -14,10 +14,10 @@ import { useSessionStorage } from "../../hooks/useSessionStorage";
 import ResolucionesService from "../../services/ResolucionesService";
 import { filterForm } from "../../utils/filterForm";
 import { toast } from "react-toastify";
+import { useVariablesContext } from "../../context/variablesContext";
 
 const JurisprudenciaBusqueda = () => {
 
-  const [activo, setActivo] = useState(true);
   const { state } = useLocation();
   const { flag } = state || false;
 
@@ -25,19 +25,15 @@ const JurisprudenciaBusqueda = () => {
   const [actualPage, setActualPage] = useSessionStorage("actualPage", 1);
   const [pageCount, setPageCount] = useSessionStorage("pageCount", 1);
    const [totalCount, setTotalCount] = useSessionStorage("pageCount", 1);
-  const [resoluciones, setResoluciones] = useSessionStorage("resoluciones", []);
+  const [resoluciones, setResoluciones] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const [data, setData] = useSessionStorage("data", {});
-  const [hasFetchedData, setHasFetchedData] = useSessionStorage(
-    "hasFetchedData",
-    false
-  );
+  const {data} = useVariablesContext();
 
   const [searchType, setSearchType] = useState(null);
 
-  const [formData, setFormData] = useSessionStorage("formData", {
+  const [formData, setFormData] = useState( {
     tipo_resolucion: "all",
     sala: "all",
     magistrado: "all",
@@ -104,22 +100,6 @@ const JurisprudenciaBusqueda = () => {
     obtenerResoluciones(selectedPage);
   };
 
-  useEffect(() => {
-    if (!hasFetchedData) {
-      getSelect();
-    }
-  }, []);
-
-  const getSelect = async () => {
-    ResolucionesService.obtenerParametros()
-      .then(({ data }) => {
-        setData(data);
-        setHasFetchedData(true);
-      })
-      .catch((error) => {
-        console.error("Error al realizar la solicitud:", error);
-      });
-  };
 
   useEffect(() => {
     if (searchType) {
@@ -145,12 +125,12 @@ const JurisprudenciaBusqueda = () => {
       ...validatedData,
       page: validPage,
     })
-      .then((response) => {
-        if (response.data.data.length > 0) {
-          setResoluciones(response.data.data);
-          setLastPage(response.data.last_page);
-          setPageCount(response.data.last_page);
-          setTotalCount(response.data.total)
+      .then(({data}) => {
+        if (data.data.length > 0) {
+          setResoluciones(data.data);
+          setLastPage(data.last_page);
+          setPageCount(data.last_page);
+          setTotalCount(data.total)
         } else {
           toast.warning("No existen datos");
         }
@@ -189,7 +169,7 @@ const JurisprudenciaBusqueda = () => {
                   className="inline-block w-full p-4 text-gray-900 bg-gray-100 border-r border-gray-200 dark:border-gray-700 rounded-s-lg focus:ring-4 focus:ring-blue-300 active focus:outline-none dark:bg-gray-700 dark:text-white"
                   aria-current="page"
                 >
-                  Busqueda de Resoluciones
+                  Búsqueda de Resoluciones
                 </a>
               </li>
             </ul>

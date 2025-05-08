@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\NotificationController;
 use App\Http\Controllers\Api\Admin\PermissionController;
 use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\ArimaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CompareController;
+use App\Http\Controllers\Api\DescriptorController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\JurisprudenciasController;
 use App\Http\Controllers\Api\MagistradosController;
@@ -14,7 +16,6 @@ use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
 use App\Http\Controllers\Api\TemaController;
 use App\Http\Controllers\Api\User\TimeSeriesController;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,11 +35,14 @@ Route::prefix('v2')->group(function () {
 
     #rutas validadas
 
+    Route::get('/obtener-variables', [ResolutionController::class, 'obtenerVariables']);
+    
+    Route::get('/obtener-estadisticas', [ResolutionController::class, 'obtenerEstadisticas']);
     //rutas estadísticas básicas para magistrado
     Route::get('/obtener-historico', [ResolutionController::class, 'index']);
     Route::get('/magistrados', [MagistradosController::class, 'index']);
     Route::get('/obtener-datos-magistrado/{id}', [MagistradosController::class, 'obtenerDatos']);
-    Route::get('/magistrado-estadisticas-departamentos/{id}', [MagistradosController::class, 'obtenerResolucionesDepartamento']);
+    Route::get('/magistrado-estadisticas-departamentos/{id}', [MagistradosController::class, 'getByDepartamento']);
     Route::get('/obtener-paramentros-magistrado', [MagistradosController::class, 'magistradosParamentros']);
     Route::get('/magistrado-estadisticas-xy', [MagistradosController::class, 'obtenerEstadisticasXY']);
     Route::get('/magistrado-estadisticas-x', [MagistradosController::class, 'obtenerEstadisticasX']);
@@ -77,7 +81,7 @@ Route::prefix('v2')->group(function () {
     Route::post('/obtener-cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
     Route::get('/obtener-parametros-cronologia', [TemaController::class, 'obtenerParametrosCronologia']);
     Route::get('/obtener-nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
-
+    Route::get('/obtener-resoluciones-cronologia', [TemaController::class, 'obtenerResolucionesCronologia']);  
 
 
     //rutas admin
@@ -101,7 +105,12 @@ Route::prefix('v2')->group(function () {
         Route::post('/subir-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
 
         Route::post('/buscar-nuevas-resoluciones', [ResolutionController::class, 'buscarResolucionesTSJ']);
-        Route::post('/obtencion-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);
+        Route::post('/obtener-resoluciones', [ResolutionController::class, 'obtenerResolucionesTSJ']);
+
+
+        Route::get('/obtener-no-leidas', [NotificationController::class, 'unread']);
+        Route::get('/notificaciones', [NotificationController::class, 'index']);
+        Route::put('/actualizar-notificacion/{id}', [NotificationController::class, 'update']);
     });
 
 
@@ -119,6 +128,9 @@ Route::prefix('v2')->group(function () {
 
 
 
+    #rutas de prueba
+    Route::get('/obtener-filtros-resoluciones', [ResolutionController::class, 'obtenerOpciones']);
+    ROute::get('/test',[DescriptorController::class, 'test']);
 
 
 

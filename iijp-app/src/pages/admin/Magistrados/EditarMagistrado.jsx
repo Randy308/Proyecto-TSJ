@@ -6,6 +6,8 @@ import NameInput from "../../../components/form/NameInput";
 import AuthUser from "../../../auth/AuthUser";
 import { useMagistradosContext } from "../../../context/magistradosContext";
 import MagistradoService from "../../../services/MagistradoService";
+import Loading from "../../../components/Loading";
+import { toast } from "react-toastify";
 
 const EditarMagistrado = ({ id, setShowModal }) => {
   const { getToken } = AuthUser();
@@ -67,19 +69,21 @@ const EditarMagistrado = ({ id, setShowModal }) => {
       );
 
       if (data) {
-        console.log("Información actualizada:", data.message);
-        console.log(data);
+        setShowModal(false);
+        toast.success(
+          "La información del magistrado se ha actualizado exitosamente"
+        );
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
     }
   };
+  if (name === "") {
+    return <Loading></Loading>
+  }
 
   return (
     <div className="pt-4 mt-4">
-      <h2 className="text-center text-black dark:text-white text-4xl font-bold">
-        Crear Publicación
-      </h2>
       <form
         onSubmit={submitForm}
         encType="multipart/form-data"
@@ -90,7 +94,7 @@ const EditarMagistrado = ({ id, setShowModal }) => {
           setInput={setName}
           inputError={nameError}
           setInputError={setNameError}
-          titulo="Título"
+          titulo="Nombre"
         />
 
         <label
@@ -120,11 +124,10 @@ const EditarMagistrado = ({ id, setShowModal }) => {
         <button
           type="submit"
           disabled={checkFields()}
-          className={`text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 ${
-            checkFields()
+          className={` mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 ${checkFields()
               ? "bg-gray-300 cursor-not-allowed hover:bg-gray-300"
               : ""
-          }`}
+            }`}
         >
           Guardar
         </button>

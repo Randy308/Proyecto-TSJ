@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import MyNavbar from "../components/MyNavbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import AuthUser from "../auth/AuthUser";
+import Sidebar from "../components/Sidebar";
 
 const LayoutAdmin = () => {
   const { rol } = AuthUser();
@@ -15,7 +16,7 @@ const LayoutAdmin = () => {
 
   return (
     <>
-      <MyNavbar></MyNavbar>
+      <Sidebar/>
       <Outlet></Outlet>
 
     </>

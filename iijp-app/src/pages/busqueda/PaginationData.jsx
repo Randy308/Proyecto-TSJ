@@ -35,7 +35,7 @@ const PaginationData = ({ data, setFormData }) => {
     <div className="relative overflow-x-auto">
       <table
         className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border
-         border-gray-300 dark:border-gray-600 rounded-lg p-4"
+         border-gray-300 dark:border-gray-600 rounded-lg p-4 hidden md:table"
       >
         <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
           <tr>
@@ -84,6 +84,41 @@ const PaginationData = ({ data, setFormData }) => {
           ))}
         </tbody>
       </table>
+
+      <div className="flex flex-col gap-4 md:hidden">
+        {data.map((item, index) => (
+          <div
+            key={index}
+            className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-md"
+          >
+
+
+            <div className="text-lg font-bold text-gray-900 dark:text-white text-center">
+             {item.nro_resolucion}
+            </div>
+            
+            <div className="text-sm ">
+              <strong>Fecha de emisión:</strong> {item.fecha_emision}
+            </div>
+            <div className="text-sm "><strong>Tipo de resolución:</strong> {item.tipo_resolucion}</div>
+            <div className="text-sm">
+              <strong>Departamento:</strong> <span className="uppercase">{item.departamento}</span>
+            </div>
+            <div className="text-sm">
+              <strong>Sala:</strong> {item.sala}
+            </div>
+            <div className="mt-2 flex gap-4 justify-center">
+              <Link
+                to={`/jurisprudencia/resolucion/${item.id}`}
+                rel="noopener noreferrer"
+                className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+              >
+                Ver resolución
+              </Link>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

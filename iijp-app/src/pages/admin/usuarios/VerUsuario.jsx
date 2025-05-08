@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthUser from "../../auth/AuthUser";
-import Loading from "../../components/Loading";
-import { useUserContext } from "../../context/userContext";
+
+
+
+import AuthUser from "../../../auth/AuthUser";
+import { useUserContext } from "../../../context/userContext";
+import Loading from "../../../components/Loading";
 const VerUsuario = ({ id }) => {
   const { can } = AuthUser();
   const navigate = useNavigate();

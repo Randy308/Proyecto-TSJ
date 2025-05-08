@@ -8,12 +8,12 @@ export default function ModalContent({ onClose, title, content }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white dark:bg-[#242E42] p-6 rounded-lg shadow-lg w-full max-w-md">
         <div
-          className={`modal-header flex flex-row items-center ${
+          className={`modal-header flex flex-row items-center  ${
             title ? "justify-between" : "justify-end"
           }`}
         >
           {title && (
-            <h5 className="modal-title text-center text-black dark:text-white">
+            <h5 className="modal-title text-center text-black dark:text-white font-bold">
               {title}
             </h5>
           )}

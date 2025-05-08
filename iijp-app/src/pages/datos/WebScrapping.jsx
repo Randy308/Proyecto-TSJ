@@ -11,7 +11,8 @@ const WebScrapping = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [cantidad, setCantidad] = useState(0);
+  const [isLoadingScrapping, setIsLoadingScrapping] = useState(false);
+  const [cantidad, setCantidad] = useState(10);
 
   useEffect(() => {
     if (!can("web_scrapping")) {
@@ -50,11 +51,11 @@ const WebScrapping = () => {
     }
   };
 
-  const realizarWebScrapping = async() => {
-    
-     if (isLoading) return;
+  const realizarWebScrapping = async () => {
 
-    setIsLoading(true);
+    if (isLoadingScrapping) return;
+
+    setIsLoadingScrapping(true);
 
     try {
       await TokenService.obtenerToken(); // Obtener el nuevo token
@@ -75,43 +76,43 @@ const WebScrapping = () => {
         draggable: true,
       });
 
-      setCantidad(cantidad);
     } catch (error) {
       console.log("Error al comprobar resoluciones:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingScrapping(false);
     }
   }
 
   if (loading) return null; // Evita mostrar el botón mientras carga
 
-return (
-  <div className="p-4">
-    <h2 className="text-xl font-semibold">Búsqueda de Resoluciones</h2>
-    <p className="text-gray-600 dark:text-gray-300 mb-4">
-      Presiona el botón para buscar nuevas resoluciones disponibles en el
-      sistema.
-    </p>
+  return (
+    <div className="p-4 m-4">
+      <h2 className="text-xl font-semibold">Búsqueda de Resoluciones</h2>
+      <p className="text-gray-600 dark:text-gray-300 mb-4">
+        Presiona el botón para buscar nuevas resoluciones disponibles en el
+        sistema.
+      </p>
+      <div className="flex flex-col md:flex-row flex-wrap gap-4">
 
-    <AsyncButton
-      name="Comprobar resoluciones"
-      isLoading={isLoading}
-      full={false}
-      asyncFunction={comprobarResoluciones}
-    />
-
-    {cantidad > 0 && (
-      <div className="mt-4">
         <AsyncButton
-          name="Realizar Web Scraping"
+          name="Comprobar resoluciones"
           isLoading={isLoading}
           full={false}
-          asyncFunction={realizarWebScrapping}
+          asyncFunction={comprobarResoluciones}
         />
+
+        {cantidad > 0 && (
+          <AsyncButton
+            name="Realizar Web Scraping"
+            isLoading={isLoadingScrapping}
+            full={false}
+            asyncFunction={realizarWebScrapping}
+          />
+
+        )}
       </div>
-    )}
-  </div>
-);
+    </div>
+  );
 
 };
 

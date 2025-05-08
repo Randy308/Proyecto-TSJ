@@ -182,7 +182,7 @@ const ResolucionTSJ = () => {
                         >
                           <IoMdArrowDropdown className="text-2xl" />
                           <p>Ficha Jurisprudencial</p>
-                          <p className="text-white rounded-full bg-red-octopus-900 px-2">
+                          <p className="text-white flex items-center rounded-full bg-red-octopus-900 px-2">
                             {index + 1}
                           </p>
                         </div>
@@ -202,7 +202,7 @@ const ResolucionTSJ = () => {
                             {item.tipo_jurisprudencia && (
                               <p className="text-justify text-sm">
                                 <strong>Tipo Jurisprudencia:</strong>{" "}
-                                {item.tipo_jurisprudencia}
+                                {item.tipo_jurisprudencia.nombre}
                               </p>
                             )}
                             {item.ratio && (

@@ -24,6 +24,7 @@ const ResolucionesService = {
       params,
     }),
   obtenerParametros: () => instance.get("/obtener-parametros-busqueda"),
+  obtenerVariables: () => instance.get("/obtener-variables"),
   obtenerFechas: () => instance.get("/obtener-fechas"),
   obtenerResolucion: (id) => instance.get(`/resolucion/${id}`),
   obtenerPrediccion: (params) =>
@@ -40,7 +41,7 @@ const ResolucionesService = {
   buscarNuevasResoluciones: (token) =>
     instance.post(
       "/buscar-nuevas-resoluciones",
-      {}, // Cuerpo vacío porque no envías datos en el POST
+      {},
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -49,14 +50,17 @@ const ResolucionesService = {
     ),
   realizarWebScrapping: (token, formData) =>
     instance.post(
-      "/obtencion-resoluciones",
-      formData, // Cuerpo vacío porque no envías datos en el POST
+      "/obtener-resoluciones",
+      formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       }
-    ),
+    ), realizarAnalisis: (params) =>
+      instance.get("/obtener-estadisticas", {
+        params,
+      }),
 };
 
 export default ResolucionesService;

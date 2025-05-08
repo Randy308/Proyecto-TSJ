@@ -7,7 +7,7 @@ use App\Models\Departamentos;
 use App\Models\FormaResolucions;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
-use App\Models\Salas;
+use App\Models\Sala;
 use App\Models\TipoResolucions;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -22,7 +22,7 @@ class SalaController extends Controller
     {
 
         try {
-            $resultado = Salas::orderBy('nombre')->get();
+            $resultado = Sala::orderBy('nombre')->get();
             $salas = $resultado->toArray();
         } catch (\Exception $e) {
             return response()->json([
@@ -209,7 +209,7 @@ class SalaController extends Controller
         $nombre = $request['nombreY'];
         $ids = $request['idsY'];
 
-        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $salas = Sala::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $table = SalaController::obtenerModelo($nombre, $ids);
 
         $salasArray = $salas->pluck('sala')->toArray();
@@ -267,7 +267,7 @@ class SalaController extends Controller
         }
         $forma = FormaResolucions::findOrFail($request->formaId);
 
-        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $salas = Sala::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $salasArray = $salas->pluck('sala')->toArray();
         $combinations = [];
         foreach ($salasArray as $sala) {
@@ -430,7 +430,7 @@ class SalaController extends Controller
     public function show($id)
     {
         try {
-            $sala = Salas::where('id', $id)->firstOrFail();
+            $sala = Sala::where('id', $id)->firstOrFail();
 
             $resultado = DB::table('salas as s') // Asegúrate que 'salas' es el nombre correcto de la tabla
                 ->join('resolutions as r', 's.id', '=', 'r.sala_id')

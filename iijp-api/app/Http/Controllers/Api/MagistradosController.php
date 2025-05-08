@@ -7,7 +7,7 @@ use App\Models\Contents;
 use App\Models\Jurisprudencias;
 use App\Models\Magistrados;
 use App\Models\Resolutions;
-use App\Models\Salas;
+use App\Models\Sala;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -22,9 +22,9 @@ class MagistradosController extends Controller
     public function index()
     {
         $magistrados = DB::table('magistrados as m')
-        ->selectRaw("m.id, m.nombre, m.ruta_imagen,
-                     MAX(r.fecha_emision) as fecha_max,
-                     MIN(r.fecha_emision) as fecha_min,
+            ->selectRaw("m.id, m.nombre,
+                     extract(year from MAX(r.fecha_emision))  as fecha_max,
+                      extract(year from MIN(r.fecha_emision))  as fecha_min,
                      TRIM(BOTH ', ' FROM CONCAT(
                         CASE WHEN EXTRACT(YEAR FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) > 0
                              THEN EXTRACT(YEAR FROM AGE(MAX(r.fecha_emision), MIN(r.fecha_emision))) || ' años, '
@@ -39,10 +39,10 @@ class MagistradosController extends Controller
                              ELSE ''
                         END
                      )) as duracion")
-        ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
-        ->groupBy('m.id')
-        ->orderBy('m.id')
-        ->get();
+            ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
+            ->groupBy('m.id')
+            ->orderBy('m.id')
+            ->get();
 
         return response()->json($magistrados, 200);
     }
@@ -69,7 +69,8 @@ class MagistradosController extends Controller
         $salas = $request->salas;
 
 
-        $magistrado = Magistrados::where("id", $request->id)->first();
+        $magistrado = Magistrados::findOrFail($request->id);
+
 
         $departamentos = DB::table('departamentos as d')
             ->selectRaw('DISTINCT(d.id), d.nombre')
@@ -84,19 +85,15 @@ class MagistradosController extends Controller
             ->whereIn('r.sala_id', $salas)
             ->where('r.magistrado_id', $magistrado->id)
             ->get();
+
         $jurisprudencias = DB::table('resolutions as r')
+            ->selectRaw('DISTINCT(tj.id), tj.nombre')
             ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
-            ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
-            ->select(
-                'j.tipo_jurisprudencia as nombre',
-                DB::raw('MIN(j.id) as id')
-            )
+            ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
             ->whereIn('r.sala_id', $salas)
             ->where('r.magistrado_id', '=', $magistrado->id)
-            ->whereNotNull('j.tipo_jurisprudencia')
-            ->groupBy('j.tipo_jurisprudencia')
-            ->orderBy('j.tipo_jurisprudencia')
             ->get();
+
 
         $response = [];
 
@@ -118,7 +115,8 @@ class MagistradosController extends Controller
     public function obtenerDatos($id)
     {
 
-        $magistrado = Magistrados::where("id", $id)->first();
+
+        $magistrado = Magistrados::findOrFail($id);
 
         $fechas = DB::table('resolutions as r')
             ->select(DB::raw("MIN(r.fecha_emision) as fecha_minima, MAX(r.fecha_emision) as fecha_maxima"))
@@ -131,12 +129,14 @@ class MagistradosController extends Controller
             ->where("r.magistrado_id", $magistrado->id)
             ->groupBy("s.nombre", "s.id")->orderBy('cantidad', 'desc')
             ->get();
+
+
         $formas = DB::table('resolutions as r')
             ->join('forma_resolucions as fr', 'r.forma_resolucion_id', '=', 'fr.id')
             ->select(DB::raw("COUNT(r.id) as cantidad, fr.nombre"))
             ->where("r.magistrado_id", $magistrado->id)
             ->groupBy("fr.nombre")
-            ->having(DB::raw("COUNT(r.id)"), ">", 20) // Use COUNT(r.id) directly in having
+            ->having(DB::raw("COUNT(r.id)"), ">", 20)
             ->orderBy('cantidad', 'desc')
             ->get();
 
@@ -144,7 +144,7 @@ class MagistradosController extends Controller
         $total = $salas->sum("cantidad");
 
         foreach ($salas as $sala) {
-            $sala->porcetaje = round($sala->cantidad * 100 / $total, 2);
+            $sala->porcentaje = round($sala->cantidad * 100 / $total, 2);
         }
 
         // Convert and format the dates
@@ -153,7 +153,6 @@ class MagistradosController extends Controller
 
         return response()->json([
             'nombre' => $magistrado->nombre,
-            'ruta_imagen' => $magistrado->ruta_imagen,
             'fecha_maxima' => $fechaMaxima,
             'fecha_minima' => $fechaMinima,
             'salas' => $salas,
@@ -348,60 +347,51 @@ class MagistradosController extends Controller
 
 
 
-    public function obtenerResolucionesDepartamento($id, Request $request)
+    public function getByDepartamento($id, Request $request)
     {
         // Obtener las fechas del request
         $fecha_min = $request->input('min_date');
         $fecha_max = $request->input('max_date');
+        if ($fecha_min && !Carbon::hasFormat($fecha_min, 'Y-m-d')) {
+            return response()->json([
+                'error' => 'Formato de fecha mínima no válido.'
+            ], 400);
+        }
+
+        if ($fecha_max && !Carbon::hasFormat($fecha_max, 'Y-m-d')) {
+            return response()->json([
+                'error' => 'Formato de fecha máxima no válido.'
+            ], 400);
+        }
 
         try {
-            // Verificar si las fechas son válidas
-            if ($fecha_min && !Carbon::hasFormat($fecha_min, 'Y-m-d')) {
-                return response()->json([
-                    'error' => 'Formato de fecha mínima no válido.'
-                ], 400);
-            }
-
-            if ($fecha_max && !Carbon::hasFormat($fecha_max, 'Y-m-d')) {
-                return response()->json([
-                    'error' => 'Formato de fecha máxima no válido.'
-                ], 400);
-            }
-
-            // Buscar el magistrado por ID
-            $magistrado = Magistrados::where('id', $id)->firstOrFail();
-
-            // Construir la consulta para obtener las resoluciones por departamento
-            $res_departamentos = DB::table('resolutions as r')
-            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
-            ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
-            ->select(
-                'd.nombre as name',
-                DB::raw('count(*) as value')
-            )
-                ->where('r.magistrado_id', '=', $magistrado->id)
+            $magistrado = Magistrados::findOrFail($id);
+            $res_departamentos = DB::table('departamentos as d')
+                ->leftJoin('resolutions as r', function ($join) use ($magistrado) {
+                    $join->on('d.id', '=', 'r.departamento_id')
+                        ->where('r.magistrado_id', '=', $magistrado->id);
+                })
+                ->select(
+                    'd.nombre as name',
+                    DB::raw('count(r.id) as value')
+                )
                 ->where('d.nombre', '!=', 'Desconocido')
                 ->groupBy('d.nombre')
                 ->orderBy('d.nombre');
 
-            // Filtrar por fecha mínima
+
             if ($fecha_min) {
-                // Convertir la fecha mínima a formato Carbon
                 $fecha_min = Carbon::createFromFormat('Y-m-d', $fecha_min)->startOfDay();
                 $res_departamentos = $res_departamentos->where('r.fecha_emision', '>=', $fecha_min);
             }
 
-            // Filtrar por fecha máxima
             if ($fecha_max) {
-                // Convertir la fecha máxima a formato Carbon
                 $fecha_max = Carbon::createFromFormat('Y-m-d', $fecha_max)->endOfDay();
                 $res_departamentos = $res_departamentos->where('r.fecha_emision', '<=', $fecha_max);
             }
 
-            // Obtener los resultados de la consulta
             $res_departamentos = $res_departamentos->get();
 
-            // Retornar los resultados en formato JSON
             return response()->json($res_departamentos, 200);
         } catch (ModelNotFoundException $e) {
             // Si el magistrado no fue encontrado
@@ -411,7 +401,7 @@ class MagistradosController extends Controller
         } catch (\Exception $e) {
             // Manejar otras excepciones posibles
             return response()->json([
-                'error' => 'Ocurrió un error al intentar obtener los datos'
+                'error' => 'Ocurrió un error al intentar obtener los datos ' . $e
             ], 500);
         }
     }
@@ -421,28 +411,27 @@ class MagistradosController extends Controller
 
     public function obtenerModelo($name, $values)
     {
-        $errorMessage = null;
+        $allowedTables = [
+            'tipo_resolucion' => 'tipo_resolucions',
+            'departamento' => 'departamentos',
+            'sala' => 'salas',
+            'magistrado' => 'magistrados',
+            'forma_resolucion' => 'forma_resolucions',
+            'tipo_jurisprudencia' => 'tipo_jurisprudencias'
+        ];
 
-        if ($name == "tipo_jurisprudencia") {
-            $model = DB::table('jurisprudencias as x')
-                ->select('x.tipo_jurisprudencia as ' . $name)->whereNotNull('x.tipo_jurisprudencia')
-                ->distinct()
-                ->get();
-        } else {
-            $full_name = $name . "s";
-            $model = DB::table($full_name . ' as x')
-                ->select('x.nombre as ' . $name)
-                ->whereIn('x.id', $values)
-                ->get();
+        if (!array_key_exists($name, $allowedTables)) {
+            throw new ModelNotFoundException("No se encontró el modelo '$name'.");
         }
 
-        if ($model->isEmpty()) {
-            $defaultErrorMessage = "No se encontró el modelo '$name'.";
-            throw new ModelNotFoundException($errorMessage ?: $defaultErrorMessage);
-        }
+        $table = $allowedTables[$name];
 
-        return $model;
+        return DB::table("$table as x")
+            ->select("x.nombre as $name")
+            ->whereIn('x.id', $values)
+            ->get();
     }
+
 
     public function generarConsulta($formaId, $salas, $tablas)
     {
@@ -465,10 +454,11 @@ class MagistradosController extends Controller
             if ($table_name && $values) {
                 if ($table_name == "tipo_jurisprudencia") {
 
-                    $jurisprudencia_nombres  = Jurisprudencias::whereIn('jurisprudencias.id', $values)->get("tipo_jurisprudencia")->pluck("tipo_jurisprudencia");
-                    $query->join('jurisprudencias', 'jurisprudencias.resolution_id', '=', 'r.id')
-                        ->whereIn('jurisprudencias.tipo_jurisprudencia', $jurisprudencia_nombres);
-                    $select .= ", jurisprudencias.tipo_jurisprudencia AS " . $table_name;
+                    //$jurisprudencia_nombres  = Jurisprudencias::whereIn('jurisprudencias.id', $values)->get("tipo_jurisprudencia")->pluck("tipo_jurisprudencia");
+                    $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id')
+                        ->join('tipo_jurisprudencias as tj', 'j.tipo_jurisprudencia_id', '=', 'tj.id')
+                        ->whereIn('j.tipo_jurisprudencia_id', $values);
+                    $select .= ", tj.nombre AS " . $table_name;
                     $group_by .= ", " . $table_name;
                 } else {
                     $query->join($full_name, $full_name . '.id', '=', 'r.' . $table_name . '_id')
@@ -505,7 +495,7 @@ class MagistradosController extends Controller
         $nombre = $request['nombreY'];
         $ids = $request['idsY'];
 
-        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $salas = Sala::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $table = MagistradosController::obtenerModelo($nombre, $ids);
 
         $salasArray = $salas->pluck('sala')->toArray();
@@ -541,13 +531,13 @@ class MagistradosController extends Controller
 
 
         return response()->json([
-            'data' => MagistradosController::ordenarArrayXY($combinations, $nombre),
+            'data' => MagistradosController::ordenarArrayXY($combinations, $nombre , "sala"),
         ], 200);
     }
-    public function ordenarArrayXY($combinations, $name)
+    public function ordenarArrayXY($combinations, $nombreX, $nombreY)
     {
-        $variableX = $name;
-        $variableY = 'sala';
+        $variableX = $nombreX;
+        $variableY = $nombreY;
 
         $uniqueColumns = collect($combinations)->map(function ($item) use ($variableX) {
             return $item[$variableX];
@@ -583,6 +573,20 @@ class MagistradosController extends Controller
             $resultado[] = $row;
         }
 
+
+       
+        $filtrado = array_filter($resultado, function ($item) use ($variableY) {
+            foreach ($item as $key => $value) {
+                if ($key !== $variableY && $value !== 0) {
+                    return true;
+                }
+            }
+            return false; 
+        });
+        
+        
+        $filtrado = array_values($filtrado);
+
         return $resultado;
     }
     public function obtenerEstadisticasX(Request $request)
@@ -599,7 +603,7 @@ class MagistradosController extends Controller
         }
         $magistrado = Magistrados::findOrFail($request->magistradoId);
 
-        $salas = Salas::select('nombre as sala')->whereIn('id', $request->salas)->get();
+        $salas = Sala::select('nombre as sala')->whereIn('id', $request->salas)->get();
         $salasArray = $salas->pluck('sala')->toArray();
         $combinations = [];
         foreach ($salasArray as $sala) {
@@ -618,7 +622,7 @@ class MagistradosController extends Controller
             ->get();
 
         //$total = array_sum($datos->pluck('cantidad')->toArray());
-        
+
         $datoLookup = $datos->pluck('cantidad', 'sala')->toArray();
 
         foreach ($combinations as &$item) {

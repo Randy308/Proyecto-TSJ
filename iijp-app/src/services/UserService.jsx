@@ -34,6 +34,23 @@ const UserService = {
     instance.delete(`/admin/user/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     }),
+
+    getUnreadNotifications: (token) =>
+      instance.get("/obtener-no-leidas", {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    
+    getAllNotifications: (token, page = 1) =>
+      instance.get("/notificaciones", {
+        params: { page },
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    
+    markNotificationAsRead: (id, token) =>
+      instance.put(`/actualizar-notificacion/${id}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    
 };
 
 export default UserService;

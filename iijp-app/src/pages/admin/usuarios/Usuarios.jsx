@@ -1,18 +1,20 @@
-import Paginate from "../../components/tables/Paginate";
-import AuthUser from "../../auth/AuthUser";
+
+
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import React, { useEffect, useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { FaRegEye } from "react-icons/fa";
-import PortalButton from "../../components/modal/PortalButton";
+import PortalButton from "../../../components/modal/PortalButton";
 import CrearUsuario from "./CrearUsuario";
 import EliminarUsuario from "./EliminarUsuario";
 import VerUsuario from "./VerUsuario";
 import EditarUsuario from "./EditarUsuario";
 import { useNavigate } from "react-router-dom";
-import { useRoleContext } from "../../context/roleContext";
-import { useUserContext } from "../../context/userContext";
+import { useRoleContext } from "../../../context/roleContext";
+import { useUserContext } from "../../../context/userContext";
+import Paginate from "../../../components/tables/Paginate";
+import AuthUser from "../../../auth/AuthUser";
 const Usuarios = () => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
@@ -28,7 +30,7 @@ const Usuarios = () => {
     }
   }, [can, navigate]);
 
-  const { users, lastPage, pageCount, obtenerUsers } =
+  const { users, pageCount, obtenerUsers, totalUser, current } =
     useUserContext();
 
   const [counter, setCounter] = useState(1);
@@ -36,15 +38,15 @@ const Usuarios = () => {
   const { roles } = useRoleContext();
 
   const handlePageClick = (e) => {
-    const page = (Math.min(e.selected + 1, lastPage));
-     obtenerUsers(page);
+    const page = (Math.min(e.selected + 1, pageCount));
+    obtenerUsers(page);
 
   };
 
   return (
-    <div>
-      <div className="container mx-auto my-4 p-4 flex flex-row gap-4 justify-between">
-        <div className="text-3xl font-extrabold dark:text-white">
+    <div className="md:px-10 px-2">
+      <div className="m-4 p-4 flex flex-row gap-4 md:justify-between justify-center flex-wrap">
+        <div className="md:text-3xl text-2xl font-extrabold dark:text-white">
           Lista de usuarios
         </div>
 
@@ -67,11 +69,11 @@ const Usuarios = () => {
         )}
       </div>
 
-      <div>
+      <div className="md:p-8">
         {users && users.length > 0 && (
           <>
             <div className="relative container overflow-x-auto mx-auto">
-              <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+              <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 hidden md:table">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
                     <th scope="col" className="px-6 py-3">
@@ -162,11 +164,90 @@ const Usuarios = () => {
                   ))}
                 </tbody>
               </table>
+
+
+              <div className="flex flex-col gap-4 md:hidden">
+                {users.map((item, index) => (
+                  <div
+                    key={index}
+                    className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-md"
+                  >
+
+
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      {item.nombre}
+                    </div>
+                    <div className="text-sm text-gray-500">ID: {item.id}</div>
+                    <div className="text-sm">
+                      <strong>Email:</strong> {item.email}
+                    </div>
+                    <div className="text-sm">
+                      <strong>Rol:</strong> <span className="uppercase">{item.role}</span>
+                    </div>
+
+                    <div className="mt-2 flex gap-4 justify-center">
+                      {can("eliminar_usuarios") && (
+                        <div>
+                          <PortalButton
+                            Icon={MdDeleteForever}
+                            color="red"
+                            content={(showModal, setShowModal) => (
+                              <EliminarUsuario
+                                setCounter={setCounter}
+                                id={item.id}
+                                showModal={showModal}
+                                setShowModal={setShowModal}
+                              />
+                            )}
+                          />
+                        </div>
+                      )}
+                      {can("ver_usuario") && (
+                        <div>
+                          <PortalButton
+                            Icon={FaRegEye}
+                            color="green"
+                            title="Ver usuario"
+                            content={(showModal, setShowModal) => (
+                              <VerUsuario
+                                setCounter={setCounter}
+                                id={item.id}
+                                showModal={showModal}
+                                setShowModal={setShowModal}
+                              />
+                            )}
+                          />
+                        </div>
+                      )}
+                      {can("actualizar_usuarios") && (
+                        <div>
+                          <PortalButton
+                            Icon={FaEdit}
+                            title="Editar usuario"
+                            color="yellow"
+                            content={(showModal, setShowModal) => (
+                              <EditarUsuario
+                                setCounter={setCounter}
+                                roles={roles}
+                                id={item.id}
+                                showModal={showModal}
+                                setShowModal={setShowModal}
+                              />
+                            )}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <Paginate
               handlePageClick={handlePageClick}
+              totalCount={totalUser}
               pageCount={pageCount}
+              actualPage={current}
             ></Paginate>
           </>
         )}

@@ -63,7 +63,7 @@ const Magistrados = () => {
                   <div>
                     <PortalButton
                       Icon={FaEdit}
-                      title="Editar usuario"
+                      title="Editar magistrado"
                       color="yellow"
                       content={(showModal, setShowModal) => (
                         <EditarMagistrado

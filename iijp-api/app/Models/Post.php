@@ -19,6 +19,13 @@ class Post extends Model
         'estado'
     ];
 
+    
+    
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+    
     /**
      * Relación con el usuario que creó la publicación
      */

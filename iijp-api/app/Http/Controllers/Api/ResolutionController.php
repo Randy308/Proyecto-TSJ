@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Jobs\WebScrappingJob;
 use App\Models\Contents;
 use App\Models\Departamentos;
+use App\Models\Descriptor;
 use App\Models\FormaResolucions;
 use App\Models\Jurisprudencias;
+use App\Models\Magistrados;
 use App\Models\Mapeos;
 use App\Models\Resolutions;
-use App\Models\Salas;
+use App\Models\Sala;
+use App\Models\TipoJurisprudencia;
 use App\Models\TipoResolucions;
 use Carbon\Carbon;
 use DateInterval;
@@ -30,8 +33,126 @@ use Symfony\Contracts\HttpClient\Exception\{TransportExceptionInterface, ClientE
 
 class ResolutionController extends Controller
 {
+    public function obtenerEstadisticas(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'departamentos' => 'nullable|array',
+            'departamentos.*' => 'required|string',
+            'variable' => 'required|array',
+            'variable.*' => 'required|integer',
+            'nombre' => 'required|string',
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $nombre = strtolower($request->nombre);
+        if ($nombre == "materias") {
+            $nombre = "descriptors";
+        }
 
 
+        $campos = [
+            "tipo_resolucions" => "tipo_resolucion_id",
+            "departamentos" => "departamento_id",
+            "salas" => "sala_id",
+            "magistrados" => "magistrado_id",
+            "forma_resolucions" => "forma_resolucion_id"
+        ];
+
+        $campos_jurisprudencia = [
+            "descriptors" => "root_id",
+            "tipo_jurisprudencias" => "tipo_jurisprudencia_id",
+            "restrictors" => "restrictor_id",
+        ];
+
+        foreach ($campos as $key => $value) {
+            if ($key == $nombre) {
+                $query = DB::table('resolutions as r')->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad')->join($key . ' as x', 'x.id', $value)->whereIn($value, $request->variable)->groupBy("x.nombre");
+            }
+        }
+
+        foreach ($campos_jurisprudencia as $key => $value) {
+            if ($key == $nombre) {
+                $query = DB::table('resolutions as r')->selectRaw(' x.nombre as nombre, Count(r.id) as cantidad')->join('jurisprudencias as j', 'j.resolution_id', 'r.id')->join($key . ' as x', 'x.id', $value)->whereIn($value, $request->variable)->groupBy("x.nombre");
+            }
+        }
+
+        if ($request->has('periodo')) {
+            $query->whereYear("fecha_emision", $request->periodo);
+        }
+        if ($request->has('departamentos')) {
+            $departamentos = Departamentos::whereIn('nombre', $request->departamentos)->pluck('id')->toArray();
+            $query->whereIn("departamento_id", $departamentos);
+        }
+        $data = $query->get();
+        return response()->json([
+
+            'data' => $data,
+            'tabla' => $request->nombre,
+            'columna' => $request->nombre,
+            'nombre' => "nombre",
+            'terminos' => $data->pluck('nombre'),
+            'multiVariable' => false
+        ]);
+    }
+
+    public function obtenerOpciones(Request $request)
+    {
+
+        $filtros = $request->input('filtros', []);
+        $campos = ["tipo_resolucion_id", "departamento_id", "sala_id", "magistrado_id", "forma_resolucion_id"];
+        foreach ($campos as $campo) {
+
+            $query = Resolutions::query();
+
+            foreach ($filtros as $key => $value) {
+                if ($key !== $campo && !empty($value)) {
+                    $query->where($key, $value);
+                }
+            }
+            $resultado[$campo] = $query->distinct()->pluck($campo)->toArray();
+        }
+
+        return response()->json([
+            'data' => $resultado,
+        ]);
+    }
+
+    public function obtenerVariables()
+    {
+
+
+        $departamentos = Departamentos::all('id', 'nombre');
+        $salas = Sala::all('id', 'nombre');
+        $tipo_jurisprudencias = TipoJurisprudencia::all('id', 'nombre');
+        $tipo_resolucions = TipoResolucions::all('id', 'nombre');
+        $forma_resolucions = FormaResolucions::all('id', 'nombre');
+        $magistrados = Magistrados::all('id', 'nombre');
+        $materia = Descriptor::whereNull('descriptor_id')->get(['id', 'nombre']);
+
+        $periodo = DB::table('resolutions')
+            ->selectRaw("MIN(id) as id,EXTRACT(YEAR FROM fecha_emision) AS nombre")
+            ->groupBy('nombre')
+            ->orderBy('nombre', 'desc')
+            ->get();
+        $datos = [
+            'departamento' => $departamentos->toArray(),
+            'sala' => $salas->toArray(),
+            'tipo_jurisprudencia' => $tipo_jurisprudencias->toArray(),
+            'tipo_resolucion' => $tipo_resolucions->toArray(),
+            'forma_resolucion' => $forma_resolucions->toArray(),
+            'magistrado' => $magistrados->toArray(),
+            'materia' => $materia->toArray(),
+            'periodo' => $periodo->toArray(),
+        ];
+        $datos = array_filter($datos);
+
+        return response()->json($datos);
+    }
     public function filtrarResolucionesContenido(Request $request)
     {
 
@@ -82,15 +203,27 @@ class ResolutionController extends Controller
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
 
+
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
-            $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
-            if ($request->tipo_jurisprudencia != "all") {
-                $query->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
+            $tipoJurisprudencia = $request->tipo_jurisprudencia;
+            $materia = $request->materia;
+
+            $subquery = DB::table('jurisprudencias')
+                ->select('resolution_id');
+
+            if ($tipoJurisprudencia && $tipoJurisprudencia !== 'all') {
+                $subquery->where('tipo_jurisprudencia_id', intval($tipoJurisprudencia));
             }
-            if ($request->materia != "all") {
-                $query->where("j.descriptor", 'like', $request->materia . '%');
+
+            if ($materia && $materia !== 'all') {
+                $subquery->where('root_id', intval($materia));
             }
+
+            $query->joinSub($subquery, 'j', function ($join) {
+                $join->on('j.resolution_id', '=', 'r.id');
+            });
         }
+
 
         if ($fecha_inicial && $fecha_final && strtotime($fecha_inicial) && strtotime($fecha_final)) {
             $query->whereBetween('r.fecha_emision', [$fecha_inicial, $fecha_final]);
@@ -157,7 +290,7 @@ class ResolutionController extends Controller
         if (!$user) { // Verifica si el usuario no está autenticado
             return response()->json(['mensaje' => "El usuario no está autenticado"], 403);
         }
-    
+
         if (!$user->hasPermissionTo('web_scrapping')) {
             return response()->json(['mensaje' => "El usuario no cuenta con el permiso necesario"], 403);
         }
@@ -240,6 +373,16 @@ class ResolutionController extends Controller
         ])->validate();
 
 
+        $user = Auth::user();
+
+        if (!$user) { // Verifica si el usuario no está autenticado
+            return response()->json(['mensaje' => "El usuario no está autenticado"], 403);
+        }
+
+        if (!$user->hasPermissionTo('web_scrapping')) {
+            return response()->json(['mensaje' => "El usuario no cuenta con el permiso necesario"], 403);
+        }
+
 
         $isRunning = DB::table('jobs')->where('payload', 'like', '%WebScrappingJob%')->exists();
 
@@ -248,11 +391,11 @@ class ResolutionController extends Controller
         }
 
         $iterations = $request->input('iterations', 100);
-        $lastId = Mapeos::max('external_id');
+        $lastId = Mapeos::max('external_id') + 1;
 
-
-        Log::info("Busqueda iniciada");
-        WebScrappingJob::dispatch($iterations, $lastId);
+        $userId = $user->id;
+        Log::info("Búsqueda iniciada");
+        WebScrappingJob::dispatch($iterations, $lastId, $userId);
 
         return response()->json(['message' => 'Web Scraping iniciado.']);
     }
@@ -305,14 +448,14 @@ class ResolutionController extends Controller
 
         try {
 
-            $resolucion = DB::table('contents as c')
+            $resolution = DB::table('contents as c')
                 ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
                 ->leftJoin('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
                 ->leftJoin('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
                 ->leftJoin('departamentos as d', 'd.id', '=', 'r.departamento_id')
                 ->leftJoin('magistrados as m', 'm.id', '=', 'r.magistrado_id')
                 ->select(
-                    'c.contenido',
+
                     'r.nro_resolucion',
                     'r.nro_expediente',
                     'r.fecha_emision',
@@ -325,16 +468,19 @@ class ResolutionController extends Controller
                     'r.demandado',
                     'r.maxima',
                     'r.sintesis',
+                    'c.contenido',
                 )
                 ->where('r.id', '=', $id)
                 ->first();
-            $jurisprudencias = Jurisprudencias::where('resolution_id', $id)->get();
+            $jurisprudencias = Jurisprudencias::with('tipo_jurisprudencia:id,nombre')->where('resolution_id', $id)->get();
+
+
             $jurisprudencias->makeHidden(['id', 'resolution_id', 'updated_at', 'created_at']);
 
 
             return response()->json([
 
-                'resolucion' => $resolucion,
+                'resolucion' => $resolution,
                 'jurisprudencias' => $jurisprudencias,
             ], 200);
         } catch (ModelNotFoundException $e) {
@@ -345,7 +491,7 @@ class ResolutionController extends Controller
         } catch (\Exception $e) {
             // Manejar otras excepciones posibles
             return response()->json([
-                'error' => 'Ocurrió un error al intentar obtener la resolución'
+                'error' => 'Ocurrió un error al intentar obtener la resolución' . $e
             ], 500);
         }
     }
@@ -365,7 +511,7 @@ class ResolutionController extends Controller
     public function obtenerParametros()
     {
         $departamentos = Departamentos::all();
-        $salas = Salas::all();
+        $salas = Sala::all();
 
         if (!$salas || !$departamentos) {
             return response()->json(['error' => 'Solicitud no encontrada'], 404);
@@ -392,7 +538,7 @@ class ResolutionController extends Controller
         $fecha_hasta = $request["fecha_hasta"];
 
         if ($sala && $sala !== "todas") {
-            $mi_sala = Salas::where("nombre", $sala)->first();
+            $mi_sala = Sala::where("nombre", $sala)->first();
             if (!$mi_sala) {
                 return response()->json(['error' => 'Sala no encontrada'], 404);
             }
@@ -733,12 +879,13 @@ class ResolutionController extends Controller
         $tableName = $request->input('tabla');
         $columnName = $request->input('columna');
 
-        $lista = ['tipo_resolucion', 'departamento', 'sala', 'magistrado', 'forma_resolucion'];
+        $lista = ['tipo_resolucion', 'departamento', 'sala', 'magistrado', 'forma_resolucion', 'tipo_jurisprudencia'];
 
         if (in_array($columnName, $lista)) {
             $table = $columnName . 's';
             $results = DB::table("$table as t")->get(['t.nombre as termino', 't.id as cantidad']);
         } else {
+
             $results = DB::table($tableName . ' as t')
                 ->selectRaw("
                 INITCAP(REGEXP_REPLACE(SPLIT_PART(t.$columnName, ' ', 1), '[^\\w]', '', 'g')) AS termino,

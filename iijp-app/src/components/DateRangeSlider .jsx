@@ -125,7 +125,7 @@ const DateRangeSlider = ({ minDate, maxDate, onChange }) => {
           onMouseDown={() => handleMouseDown("start")}
         />
         <div
-          className="absolute top-[-6px] w-5 h-5 bg-blue-600 rounded-full cursor-pointer"
+          className="absolute top-[-6px] w-5 h-5  bg-blue-600 rounded-full cursor-pointer"
           style={{ left: `${dateToPercentage(endDate)}%` }}
           onMouseDown={() => handleMouseDown("end")}
         />

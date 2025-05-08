@@ -55,11 +55,7 @@ const Select = ({ fieldName, items, setFormData, formData }) => {
         <option value="all">Todos</option>
         {items.map((item, index) => (
           <option
-            value={
-              fieldName === "materia" || fieldName === "tipo_jurisprudencia"
-                ? item.nombre
-                : item.id
-            }
+            value={item.id }
             key={index}
           >
             {item.nombre}

@@ -11,6 +11,7 @@ import { useSessionStorage } from "../../hooks/useSessionStorage";
 import GeoChart from "../../components/charts/GeoChart";
 import ResolucionesService from "../../services/ResolucionesService";
 import { filterForm } from "../../utils/filterForm";
+import { useVariablesContext } from "../../context/variablesContext";
 const CompararDatos = () => {
 
   const [resoluciones, setResoluciones] = useState(null);
@@ -30,7 +31,7 @@ const CompararDatos = () => {
     false
   );
 
-  const [data, setData] = useSessionStorage("data", {});
+  const {data}= useVariablesContext();
   const [hasFetchedData, setHasFetchedData] = useSessionStorage(
     "hasFetchedData",
     false
@@ -68,22 +69,7 @@ const CompararDatos = () => {
       });
   };
 
-  useEffect(() => {
-    if (hasFetchedDates && !hasFetchedData) {
-      getSelect();
-    }
-  }, [hasFetchedDates]);
 
-  const getSelect = async () => {
-    ResolucionesService.obtenerParametros()
-      .then(({ data }) => {
-        setData(data);
-        setHasFetchedData(true);
-      })
-      .catch((error) => {
-        console.error("Error al realizar la solicitud:", error);
-      });
-  };
 
   useEffect(() => {
     if (resoluciones) {

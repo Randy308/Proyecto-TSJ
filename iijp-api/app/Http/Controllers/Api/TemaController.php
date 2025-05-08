@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Departamentos;
+use App\Models\Descriptor;
 use App\Models\Estilos;
 use App\Models\FormaResolucions;
 use App\Models\Resolutions;
-use App\Models\Salas;
-use App\Models\Temas;
+use App\Models\Sala;
+use App\Models\Tema;
 use App\Models\TipoResolucions;
 use Carbon\Carbon;
+use Dotenv\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,21 +39,50 @@ class TemaController extends Controller
         $id = $request->id;
 
         if ($id) {
-            $nodo_principal = Temas::where('id', $id)->first();
+            $nodo_principal = Descriptor::where('id', $id)->first();
 
             if (!$nodo_principal) {
                 return response()->json(['error' => 'Nodo no encontrado'], 404);
             }
 
-            $hijos = Temas::where('tema_id', $id)->get();
+            $hijos = Descriptor::where('descriptor_id', $id)->get();
             return response()->json($hijos);
         } else {
-            $temas_generales = Temas::whereNull('tema_id')->get(['id', 'nombre', 'tema_id']);
+            $temas_generales = Descriptor::whereNull('descriptor_id')->get(['id', 'nombre', 'descriptor_id']);
             return response()->json($temas_generales);
         }
     }
 
+    public function obtenerNodosPorNombre(Request $request)
+    {
+        $ids = $request->ids;
+        return $ids;
+    }
+    public function obtenerResolucionesCronologia(Request $request)
+    {
 
+
+        $ids = $request->ids;
+        $variable = $request["variable"];
+        $orden = $request["orden"];
+
+        $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
+        $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
+        $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
+
+        $query = DB::table('resolutions as r')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
+            ->join('restrictors as rt', 'rt.id', '=', 'j.restrictor_id')
+            ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'rt.nombre as departamento', 's.nombre as sala')->whereIn('r.id', $ids);
+
+
+
+        $results = $query->orderBy($variable, $orden)->paginate(20);
+
+        return response()->json($results);
+    }
 
     public function obtenerParametrosCronologia(Request $request)
     {
@@ -77,11 +108,16 @@ class TemaController extends Controller
         $departamentos = $getDistinctValues('departamentos as d', "d", 'r.departamento_id', 'd.nombre');
         $tipo_resolucions = $getDistinctValues('tipo_resolucions as tr', "tr", 'r.tipo_resolucion_id', 'tr.nombre');
 
+
+        $ids = DB::table('jurisprudencias as j')
+            ->where('j.descriptor', 'like', '%' . $descriptor . '%')
+            ->distinct()->limit(40)->pluck('j.id');
         // Preparar la respuesta
         $data = [
             'departamentos' => $departamentos,
             'salas' => $salas,
             'tipo_resolucions' => $tipo_resolucions,
+            'ids' => $ids,
         ];
 
         return response()->json($data);
@@ -112,7 +148,7 @@ class TemaController extends Controller
 
         //return $request;
         if ($sala) {
-            $mi_sala = validarModelo(Salas::class, 'nombre', $sala);
+            $mi_sala = validarModelo(Sala::class, 'nombre', $sala);
         }
         if ($tipo_resolucion) {
             $mi_tipo_resolucion = validarModelo(TipoResolucions::class, 'nombre', $tipo_resolucion);
@@ -121,18 +157,20 @@ class TemaController extends Controller
             $mi_departamento = validarModelo(Departamentos::class, 'nombre', $departamento);
         }
         // Encuentra el tema por ID
-        $tema = Temas::where('id', $tema_id)->first();
+        $tema = Descriptor::where('id', $tema_id)->first();
 
         if (!$tema) {
             return response()->json(['error' => 'Tema no encontrado'], 404);
         }
 
         $query = DB::table('jurisprudencias as j')
+            ->join('restrictors as rt', 'rt.id', '=', 'j.restrictor_id')
             ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
             ->join('contents as c', 'r.id', '=', 'c.resolution_id')
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'j.tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion');
+            ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
+            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'rt.nombre as restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion');
 
 
 
@@ -259,7 +297,7 @@ class TemaController extends Controller
         $departamento = $request['nombreMateria'];
 
 
-        $mi_sala = Salas::where('nombre', $sala)->first();
+        $mi_sala = Sala::where('nombre', $sala)->first();
 
         if (!$mi_sala) {
             return response()->json(['error' => 'Sala no encontrada a' . $sala], 404);
