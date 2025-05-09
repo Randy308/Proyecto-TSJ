@@ -57,8 +57,17 @@ const ResolucionesService = {
           Authorization: `Bearer ${token}`,
         },
       }
-    ), realizarAnalisis: (params) =>
-      instance.get("/obtener-estadisticas", {
+    ),
+  realizarAnalisis: (params) =>
+    instance.get("/obtener-estadisticas", {
+      params,
+    }),
+  obtenerFiltrosEstadisticos: (params) =>
+    instance.get("/obtener-filtros-estadisticas", {
+      params,
+    }),
+    realizarAnalisisXY: (params) =>
+      instance.get("/obtener-estadisticas-xy", {
         params,
       }),
 };

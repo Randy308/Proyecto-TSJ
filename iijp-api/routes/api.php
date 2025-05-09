@@ -38,6 +38,9 @@ Route::prefix('v2')->group(function () {
     Route::get('/obtener-variables', [ResolutionController::class, 'obtenerVariables']);
     
     Route::get('/obtener-estadisticas', [ResolutionController::class, 'obtenerEstadisticas']);
+    Route::get('/obtener-estadisticas-xy', [ResolutionController::class, 'obtenerEstadisticasXY']);
+    Route::get('/obtener-filtros-estadisticas', [ResolutionController::class, 'obtenerFiltros']);
+    
     //rutas estadísticas básicas para magistrado
     Route::get('/obtener-historico', [ResolutionController::class, 'index']);
     Route::get('/magistrados', [MagistradosController::class, 'index']);

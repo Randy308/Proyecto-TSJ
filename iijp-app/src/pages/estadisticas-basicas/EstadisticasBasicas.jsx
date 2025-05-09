@@ -1,15 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useVariablesContext } from '../../context/variablesContext'
 import MultiBtnDropdown from '../../components/MultiBtnDropdown';
-import Select from '../../components/Select';
 import { BsCheck2All } from 'react-icons/bs';
 import { MdOutlineRemoveCircle } from 'react-icons/md';
-import EChart from '../analisis/EChart';
-import D3Chart from '../../components/D3Chart';
 import { IoIosArrowForward } from 'react-icons/io';
 import { departamentos } from '../../data/Mapa';
 import ResolucionesService from '../../services/ResolucionesService';
-import { se } from 'date-fns/locale';
 import { useMagistradosContext } from '../../context/magistradosContext';
 import { filterForm } from '../../utils/filterForm';
 import { useNavigate } from 'react-router-dom';
@@ -19,28 +15,18 @@ const EstadisticasBasicas = () => {
     const { data } = useVariablesContext();
     const [selector, setSelector] = useState([]);
     const [limite, setLimite] = useState(2);
+
+
+    const checkIcon = useMemo(() => <BsCheck2All className="w-5 h-5" />, []);
+    const removeIcon = useMemo(() => <MdOutlineRemoveCircle className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />, []);
+    const arrowIcon = useMemo(() => <IoIosArrowForward className="w-7 pr-4" />, []);
     const [periodo, setPeriodo] = useState("all");
     const [visible, setVisible] = useState(null);
 
     const { magistrados } = useMagistradosContext();
-    const [hoveredDepto, setHoveredDepto] = useState(null);
     const [selectedDepto, setSelectedDepto] = useState([]);
     const [validMagistrados, setValidMagistrados] = useState([]);
     const navigate = useNavigate();
-    const [ciudad, setCiudad] = useState(null);
-    const handleCheckboxChange = (event) => {
-        const newName = event.target.name;
-
-        setPeriodo((prev) => {
-            if (prev.includes(newName)) {
-                // Remove it
-                return prev.filter((name) => name !== newName);
-            } else {
-                // Add it
-                return [...prev, newName];
-            }
-        });
-    };
 
     const handleClick = (name) => {
         setSelectedDepto((prev) => {
@@ -72,17 +58,21 @@ const EstadisticasBasicas = () => {
     }, [periodo, magistrados]);
 
 
+    const togglePeriodo = (nombre) => {
+        setPeriodo(prev => prev === nombre ? null : nombre);
+        setSelector([]);
+    };
 
     const fetchData = async () => {
 
         const validatedData = filterForm({
-            variable: selector[0].ids, nombre: selector[0].name, periodo: periodo, departamentos: selectedDepto
+            variable: selector[0].ids, nombre: selector[0].name, periodo: periodo, departamento: selectedDepto
         });
 
         ResolucionesService.realizarAnalisis(validatedData)
             .then(({ data }) => {
                 if (data) {
-                    navigate(`/analisis/avanzado/${selector[0].name}`, { state: data });
+                    navigate(`/estadisticas-basicas/${selector[0].name}`,{ state: { data, validatedData } });
                 }
             })
             .catch((err) => {
@@ -99,16 +89,16 @@ const EstadisticasBasicas = () => {
                         <ul>
                             <li className="px-2 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:text-xs pb-4">
                                 <a
-                                    onClick={() => setPeriodo(prev => prev === "all" ? null : "all")}
+                                    onClick={() => togglePeriodo("all")}
                                     className={`inline-flex text-center p-1 sm:p-4  border-2 border-gray-200 rounded-lg cursor-pointer  ${periodo == "all" ? "text-white bg-red-octopus-500" : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"}`} >
-                                    <BsCheck2All className="w-5 h-5" />
+                                    {checkIcon}
                                     <span className="ms-3">Todos</span>
                                 </a>
                                 <a
                                     onClick={() => clearList()}
                                     className="dark:bg-gray-800 dark:border-gray-700 flex border hover:cursor-pointer border-gray-200 items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                                 >
-                                    <MdOutlineRemoveCircle className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                                    {removeIcon}
                                     <span className="ms-3">Quitar Selección</span>
                                 </a>
                             </li>
@@ -123,7 +113,7 @@ const EstadisticasBasicas = () => {
                                             value={item.nombre}
                                             className="hidden"
                                             checked={periodo === (item.nombre)}
-                                            onChange={() => setPeriodo(prev => prev === item.nombre ? null : item.nombre)}
+                                            onClick={() => togglePeriodo(item.nombre)}
                                         />
                                         <label
                                             htmlFor={item.nombre}
@@ -147,7 +137,7 @@ const EstadisticasBasicas = () => {
                             type="button"
                             onClick={() => fetchData()}
                             className="inline-flex items-center text-white bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 font-medium rounded-lg text-xs px-5 py-3 text-center">
-                            <IoIosArrowForward className='w-7 pr-4' />
+                            {arrowIcon}
                             <span className='text-xs'>Analizar</span>
                         </button>
                     </div>
@@ -156,7 +146,7 @@ const EstadisticasBasicas = () => {
 
                         {data && data.materia && Array.isArray(data.materia) && (<MultiBtnDropdown
                             setVisible={setVisible}
-                            name={"Materias"}
+                            name={"materia"}
                             listaX={selector}
                             limite={limite}
                             setListaX={setSelector}
@@ -166,7 +156,7 @@ const EstadisticasBasicas = () => {
 
                         {validMagistrados && (<MultiBtnDropdown
                             setVisible={setVisible}
-                            name={"Magistrados"}
+                            name={"magistrado"}
                             listaX={selector}
                             limite={limite}
                             setListaX={setSelector}
@@ -176,7 +166,7 @@ const EstadisticasBasicas = () => {
 
                         {data && data.sala && Array.isArray(data.sala) && (<MultiBtnDropdown
                             setVisible={setVisible}
-                            name={"Salas"}
+                            name={"sala"}
                             listaX={selector}
                             limite={limite}
                             setListaX={setSelector}
@@ -206,9 +196,8 @@ const EstadisticasBasicas = () => {
                                     fill={selectedDepto.includes(depto.name) ? "#0ea5e9" : "#cbd5e1"}
                                     stroke="#1e293b"
                                     strokeWidth={0.9}
-                                    className="cursor-pointer transition-colors duration-200"
-                                    onMouseEnter={() => setHoveredDepto(depto.name)}
-                                    onMouseLeave={() => setHoveredDepto(null)}
+                                    className="cursor-pointer transition-colors duration-200 hover:fill-blue-600"
+
                                     onClick={() => handleClick(depto.name)}
                                 />
                             ))}

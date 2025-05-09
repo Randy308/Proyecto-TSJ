@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import AsyncButton from "../../../components/AsyncButton";
 import MagistradoService from "../../../services/MagistradoService";
+import { set } from "date-fns";
 function AnalisisMagistrado({
   params,
   data,
@@ -25,6 +26,8 @@ function AnalisisMagistrado({
   const [listaX, setListaX] = useState([]);
   const [checkedX, setCheckedX] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [chartType , setChartType] = useState("bar");
   const createSeries = (length) => {
     const series = [];
     for (let index = 0; index < length; index++) {
@@ -39,12 +42,12 @@ function AnalisisMagistrado({
 
       const processedData = multiVariable
         ? data.map((item) => {
-            const total = Object.entries(item).reduce(
-              (sum, [key, value]) => (key !== "sala" ? sum + value : sum),
-              0
-            );
-            return { ...item, Total: total };
-          })
+          const total = Object.entries(item).reduce(
+            (sum, [key, value]) => (key !== "sala" ? sum + value : sum),
+            0
+          );
+          return { ...item, Total: total };
+        })
         : data;
 
       processedData.forEach((entry) => {
@@ -65,6 +68,8 @@ function AnalisisMagistrado({
       setOption({
         legend: {},
         tooltip: { trigger: "item" },
+
+        grid: { containLabel: true },
         dataset: { source: [headers, ...values] },
         toolbox: { feature: { saveAsImage: {} } },
         xAxis: { type: "category", boundaryGap: true },
@@ -75,6 +80,8 @@ function AnalisisMagistrado({
   }, [data]);
 
   const handleChartTypeChange = (type) => {
+
+    setChartType(type);
     setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
 
@@ -89,34 +96,35 @@ function AnalisisMagistrado({
     }
   };
 
-const realizarAnalisis = () => {
-  setIsLoading(true); // Start loading
+  const realizarAnalisis = () => {
+    setIsLoading(true); // Start loading
 
-  const isMultiVariable = listaX.length > 0 && checkedX;
-  const params = isMultiVariable
-    ? {
+    const isMultiVariable = listaX.length > 0 && checkedX;
+    const params = isMultiVariable
+      ? {
         salas,
         magistradoId: id,
         idsY: listaX[0].ids,
         nombreY: listaX[0].name,
       }
-    : { salas, magistradoId: id };
+      : { salas, magistradoId: id };
 
-  const fetchStats = isMultiVariable
-    ? MagistradoService.getStatsXY(params)
-    : MagistradoService.getStatsX(params);
+    const fetchStats = isMultiVariable
+      ? MagistradoService.getStatsXY(params)
+      : MagistradoService.getStatsX(params);
 
-  fetchStats
-    .then(({ data }) => {
-      setData(data.data.length > 0 ? data.data : []);
-      setMultiVariable(isMultiVariable);
-      setIsLoading(false); // Stop loading when data is fetched
-    })
-    .catch((error) => {
-      console.error("Error fetching data:", error);
-      setIsLoading(false); // Stop loading in case of an error
-    });
-};
+    fetchStats
+      .then(({ data }) => {
+        setData(data.data.length > 0 ? data.data : []);
+        setMultiVariable(isMultiVariable);
+        setIsLoading(false); // Stop loading when data is fetched
+        setChartType("bar"); // Reset chart type to default
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setIsLoading(false); // Stop loading in case of an error
+      });
+  };
 
   function transposeArray(data) {
     const transposed = {};
@@ -177,7 +185,7 @@ const realizarAnalisis = () => {
               Selección de gráfico
             </label>
             <select
-              id="charts"
+              id="charts" value={chartType}
               onChange={(e) => handleChartTypeChange(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >

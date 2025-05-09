@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { IoIosArrowUp } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
 import { BsCheck2All } from "react-icons/bs";
@@ -14,6 +14,11 @@ const MultiBtnDropdown = ({
   size = 999,
 }) => {
   const [activo, setActivo] = useState(false);
+
+  const arrowUpIcon = useMemo(() => <IoIosArrowUp className="w-6 h-5 me-2 -ms-1 " />, []);
+  const removeIcon = useMemo(() => <MdOutlineRemoveCircle className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />, []);
+  const arrowDownIcon = useMemo(() => <IoIosArrowDown className="w-6 h-5 me-2 -ms-1" />, []);
+  const checkAllIcon = useMemo(() => <BsCheck2All className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />, []);
 
 
   const handleCheckboxChange = (event) => {
@@ -71,7 +76,7 @@ const MultiBtnDropdown = ({
   const convertirTitulo = (name) => {
     return String(name)
       .replace(/_/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+      .replace(/\b\w/g, (char) => char.toUpperCase())+"s";
   };
 
   return (
@@ -89,9 +94,9 @@ const MultiBtnDropdown = ({
       >
         {convertirTitulo(name)}
         {activo ? (
-          <IoIosArrowUp className="w-6 h-5 me-2 -ms-1 " />
+          arrowUpIcon
         ) : (
-          <IoIosArrowDown className="w-6 h-5 me-2 -ms-1" />
+          arrowDownIcon
         )}
       </button>
 
@@ -109,14 +114,14 @@ const MultiBtnDropdown = ({
             onClick={() => selectAll()}
             className="dark:bg-gray-800 dark:border-gray-700 flex border hover:cursor-pointer border-gray-200 items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
           >
-            <BsCheck2All className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+            {checkAllIcon}
             <span className="ms-3">Seleccionar todos</span>
           </a>
           <a
             onClick={() => clearList()}
             className="dark:bg-gray-800 dark:border-gray-700 flex border hover:cursor-pointer border-gray-200 items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
           >
-            <MdOutlineRemoveCircle className="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+            {removeIcon}
             <span className="ms-3">Quitar Selección</span>
           </a>
         </li>

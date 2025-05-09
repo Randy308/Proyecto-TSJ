@@ -45,6 +45,7 @@ import { UserContextProvider } from "./context/userContext";
 import { NotificationContextProvider } from "./context/notificationContext";
 import { VariablesContextProvider } from "./context/variablesContext";
 import EstadisticasBasicas from "./pages/estadisticas-basicas/EstadisticasBasicas";
+import AnalisisBasico from "./pages/estadisticas-basicas/AnalisisBasico";
 
 function App() {
   return (
@@ -112,6 +113,10 @@ function App() {
                               path="estadisticas-basicas"
                               element={<EstadisticasBasicas />}
                             />
+                            <Route
+                              path="estadisticas-basicas/:id"
+                              element={<AnalisisBasico />}
+                            />
                             <Route path="busqueda" element={<JurisprudenciaBusqueda />} />
                             <Route
                               path="jurisprudencia/cronologias"
@@ -139,6 +144,7 @@ function App() {
                               path="analisis/avanzado/:id"
                               element={<ResultadoAvanzado />}
                             />
+
                             <Route path="analisis/sala/:id" element={<AnalisisSala />} />
                             <Route path="iijp-login" element={<Login />} />
                             <Route path="registrar" element={<Register />} />

@@ -33,11 +33,14 @@ use Symfony\Contracts\HttpClient\Exception\{TransportExceptionInterface, ClientE
 
 class ResolutionController extends Controller
 {
+
+
+
     public function obtenerEstadisticas(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'departamentos' => 'nullable|array',
-            'departamentos.*' => 'required|string',
+            'departamento' => 'nullable|array',
+            'departamento.*' => 'required|string',
             'variable' => 'required|array',
             'variable.*' => 'required|integer',
             'nombre' => 'required|string',
@@ -50,42 +53,40 @@ class ResolutionController extends Controller
         }
 
         $nombre = strtolower($request->nombre);
-        if ($nombre == "materias") {
-            $nombre = "descriptors";
-        }
-
 
         $campos = [
-            "tipo_resolucions" => "tipo_resolucion_id",
-            "departamentos" => "departamento_id",
-            "salas" => "sala_id",
-            "magistrados" => "magistrado_id",
-            "forma_resolucions" => "forma_resolucion_id"
+            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false, "columna" => "id", "nombre" => "tipo_resolucion"],
+            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false, "columna" => "id", "nombre" => "departamento"],
+            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false, "columna" => "id", "nombre" => "sala"],
+            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false, "columna" => "id", "nombre" => "magistrado"],
+            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false, "columna" => "id", "nombre" => "forma_resolucion"],
+            "tipo_jurisprudencia" => ["tabla" => "jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true, "columna" => "id", "nombre" => "tipo_jurisprudencia"],
+            "materia" => ["tabla" => "descriptors", "foreign_key" => "root_id", "join" => true, "columna" => "id", "nombre" => "materia"],
         ];
 
-        $campos_jurisprudencia = [
-            "descriptors" => "root_id",
-            "tipo_jurisprudencias" => "tipo_jurisprudencia_id",
-            "restrictors" => "restrictor_id",
-        ];
-
-        foreach ($campos as $key => $value) {
-            if ($key == $nombre) {
-                $query = DB::table('resolutions as r')->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad')->join($key . ' as x', 'x.id', $value)->whereIn($value, $request->variable)->groupBy("x.nombre");
-            }
+        if (!array_key_exists($nombre, $campos)) {
+            return response()->json([
+                'No existe la variable solicitada'
+            ], 422);
         }
 
-        foreach ($campos_jurisprudencia as $key => $value) {
-            if ($key == $nombre) {
-                $query = DB::table('resolutions as r')->selectRaw(' x.nombre as nombre, Count(r.id) as cantidad')->join('jurisprudencias as j', 'j.resolution_id', 'r.id')->join($key . ' as x', 'x.id', $value)->whereIn($value, $request->variable)->groupBy("x.nombre");
-            }
+
+        $filtroPrincipal = $campos[$nombre];
+
+
+
+        $query = DB::table('resolutions as r');
+        if ($filtroPrincipal["join"]) {
+            $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
+        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad')->join($filtroPrincipal["tabla"] . ' as x', 'x.id', $filtroPrincipal["foreign_key"])->whereIn($filtroPrincipal["foreign_key"], $request->variable)->groupBy("x.nombre");
+
 
         if ($request->has('periodo')) {
             $query->whereYear("fecha_emision", $request->periodo);
         }
-        if ($request->has('departamentos')) {
-            $departamentos = Departamentos::whereIn('nombre', $request->departamentos)->pluck('id')->toArray();
+        if ($request->has('departamento')) {
+            $departamentos = Departamentos::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
             $query->whereIn("departamento_id", $departamentos);
         }
         $data = $query->get();
@@ -98,6 +99,164 @@ class ResolutionController extends Controller
             'terminos' => $data->pluck('nombre'),
             'multiVariable' => false
         ]);
+    }
+
+    public function obtenerEstadisticasXY(Request $request)
+    {
+
+        $nombre = strtolower($request->nombre);
+        $nombreY = strtolower($request->nombreY);
+        $campos = [
+            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false, "columna" => "id", "nombre" => "tipo_resolucion"],
+            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false, "columna" => "id", "nombre" => "departamento"],
+            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false, "columna" => "id", "nombre" => "sala"],
+            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false, "columna" => "id", "nombre" => "magistrado"],
+            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false, "columna" => "id", "nombre" => "forma_resolucion"],
+            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true, "columna" => "id", "nombre" => "tipo_jurisprudencia"],
+            "materia" => ["tabla" => "descriptors", "foreign_key" => "root_id", "join" => true, "columna" => "id", "nombre" => "materia"],
+        ];
+
+        if (!array_key_exists($nombre, $campos)) {
+            return response()->json([
+                'No existe la variable solicitada'
+            ], 422);
+        }
+        if (!array_key_exists($nombreY, $campos)) {
+            return response()->json([
+                'No existe la variable solicitada'
+            ], 422);
+        }
+
+        $filtroX = $campos[$nombre];
+        $filtroY = $campos[$nombreY];
+        unset($campos[$nombre]);
+        unset($campos[$nombreY]);
+
+
+        $arrayX = DB::table($filtroX["tabla"])
+            ->select('nombre as x')->whereIn('id', $request->variable)->get()->pluck('x')->toArray();
+        $arrayY = DB::table($filtroY["tabla"])
+            ->select('nombre as y')->whereIn('id', $request->variableY)->get()->pluck('y')->toArray();
+        
+        $combinations = [];
+
+        foreach ($arrayX as $sala) {
+            foreach ($arrayY as $row) {
+                $combinations[] = [
+                    'x' => $sala,
+                    'nombre' => $row,
+                    "cantidad" => 0,
+                ];
+            }
+        }
+
+        $query = DB::table('resolutions as r');
+        if ($filtroX["join"] || $filtroY["join"]) {
+            $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+        }
+        $query->selectRaw(' x.nombre as x ,y.nombre as nombre , COALESCE(COUNT(r.id), 0) AS cantidad');
+        $query->join($filtroX["tabla"] . ' as x', 'x.id', $filtroX["foreign_key"])->whereIn($filtroX["foreign_key"], $request->variable)->groupBy("x.nombre");
+
+        $query->join($filtroY["tabla"] . ' as y', 'y.id', $filtroY["foreign_key"])->whereIn($filtroY["foreign_key"], $request->variableY)->groupBy("y.nombre");
+
+        if ($request->has('periodo')) {
+            $query->whereYear("fecha_emision", $request->periodo);
+        }
+        if ($request->has('departamento')) {
+            $departamentos = Departamentos::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
+            $query->whereIn("departamento_id", $departamentos);
+        }
+        $data = $query->get();
+
+        $total = array_sum($data->pluck('cantidad')->toArray());
+
+
+        $datoLookup = [];
+        foreach ($data as $dato) {
+            $datoLookup[$dato->x][$dato->nombre] = $dato->cantidad;
+        }
+
+
+        foreach ($combinations as &$item) {
+            $item['cantidad'] = $datoLookup[$item['x']][$item['nombre']] ?? 0;
+        }
+
+
+        return response()->json([
+            'total' => $total,
+            'data' => $this->ordenarArrayXY($combinations, 'x', 'nombre'),
+        ]);;
+    }
+    public function obtenerFiltros(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'departamento' => 'nullable|array',
+            'departamento.*' => 'required|string',
+            'variable' => 'required|array',
+            'variable.*' => 'required|integer',
+            'nombre' => 'required|string',
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        $campos = [
+            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false, "columna" => "id", "nombre" => "tipo_resolucion"],
+            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false, "columna" => "id", "nombre" => "departamento"],
+            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false, "columna" => "id", "nombre" => "sala"],
+            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false, "columna" => "id", "nombre" => "magistrado"],
+            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false, "columna" => "id", "nombre" => "forma_resolucion"],
+            "tipo_jurisprudencia" => ["tabla" => "jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true, "columna" => "id", "nombre" => "tipo_jurisprudencia"],
+            "materia" => ["tabla" => "jurisprudencias", "foreign_key" => "root_id", "join" => true, "columna" => "id", "nombre" => "materia"],
+        ];
+
+        $nombre = strtolower($request->nombre);
+
+        if (!array_key_exists($nombre, $campos)) {
+            return response()->json(['error' => 'Filtro inválido.'], 400);
+        }
+
+        // Extraemos el campo actual y lo quitamos del array general
+        $filtroPrincipal = $campos[$nombre];
+        unset($campos[$nombre]);
+
+        if ($request->has('departamento')) {
+            unset($campos['departamento']);
+        }
+
+
+        $resultado = [];
+
+        // Recorremos el resto de filtros normalmente
+        foreach ($campos as $key => $value) {
+            $query = Resolutions::query()->from('resolutions as r');
+
+            if ($value["join"] || $filtroPrincipal["join"]) {
+                $query->join('jurisprudencias as x', 'x.resolution_id', '=', 'r.id');
+            }
+
+            if ($request->has('periodo')) {
+                $query->whereYear("fecha_emision", $request->periodo);
+            }
+
+            if ($request->has('departamento')) {
+                $departamentos = Departamentos::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
+                $query->whereIn("departamento_id", $departamentos);
+            }
+
+            // Aplicamos el filtro principal como condición base a los otros
+            if ($request->has('variable')) {
+                $query->whereIn($filtroPrincipal["foreign_key"], $request->variable);
+            }
+
+            $resultado[$value["nombre"]] = $query->distinct()->pluck($value["foreign_key"])->toArray();
+        }
+
+        return response()->json($resultado);
     }
 
     public function obtenerOpciones(Request $request)
@@ -1052,18 +1211,14 @@ class ResolutionController extends Controller
         }
 
 
-        // Obtener todas las claves excepto "magistrado"
-        $keysToCheck = array_keys(array_diff_key($resultado[0], [$variableY => ""]));
-
-        // Identificar claves que solo contienen 0 en todos los registros
-        $zeroKeys = array_filter($keysToCheck, function ($key) use ($resultado) {
-            return array_sum(array_column($resultado, $key)) === 0;
+        $filteredData = array_filter($resultado, function ($item) use ($variableY) {
+            foreach ($item as $key => $value) {
+                if ($key !== $variableY && (int)$value !== 0) {
+                    return true;
+                }
+            }
+            return false;
         });
-
-        // Eliminar las claves identificadas
-        $filteredData = array_map(function ($item) use ($zeroKeys) {
-            return array_diff_key($item, array_flip($zeroKeys));
-        }, $resultado);
 
 
         return $filteredData;
