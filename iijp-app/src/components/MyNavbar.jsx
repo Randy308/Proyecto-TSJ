@@ -1,17 +1,11 @@
 import "../styles/navbar.css";
 import { NavLink } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-import React, { useEffect, useRef, useState } from "react";
-import { MdSettingsInputComponent } from "react-icons/md";
-import { HiOutlineLogin } from "react-icons/hi";
-import { FaGear } from "react-icons/fa6";
+import React, { useState } from "react";
 import { navItems } from "../data/NavItems";
 import "../styles/main.css";
-import { useToggleContext, useThemeContext } from "../context/ThemeProvider";
 import AuthUser from "../auth/AuthUser";
-import axios from "axios";
 import LogoUmss from "../images/Logo_umss.png";
-import Notifications from "./Notifications";
 import { BiSolidDashboard } from "react-icons/bi";
 import Settings from "./Settings";
 const MyNavbar = () => {
@@ -41,7 +35,7 @@ const MyNavbar = () => {
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
-                `flex items-center py-2 px-3  rounded hover:bg-gray-100 md:hover:bg-transparent  md:p-0 dark:hover:bg-gray-700 md:dark:hover:bg-transparent dark:border-gray-700 ${isActive ? "dark:text-blue-600 text-main font-bold " : "text-red-octopus-600 md:hover:text-red-octopus-900 md:hover:bg-second  dark:text-white md:dark:hover:text-blue-500  dark:hover:text-white  "
+                `flex items-center py-2 px-3  rounded hover:bg-gray-100 md:hover:bg-transparent  md:p-0 dark:hover:bg-gray-700 md:dark:hover:bg-transparent dark:border-gray-700 ${isActive ? "dark:text-blue-600 text-main font-bold " : "text-gray-600 md:hover:text-red-octopus-900 md:hover:bg-second  dark:text-white md:dark:hover:text-blue-500  dark:hover:text-white  "
                 }`
               }
             >
@@ -74,7 +68,7 @@ const MyNavbar = () => {
             <img
               src={LogoUmss}
               alt="first-logo"
-              className="h-12 self-center custom:hidden"
+              className="h-14 self-center custom:hidden"
             />
           </a>
           <div className="flex items-center space-x-6 rtl:space-x-reverse">
@@ -109,7 +103,7 @@ const MyNavbar = () => {
             </button>
 
             <div className="flex items-center gap-4">
-              <Notifications />
+             
               <Settings />
             </div>
 
@@ -131,7 +125,7 @@ const MyNavbar = () => {
 
 
                       className={({ isActive }) =>
-                        `flex items-center py-2 px-3  rounded hover:bg-gray-100 md:hover:bg-transparent  md:p-0 dark:hover:bg-gray-700 md:dark:hover:bg-transparent dark:border-gray-700 ${isActive ? "dark:text-blue-600 text-main font-bold p-4" : "text-red-octopus-600 md:hover:text-red-octopus-900 md:hover:bg-second  dark:text-white md:dark:hover:text-blue-500  dark:hover:text-white  "
+                        `flex items-center py-2 px-3  rounded hover:bg-gray-100 md:hover:bg-transparent  md:p-0 dark:hover:bg-gray-700 md:dark:hover:bg-transparent dark:border-gray-700 ${isActive ? "dark:text-blue-600 text-main font-bold p-4" : "text-gray-600 md:hover:text-red-octopus-900 md:hover:bg-second  dark:text-white md:dark:hover:text-blue-500  dark:hover:text-white  "
                         }`
                       }
                     >

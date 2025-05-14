@@ -33,25 +33,32 @@ function validarModelo($modelClassName, $field, $value)
 class TemaController extends Controller
 {
 
-
     public function obtenerNodos(Request $request)
     {
-        $id = $request->id;
-
-        if ($id) {
-            $nodo_principal = Descriptor::where('id', $id)->first();
-
-            if (!$nodo_principal) {
-                return response()->json(['error' => 'Nodo no encontrado'], 404);
-            }
-
-            $hijos = Descriptor::where('descriptor_id', $id)->get();
-            return response()->json($hijos);
-        } else {
-            $temas_generales = Descriptor::whereNull('descriptor_id')->get(['id', 'nombre', 'descriptor_id']);
-            return response()->json($temas_generales);
+        $datos = DB::select("SELECT * FROM resumen_jerarquico");
+        return response()->json($datos);
+        // Reorganizar los datos en un mapa por ID
+        $mapa = [];
+        foreach ($datos as $item) {
+            $item->children = [];
+            $mapa[$item->id] = $item;
         }
+
+        // Construir jerarquía
+        $raices = [];
+        foreach ($mapa as $item) {
+            if ($item->descriptor_id === null) {
+                $raices[] = $item;
+            } else {
+                if (isset($mapa[$item->descriptor_id])) {
+                    $mapa[$item->descriptor_id]->children[] = $item;
+                }
+            }
+        }
+
+        return response()->json($raices);
     }
+
 
     public function obtenerNodosPorNombre(Request $request)
     {
@@ -75,7 +82,15 @@ class TemaController extends Controller
             ->join('salas as s', 's.id', '=', 'r.sala_id')
             ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
             ->join('restrictors as rt', 'rt.id', '=', 'j.restrictor_id')
-            ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'rt.nombre as departamento', 's.nombre as sala')->whereIn('r.id', $ids);
+            ->select(
+                'r.id',
+                'r.nro_resolucion',
+                'r.fecha_emision',
+                DB::raw('array_agg(rt.nombre) as departamento'),
+                'tr.nombre as tipo_resolucion',
+                's.nombre as sala'
+            )
+            ->whereIn('r.id', $ids)->groupBy('r.id', 'tr.nombre', 's.nombre');
 
 
 
@@ -94,30 +109,35 @@ class TemaController extends Controller
         $descriptor = $request->input('descriptor');
 
         // Función auxiliar para evitar la repetición de código
-        $getDistinctValues = function ($joinTable, $nameTable, $joinColumn, $selectColumn) use ($descriptor) {
+        $getDistinctValues = function ($selectColumn) use ($descriptor) {
             return DB::table('jurisprudencias as j')
                 ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
-                ->join($joinTable, "$nameTable.id", '=', $joinColumn)
                 ->where('j.descriptor', 'like', '%' . $descriptor . '%')
                 ->distinct()
                 ->pluck($selectColumn);
         };
 
         // Obtener los valores únicos
-        $salas = $getDistinctValues('salas as s', "s", 'r.sala_id', 's.nombre');
-        $departamentos = $getDistinctValues('departamentos as d', "d", 'r.departamento_id', 'd.nombre');
-        $tipo_resolucions = $getDistinctValues('tipo_resolucions as tr', "tr", 'r.tipo_resolucion_id', 'tr.nombre');
+        $salas = $getDistinctValues('sala_id');
+        $departamentos = $getDistinctValues('departamento_id');
+        $tipo_resolucions = $getDistinctValues('tipo_resolucion_id');
 
+        $periodo = DB::table('resolutions as r')
+            ->selectRaw("CAST(coalesce(EXTRACT(YEAR FROM fecha_emision) , '0') AS integer) as nombre")->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')->where('j.descriptor', 'like', '%' . $descriptor . '%')
+            ->groupBy('nombre')
+            ->orderBy('nombre', 'desc')
+            ->get()->pluck("nombre");
 
         $ids = DB::table('jurisprudencias as j')
             ->where('j.descriptor', 'like', '%' . $descriptor . '%')
-            ->distinct()->limit(40)->pluck('j.id');
+            ->distinct()->limit(40)->pluck('j.resolution_id');
         // Preparar la respuesta
         $data = [
-            'departamentos' => $departamentos,
-            'salas' => $salas,
-            'tipo_resolucions' => $tipo_resolucions,
+            'departamento' => $departamentos,
+            'sala' => $salas,
+            'tipo_resolucion' => $tipo_resolucions,
             'ids' => $ids,
+            'periodo' => $periodo
         ];
 
         return response()->json($data);
@@ -130,32 +150,13 @@ class TemaController extends Controller
 
         $tema_id = $request['tema_id'];
         $descriptor = $request['descriptor'];
-        $departamento = $request["departamento"];
-        $tipo_resolucion = $request["tipo_resolucion"];
-        $sala = $request["sala"];
-        $fecha_exacta = $request["fecha_exacta"];
-        $fecha_desde = $request["fecha_desde"];
-        $fecha_hasta = $request["fecha_hasta"];
         $cantidad = $request["cantidad"];
 
 
         $excluirNodos = filter_var($request["recorrer"], FILTER_VALIDATE_BOOLEAN);
         $seccion = filter_var($request["seccion"], FILTER_VALIDATE_BOOLEAN);
 
-        $mi_departamento = null;
-        $mi_tipo_resolucion = null;
-        $mi_sala = null; // Valor por defecto si forma_resolucion es "Todas"
 
-        //return $request;
-        if ($sala) {
-            $mi_sala = validarModelo(Sala::class, 'nombre', $sala);
-        }
-        if ($tipo_resolucion) {
-            $mi_tipo_resolucion = validarModelo(TipoResolucions::class, 'nombre', $tipo_resolucion);
-        }
-        if ($departamento) {
-            $mi_departamento = validarModelo(Departamentos::class, 'nombre', $departamento);
-        }
         // Encuentra el tema por ID
         $tema = Descriptor::where('id', $tema_id)->first();
 
@@ -187,24 +188,27 @@ class TemaController extends Controller
         }
 
 
-
-        if ($mi_tipo_resolucion) {
-            $query->where('r.tipo_resolucion_id', $mi_tipo_resolucion->id);
-        }
-        if ($mi_sala) {
-            $query->where('r.sala_id', $mi_sala->id);
+        if ($request->has('periodo')) {
+            $query->whereYear('r.fecha_emision',  $request->periodo);
         }
 
-        if ($mi_departamento) {
-            $query->where('r.departamento_id', $mi_departamento->id);
+        if ($request->has('magistrado')) {
+            $query->whereIn("r.magistrado_id", $request->magistrado);
+        }
+        if ($request->has('forma_resolucion')) {
+            $query->whereIn("r.forma_resolucion_id", $request->forma_resolucion);
+        }
+        if ($request->has('tipo_resolucion')) {
+            $query->whereIn("r.tipo_resolucion_id", $request->tipo_resolucion);
+        }
+        if ($request->has('sala')) {
+            $query->whereIn("r.sala_id", $request->sala);
+        }
+        if ($request->has('departamento')) {
+            $query->whereIn("r.departamento_id", $request->departamento);
         }
 
-        if ($fecha_exacta) {
-            $query->where('r.fecha_emision', $fecha_exacta);
-        }
-        if ($fecha_desde && $fecha_hasta) {
-            $query->whereBetween('r.fecha_emision', [$fecha_desde, $fecha_hasta]);
-        }
+
         if ($cantidad) {
             $query->limit($cantidad);
         } else {

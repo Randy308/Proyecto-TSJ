@@ -34,16 +34,16 @@ class DescriptorController extends Controller
         ]);
 
         $search = $request->input('search');
-        $search = preg_replace('/\s+/', ' ', $search); 
-        $search = trim($search); 
-        $search = strtolower($search); 
+        $search = preg_replace('/\s+/', ' ', $search);
+        $search = trim($search);
+        $search = strtolower($search);
         $stopwords = NLP::getStopWords();
-        if(in_array($search, $stopwords)) {
+        if (in_array($search, $stopwords)) {
             return response()->json([
                 'message' => 'La palabra no puede ser una palabra de parada',
             ], 404);
         }
-       
+
 
         // return Contents::keyword($search)
         //     ->with(['resolution' => function ($query) {

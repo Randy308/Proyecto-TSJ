@@ -15,6 +15,7 @@ use App\Models\Resolutions;
 use App\Models\Sala;
 use App\Models\TipoJurisprudencia;
 use App\Models\TipoResolucions;
+use App\Utils\NLP;
 use Carbon\Carbon;
 use DateInterval;
 use DateTime;
@@ -137,7 +138,7 @@ class ResolutionController extends Controller
             ->select('nombre as x')->whereIn('id', $request->variable)->get()->pluck('x')->toArray();
         $arrayY = DB::table($filtroY["tabla"])
             ->select('nombre as y')->whereIn('id', $request->variableY)->get()->pluck('y')->toArray();
-        
+
         $combinations = [];
 
         foreach ($arrayX as $sala) {
@@ -294,7 +295,7 @@ class ResolutionController extends Controller
         $materia = Descriptor::whereNull('descriptor_id')->get(['id', 'nombre']);
 
         $periodo = DB::table('resolutions')
-            ->selectRaw("MIN(id) as id,EXTRACT(YEAR FROM fecha_emision) AS nombre")
+            ->selectRaw("CAST(coalesce(EXTRACT(YEAR FROM fecha_emision) , '0') AS integer) as id,EXTRACT(YEAR FROM fecha_emision) AS nombre")
             ->groupBy('nombre')
             ->orderBy('nombre', 'desc')
             ->get();
@@ -315,30 +316,26 @@ class ResolutionController extends Controller
     public function filtrarResolucionesContenido(Request $request)
     {
 
+
         $validator = Validator::make($request->all(), [
-            'materia' => 'nullable|string',
-            'tipo_jurisprudencia' => 'nullable|string',
-            'tipo_resolucion' => [
-                'nullable',
-                'integer',
-            ],
-            'sala' => [
-                'nullable',
-                'integer',
-            ],
-            'departamento' => [
-                'nullable',
-                'integer',
-            ],
-            'magistrado' => [
-                'nullable',
-                'integer',
-            ],
-            'forma_resolucion' => [
-                'nullable',
-                'integer',
-            ],
+            'departamento' => 'nullable|array',
+            'departamento.*' => 'required|integer',
+            'sala' => 'nullable|array',
+            'sala.*' => 'required|integer',
+            'magistrado' => 'nullable|array',
+            'magistrado.*' => 'required|integer',
+            'forma_resolucion' => 'nullable|array',
+            'forma_resolucion.*' => 'required|integer',
+            'tipo_jurisprudencia' => 'nullable|array',
+            'tipo_jurisprudencia.*' => 'required|integer',
+            'materia' => 'nullable|array',
+            'materia.*' => 'required|integer',
+            'tipo_resolucion' => 'nullable|array',
+            'tipo_resolucion.*' => 'required|integer',
+            'periodo' => 'nullable|array',
+            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
+
 
 
         if ($validator->fails()) {
@@ -347,14 +344,16 @@ class ResolutionController extends Controller
             ], 422);
         }
 
+
+
         $variable = $request["variable"];
         $orden = $request["orden"];
-        $fecha_final = $request->input('fecha_final');
-        $fecha_inicial = $request->input('fecha_inicial');
 
         $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
         $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
         $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
+
+
 
         $query = DB::table('resolutions as r')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
@@ -370,12 +369,12 @@ class ResolutionController extends Controller
             $subquery = DB::table('jurisprudencias')
                 ->select('resolution_id');
 
-            if ($tipoJurisprudencia && $tipoJurisprudencia !== 'all') {
-                $subquery->where('tipo_jurisprudencia_id', intval($tipoJurisprudencia));
+            if ($request->has('tipo_jurisprudencia')) {
+                $subquery->whereIn('tipo_jurisprudencia_id', $tipoJurisprudencia);
             }
 
-            if ($materia && $materia !== 'all') {
-                $subquery->where('root_id', intval($materia));
+            if ($request->has('materia')) {
+                $subquery->whereIn('root_id', $materia);
             }
 
             $query->joinSub($subquery, 'j', function ($join) {
@@ -384,54 +383,44 @@ class ResolutionController extends Controller
         }
 
 
-        if ($fecha_inicial && $fecha_final && strtotime($fecha_inicial) && strtotime($fecha_final)) {
-            $query->whereBetween('r.fecha_emision', [$fecha_inicial, $fecha_final]);
+        if ($request->has('periodo')) {
+            $query->whereYear('r.fecha_emision',  $request->periodo);
         }
 
         if ($request->has('magistrado')) {
-            $query->where("r.magistrado_id", $request->magistrado);
+            $query->whereIn("r.magistrado_id", $request->magistrado);
         }
         if ($request->has('forma_resolucion')) {
-            $query->where("r.forma_resolucion_id", $request->forma_resolucion);
+            $query->whereIn("r.forma_resolucion_id", $request->forma_resolucion);
         }
         if ($request->has('tipo_resolucion')) {
-            $query->where("r.tipo_resolucion_id", $request->tipo_resolucion);
+            $query->whereIn("r.tipo_resolucion_id", $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $query->where("r.sala_id", $request->sala);
+            $query->whereIn("r.sala_id", $request->sala);
         }
         if ($request->has('departamento')) {
-            $query->where("r.departamento_id", $request->departamento);
+            $query->whereIn("r.departamento_id", $request->departamento);
         }
 
-        if ($request->has('term') && !empty($request->input('term')) && strlen($request->input('term')) > 2) {
-
-            $searchTerm = $request->input('term');
-            $escapedTerm1 = preg_quote($searchTerm, '/');
-
-
-            $pattern = "[^\\.]*" . $escapedTerm1 . "[^\\.]*";
+        $search = $request->input('term');
+        $search = preg_replace('/\s+/', ' ', $search);
+        $search = trim($search);
+        $search = strtolower($search);
+        $stopwords = NLP::getStopWords();
 
 
-            if ($request->has('term-2') && !empty($request->input('term-2')) && strlen($request->input('term-2')) > 2) {
+        if ($request->has('term') && in_array($search, $stopwords) === false) {
 
-                $searchTerm2 = $request->input('term-2');
-                $escapedTerm2 = preg_quote($searchTerm2, '/');
-                $pattern = "(?=.*" . $escapedTerm2 . ")" . $pattern;
-                $query->where('c.contenido', '~*', $escapedTerm2);
-            }
 
-            if ($request->has('term-3') && !empty($request->input('term-3')) && strlen($request->input('term-3')) > 2) {
 
-                $searchTerm3 = $request->input('term-3');
-                $escapedTerm3 = preg_quote($searchTerm3, '/');
-                $pattern = "(?=.*" . $escapedTerm3 . ")" . $pattern;
-                $query->where('c.contenido', '~*', $escapedTerm3);
-            }
+            $searchSanitized = addslashes($search);
 
             $query->join('contents as c', 'c.resolution_id', '=', 'r.id')
-                ->addSelect(DB::raw("(regexp_matches(c.contenido, '$pattern', 'g'))[1] AS resumen"))
-                ->where('c.contenido', '~*', $escapedTerm1);
+                ->addSelect(DB::raw("
+                    resolution_id,
+                    ts_headline('spanish', contenido, plainto_tsquery('spanish', '{$searchSanitized}')) as contexto
+                "))->whereRaw('searchtext @@ plainto_tsquery(\'spanish\', ?)', [$search]);
         }
 
 
@@ -631,10 +620,19 @@ class ResolutionController extends Controller
                 )
                 ->where('r.id', '=', $id)
                 ->first();
-            $jurisprudencias = Jurisprudencias::with('tipo_jurisprudencia:id,nombre')->where('resolution_id', $id)->get();
+            $jurisprudencias = DB::table('jurisprudencias as j')
+                ->leftJoin('restrictors as rt', 'rt.id', '=', 'j.restrictor_id')
+                ->leftJoin('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')->select(
+
+                    'j.ratio',
+                    'j.descriptor',
+                    "tj.nombre as tipo_jurisprudencia",
+                    'rt.nombre as restrictor'
+
+                )->where('resolution_id', $id)->get();
 
 
-            $jurisprudencias->makeHidden(['id', 'resolution_id', 'updated_at', 'created_at']);
+
 
 
             return response()->json([

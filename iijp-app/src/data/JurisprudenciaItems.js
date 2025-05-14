@@ -12,7 +12,7 @@ export const jurisprudenciaItems = [
   },{
     id: 2,
     title: "Generación de cronojuridicas",
-    path: "/jurisprudencia/cronologias",
+    path: "/busqueda-de-jurisprudencia",
     cName: "tool-item",
     resumen : "El módulo de Cronojurídicas se encarga de recuperar la información segmentada de la jurisprudencia, y presentarla de manera estructurada, facilitando su comprensión y utilización posterior",
     icon: <FaSearch className="icon-style"/> ,

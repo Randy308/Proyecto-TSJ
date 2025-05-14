@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaMagnifyingGlassChart } from "react-icons/fa6";
 import { FaChartPie } from "react-icons/fa";
 import "../styles/inicio.css";
+import SimpleChart from "../components/charts/SimpleChart";
+import Loading from "../components/Loading";
+import { useHistoricContext } from "../context/historicContext";
 // "baseUrl": ".",
 // "paths": {
 //   "@/*": ["./src/*"]
@@ -20,44 +23,162 @@ const Inicio = () => {
       icon: <FaMagnifyingGlassChart className="tarjetas-icon-style" />,
     },
   ];
+
+  const { historic } = useHistoricContext();
+
+  const [resoluciones, setResoluciones] = useState([]);
+  const [jurisprudencia, setJurisprudencia] = useState([]);
+  const [maxRes, setMaxRes] = useState([]);
+  const [maxJuris, setMaxJuris] = useState([]);
+
+  useEffect(() => {
+    if (historic && historic.max_res && historic.max_juris) {
+      setMaxRes(historic.max_res);
+      setMaxJuris(historic.max_juris);
+      setResoluciones(historic.resoluciones || []);
+      setJurisprudencia(historic.jurisprudencia || []);
+    } else {
+      console.error("El objeto 'historic' no contiene los datos necesarios");
+    }
+  }, [historic]);
+
+  const option = {
+    visualMap: [
+      {
+        show: false,
+        type: "continuous",
+        seriesIndex: 0,
+        min: 0,
+        max: maxRes,
+      },
+      {
+        show: false,
+        type: "continuous",
+        seriesIndex: 1,
+        min: 0,
+        max: maxJuris,
+      },
+    ],
+    toolbox: {
+      feature: {
+        magicType: {
+          show: true,
+          type: ["line", "bar"],
+          title: {
+            line: "Línea",
+            bar: "Barras",
+          },
+        },
+        saveAsImage: {
+          show: true,
+          title: "Guardar como imagen",
+        },
+      },
+    },
+    title: [
+      {
+        left: "center",
+        top: "5%",
+        text: "Cantidad de Autos supremos por periodo",
+        textStyle: {
+          fontSize: Math.max(12, window.innerWidth * 0.015), // Ajusta según el tamaño de la pantalla
+          fontWeight: "bold",
+        },
+      },
+      {
+        top: "55%",
+        left: "center",
+        text: "Cantidad de Jurisprudencia por periodo",
+        textStyle: {
+          fontSize: Math.max(12, window.innerWidth * 0.015), // Ajusta según el tamaño de la pantalla
+          fontWeight: "bold",
+        },
+      },
+    ],
+    tooltip: {
+      trigger: "axis",
+    },
+    xAxis: [
+      {
+        type: "time",
+      },
+      {
+        type: "time",
+        gridIndex: 1,
+      },
+    ],
+    yAxis: [
+      {},
+      {
+        gridIndex: 1,
+      },
+    ],
+    grid: [
+      {
+        bottom: "60%",
+        left: "5%",
+        right: "5%",
+        containLabel: true,
+      },
+      {
+        top: "60%",
+        left: "5%",
+        right: "5%",
+        containLabel: true,
+      },
+    ],
+    series: [
+      {
+        type: "line",
+        showSymbol: false,
+        data: resoluciones,
+      },
+      {
+        type: "line",
+        showSymbol: false,
+        data: jurisprudencia,
+        xAxisIndex: 1,
+        yAxisIndex: 1,
+      },
+    ],
+  };
+
   return (
-    <div className="flex flex-row  flex-wrap p-4 m-4 custom:p-0 justify-center items-center custom:flex-col gap-3 text-black dark:text-white">
-      <div className="p-4 grow-0">
-        <p className="mb-4 text-2xl font-extrabold leading-none tracking-tight text-gray-900 md:text-2xl lg:text-2xl dark:text-white">Sistemas Gestión y Analisis de Metricas de la Justicia Ordinaria</p>
-        <div className="mb-4 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400 max-w-[700px] text-justify custom:max-w-none">
-          A través de este sistema web, se facilita el análisis de los Autos
-          Supremos y otras resoluciones del Tribunal Supremo de Justicia,
-          proporcionando una herramienta para organizar y comprender datos
-          legales de manera eficiente, accesible y comprensible. Esto no solo
-          potencia la educación y el conocimiento en temas legales, sino que
-          también promueve la transparencia y el acceso a la justicia en
-          Bolivia. 
+    <div>
+      <div className="mb-4 relative">
+        <div className="overflow-hidden bg-gradient-to-b from-red-octopus-50  to-red-octopus-100 dark:from-blue-50 dark:to-blue-500 [clip-path:ellipse(100%_70%_at_50%_20%)]">
+          <img
+            src="https://www.umss.edu.bo/wp-content/uploads/2019/09/1010069.jpg"
+            className="h-[300px] sm:h-[600px] w-full object-cover object-center mix-blend-multiply [clip-path:ellipse(100%_70%_at_50%_20%)]"
+          />
+        </div>
+        <div className="w-full top-1/2 transform -translate-y-1/2 z-40 absolute">
+          <p className="mb-4 uppercase text-xl text-center font-extrabold leading-none tracking-tight text-white md:text-3xl lg:text-4xl">
+            Sistemas Gestión y Análisis de Métricas de la Justicia Ordinaria
+          </p>
         </div>
       </div>
-      <div className="p-4 grow flex flex-col items-center">
-        <p className="inline-flex items-center text-start mb-4 text-lg text-black dark:text-white">Enlaces de interés</p>
-        <div className="flex gap-4 justify-center card-container custom:flex-col text-black dark:text-white">
-          {tarjetas.map((tarjeta) => {
-            return (
-              <div
-                className="card box-content aspect-square bg-[#31363F] hover:bg-[#222831] p-4 mx-4 hover:cursor-pointer rounded-lg"
-                key={tarjeta.nombre}
-              >
-                <div className="flex justify-center border-black  m-2 p-2">
-                  {tarjeta.icon}
-                </div>
-                <p className="text-center text-white">{tarjeta.nombre}</p>
 
-                <div className="flex justify-center p-4">
-                  <Link to={tarjeta.path}>
-                    <button className="bg-[#76ABAE] text-center text-white p-3 rounded-lg">
-                      Acceder
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
+      <div className="grid grid-cols-1  sm:grid-cols-2 text-black dark:text-white">
+        <div className="flex items-center">
+          <div className="p-4 m-4">
+            <div className="mb-4 text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400 max-w-[700px] text-justify custom:max-w-none">
+              A través de este sistema web, se facilita el análisis de los Autos
+              Supremos y otras resoluciones del Tribunal Supremo de Justicia,
+              proporcionando una herramienta para organizar y comprender datos
+              legales de manera eficiente, accesible y comprensible. Esto no
+              solo potencia la educación y el conocimiento en temas legales,
+              sino que también promueve la transparencia y el acceso a la
+              justicia en Bolivia.
+            </div>
+          </div>
+        </div>
+        <div className="p-4">
+          {resoluciones && resoluciones.length > 0 ? (
+            <SimpleChart option={option}></SimpleChart>
+          ) : (
+            <Loading></Loading>
+          )}
         </div>
       </div>
     </div>

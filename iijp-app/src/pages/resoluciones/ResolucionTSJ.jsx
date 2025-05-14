@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
-import { TiArrowBack } from "react-icons/ti";
 import styles from "./ResolucionTSJ.module.css";
 import ResolucionesService from "../../services/ResolucionesService";
-const ResolucionTSJ = () => {
-  const { id } = useParams();
+const ResolucionTSJ = ({id}) => {
+ 
   const navigate = useNavigate();
   const [resolucion, setResolucion] = useState(null);
   const [fichas, setFichas] = useState(null);
@@ -64,17 +63,11 @@ const ResolucionTSJ = () => {
   }
 
   return (
-    <div className="bg-[#333333]">
+    <div>
       <div className="grid grid-cols-3 custom:grid-cols-1">
         <div className="bg-[#F0F0F0] m-4 col-auto" ref={sidebarRef}>
           <div className="p-4 text-center bg-[#561427] text-white ">
             <p className="flex flex-row gap-4 justify-center items-center">
-              <button
-                onClick={() => navigate("/busqueda")}
-                className="hover:text-gray-400"
-              >
-                <TiArrowBack className="text-3xl" />
-              </button>
               Análisis Documental
             </p>
           </div>
@@ -202,7 +195,7 @@ const ResolucionTSJ = () => {
                             {item.tipo_jurisprudencia && (
                               <p className="text-justify text-sm">
                                 <strong>Tipo Jurisprudencia:</strong>{" "}
-                                {item.tipo_jurisprudencia.nombre}
+                                {item.tipo_jurisprudencia}
                               </p>
                             )}
                             {item.ratio && (
@@ -221,9 +214,9 @@ const ResolucionTSJ = () => {
         </div>
         <div className="col-span-2 h-full">
           <div
-            style={{ height: height }}
+            
             ref={docRef}
-            className="bg-white p-4 m-5 rounded-lg  overflow-y-scroll"
+            className="bg-white p-4 m-5 rounded-lg"
           >
             {resolucion.contenido.split("\r\n").map((line, index) =>
               line === line.toUpperCase() ? (

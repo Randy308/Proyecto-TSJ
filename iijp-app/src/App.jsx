@@ -46,6 +46,10 @@ import { NotificationContextProvider } from "./context/notificationContext";
 import { VariablesContextProvider } from "./context/variablesContext";
 import EstadisticasBasicas from "./pages/estadisticas-basicas/EstadisticasBasicas";
 import AnalisisBasico from "./pages/estadisticas-basicas/AnalisisBasico";
+import Busqueda from "./pages/busqueda/Busqueda";
+import { NodosContextProvider } from "./context/nodosContext";
+import CronologiasBasicas from "./pages/cronologia/CronologiasBasicas";
+import CronologiasAvanzadas from "./pages/cronologia/CronologiasAvanzadas";
 
 function App() {
   return (
@@ -53,116 +57,113 @@ function App() {
       <PostContextProvider>
         <MagistradosContextProvider>
           <HistoricContextProvider>
+            <NodosContextProvider>
+              <VariablesContextProvider>
+                {/* Contexto para el usuario */}
 
-            <VariablesContextProvider>
-              {/* Contexto para el usuario */}
-              <UserContextProvider>
-                <RoleContextProvider>
-                  <PermissionContextProvider>
-                    <NotificationContextProvider>
+                <main>
+                  <Routes>
+                    {/* Rutas protegidas */}
 
-                      <main>
-                        <Routes>
+                    <Route element={<ProtectedRoutes />}>
+                      <Route path="/" element={<LayoutUser />}>
+                        <Route path="user" element={<PanelUser />} />
+                        <Route path="dashboard" element={<PanelAdmin />} />
+                        <Route
+                          path="subir-resoluciones"
+                          element={<SubirResoluciones />}
+                        />
+                        <Route
+                          path="admin/subir/autos-supremos"
+                          element={<TablaCSV />}
+                        />
+                        <Route
+                          path="admin/subir/jurisprudencia"
+                          element={<TablaJurisprudenciaCSV />}
+                        />
+                        <Route path="admin/subir" element={<TablaCSV />} />
+                        <Route
+                          path="admin/subir-automatico"
+                          element={<WebScrapping />}
+                        />
 
-                          {/* Rutas protegidas */}
+                        <Route path="usuarios" element={<Usuarios />} />
+                        <Route path="roles" element={<ListaRoles />} />
+                      </Route>
+                    </Route>
 
-                          <Route element={<ProtectedRoutes />}>
-                            <Route path="/" element={<LayoutUser />}>
+                    {/* Rutas públicas */}
+                    <Route path="/" element={<LayoutPublic />}>
+                      <Route index element={<Navigate to="/inicio" />} />
+                      <Route path="inicio" element={<Inicio />} />
+                      <Route path="novedades" element={<Novedades />} />
+                      <Route
+                        path="jurisprudencia"
+                        element={<Jurisprudencia />}
+                      />
+                      <Route
+                        path="jurisprudencia/lista-Magistrados"
+                        element={<ListaMagistrados />}
+                      />
+                      <Route
+                        path="jurisprudencia/magistrado/:id"
+                        element={<MagistradoTSJ />}
+                      />
 
-                              <Route path="user" element={<PanelUser />} />
-                              <Route path="dashboard" element={<PanelAdmin />} />
-                              <Route
-                                path="subir-resoluciones"
-                                element={<SubirResoluciones />}
-                              />
-                              <Route
-                                path="admin/subir/autos-supremos"
-                                element={<TablaCSV />}
-                              />
-                              <Route
-                                path="admin/subir/jurisprudencia"
-                                element={<TablaJurisprudenciaCSV />}
-                              />
-                              <Route path="admin/subir" element={<TablaCSV />} />
-                              <Route
-                                path="admin/subir-automatico"
-                                element={<WebScrapping />}
-                              />
+                      <Route
+                        path="estadisticas-basicas"
+                        element={<EstadisticasBasicas />}
+                      />
+                      <Route
+                        path="estadisticas-basicas/:id"
+                        element={<AnalisisBasico />}
+                      />
+                      <Route path="busqueda" element={<Busqueda />} />
+                      <Route
+                        path="jurisprudencia/cronologias"
+                        element={<CronologiasBasicas />}
+                      />
 
-                              <Route path="usuarios" element={<Usuarios />} />
-                              <Route path="roles" element={<ListaRoles />} />
-                            </Route>
-                          </Route>
+                      <Route
+                        path="busqueda-de-jurisprudencia"
+                        element={<CronologiasAvanzadas />}
+                      />
 
-                          {/* Rutas públicas */}
-                          <Route path="/" element={<LayoutPublic />}>
-                            <Route index element={<Navigate to="/inicio" />} />
-                            <Route path="inicio" element={<Inicio />} />
-                            <Route path="novedades" element={<Novedades />} />
-                            <Route path="jurisprudencia" element={<Jurisprudencia />} />
-                            <Route
-                              path="jurisprudencia/lista-Magistrados"
-                              element={<ListaMagistrados />}
-                            />
-                            <Route
-                              path="jurisprudencia/magistrado/:id"
-                              element={<MagistradoTSJ />}
-                            />
+                      <Route path="proyeccion" element={<Prediction />} />
 
-                            <Route
-                              path="estadisticas-basicas"
-                              element={<EstadisticasBasicas />}
-                            />
-                            <Route
-                              path="estadisticas-basicas/:id"
-                              element={<AnalisisBasico />}
-                            />
-                            <Route path="busqueda" element={<JurisprudenciaBusqueda />} />
-                            <Route
-                              path="jurisprudencia/cronologias"
-                              element={<JurisprudenciaCronologia />}
-                            />
-                            <Route path="proyeccion" element={<Prediction />} />
-                            <Route
-                              path="jurisprudencia/resolucion/:id"
-                              element={<ResolucionTSJ />}
-                            />
-                            <Route path="comparar-datos" element={<CompararDatos />} />
-                            <Route
-                              path="jurisprudencia/cronologias/resultados"
-                              element={<CronologiasResultados />}
-                            />
-                            <Route
-                              path="jurisprudencia/lista-salas"
-                              element={<ListaSalas />}
-                            />
-                            <Route
-                              path="analisis/avanzado"
-                              element={<AnalisisAvanzado />}
-                            />
-                            <Route
-                              path="analisis/avanzado/:id"
-                              element={<ResultadoAvanzado />}
-                            />
+                      <Route
+                        path="comparar-datos"
+                        element={<CompararDatos />}
+                      />
+                      <Route
+                        path="jurisprudencia/cronologias/resultados"
+                        element={<CronologiasResultados />}
+                      />
+                      <Route
+                        path="jurisprudencia/lista-salas"
+                        element={<ListaSalas />}
+                      />
+                      <Route
+                        path="analisis/avanzado"
+                        element={<AnalisisAvanzado />}
+                      />
+                      <Route
+                        path="analisis/avanzado/:id"
+                        element={<ResultadoAvanzado />}
+                      />
 
-                            <Route path="analisis/sala/:id" element={<AnalisisSala />} />
-                            <Route path="iijp-login" element={<Login />} />
-                            <Route path="registrar" element={<Register />} />
-                          </Route>
-
-
-                        </Routes>
-                      </main>
-                      <ToastContainer />
-
-
-                    </NotificationContextProvider>
-                  </PermissionContextProvider>
-                </RoleContextProvider>
-              </UserContextProvider>
-
-
-            </VariablesContextProvider>
+                      <Route
+                        path="analisis/sala/:id"
+                        element={<AnalisisSala />}
+                      />
+                      <Route path="iijp-login" element={<Login />} />
+                      <Route path="registrar" element={<Register />} />
+                    </Route>
+                  </Routes>
+                </main>
+                <ToastContainer />
+              </VariablesContextProvider>
+            </NodosContextProvider>
           </HistoricContextProvider>
         </MagistradosContextProvider>
       </PostContextProvider>

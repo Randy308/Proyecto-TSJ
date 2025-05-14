@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import "../../styles/tabla.css";
 import Cabecera from "../../components/tables/Cabecera";
 import { Link } from "react-router-dom";
+import { MdDeleteForever, MdOutlineZoomInMap } from "react-icons/md";
+import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
+import PortalButton from "../../components/modal/PortalButton";
 const PaginationData = ({ data, setFormData }) => {
   const listaCabeceras = [
     {
@@ -50,6 +53,7 @@ const PaginationData = ({ data, setFormData }) => {
                 visible={visible}
               ></Cabecera>
             ))}
+            {data[0].contexto && <th>Contexto</th>}
 
             <th scope="col" className="px-6 py-3">
               Acción
@@ -71,14 +75,22 @@ const PaginationData = ({ data, setFormData }) => {
               <td className="px-6 py-4">{item.nro_resolucion}</td>
               <td className="px-6 py-4">{item.departamento}</td>
               <td className="px-6 py-4">{item.sala}</td>
+              {item.contexto && (
+                <td>
+                  {" "}
+                  <div dangerouslySetInnerHTML={{ __html: item.contexto }} />
+                </td>
+              )}
+
               <td className="px-6 py-4">
-                <Link
-                  to={`/jurisprudencia/resolucion/${item.id}`}
-                  rel="noopener noreferrer"
-                  className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                >
-                  Ver resolución
-                </Link>
+                <PortalButton
+                  Icon={MdOutlineZoomInMap}
+                  title="Auto Supremo"
+                  color="red"
+                  name={"Ver"}
+                  large={true}
+                  content={(setShowModal) => <ResolucionTSJ id={item.id} />}
+                />
               </td>
             </tr>
           ))}
@@ -91,30 +103,39 @@ const PaginationData = ({ data, setFormData }) => {
             key={index}
             className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-md"
           >
-
-
             <div className="text-lg font-bold text-gray-900 dark:text-white text-center">
-             {item.nro_resolucion}
+              {item.nro_resolucion}
             </div>
-            
+
             <div className="text-sm ">
               <strong>Fecha de emisión:</strong> {item.fecha_emision}
             </div>
-            <div className="text-sm "><strong>Tipo de resolución:</strong> {item.tipo_resolucion}</div>
+            <div className="text-sm ">
+              <strong>Tipo de resolución:</strong> {item.tipo_resolucion}
+            </div>
             <div className="text-sm">
-              <strong>Departamento:</strong> <span className="uppercase">{item.departamento}</span>
+              <strong>Departamento:</strong>{" "}
+              <span className="uppercase">{item.departamento}</span>
             </div>
             <div className="text-sm">
               <strong>Sala:</strong> {item.sala}
             </div>
+
+            {item.contexto && (
+              <div>
+                <strong>Contexto:</strong>{" "}
+                <div dangerouslySetInnerHTML={{ __html: item.contexto }} />
+              </div>
+            )}
             <div className="mt-2 flex gap-4 justify-center">
-              <Link
-                to={`/jurisprudencia/resolucion/${item.id}`}
-                rel="noopener noreferrer"
-                className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-              >
-                Ver resolución
-              </Link>
+              <PortalButton
+                Icon={MdOutlineZoomInMap}
+                title="Auto Supremo"
+                color="red"
+                name={"Ver"}
+                large={true}
+                content={(setShowModal) => <ResolucionTSJ id={item.id} />}
+              />
             </div>
           </div>
         ))}

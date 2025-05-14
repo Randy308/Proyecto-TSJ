@@ -18,5 +18,26 @@ export const validateErrors = (lista) => {
       return false;
     }
   }
-  return true; 
+  return true;
+};
+export const filterParams = (resultado, data) => {
+  const lista = {};
+
+  for (const [key, ids] of Object.entries(resultado)) {
+    const tabla = key;
+    const objeto = data[tabla];
+
+    if (!Array.isArray(objeto)) continue;
+
+    // Filtrar los valores que están en la lista de IDs
+    const filtrado = objeto.filter((item) => ids.includes(item.id));
+
+    lista[tabla] = filtrado;
+  }
+  return lista;
+};
+
+export const titulo = (nombre) => {
+  const regex = /_/i;
+  return (nombre.replace(regex, " de "));
 };

@@ -226,28 +226,11 @@ const CompararDatos = () => {
   };
 
   return (
-    <div className="container mx-auto custom:px-0" id="jurisprudencia-busqueda">
+    <div className="sm:container mx-auto custom:px-0" id="jurisprudencia-busqueda">
       <div className="row p-4">
         <div className="flex flex-col bg-white dark:bg-[#111827] rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
           <div className="w-full p-4 text-center bg-white border border-gray-200 rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
-            <ul className="hidden text-sm font-medium text-center text-gray-500 rounded-lg shadow sm:flex dark:divide-gray-700 dark:text-gray-400 m-4">
-              <li className="w-full focus-within:z-10">
-                <a
-                  className="inline-block w-full p-4 text-gray-900 bg-gray-100 border-r border-gray-200 dark:border-gray-700 rounded-s-lg focus:ring-4 focus:ring-blue-300 active focus:outline-none dark:bg-gray-700 dark:text-white"
-                  aria-current="page"
-                >
-                  Series Temporales
-                </a>
-              </li>
-              <li className="w-full focus-within:z-10">
-                <Link
-                  to="/busqueda"
-                  className="inline-block w-full p-4 bg-white border-r border-gray-200 dark:border-gray-700 hover:text-gray-700 hover:bg-gray-50 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
-                >
-                  Búsqueda de Resoluciones
-                </Link>
-              </li>
-            </ul>
+   
 
             <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {data &&
