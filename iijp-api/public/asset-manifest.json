@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/static/css/main.012ce0ad.css",
+    "main.js": "/static/js/main.7cc2c559.js",
+    "static/media/iijp_edificio.jpg": "/static/media/iijp_edificio.7da666a9c5701cbb0e64.jpg",
+    "static/media/trebucit.ttf": "/static/media/trebucit.f1c72b1684927760e398.ttf",
+    "static/media/trebucbd.ttf": "/static/media/trebucbd.69602cfae0f83f11eed2.ttf",
+    "static/media/trebuc.ttf": "/static/media/trebuc.8dc5d2dd53924baa495c.ttf",
+    "index.html": "/index.html",
+    "main.012ce0ad.css.map": "/static/css/main.012ce0ad.css.map",
+    "main.7cc2c559.js.map": "/static/js/main.7cc2c559.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.012ce0ad.css",
+    "static/js/main.7cc2c559.js"
+  ]
+}

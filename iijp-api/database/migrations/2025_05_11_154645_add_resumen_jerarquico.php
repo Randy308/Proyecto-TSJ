@@ -41,12 +41,12 @@ return new class extends Migration
             $$ LANGUAGE plpgsql;
         ");
 
-        DB::statement("
-            CREATE TRIGGER trg_refresh_resumen_jerarquico
-            AFTER INSERT OR UPDATE OR DELETE ON jurisprudencias
-            FOR EACH STATEMENT
-            EXECUTE FUNCTION refrescar_resumen_jerarquico();
-        ");
+        // DB::statement("
+        //     CREATE TRIGGER trg_refresh_resumen_jerarquico
+        //     AFTER INSERT OR UPDATE OR DELETE ON jurisprudencias
+        //     FOR EACH STATEMENT
+        //     EXECUTE FUNCTION refrescar_resumen_jerarquico();
+        // ");
     }
 
     /**
@@ -54,7 +54,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("DROP TRIGGER IF EXISTS trg_refresh_resumen_jerarquico ON jurisprudencias;");
+        // DB::statement("DROP TRIGGER IF EXISTS trg_refresh_resumen_jerarquico ON jurisprudencias;");
         DB::statement("DROP FUNCTION IF EXISTS refrescar_resumen_jerarquico;");
         DB::statement("DROP INDEX IF EXISTS resumen_jerarquico_uidx;");
         DB::statement("DROP MATERIALIZED VIEW IF EXISTS resumen_jerarquico;");

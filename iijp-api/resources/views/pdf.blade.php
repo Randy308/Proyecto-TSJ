@@ -21,7 +21,7 @@
                 font-family: '{{ $elemento['fontFamily'] }}', sans-serif;
                 font-weight: {{ $elemento['fontWeight'] }};
                 font-size: {{ $elemento['fontSize'] }};
-                margin-left: {{ $elemento['marginLeft'] === 'auto' ? 'auto' : $elemento['marginLeft'].'%' }};
+                margin-left: {{ $elemento['marginLeft'] === 'auto' ? 'auto' : $elemento['marginLeft'] . '%' }};
                 padding-bottom: {{ $elemento['paddingBottom'] }}px;
                 margin-top: {{ $elemento['marginTop'] }}px;
                 text-align: {{ $elemento['textAlign'] }};
@@ -253,6 +253,13 @@
             text-align: right;
             padding: 0 10%;
         }
+
+        .titulo-referencias {
+            font-family: 'cambria', sans-serif;
+            font-style: italic;
+            text-align: center;
+            padding: 0 10%;
+        }
     </style>
 
 </head>
@@ -426,17 +433,20 @@
 
     <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />
 
-
-
     @foreach ($results as $item)
         <div>
             <div>
                 @foreach ($item->descriptor as $elemento)
+                    @if (!$loop->last && $item->indices[$loop->index] == 0)
+                        <pagebreak />
+                    @endif
+
                     <h2 class="descriptor{{ $item->indices[$loop->index] }}">
                         <tocentry content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
                         {{ $elemento }}
                     </h2>
                 @endforeach
+
             </div>
 
             <div>
@@ -481,6 +491,49 @@
             </div>
         </div>
     @endforeach
+
+
+
+    @if ($referencias && count($referencias) > 0)
+        <pagebreak even-footer-value="-1" resetpagenum="1" />
+
+
+        <p style="font-size: 20pt;" class="titulo-referencias">Bibliografía consultada</p>
+
+        @foreach ($referencias as $elemento)
+            <div style="margin-bottom: 1em; font-size: 12pt; line-height: 1.6; text-align: justify;">
+
+                @if ($elemento->tipo_resolucion)
+                    <span>
+                        {{ $elemento->tipo_resolucion }}
+                    </span>
+                @endif
+                @if ($elemento->nro_resolucion)
+                    <span>
+                        {{ ltrim($elemento->nro_resolucion, '0') }}
+                    </span>
+                @endif
+                @if ($elemento->fecha_emision)
+                    <span>
+                        de {{ $elemento->fecha_emision }}.
+                    </span>
+                @endif
+                @if ($elemento->sala)
+                    <span>
+                        Tribunal Supremo de Justicia, Sala {{ $elemento->sala }}.
+                    </span>
+                @endif
+                @if ($elemento->external_id)
+                    <a href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
+                        Enlace
+                    </a>
+                @endif
+
+            </div>
+        @endforeach
+
+    @endif
+
 
     <htmlpagefooter name="page-footer">
         <div style="color: gray; text-align: right;">{PAGENO}</div>

@@ -11,9 +11,18 @@ class RoleController extends Controller
 {
     public function index()
     {
-        $roles = Role::where('name', '!=', 'admin')->get(['name', 'id']);
+        $roles = Role::where('name', '!=', 'admin')->get();
 
-        return response()->json($roles, 200);
+
+        $data = $roles->map(function ($role) {
+            return [
+                'id' => $role->id,
+                'roleName' => $role->name,
+                'permissions' => $role->permissions->pluck('id'),
+            ];
+        });
+
+        return response()->json($data->toArray(), 200);
     }
 
 
@@ -79,8 +88,7 @@ class RoleController extends Controller
         $role->syncPermissions($permissions);
 
         return response()->json([
-            'message' => 'Rol actualizado correctamente!',
-            'role' => $role,
+            'message' => 'Rol actualizado correctamente!'
         ], 200);
     }
 
@@ -88,6 +96,13 @@ class RoleController extends Controller
     {
         $role = Role::findOrFail($id);
 
+        if (!$role) {
+            return response()->json([
+                'message' => 'Rol no encontrado.',
+            ], 404);
+        }
+
+        //return response()->json($role->name, 200);
         if ($role->name === 'admin') {
 
             return response()->json([
@@ -95,7 +110,9 @@ class RoleController extends Controller
             ], 400);
         }
 
-        $role->delete();
+        Role::where('id', $role->id)->delete();
+
+        //$role->delete();
 
         return response()->json([
             'message' => 'Rol eliminado correctamente!',

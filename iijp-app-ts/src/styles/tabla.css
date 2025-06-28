@@ -1,0 +1,10 @@
+
+#tbody-res{
+    background-color: white;
+    color: black;
+}
+
+#parent-container.dark-theme #tbody-res{
+    background-color: #030712;
+    color: white;
+}

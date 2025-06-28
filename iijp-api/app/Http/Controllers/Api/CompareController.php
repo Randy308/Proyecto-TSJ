@@ -71,47 +71,33 @@ class CompareController extends Controller
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $tipoJurisprudencia = $request->tipo_jurisprudencia;
             $materia = $request->materia;
-        
+
             $subquery = DB::table('jurisprudencias')
                 ->select('resolution_id');
-        
+
             if ($tipoJurisprudencia && $tipoJurisprudencia !== 'all') {
                 $subquery->where('tipo_jurisprudencia_id', intval($tipoJurisprudencia));
             }
-        
+
             if ($materia && $materia !== 'all') {
                 $subquery->where('root_id', intval($materia));
             }
-        
+
             $query->joinSub($subquery, 'j', function ($join) {
                 $join->on('j.resolution_id', '=', 'r.id');
             });
         }
-        
+
 
 
         // Clonar la consulta para la agrupación por departamento
         //$agrupar_departamentos = clone $query;
 
         // Aplicar agrupación por periodo
-        switch ($intervalo) {
-            case 'month':
-                $query->selectRaw("DATE_TRUNC('month', r.fecha_emision)::date AS periodo")
-                    ->groupBy(DB::raw("DATE_TRUNC('month', r.fecha_emision)::date"))
-                    ->orderBy(DB::raw("DATE_TRUNC('month', r.fecha_emision)::date"));
-                break;
-            case 'quarter':
-                $query->selectRaw("DATE_TRUNC('quarter', r.fecha_emision)::date AS periodo")
-                    ->groupBy(DB::raw("DATE_TRUNC('quarter', r.fecha_emision)::date"))
-                    ->orderBy(DB::raw("DATE_TRUNC('quarter', r.fecha_emision)::date"));
-                break;
-            case 'year':
-                $query->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo")
+        
+        $query->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo")
                     ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
                     ->orderBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"));
-                break;
-        }
-
         $resolutions = $query->get();
 
         // Modificar la consulta de agrupación por departamentos
@@ -138,23 +124,23 @@ class CompareController extends Controller
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $tipoJurisprudencia = $request->tipo_jurisprudencia;
             $materia = $request->materia;
-        
+
             $subquery = DB::table('jurisprudencias')
                 ->select('resolution_id');
-        
+
             if ($tipoJurisprudencia && $tipoJurisprudencia !== 'all') {
                 $subquery->where('tipo_jurisprudencia_id', intval($tipoJurisprudencia));
             }
-        
+
             if ($materia && $materia !== 'all') {
                 $subquery->where('root_id', intval($materia));
             }
-        
+
             $agrupar_departamentos->joinSub($subquery, 'j', function ($join) {
                 $join->on('j.resolution_id', '=', 'r.id');
             });
         }
-        
+
 
 
         $departamentos = $agrupar_departamentos->get();

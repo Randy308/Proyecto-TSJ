@@ -8,7 +8,7 @@ const instance = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  withCredentials: true,
+  withCredentials: false,
 });
 
 const ResolucionesService = {
@@ -30,34 +30,9 @@ const ResolucionesService = {
   obtenerPrediccion: (params) =>
     instance.get("/realizar-prediction", { params }),
   descomponerSerie: (params) => instance.get("/descomponer-serie", { params }),
-  subirCSV: (token, formData) =>
-    instance.post("/subir-resoluciones", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    }),
+
   obtenerElemento: (params) => instance.get("/obtener-elemento", { params }),
-  buscarNuevasResoluciones: (token) =>
-    instance.post(
-      "/buscar-nuevas-resoluciones",
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    ),
-  realizarWebScrapping: (token, formData) =>
-    instance.post(
-      "/obtener-resoluciones",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    ),
+
   realizarAnalisis: (params) =>
     instance.get("/obtener-estadisticas", {
       params,
@@ -66,10 +41,10 @@ const ResolucionesService = {
     instance.get("/obtener-filtros-estadisticas", {
       params,
     }),
-    realizarAnalisisXY: (params) =>
-      instance.get("/obtener-estadisticas-xy", {
-        params,
-      }),
+  realizarAnalisisXY: (params) =>
+    instance.get("/obtener-estadisticas-xy", {
+      params,
+    }),
 };
 
 export default ResolucionesService;

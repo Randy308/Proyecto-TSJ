@@ -8,7 +8,7 @@ const instance = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  withCredentials: true,
+  withCredentials: false,
 });
 
 const JurisprudenciaService = {
@@ -16,16 +16,13 @@ const JurisprudenciaService = {
     instance.get("/buscar-termino-jurisprudencia", {
       params: jurisprudenciaData,
     }),
+  busquedaRapida: (jurisprudenciaData) =>
+    instance.get("/obtener-descriptor", {
+      params: jurisprudenciaData,
+    }),
   actualizarNodo: (jurisprudenciaData) =>
     instance.get("/actualizar-nodo", {
       params: jurisprudenciaData,
-    }),
-  subirCSV: (token, formData) =>
-    instance.post("/subir-jurisprudencia", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
     }),
   parametrosCronologia: (jurisprudenciaData) =>
     instance.get("/obtener-parametros-cronologia", {
@@ -33,6 +30,10 @@ const JurisprudenciaService = {
     }),
   obtenerCronologia: (formData) =>
     instance.post("/obtener-cronologias", formData, {
+      responseType: "blob",
+    }),
+  obtenerCronologiabyIds: (formData) =>
+    instance.post("/obtener-cronologias-ids", formData, {
       responseType: "blob",
     }),
 

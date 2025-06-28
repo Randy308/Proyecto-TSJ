@@ -6,17 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
-    //
 
     public function login(Request $request)
     {
 
-        $response = ['success' => false];
+        Log::info('CSRF Token from header: ' . $request->header('X-CSRF-TOKEN'));
+        Log::info('CSRF Token from session: ' . $request->session()->token());
+        Log::info('XSRF-TOKEN from header:', [$request->header('X-XSRF-TOKEN')]);
+
 
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -33,24 +37,41 @@ class AuthController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        //return $request;
-
-        if (auth()->attempt(['email' => $request->email, 'password' => $request->password])) {
-
-            $user = auth()->user();
-            //$user->hasRole('user');
-            $response['success'] = true;
-            $response['message'] = "Login exitoso";
-            $response['user'] =  new UserResource($user);
-            $response['token'] = $user->createToken('web-token')->plainTextToken;
-            $response['rol'] = $user->getRoleNames();
-        } else {
-            $response['user'] = ['no encontrado'];
+        if (!Auth::attempt($request->only('email', 'password'))) {
+            return response()->json([
+                'message' => 'Credenciales incorrectas.',
+            ], 401);
         }
 
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Inicio de sesión exitoso.',
+            'login' => true,
+            'user' => new UserResource($user),
+            'rol' => $user->getRoleNames(),
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $response['success'] = false;
+
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        $response['success'] = true;
+        $response['message'] = 'Sesión cerrada correctamente';
 
         return response()->json($response, 200);
     }
+
+
     public function register(Request $request)
     {
         $response = ['success' => false];
@@ -82,21 +103,11 @@ class AuthController extends Controller
         $user = User::create($input);
         // $role = Role::create(['name' => 'admin']);
         // $role = Role::create(['name' => 'user']);
-        $user->assignRole('admin');
+        $user->assignRole('user');
 
         $response['success'] = true;
         //$response['user'] =  $user;
         //$response['token'] = $user->createToken('web token')->plainTextToken;
         return response()->json($response, 200);
     }
-    public function logout()
-    {
-        $response['success'] = false;
-        
-        auth()->user()->tokens()->delete();
-        $response['success'] = true;
-        $response['message'] = 'Sesión cerrada correctamente';
-        return response()->json($response, 200);
-    }
-
 }

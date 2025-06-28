@@ -67,7 +67,7 @@ class ExcelController extends Controller
                 }
 
                 // Sanitizar campos
-                $restrictor = $this->sanitize($row['restrictor_id'] ?? null);
+                $restrictor = $this->sanitize($row['restrictor'] ?? null);
                 $descriptor_id = $this->sanitize($row['descriptor_id'] ?? null);
                 $root_id = $this->sanitize($row['root_id'] ?? null);
                 $descriptor = $this->sanitize($row['descriptor'] ?? null);
@@ -79,7 +79,7 @@ class ExcelController extends Controller
 
                 // Verificar duplicados
                 $exists = Jurisprudencias::where('resolution_id', $resolutionMap[$idResolucion])
-                    ->where('restrictor_id', $restrictor)
+                    ->where('restrictor', $restrictor)
                     ->where('descriptor', $descriptor)
                     ->where('tipo_jurisprudencia_id', $tipoJurisprudenciaId)
                     ->where('ratio', $ratio)
@@ -94,7 +94,7 @@ class ExcelController extends Controller
                     'resolution_id' => $resolutionMap[$idResolucion],
                     'descriptor' => $descriptor,
                     'descriptor_id' => $descriptor_id,
-                    'restrictor_id' => $restrictor,
+                    'restrictor' => $restrictor,
                     'root_id'=> $root_id,
                     'tipo_jurisprudencia_id' => $tipoJurisprudenciaId,
                     'ratio' => $ratio,
@@ -162,7 +162,6 @@ class ExcelController extends Controller
                         'sala_id'             => $this->getOrCreateId(Sala::class, 'nombre', $row['sala'], $maps['sala']),
                         'departamento_id'     => $this->getOrCreateId(Departamentos::class, 'nombre', $row['departamento'], $maps['departamento']),
                         'tipo_resolucion_id'  => $this->getOrCreateId(TipoResolucions::class, 'nombre', $row['tipo_resolucion'], $maps['tipoResolucion']),
-                        'tema_id'             => $row['id_tema'] ? $this->getTemaId($row['id_tema'], $maps['temas']) : null,
                         'fecha_emision'       => $this->parseDate($row['fecha_emision'] ?? null),
                         'fecha_publicacion'   => $this->parseDate($row['fecha_publicacion'] ?? null),
                         'nro_resolucion'      => $this->sanitize($row['nro_resolucion'] ?? null),

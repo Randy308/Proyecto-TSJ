@@ -21,4 +21,77 @@ class Math
 
         return $branch;
     }
+
+
+    public static function completarArray($data, $columnaX = 'nombre', $columnaY = 'fecha')
+    {
+
+        $resultado = [];
+
+
+        $filasPorNombre = [];
+        $datosSet = [];
+
+        foreach ($data as $row) {
+            $nombre = $row->$columnaX;
+            $dato = $row->$columnaY;
+            $cantidad = $row->cantidad;
+
+            $filasPorNombre[$nombre][$dato] = $cantidad;
+            $datosSet[$dato] = true;
+        }
+
+        $datos = array_keys($datosSet);
+        sort($datos);
+        $datosStr = array_map('strval', $datos);
+        $resultado = [];
+        $header = array_merge([$columnaX], $datosStr);
+        $resultado[] = $header;
+
+        // Rellenar los datos por (nombre)
+        foreach ($filasPorNombre as $nombre => $valoresPorDato) {
+            $fila = [$nombre];
+            foreach ($datos as $dato) {
+                $fila[] = $valoresPorDato[$dato] ?? 0; // Si no hay dato, rellenar con 0
+            }
+            $resultado[] = $fila;
+        }
+
+        return $resultado;
+    }
+
+    public static function completarArrayMapa($data, $columnaX = 'nombre', $columnaY = 'fecha')
+    {
+
+        $resultado = [];
+
+
+        $filasPorNombre = [];
+        $datosSet = [];
+
+        foreach ($data as $row) {
+            $nombre = $row->$columnaX;
+            $dato = $row->$columnaY;
+            $cantidad = $row->cantidad;
+
+            $filasPorNombre[$nombre][$dato] = $cantidad;
+            $datosSet[$dato] = true;
+        }
+
+        $datos = array_keys($datosSet);
+        sort($datos);
+        $resultado = [];
+   
+        // Rellenar los datos por (nombre)
+        foreach ($filasPorNombre as $nombre => $valoresPorDato) {
+            $lista = [];
+            foreach ($datos as $dato) {
+                $lista[$dato] = $valoresPorDato[$dato] ?? 0; // Si no hay dato, rellenar con 0
+            }
+
+            $resultado[] = ['name' => $nombre, 'results' => $lista];
+        }
+
+        return $resultado;
+    }
 }

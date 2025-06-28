@@ -7,16 +7,19 @@ use App\Models\Departamentos;
 use App\Models\Descriptor;
 use App\Models\Estilos;
 use App\Models\FormaResolucions;
+use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
 use App\Models\Sala;
 use App\Models\Tema;
 use App\Models\TipoResolucions;
+use App\Utils\Listas;
 use Carbon\Carbon;
 use Dotenv\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
+use Meilisearch\Client;
 
 function validarModelo($modelClassName, $field, $value)
 {
@@ -69,78 +72,326 @@ class TemaController extends Controller
     {
 
 
-        $ids = $request->ids;
-        $variable = $request["variable"];
-        $orden = $request["orden"];
-
-        $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
-        $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
-        $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
-
-        $query = DB::table('resolutions as r')
-            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-            ->join('salas as s', 's.id', '=', 'r.sala_id')
-            ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
-            ->join('restrictors as rt', 'rt.id', '=', 'j.restrictor_id')
-            ->select(
-                'r.id',
-                'r.nro_resolucion',
-                'r.fecha_emision',
-                DB::raw('array_agg(rt.nombre) as departamento'),
-                'tr.nombre as tipo_resolucion',
-                's.nombre as sala'
-            )
-            ->whereIn('r.id', $ids)->groupBy('r.id', 'tr.nombre', 's.nombre');
+        $request->validate([
+            'busqueda' => 'nullable|string',
+            'materia' => 'nullable|array',
+            'materia.*' => 'required|integer',
+            'descriptor' => 'nullable|integer',
+            'periodo' => 'nullable|array',
+            'tipo_resolucion' => 'nullable|array',
+            'sala' => 'nullable|array',
+            'departamento' => 'nullable|array',
+            'periodo.*' => 'required|integer',
+            'tipo_resolucion.*' => 'required|integer',
+            'sala.*' => 'required|integer',
+            'departamento.*' => 'required|integer',
+        ]);
 
 
+        $query = $request->input('busqueda', '');
+        $highlight = $request->input('highlight', 'contenido');
 
-        $results = $query->orderBy($variable, $orden)->paginate(20);
+        // Parámetros de paginación
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
+        $offset = ($page - 1) * $perPage;
+        $highlight = ['contenido', 'sintesis', 'precedente', 'maxima', 'proceso'];
+        $highlight = ['descriptor', 'ratio', 'restrictor'];
+        //$highlight = ['descriptor'];
+        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo','materia','magistrado', 'forma_resolucion'];
 
-        return response()->json($results);
+        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
+            $options['attributesToHighlight'] = $highlight;
+            $options['attributesToCrop'] = $highlight;
+            $options['cropLength'] = 50;
+            $options['highlightPreTag'] = '<b class="highlight">';
+            $options['highlightPostTag'] = '</b>';
+            $options['limit'] = $perPage;
+            $options['offset'] = $offset;
+            $options['attributesToSearchOn'] = $highlight;
+            $options['facets'] = $facetas;
+          $options['attributesToRetrieve'] = [
+                'id',
+                'resolution_id',
+                'tipo_resolucion',
+                'nro_resolucion',
+                'periodo',
+                '_formatted',
+            ];
+
+            return $meilisearch->search($query, $options);
+        });
+        if ($request->has('materia')) {
+            $materia = $request->input('materia');
+            $search->where('materia', $materia[0]);
+        }
+
+        if ($request->has('descriptor')) {
+            $descriptor = $request->input('descriptor');
+            $search->where('descriptor_id', $descriptor);
+        }
+        if ($request->has('periodo')) {
+            $search->where('periodo', $request->periodo[0]);
+        }
+
+        if ($request->has('tipo_resolucion')) {
+            $search->whereIn("tipo_resolucion", $request->tipo_resolucion);
+        }
+        if ($request->has('sala')) {
+            $search->whereIn("sala", $request->sala);
+        }
+        if ($request->has('departamento')) {
+            $search->whereIn("departamento", $request->departamento);
+        }
+        if ($request->has('magistrado')) {
+            $search->whereIn("magistrado", $request->magistrado);
+        }
+        if ($request->has('forma_resolucion')) {
+            $search->whereIn("forma_resolucion", $request->forma_resolucion);
+        }
+
+        $search = $search->raw();
+
+        // Solo los _formatted
+        $formattedResults = collect($search['hits'])->map(function ($hit) {
+            return $hit['_formatted'] ?? [];
+        });
+
+
+
+        $facets = $search['facetDistribution'] ?? [];
+
+
+
+        $filtros = [];
+
+        foreach ($facetas as $value) {
+            if (!isset($facets[$value])) {
+                continue;
+            }
+
+            $numericalKeys = array_map('intval', array_keys($facets[$value]));
+
+            $filtered = array_filter($numericalKeys, function ($item) {
+                return $item !== 0;
+            });
+
+            $filtros[$value] = array_values($filtered); // Reindexa
+        }
+
+
+        return response()->json([
+            'data' => $formattedResults,
+            'facets' => $filtros,
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $search['estimatedTotalHits'] ?? 0,
+            'last_page' => ceil(($search['estimatedTotalHits'] ?? 0) / $perPage),
+
+        ]);
+
+        return response()->json($resultados);
     }
 
     public function obtenerParametrosCronologia(Request $request)
     {
         // Validar el descriptor
         $request->validate([
-            'descriptor' => 'required|string',
+            'materia' => 'nullable|integer',
+            'descriptor' => 'nullable|integer',
+            'busqueda' => 'nullable|string|max:100',
         ]);
 
-        $descriptor = $request->input('descriptor');
 
-        // Función auxiliar para evitar la repetición de código
-        $getDistinctValues = function ($selectColumn) use ($descriptor) {
-            return DB::table('jurisprudencias as j')
-                ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
-                ->where('j.descriptor', 'like', '%' . $descriptor . '%')
-                ->distinct()
-                ->pluck($selectColumn);
-        };
+        $lista = ['sala', 'departamento', 'tipo_resolucion', 'periodo'];
 
-        // Obtener los valores únicos
-        $salas = $getDistinctValues('sala_id');
-        $departamentos = $getDistinctValues('departamento_id');
-        $tipo_resolucions = $getDistinctValues('tipo_resolucion_id');
 
-        $periodo = DB::table('resolutions as r')
-            ->selectRaw("CAST(coalesce(EXTRACT(YEAR FROM fecha_emision) , '0') AS integer) as nombre")->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')->where('j.descriptor', 'like', '%' . $descriptor . '%')
-            ->groupBy('nombre')
-            ->orderBy('nombre', 'desc')
-            ->get()->pluck("nombre");
+        $query = $request->input('busqueda', '');
+        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) use ($lista) {
+            $options['facets'] = $lista;
+            return $meilisearch->search($query, $options);
+        });
 
-        $ids = DB::table('jurisprudencias as j')
-            ->where('j.descriptor', 'like', '%' . $descriptor . '%')
-            ->distinct()->limit(40)->pluck('j.resolution_id');
-        // Preparar la respuesta
-        $data = [
-            'departamento' => $departamentos,
-            'sala' => $salas,
-            'tipo_resolucion' => $tipo_resolucions,
-            'ids' => $ids,
-            'periodo' => $periodo
-        ];
+        if ($request->has('materia')) {
+            $materia = $request->input('materia');
+            $search->where('materia', $materia);
+        }
 
-        return response()->json($data);
+
+        $search = $search->raw();
+
+
+        $facets = $search['facetDistribution'] ?? [];
+
+        $data = [];
+
+        foreach ($lista as $value) {
+            if (!isset($facets[$value])) {
+                continue;
+            }
+
+            $numericalKeys = array_map('intval', array_keys($facets[$value]));
+
+            $filtered = array_filter($numericalKeys, function ($item) {
+                return $item !== 0;
+            });
+
+            $data[$value] = array_values($filtered); // Reindexa
+        }
+        return $data;
+    }
+
+
+    public function obtenerCronologiasbyIds(Request $request)
+    {
+
+        $request->validate([
+            'ids' => 'required|array|max:40',
+            'ids.*' => 'required|integer',
+        ]);
+
+        $ids = $request['ids'];
+
+        if (!is_array($ids) || empty($ids)) {
+            return response()->json(['error' => 'IDs no válidos'], 400);
+        }
+
+        if (count($ids) > 40) {
+            return response()->json(['error' => 'Demasiados IDs, máximo 40 permitidos'], 400);
+        }
+
+
+        $seccion = filter_var($request["seccion"], FILTER_VALIDATE_BOOLEAN);
+
+
+
+        $query = DB::table('jurisprudencias as j')
+            ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
+            ->join('contents as c', 'r.id', '=', 'c.resolution_id')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('mapeos as m', 'm.resolution_id', '=', 'r.id')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
+            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion', 's.nombre as sala', 'r.fecha_emision', 'r.nro_resolucion', 'm.external_id');
+
+
+
+        $query->whereIn('r.id', $ids);
+        if ($seccion === true) {
+            $query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
+        }
+
+
+
+        $results = $query->orderBy('j.descriptor')->get();
+
+        if (!$results) {
+            return response()->json(['error' => 'Sala no encontrada'], 404);
+        }
+
+        if ($results->count() === 0) {
+            return response()->json(['error' => 'Datos no encontrados '], 404);
+        }
+
+
+        $current = [];
+
+        foreach ($results as $element) {
+            $pieces = explode(" / ", $element->descriptor);
+            $indices = [];
+
+            if (!empty($current)) {
+                $newPieces = [];
+                foreach ($pieces as $key => $piece) {
+                    if (!isset($current[$piece])) {
+                        $current[$piece] = true;
+                        $indices[] = $key;
+                        $newPieces[] = $piece;
+                    }
+                }
+                $element->descriptor = array_values($newPieces);
+            } else {
+                $current = array_fill_keys($pieces, true);
+                $indices = array_keys($pieces);
+                $element->descriptor = $pieces;
+            }
+
+            $element->indices = $indices;
+        }
+
+
+        $idsVistos = [];
+        $referencias = [];
+        foreach ($results as $item) {
+            if (!in_array($item->resolution_id, $idsVistos)) {
+                $idsVistos[] = $item->resolution_id;
+
+                $fecha_formateada = "";
+                if (!empty($item->fecha_emision)) {
+                    try {
+                        $fecha_formateada = Carbon::parse($item->fecha_emision)->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
+                    } catch (\Exception $e) {
+                        // Puedes registrar el error si lo deseas
+                        $fecha_formateada = "";
+                    }
+                }
+
+                $variables = explode('/', $item->nro_resolucion, 2);
+                $referencias[] = (object)[
+                    'id' => $item->resolution_id,
+                    'external_id' => $item->external_id,
+                    'nro_resolucion' => $variables[1] ?? '',
+                    'fecha_emision' => $fecha_formateada,
+                    'sala' => $item->sala,
+                    'tipo_resolucion' => $item->tipo_resolucion,
+
+                ];
+            }
+        }
+
+
+        //return response()->json($results);
+
+        $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
+        $estilos = Estilos::where('tipo', 'Default')->get();
+
+        //return $estilos;
+        //return $request->estilos;
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, "fechaActual" => $fechaActual, 'referencias' => $referencias], [], [
+            'format'          => 'letter',
+            'margin_left'     => 25,  // 2.5 cm in mm
+            'margin_right'    => 25,  // 2.5 cm in mm
+            'margin_top'      => 25,  // 2.5 cm in mm
+            'margin_bottom'   => 25,  // 2.5 cm in mm
+            'orientation'     => 'P',
+            'title'           => 'Documento',
+            'author'          => 'IIJP',
+            'custom_font_dir' => public_path('fonts/'),
+            'custom_font_data' => [
+                'cambria' => [
+                    'R'  => 'Cambriax.ttf',
+                    'B'  => 'Cambria-Bold.ttf',
+                    'I'  => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf'
+                ],
+                'trebuchet_ms' => [
+                    'R'  => 'trebuc.ttf',
+                    'B'  => 'trebucbd.ttf',
+                    'I'  => 'trebucit.ttf'
+                ],
+                'times_new_roman' => [
+                    'R'  => 'times-new-roman.ttf',
+                    'B'  => 'times-new-roman-bold.ttf',
+                    'I'  => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf'
+                ],
+            ]
+        ]);
+
+        //$pdf = LaravelMpdf::loadView('test');
+        return $pdf->Output('document.pdf', 'I');
+        //return $pdf->stream('document.pdf');
     }
 
 
@@ -165,13 +416,12 @@ class TemaController extends Controller
         }
 
         $query = DB::table('jurisprudencias as j')
-            ->join('restrictors as rt', 'rt.id', '=', 'j.restrictor_id')
             ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
             ->join('contents as c', 'r.id', '=', 'c.resolution_id')
             ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
-            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'rt.nombre as restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion');
+            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion');
 
 
 
@@ -253,9 +503,14 @@ class TemaController extends Controller
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
         $estilos = Estilos::where('tipo', 'Default')->get();
 
+
+
+        $referencias = [];
+
+
         //return $estilos;
         //return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, "fechaActual" => $fechaActual], [], [
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, "fechaActual" => $fechaActual, 'referencias' => $referencias], [], [
             'format'          => 'letter',
             'margin_left'     => 25,  // 2.5 cm in mm
             'margin_right'    => 25,  // 2.5 cm in mm

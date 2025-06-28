@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\{Contents, Departamentos, FormaResolucions, Jurisprudencias, Magistrados, Mapeos, Notification, Resolutions, Sala, Tema, TipoJurisprudencia, TipoResolucions};
+use App\Models\{Contents, Departamentos, Descriptor, FormaResolucions, Jurisprudencias, Magistrados, Mapeos, Notification, Resolutions, Sala, Tema, TipoJurisprudencia, TipoResolucions};
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -59,8 +59,8 @@ class WebScrappingJob implements ShouldQueue
             }
 
             try {
-                usleep(random_int(4000000, 7000000));
-                Log::info("[{$this->jobId}] Procesando ID $i");
+                usleep(random_int(3000000, 5000000));
+                Log::info("[{$this->jobId}] Procesando resolución con ID $i");
 
                 $response = $httpClient->request('GET', "https://jurisprudencia.tsj.bo/jurisprudencia/$i");
                 $status = $response->getStatusCode();
@@ -88,12 +88,12 @@ class WebScrappingJob implements ShouldQueue
                 }
 
                 DB::beginTransaction();
-                $res_data = $this->prepareResolutionData($resolucion, $maps);
+                $res_data = $this->prepareResolutionData($resolucion, $maps, $this->userId);
                 $res = Resolutions::create($res_data);
                 $this->storeRelatedData($res, $resolucion, $maps);
 
                 if (!empty($data['temas'])) {
-                    $this->crearJurisprudencia($res, $data['temas'], $maps);
+                    $this->agregarJurisprudencias($res, $data['temas'], $maps);
                 }
 
                 DB::commit();
@@ -116,7 +116,7 @@ class WebScrappingJob implements ShouldQueue
         Log::info("[{$this->jobId}] Scraping finalizado");
     }
 
-    private function prepareResolutionData(array $resolucion, array &$maps): array
+    private function prepareResolutionData(array $resolucion, array &$maps, int $id): array
     {
         return array_filter([
             'magistrado_id' => $this->getOrCreateId(Magistrados::class, 'nombre', $resolucion['magistrado'] ?? null, $maps['magistrado']),
@@ -124,7 +124,6 @@ class WebScrappingJob implements ShouldQueue
             'sala_id' => $this->getOrCreateId(Sala::class, 'nombre', $resolucion['sala'] ?? null, $maps['sala']),
             'departamento_id' => $this->getOrCreateId(Departamentos::class, 'nombre', $resolucion['departamento'] ?? null, $maps['departamento']),
             'tipo_resolucion_id' => $this->getOrCreateId(TipoResolucions::class, 'nombre', $resolucion['tipo_resolucion'] ?? null, $maps['tipoResolucion']),
-            'tema_id' => $this->getTemaId($resolucion['id_tema'] ?? null, $maps['temas']),
             'fecha_emision' => $this->formatDate($resolucion['fecha_emision'] ?? null),
             'fecha_publicacion' => $this->formatDate($resolucion['fecha_publicacion'] ?? null),
             'nro_resolucion' => $this->sanitize($resolucion['nro_resolucion'] ?? null),
@@ -135,6 +134,7 @@ class WebScrappingJob implements ShouldQueue
             'demandado' => $this->sanitize($resolucion['demandado'] ?? null),
             'maxima' => $this->sanitize($resolucion['maxima'] ?? null),
             'sintesis' =>  $this->sanitize($resolucion['sintesis'] ?? null),
+            'user_id' => $id,
         ], fn($value) => !is_null($value));
     }
 
@@ -144,44 +144,92 @@ class WebScrappingJob implements ShouldQueue
             Contents::create(['contenido' => $this->sanitize($resolucion['contenido'] ?? null), 'resolution_id' => $res->id]);
             Mapeos::create(['external_id' => $resolucion['id'], 'resolution_id' => $res->id]);
 
-            $restrictor = $this->sanitize($resolucion['restrictor'] ?? null);
-            if ($restrictor && !Jurisprudencias::where('resolution_id', $res->id)->where('restrictor', $restrictor)->exists()) {
-                Jurisprudencias::create([
-                    'resolution_id' => $res->id,
-                    'restrictor' => $restrictor,
-                    'descriptor' => $this->sanitize($resolucion['descriptor'] ?? null),
-                    'tipo_jurisprudencia_id' => $this->getOrCreateId(TipoJurisprudencia::class, 'nombre', $resolucion['tipo_jurisprudencia'] ?? null, $maps['tipoJurisprudencia']),
-                    'ratio' => $this->sanitize($resolucion['ratio'] ?? null),
-                ]);
-            }
+            $this->crearJurisprudencia($res, $resolucion, $maps);
         } catch (\Exception $e) {
             Log::error("[{$this->jobId}] Error al almacenar datos relacionados para resolución {$res->id}: " . $e->getMessage());
         }
     }
 
-    private function crearJurisprudencia($resolucion, $temas, &$maps): void
+    private function crearJurisprudencia(Resolutions $res, array $resolucion, array &$maps): void
     {
 
 
-        try {
-            foreach ($temas as $tema) {
-                $restrictor = $this->sanitize($tema['restrictor'] ?? null);
+        if (empty($resolucion)) {
+            return;
+        }
 
-                $tipoJurisprudenciaId = $this->getOrCreateId(TipoJurisprudencia::class, 'nombre', $tema['tipo_jurisprudencia'] ?? null, $maps['tipoJurisprudencia']);
-               
-                if ($restrictor && !Jurisprudencias::where('resolution_id', $resolucion->id)->where('restrictor', $restrictor)->exists()) {
-                    Jurisprudencias::create([
-                        'resolution_id' => $resolucion->id,
-                        'restrictor' => $restrictor,
-                        'descriptor' => $this->sanitize($tema['descriptor'] ?? null),
-                        'tipo_jurisprudencia_id' => $tipoJurisprudenciaId,
-                        'ratio' => $this->sanitize($tema['ratio'] ?? null),
-                    ]);
-                }
+        try {
+            $restrictor = $this->sanitize($resolucion['restrictor'] ?? null);
+            $ratio = $this->sanitize($resolucion['ratio'] ?? null);
+            $tipoJurisprudencia = $this->sanitize($resolucion['tipo_jurisprudencia'] ?? null);
+            $descriptor = $this->sanitize($resolucion['descriptor'] ?? null);
+            Log::info("Procesando $descriptor");
+
+            if ($restrictor == null && $ratio === null && $tipoJurisprudencia === null && $descriptor === null) {
+                Log::info("[{$this->jobId}] No se creará jurisprudencia para resolución {$res->id} debido a datos vacíos.");
+                return;
             }
+            if (Jurisprudencias::where('resolution_id', $res->id)->where('restrictor', $restrictor)->exists()) {
+                Log::info("[{$this->jobId}] Jurisprudencia ya existe para resolución {$res->id} con restrictor {$restrictor}");
+                return;
+            }
+
+            $variables = explode('/', $descriptor, 2);
+
+            Jurisprudencias::create([
+                'resolution_id' => $res->id,
+                'restrictor' => $restrictor,
+                'descriptor' => $descriptor,
+                'tipo_jurisprudencia_id' => $this->getOrCreateId(TipoJurisprudencia::class, 'nombre', $tipoJurisprudencia, $maps['tipoJurisprudencia']),
+                'ratio' => $ratio,
+                'root_id' => $this->getOrCreateId(Descriptor::class, 'nombre',  $variables[0] ?? 'Desconocido', $maps['temas']),
+                'descriptor_id' => $this->getOrCreateDescriptor($descriptor, $maps['temas']),
+            ]);
         } catch (\Exception $e) {
             Log::error("[{$this->jobId}] Error al crear jurisprudencia: " . $e->getMessage());
         }
+    }
+    private function agregarJurisprudencias(Resolutions $res, array $temas, array &$maps): void
+    {
+        foreach ($temas as $tema) {
+            $this->crearJurisprudencia($res, $tema, $maps);
+        }
+    }
+
+
+    private function getOrCreateDescriptor($descriptor, array &$map): ?int
+    {
+        $id = null;
+        $pieces = explode("/", $descriptor);
+
+        foreach ($pieces as $piece) {
+            $piece = trim($piece);
+            if (empty($piece)) {
+                continue;
+            }
+
+            if (isset($map[$piece])) {
+                $id = $map[$piece];
+                continue;
+            }
+
+            try {
+
+
+                $instance = Descriptor::firstOrCreate(['nombre' => $piece , 'descriptor_id' => $id]);
+                if (!$instance || !$instance->id) {
+                    Log::error("No se pudo crear o encontrar descriptor: {$piece}");
+                    return null;
+                }
+                $id = $instance->id;
+                $map[$piece] = $id;
+            } catch (\Exception $e) {
+                Log::error("Error creando descriptor {$piece}: " . $e->getMessage());
+                return null;
+            }
+        }
+
+        return $id;
     }
 
     private function getOrCreateId($model, string $field, ?string $value, array &$map): ?int

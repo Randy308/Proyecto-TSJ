@@ -12,15 +12,6 @@ use App\Utils\NLP;
 
 class JurisprudenciasController extends Controller
 {
-    public function index()
-    {
-        //
-    }
-
-    public function create()
-    {
-        //
-    }
 
     public function actualizarNodo(Request $request)
     {
@@ -72,8 +63,9 @@ class JurisprudenciasController extends Controller
         $query = DB::table('jurisprudencias as j')
             ->select(
                 'j.descriptor',
+                'j.root_id',
+                'j.restrictor',
                 DB::raw('COUNT(j.resolution_id) as cantidad'),
-                DB::raw('array_agg(j.id) AS ids')
             )
             ->groupBy('j.descriptor');
 
@@ -90,17 +82,15 @@ class JurisprudenciasController extends Controller
         if ($resultados->isEmpty()) {
             return response()->json(['mensaje' => "No se encontraron resultados"], 404);
         }
-        foreach ($resultados as &$item) {
-            $item->ids = array_map('intval', explode(',', trim($item->ids, '{}')));
-        }
+        // foreach ($resultados as &$item) {
+        //     $item->ids = array_map('intval', explode(',', trim($item->ids, '{}')));
+        // }
 
         return response()->json($resultados);
     }
 
-
-    public function busquedaTerminos(Request $request)
+    public function buscarDescriptor(Request $request)
     {
-
         $request->validate([
             'busqueda' => 'required|string',
             'descriptor' => 'nullable|string',
@@ -109,56 +99,70 @@ class JurisprudenciasController extends Controller
         $busqueda = $request->input('busqueda');
         $descriptor = $request->input('descriptor');
 
-
-        $query = DB::table('jurisprudencias as j')->join('restrictors', 'j.restrictor_id', '=', 'restrictors.id')
-            ->select(
-                'j.descriptor',
-                DB::raw('COUNT(j.resolution_id) as cantidad'),
-                DB::raw('array_agg(j.resolution_id) AS ids')
-            )
-            ->groupBy('descriptor');
-
+        $query = DB::table('jurisprudencias as j')->select(
+            'j.descriptor',
+            DB::raw('COUNT(j.resolution_id) as cantidad')
+        )->groupBy('j.descriptor');
 
         if (!empty($descriptor)) {
             $descriptor = $descriptor . ' / ';
-            $query->where('j.descriptor', 'ilike', $descriptor . '%' . $busqueda);
+            $query->where('j.descriptor', 'ilike', $descriptor . '%' . $busqueda . '%');
         } else {
-
-            $query->whereRaw("restrictors.nombre ~* ? or j.descriptor ~* ?",  [" " . $busqueda, " " . $busqueda]);
+            $query->where('j.descriptor', 'ilike', '%' . $busqueda . '%');
         }
-        $resultados = $query->orderByDesc('cantidad')->get();
+
+        $resultados = $query
+            ->havingRaw('COUNT(j.resolution_id) > ?', [7])
+            ->orderByDesc('cantidad')
+            ->get();
+
         if ($resultados->isEmpty()) {
             return response()->json(['mensaje' => "No se encontraron resultados"], 404);
         }
-        foreach ($resultados as &$item) {
-            $item->ids = array_map('intval', explode(',', trim($item->ids, '{}')));
-        }
+
         return response()->json($resultados);
     }
 
-    public function store(Request $request)
-    {
-        //
-    }
 
-    public function show(Jurisprudencias $jurisprudencias)
+    public function busquedaTerminos(Request $request)
     {
-        //
-    }
+        $request->validate([
+            'busqueda' => 'required|string',
+            'materia' => 'nullable|integer',
+        ]);
 
-    public function edit(Jurisprudencias $jurisprudencias)
-    {
-        //
-    }
+    
+        $query = $request->input('busqueda', '');
+        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) {
+            $options['facets'] = ['descriptor_facet'];
+            return $meilisearch->search($query, $options);
+        });
 
-    public function update(Request $request, Jurisprudencias $jurisprudencias)
-    {
-        //
-    }
+         if ($request->has('materia')) {
+            $materia = $request->input('materia');
+            $search->where('materia', $materia);
+        }
 
 
-    public function destroy(Jurisprudencias $jurisprudencias)
-    {
-        //
+        $search = $search->raw();
+
+
+        $facets = $search['facetDistribution']['descriptor_facet'] ?? [];
+
+        
+        $facets = collect($facets)->map(function ($count, $facet) {
+            $parts = explode('||', $facet);
+            return [
+                'root_id' => $parts[0],
+                'descriptor_id' => $parts[1],
+                'descriptor' => $parts[2],
+                'cantidad' => $count,
+            ];
+        })->values()->toArray();
+
+        usort($facets, function ($a, $b) {return $a['cantidad'] < $b['cantidad'];});
+
+        return response()->json($facets);
+
     }
 }

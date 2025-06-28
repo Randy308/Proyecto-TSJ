@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Laravel\Scout\Searchable;
 
 class Resolutions extends Model
 {
     use HasFactory;
+    use Searchable;
 
     protected $fillable = [
         'nro_resolucion',
@@ -24,8 +26,8 @@ class Resolutions extends Model
         'precedente',
         'demandante',
         'demandado',
-        'tema_id',
         'maxima',
+        'user_id',
         'sintesis',
     ];
 
@@ -33,75 +35,7 @@ class Resolutions extends Model
         'created_at',
         'updated_at',
     ];
-    // protected $appends = ['tipo_resolucion','sala','departamento','forma_resolucion','magistrado','tema','contenido'];
 
-    // protected $hidden = [
-    //     'tipo_resolucion_relacion',
-    //     'departamento_relacion',
-    //     'sala_relacion',
-    //     'forma_resolucion_relacion',
-    //     'magistrado_relacion',
-    //     'tema_relacion',
-    //     'contenido_relacion',
-    // ];
-
-    // public function getContenidoAttribute()
-    // {
-    //     return $this->contenido_relacion?->contenido ?? null;
-    // }
-    // public function contenido_relacion()
-    // {
-    //     return $this->hasOne(Contents::class, 'resolution_id', 'id');
-    // }
-    // public function getTipoResolucionAttribute()
-    // {
-    //     return $this->tipo_resolucion_relacion?->nombre ?? null;
-    // }
-    // public function tipo_resolucion_relacion()
-    // {
-    //     return $this->hasOne(TipoResolucions::class, 'id', 'tipo_resolucion_id');
-    // }
-
-    // public function getSalaAttribute()
-    // {
-    //     return $this->sala_relacion?->nombre ?? null;
-    // }
-    // public function sala_relacion()
-    // {
-    //     return $this->hasOne(Sala::class, 'id', 'sala_id');
-    // }
-    // public function getDepartamentoAttribute()
-    // {
-    //     return $this->departamento_relacion?->nombre ?? null;
-    // }
-    // public function departamento_relacion()
-    // {
-    //     return $this->hasOne(Departamentos::class, 'id', 'departamento_id');
-    // }
-    // public function getFormaResolucionAttribute()
-    // {
-    //     return $this->forma_resolucion_relacion?->nombre ?? null;
-    // }
-    // public function forma_resolucion_relacion()
-    // {
-    //     return $this->hasOne(FormaResolucions::class, 'id', 'forma_resolucion_id');
-    // }
-    // public function getMagistradoAttribute()
-    // {
-    //     return $this->magistrado_relacion?->nombre ?? null;
-    // }
-    // public function magistrado_relacion()
-    // {
-    //     return $this->hasOne(Magistrados::class, 'id', 'magistrado_id');
-    // }
-    // public function getTemaAttribute()
-    // {
-    //     return $this->tema_relacion?->nombre ?? null;
-    // }
-    // public function tema_relacion()
-    // {
-    //     return $this->hasOne(Tema::class, 'id', 'tema_id');
-    // }
 
     public function sala()
     {
@@ -109,7 +43,7 @@ class Resolutions extends Model
     }
     public function jurisprudencias()
     {
-        return $this->belongsToMany(Jurisprudencias::class);
+        return $this->hasMany(Jurisprudencias::class, 'resolution_id', 'id');
     }
 
     public function tema()
@@ -142,5 +76,36 @@ class Resolutions extends Model
     public function content()
     {
         return $this->hasOne(Contents::class, 'resolution_id', 'id');
+    }
+
+
+    public function toSearchableArray()
+    {
+        $this->loadMissing(['content', 'jurisprudencias']); // evitar N+1
+
+        return [
+            'id' => $this->id,
+            'nro_resolucion' => $this->nro_resolucion,
+            'nro_expediente' => $this->nro_expediente,
+            'demandante' => $this->demandante,
+            'demandado' => $this->demandado,
+            'contenido' => $this->content->contenido ?? null,
+            'departamento' => $this->departamento_id,
+            // metadatos no buscables, pero útiles en resultados
+            'sala' => $this->sala_id,
+            'magistrado' => $this->magistrado_id,
+            'periodo' => $this->fecha_emision
+                ? \Carbon\Carbon::parse($this->fecha_emision)->format('Y')
+                : null,
+            'tipo_resolucion' => $this->tipo_resolucion_id,
+            'forma_resolucion' => $this->forma_resolucion_id,
+            'sintesis' => $this->sintesis,
+            'precedente' => $this->precedente,
+            'proceso' => $this->proceso,
+            'maxima' => $this->maxima,
+            
+            // nuevo campo booleano
+            'tiene_jurisprudencias' => $this->jurisprudencias->isNotEmpty(),
+        ];
     }
 }

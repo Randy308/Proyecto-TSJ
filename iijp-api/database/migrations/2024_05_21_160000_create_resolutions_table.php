@@ -28,11 +28,11 @@ class CreateResolutionsTable extends Migration
             $table->text('precedente')->nullable();
             $table->text('demandante')->nullable();
             $table->text('demandado')->nullable();
-            $table->unsignedBigInteger('tema_id')->nullable();
+            //$table->unsignedBigInteger('tema_id')->nullable();
             $table->text('maxima')->nullable();
             $table->text('sintesis')->nullable();
             $table->foreign('sala_id')->references('id')->on('salas')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('tema_id')->references('id')->on('temas')->onDelete('cascade')->onUpdate('cascade');
+            //$table->foreign('tema_id')->references('id')->on('temas')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('forma_resolucion_id')->references('id')->on('forma_resolucions')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('tipo_resolucion_id')->references('id')->on('tipo_resolucions')->onDelete('cascade')->onUpdate('cascade');
             $table->foreign('magistrado_id')->references('id')->on('magistrados')->onDelete('cascade')->onUpdate('cascade');

@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const AuthUser = () => {
   const navigate = useNavigate();
 
   const getToken = () => {
-    const tokenString = sessionStorage.getItem("token");
-    return tokenString ? JSON.parse(tokenString) : null;
+    const token = Cookies.get("login");
+    return token ? JSON.parse(token) : null;
   };
 
   const getUser = () => {
-    const userString = sessionStorage.getItem("user");
-    return userString ? JSON.parse(userString) : null;
+    const user = Cookies.get("user");
+    return user ? JSON.parse(user) : null;
   };
 
   const getRol = () => {
-    const rolString = sessionStorage.getItem("rol");
-    return rolString ? JSON.parse(rolString) : null;
+    const rol = Cookies.get("rol");
+    return rol ? JSON.parse(rol) : null;
   };
 
   const [token, setToken] = useState(getToken);
@@ -24,36 +25,41 @@ const AuthUser = () => {
   const [rol, setRol] = useState(getRol);
 
   const saveToken = (user, token, rol) => {
-    sessionStorage.setItem("user", JSON.stringify(user));
-    sessionStorage.setItem("token", JSON.stringify(token));
-    sessionStorage.setItem("rol", JSON.stringify(rol));
+    // Guardar cookies con expiración de 1 día
+    Cookies.set("user", JSON.stringify(user), { expires: 1 });
+    Cookies.set("login", JSON.stringify(token), { expires: 1 });
+    Cookies.set("rol", JSON.stringify(rol), { expires: 1 });
+
     setUser(user);
     setToken(token);
     setRol(rol);
 
     if (hasAccess(user)) {
-        navigate("/dashboard");
-      } else {
-        navigate("/inicio");
-      }
+      navigate("/dashboard");
+    } else {
+      navigate("/inicio");
+    }
   };
 
   const hasAccess = (user) => {
-    
     const currentUser = user || {};
     const hasPermissions =
-      Array.isArray(currentUser.permissions) && currentUser.permissions.length > 0;
+      Array.isArray(currentUser.permissions) &&
+      currentUser.permissions.length > 0;
     const isUserDefined = Object.keys(currentUser).length > 0;
     return hasPermissions || isUserDefined;
   };
 
-  const can = (permission) => (user?.permissions || []).includes(permission);
+  const can = (permission) =>
+    (getUser()?.permissions || []).includes(permission);
 
   const hasAnyPermission = (permissions) =>
     permissions.some((permission) => can(permission));
 
   const getLogout = () => {
-    sessionStorage.clear();
+    Cookies.remove("user");
+    Cookies.remove("login");
+    Cookies.remove("rol");
     setUser(null);
     setToken(null);
     setRol(null);
@@ -64,6 +70,7 @@ const AuthUser = () => {
     saveToken,
     token,
     user,
+    getUser,
     can,
     hasAccess,
     hasAnyPermission,

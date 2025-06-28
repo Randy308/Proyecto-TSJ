@@ -12,6 +12,7 @@ class Descriptor extends Model
 
     protected $fillable = [
         'nombre',
+        'descriptor_id'
     ];
 
     protected $hidden = [

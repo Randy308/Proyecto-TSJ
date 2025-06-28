@@ -1,10 +1,7 @@
 <?php
 
-use App\Http\Controllers\api\ExcelController;
-use App\Http\Controllers\Api\TemaController;
-use App\Http\Controllers\TemasController;
+use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
-use Spatie\Permission\Models\Role;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +16,9 @@ use Spatie\Permission\Models\Role;
 
 //$role = Role::create(['name'=> 'admin']);
 //$role = Role::create(['name'=> 'user']);
-Route::get('/', function () {
-    return view('prueba');
-});
+
+
+
+Route::get('/{any}', function () {
+    return view('index');
+})->where('any', '.*');

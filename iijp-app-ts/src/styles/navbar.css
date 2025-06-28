@@ -1,0 +1,26 @@
+:root {
+  --mainColor: #450920;
+  --secondaryColor: #fff;
+  --secondaryFontColor: #eaf8bf;
+  --second : #7C5962
+}
+
+#navbar-submenu {
+  background: rgb(169, 97, 112);
+  background: linear-gradient(
+    107deg,
+    rgba(169, 97, 112, 1) 0%,
+    rgb(137, 41, 67) 24%,
+    rgb(111, 57, 72) 100%
+  );
+}
+
+div#parent-container.dark-theme #navbar-submenu {
+  background: rgb(53, 78, 126);
+  background: linear-gradient(
+    90deg,
+    rgba(53, 78, 126, 1) 0%,
+    rgba(47, 61, 88, 1) 100%
+  );
+}
+

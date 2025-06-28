@@ -1,0 +1,44 @@
+#features path {
+  fill: #b2e6d4;
+  stroke: black;
+}
+
+#features path:not(.activo):hover {
+  fill: #87ceaa;
+}
+
+#features path.activo {
+  fill: #9fdab6;
+}
+
+
+#points .point {
+  fill: red;
+  stroke: black;
+  stroke-width: 1;
+}
+
+#label_points .label {
+  fill: black; 
+  font-size: x-large;
+  font-weight: bolder;
+  font-family: Arial, sans-serif; 
+}
+
+#svg_bolivia {
+  width: 550px;
+  height: 550px;
+}
+
+@media (max-width: 720px) {
+  g#features,
+  g#points,
+  g#label_points {
+    transform: scale(0.95);
+  }
+
+  #svg_bolivia {
+    width: 320px;
+    height: 420px;
+  }
+}

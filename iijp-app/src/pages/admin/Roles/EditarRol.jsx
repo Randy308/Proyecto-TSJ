@@ -5,15 +5,23 @@ import RoleService from "../../../services/RoleService";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useRoleContext } from "../../../context/roleContext";
 
-const EditarRol = ({ id, permissions, setCounter, showModal, setShowModal }) => {
-  const { getToken ,can } = AuthUser();
+const EditarRol = ({
+  id,
+  permissions,
+  setCounter,
+  showModal,
+  setShowModal,
+}) => {
+  const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  
   const token = getToken();
   const [formData, setFormData] = useState([]);
+  const { roles, obtenerRoles } = useRoleContext();
+
   useEffect(() => {
     if (!can("actualizar_roles")) {
       navigate("/");
@@ -21,7 +29,7 @@ const EditarRol = ({ id, permissions, setCounter, showModal, setShowModal }) => 
       setLoading(false);
     }
   }, [can, navigate]);
-  
+
   const setParams = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
@@ -62,13 +70,8 @@ const EditarRol = ({ id, permissions, setCounter, showModal, setShowModal }) => 
   };
 
   useEffect(() => {
-    RoleService.getRole(id, token)
-      .then(({ data }) => {
-        console.log(data);
-        setFormData(data);
-      })
-      .catch((error) => console.error("Error al obtener el rol:", error));
-  }, [token]);
+    setFormData(roles.find((item) => item.id === id));
+  }, [roles]);
 
   const submitForm = async (e) => {
     e.preventDefault();
@@ -90,8 +93,11 @@ const EditarRol = ({ id, permissions, setCounter, showModal, setShowModal }) => 
           if (data) {
             console.log(data);
             setShowModal(false);
+            obtenerRoles();
             setCounter((prev) => prev + 1);
-            toast.success("La información del rol ha sido actualizado exitosamente");
+            toast.success(
+              "La información del rol ha sido actualizado exitosamente"
+            );
           }
         })
         .catch(({ err }) => {
@@ -167,7 +173,6 @@ const EditarRol = ({ id, permissions, setCounter, showModal, setShowModal }) => 
                     {item.name}
                   </span>
                 </label>
-
               </li>
             ))}
           </ul>

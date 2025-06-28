@@ -1,4 +1,5 @@
 <?php
+
 namespace  App\Utils;
 
 class NLP
@@ -157,12 +158,40 @@ class NLP
 
         return $cadena;
     }
+    public static function cleanArray($terminos)
+    {
+        $stopwords = NLP::getStopWords();
+
+        foreach ($terminos as $key => $search) {
+            $search = preg_replace('/\s+/', ' ', $search); // Normaliza espacios
+            $search = trim($search);                      // Elimina espacios extremos
+            $search = strtolower($search);                // Convierte a minúsculas
+
+            if (in_array($search, $stopwords)) {
+                unset($terminos[$key]);                   // Elimina si es stopword
+            } else {
+                $terminos[$key] = $search;                // Reasigna el valor limpio
+            }
+        }
+
+         return array_values($terminos);
+    }
 
     public static function getStopwords()
     {
 
 
         return [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "0",
             "a",
             "actualmente",
             "adelante",

@@ -1,7 +1,7 @@
 import React from "react";
 import Footer from "../components/Footer";
 import { Outlet, useLocation } from "react-router-dom";
-import MyNavbar from "../components/MyNavbar";
+import MyNavbar from "../components/Navbar";
 
 const LayoutPublic = () => {
   const location = useLocation();
@@ -11,6 +11,7 @@ const LayoutPublic = () => {
     "/inicio",
     "/novedades",
     "/jurisprudencia",
+    '/analisis',
   ];
   const shouldShowNavbar = !noNavbarRoutes.some((route) =>
     location.pathname.match(new RegExp(`^${route.replace(":id", "\\d+")}$`))

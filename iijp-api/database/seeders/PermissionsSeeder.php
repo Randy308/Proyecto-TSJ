@@ -23,47 +23,28 @@ class PermissionsSeeder extends Seeder
         // Define an array of permission names
         $arrayOfPermissionNames = [
             // Admin
-            "ver_todas_resoluciones",
-            "ver_todas_jurisprudencia",
+            'administrar_datos',
+            "subir_resoluciones",
+            "subir_jurisprudencia",
+            "realizar_web_scrapping",
+            "actualizar_resoluciones",
+            "actualizar_jurisprudencia",
+            'validar_datos',
+            'modificar_datos',
+            "crear_estilo",
+            "eliminar_estilo",
+            "ver_estilo",
+            "actualizar_estilo",
+            //usuarios
             "crear_usuarios",
             "eliminar_usuarios",
             "actualizar_usuarios",
             "ver_usuarios",
+            //roles
             "crear_roles",
             "eliminar_roles",
             "actualizar_roles",
             "ver_roles",
-            "ver_rol",
-            "ver_usuario",
-            "web_scrapping",
-            "asignar_permisos",
-            "dashboard",
-            "quitar_permisos",
-            //Codificador
-            "acceder_resoluciones",
-            "subir_resoluciones",
-            "actualizar_resoluciones",
-            "eliminar_resoluciones",
-            "acceder_jurisprudencia",
-            "subir_jurisprudencia",
-            "actualizar_jurisprudencia",
-            "eliminar_jurisprudencia",
-
-            "crear_publicacion",
-            "eliminar_publicacion",
-            "ver_publicacion",
-            "actualizar_publicacion",
-            // Users
-            "realizar_prediccion",
-            "refinar_busqueda",
-            "crear_estilos",
-            "eliminar_estilos",
-            "ver_estilos",
-            "actualizar_estilos",
-            "actualizar_perfil",
-            "eliminar_perfil",
-            "ver_perfil",
-            // Additional permissions...
         ];
 
         // Map the permissions to the format required by the Permission model
@@ -76,46 +57,27 @@ class PermissionsSeeder extends Seeder
 
         // Create roles and assign permissions
         Role::create(["name" => "admin", 'guard_name' => 'sanctum'])->givePermissionTo(Permission::all());
-        Role::create(["name" =>"editor", 'guard_name' => 'sanctum'])->givePermissionTo([
-            "acceder_resoluciones",
+        Role::create(["name" => "editor", 'guard_name' => 'sanctum'])->givePermissionTo([
+            'administrar_datos',
             "subir_resoluciones",
-            "actualizar_resoluciones",
-            "eliminar_resoluciones",
-            "acceder_jurisprudencia",
             "subir_jurisprudencia",
+            "realizar_web_scrapping",
+            "actualizar_resoluciones",
             "actualizar_jurisprudencia",
-            "eliminar_jurisprudencia",
-            "crear_publicacion",
-            "eliminar_publicacion",
-            "ver_publicacion",
-            "actualizar_publicacion",
-            "realizar_prediccion",
-            "refinar_busqueda",
-            "crear_estilos",
-            "eliminar_estilos",
-            "ver_estilos",
-            "actualizar_estilos",
-            "actualizar_perfil",
-            "eliminar_perfil",
-            "ver_perfil",
+            'validar_datos',
+            'modificar_datos',
+            "crear_estilo",
+            "eliminar_estilo",
+            "ver_estilo",
+            "actualizar_estilo",
         ]);
         Role::create(["name" => "user", 'guard_name' => 'sanctum'])->givePermissionTo([
-            "realizar_prediccion",
-            "refinar_busqueda",
-            "crear_estilos",
-            "eliminar_estilos",
-            "ver_estilos",
-            "actualizar_estilos",
-            "actualizar_perfil",
-            "eliminar_perfil",
-            "ver_perfil",
+            "crear_estilo",
+            "eliminar_estilo",
+            "ver_estilo",
+            "actualizar_estilo",
         ]);
 
-        // Assign roles to users
-        // User::find(1)->assignRole('admin');
-        // User::find(2)->assignRole('editor');
-        // User::find(3)->assignRole('user');
-        // Create test users
         $user1 = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
