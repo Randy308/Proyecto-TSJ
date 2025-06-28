@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEventHandler } from "react";
+import { useEffect, useState } from "react";
 import Config from "./Config";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "../components/form/PasswordInput";

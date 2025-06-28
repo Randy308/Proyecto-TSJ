@@ -2,10 +2,19 @@ import React from "react";
 import ReactECharts from "echarts-for-react";
 import "../../data/dark.js";
 import "../../data/shine.js";
-import { useThemeContext } from "../../context/ThemeProvider.jsx";
-const SimpleChart = ({ option, border = true, handleClick }) => {
-  const isDarkMode = useThemeContext();
+import { useThemeContext } from "../../context/ThemeProvider.js";
 
+interface SimpleChartProp {
+  option: any;
+  border?: boolean;
+  handleClick: Function;
+}
+const SimpleChart = ({
+  option,
+  border = true,
+  handleClick,
+}: SimpleChartProp) => {
+  const isDarkMode = useThemeContext();
 
   return (
     <div

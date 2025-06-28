@@ -1,6 +1,6 @@
-export const SwitchChart = (option, action, flag = false) => {
+export const SwitchChart = (option:Object, action:string, flag:boolean = false) => {
 
-  let newOption = JSON.parse(JSON.stringify(option));
+  let newOption:Object = JSON.parse(JSON.stringify(option));
 
   let x = newOption.xAxis.type ? newOption.xAxis : newOption.yAxis;
   let y = !newOption.xAxis.type ? newOption.xAxis : newOption.yAxis;

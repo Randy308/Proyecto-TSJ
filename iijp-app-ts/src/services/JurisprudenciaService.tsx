@@ -37,10 +37,8 @@ const JurisprudenciaService = {
       responseType: "blob",
     }),
 
-  obtenerNodos: (formData:any[]) =>
-    instance.get("/obtener-nodos", {
-      params: formData,
-    }),
+  obtenerNodos: () =>
+    instance.get("/obtener-nodos"),
   obtenerResoluciones: (formData:any[]) =>
     instance.get("/obtener-resoluciones-cronologia", {
       params: formData,

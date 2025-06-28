@@ -1,20 +1,18 @@
 import React from "react";
 import LogoUmss from "../images/Logo_umss.png";
-import AuthUser from "../auth/AuthUser";
-import { MdAttachEmail } from "react-icons/ci";
 import { NavLink } from "react-router-dom";
 import { FaBars, FaDatabase, FaUsers, FaUsersGear } from "react-icons/fa6";
 import { RiDashboard2Fill } from "react-icons/ri";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import Notifications from "./Notifications";
 import Settings from "./Settings";
 import { FaMailBulk, FaTimes } from "react-icons/fa";
 import { useNotificationContext } from "../context/notificationContext";
+import { AuthUser } from "../auth";
 const Sidebar = () => {
   const [show, setShow] = React.useState(false);
 
   const { notifications } = useNotificationContext();
-  const { getToken, getLogout, can } = AuthUser();
+  const { getToken, can } = AuthUser();
 
   const navLinks = () => {
     if (getToken()) {

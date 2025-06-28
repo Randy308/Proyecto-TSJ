@@ -5,7 +5,7 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import styles from "./ResolucionTSJ.module.css";
 import ResolucionesService from "../../services/ResolucionesService";
 import { titulo } from "../../utils/filterForm";
-const ResolucionTSJ = ({ id }) => {
+const ResolucionTSJ = ({ id }:{id:number}) => {
   const navigate = useNavigate();
   const [resolucion, setResolucion] = useState(null);
   const [fichas, setFichas] = useState(null);

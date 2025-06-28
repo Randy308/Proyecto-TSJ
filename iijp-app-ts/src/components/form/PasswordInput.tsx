@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
+interface PasswordInputProps {
+  password: string;
+  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  passwordError: string;
+  setPasswordError: React.Dispatch<React.SetStateAction<string>>;
+}
 const PasswordInput = ({
   password,
   setPassword,
   passwordError,
   setPasswordError,
-}) => {
+}: PasswordInputProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => setIsVisible((prev) => !prev);
 
-  const validatePassword = (e) => {
+  const validatePassword = (e:string) => {
     const value = e.trim();
     setPassword(value);
 

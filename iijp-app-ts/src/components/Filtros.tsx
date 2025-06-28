@@ -1,13 +1,26 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { titulo } from "../utils/filterForm";
+import type { DatosArray, FiltroNombre } from "../types";
 
-const Filtros = ({ nombre, data, formData, setFormData }) => {
-  const selectedIds = formData[nombre] || [];
+
+
+interface Data {
+  id: number;
+  nombre: string;
+}
+interface FiltrosProps {
+  nombre: FiltroNombre;
+  formData: DatosArray;
+  data: Data[];
+  setFormData: React.Dispatch<React.SetStateAction<DatosArray>>;
+}
+const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
+  const selectedIds:number[] = formData[nombre] || [];
 
   const checkedAll = selectedIds.length === 0;
 
-  const handleCheckboxChange = (event) => {
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const checkedId = Number(event.target.value);
     const isChecked = selectedIds.includes(checkedId);
 

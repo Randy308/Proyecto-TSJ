@@ -1,12 +1,23 @@
 import React, { useEffect } from "react";
 
-const EmailInput = ({ email, setEmail, emailError, setEmailError }) => {
-  useEffect(() => {
-    validateEmail(email);
-  }, []);
+interface EmailInputProps {
+  email: string;
+  setEmail: React.Dispatch<React.SetStateAction<string>>;
+  emailError: string;
+  setEmailError: React.Dispatch<React.SetStateAction<string>>;
+}
+const EmailInput = ({
+  email,
+  setEmail,
+  emailError,
+  setEmailError,
+}: EmailInputProps) => {
+  // useEffect(() => {
+  //   validateEmail(email);
+  // }, []);
 
-  const validateEmail = (e) => {
-    const value = e.trim();
+  const validateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
     setEmail(value);
 
     if (!value) {
@@ -33,7 +44,7 @@ const EmailInput = ({ email, setEmail, emailError, setEmailError }) => {
         id="email"
         name="email"
         value={email}
-        onChange={(e) => validateEmail(e.target.value)}
+        onChange={(e) => validateEmail(e)}
         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="Ingrese su email"
         required

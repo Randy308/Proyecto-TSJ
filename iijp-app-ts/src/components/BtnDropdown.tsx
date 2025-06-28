@@ -1,7 +1,13 @@
 import React from "react";
 import { IoIosArrowUp } from "react-icons/io";
 import { IoIosArrowDown } from "react-icons/io";
-const BtnDropdown = ({ setVisible, visible, titulo }) => {
+
+interface BtnProps{
+  visible:boolean;
+  titulo:string;
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>
+}
+const BtnDropdown = ({ setVisible, visible, titulo }:BtnProps) => {
   return (
     <button
       type="button"

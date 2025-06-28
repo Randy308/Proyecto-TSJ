@@ -1,11 +1,19 @@
 import React, { useEffect } from "react";
 
-const NameInput = ({ input, setInput, inputError, setInputError, titulo="Nombre Completo" }) => {
+
+interface NameInputProps {
+  input: string;
+  setInput: React.Dispatch<React.SetStateAction<string>>;
+  inputError: string;
+  setInputError: React.Dispatch<React.SetStateAction<string>>;
+  titulo?:string
+}
+const NameInput = ({ input, setInput, inputError, setInputError, titulo="Nombre Completo" }:NameInputProps) => {
   useEffect(() => {
     validateInput(input);
   }, []);
 
-  const validateInput = (e) => {
+  const validateInput = (e:string) => {
     const value = e;
     setInput(value);
 

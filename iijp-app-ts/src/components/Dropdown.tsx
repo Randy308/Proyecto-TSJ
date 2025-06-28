@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
-import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useNavigate } from "react-router-dom";
-const Dropdown = ({ item, removeItemById, data }) => {
-  const [visible, setVisible] = useState(false);
-  const [oculto, setOculto] = useState(true);
-  function toTitleCase(str) {
-    return str.replace(
-      /\w\S*/g,
-      (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
-    );
-  }
+import { useSessionStorage } from "../hooks/useSessionStorage";
+import type { Datos,  FiltroNombre, Variable } from "../types";
 
-  const [terminos, setTerminos] = useState([]);
+interface ItemProyeccion {
+  detalles: string;
+  id: number;
+  value: string;
+}
+interface Props {
+  item: ItemProyeccion;
+  removeItemById: () => void;
+  data: Variable[];
+}
+const Dropdown = ({ item, removeItemById, data }: Props) => {
+  const [visible, setVisible] = useState(false);
+
+  const [terminos, setTerminos] = useState<string | null>(null);
 
   sessionStorage.removeItem("formData");
-  const [formData, setFormData] = useSessionStorage("formData", {
+  const [formData, setFormData] = useSessionStorage<Datos>("formData", {
     tipo_resolucion: "all",
     sala: "all",
     magistrado: "all",
@@ -23,9 +28,10 @@ const Dropdown = ({ item, removeItemById, data }) => {
     forma_resolucion: "all",
     tipo_jurisprudencia: "all",
     materia: "all",
+    periodo: "all",
   });
   const navigate = useNavigate();
-  const guardar = (item) => {
+  const guardar = (item: any) => {
     if (typeof item === "object" && item !== null) {
       const updatedFormData = { ...formData, ...item };
 
@@ -36,11 +42,11 @@ const Dropdown = ({ item, removeItemById, data }) => {
     navigate("/busqueda", { state: { flag: true } });
   };
 
-  const navegar = (item, ruta = "/proyeccion") => {
-    navigate(ruta, { state: { parametros: item } });
+  const navegar = (detalles: any, ruta = "/proyeccion") => {
+    navigate(ruta, { state: { parametros: detalles } });
   };
 
-  const transformarClave = (clave) => {
+  const transformarClave = (clave: string) => {
     const nuevaClave = clave.replace(/_/g, " de "); // Reemplazar guiones bajos
     return nuevaClave.charAt(0).toUpperCase() + nuevaClave.slice(1); // Capitalizar la primera letra
   };
@@ -51,13 +57,13 @@ const Dropdown = ({ item, removeItemById, data }) => {
     let resultado = {};
 
     Object.entries(detalles).forEach(([clave, valor]) => {
-      if (data[clave]) {
+      const key: FiltroNombre = clave;
+      const value = Number(valor);
+      if (data[key]) {
         // Buscar el elemento en la lista correspondiente
-        const encontrado = data[clave].find(
-          (item) => String(item.id) === valor
-        );
+        const encontrado = data.find((item) => String(item.nombre) === key);
         if (encontrado) {
-          resultado[clave] = encontrado.nombre; // Agregar solo si hay coincidencia
+          resultado[key] = encontrado.nombre; // Agregar solo si hay coincidencia
         }
       }
     });

@@ -1,9 +1,6 @@
-import React from "react";
 import "../styles/footer.css";
 import { FaFacebook } from "react-icons/fa6";
 import { FaWhatsapp } from "react-icons/fa";
-import { FaInstagram } from "react-icons/fa";
-import { FaPhoneAlt } from "react-icons/fa";
 import { IoMail } from "react-icons/io5";
 
 import iijp from "../images/iijp.png";

@@ -1,9 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { IoMdClose } from "react-icons/io";
-import Login from "../../auth/Login"; 
+import { Login } from "../../auth";
 
-export default function ModalContent({ onClose, title, content }) {
+
+interface ModalProps {
+  onClose: React.MouseEventHandler<HTMLButtonElement>;
+  title: string;
+  content?: React.ReactNode;
+}
+export default function ModalContent({ onClose, title, content }:ModalProps) {
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white dark:bg-[#242E42] p-6 rounded-lg shadow-lg w-full max-w-md">

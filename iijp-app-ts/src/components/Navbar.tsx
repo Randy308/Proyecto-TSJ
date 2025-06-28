@@ -1,28 +1,27 @@
 import "../styles/navbar.css";
 import { NavLink } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
-import React, { useState } from "react";
-import { navItems } from "../data/NavItems";
+import { useState } from "react";
 import "../styles/main.css";
-import AuthUser from "../auth/AuthUser";
 import LogoUmss from "../images/Logo_umss.png";
-import { BiSolidDashboard } from "react-icons/bi";
 import Settings from "./Settings";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { navItems } from "../data/NavItems";
+import { AuthUser } from "../auth";
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState<boolean | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState<number | null>(null);
+  const [isOpen, setIsOpen] = useState<number | null>(null);
   const { getToken } = AuthUser();
 
   const actualizarBoton = () => {
     setMenuOpen((prevState) => !prevState);
     if (settingsOpen) {
-      setSettingsOpen(false);
+      setSettingsOpen(null);
     }
   };
 
-  const handleMenuClick = (id) => {
+  const handleMenuClick = (id:number) => {
     if (isOpen === id) {
        setIsOpen(null);
     } else {
@@ -32,7 +31,7 @@ const Navbar = () => {
 
   const closeMenus = () => {
     setIsOpen(null);
-    setMenuOpen(false);
+    setMenuOpen(null);
   };
 
   const navLinks = () => {

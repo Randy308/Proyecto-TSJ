@@ -4,6 +4,19 @@ import ModalContent from "./ModalContent";
 import { FaPlay } from "react-icons/fa6";
 import LargeModal from "./LargeModal";
 
+type Color = "blue" | "red" | "green" | "yellow" | "link" | "gray";
+interface PortalButtonProps {
+  setSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  title: string;
+  name: string;
+  Icon?: React.ComponentType<{ className?: string }>;
+  full?: boolean;
+  content: (showModal: boolean, setShowModal: (val: boolean) => void) => React.ReactNode; 
+  color?: Color;
+  large?: boolean;
+  withIcon?: boolean;
+}
+
 const PortalButton = ({
   title,
   name,
@@ -13,7 +26,7 @@ const PortalButton = ({
   color = "blue",
   large = false,
   withIcon = true,
-}) => {
+}: PortalButtonProps) => {
   const [showModal, setShowModal] = useState(false);
 
   const modalIcon = useMemo(

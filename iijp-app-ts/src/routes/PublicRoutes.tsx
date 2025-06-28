@@ -1,5 +1,4 @@
 import { Navigate, Route } from "react-router-dom";
-import LayoutPublic from "../layouts/LayoutPublic";
 import Inicio from "../pages/Inicio";
 import Novedades from "../pages/Novedades";
 import Jurisprudencia from "../pages/Jurisprudencia";
@@ -12,8 +11,9 @@ import AnalisisAvanzado from "../pages/analisis/AnalisisAvanzado";
 import CronologiasResultados from "../pages/cronologia/CronologiasResultados";
 import SerieTemporal from "../pages/analisis/SerieTemporal";
 import Mapa from "../pages/analisis/Mapa";
-import Login from "../auth/Login";
 import AnalisisHome from "../pages/analisis/AnalisisHome";
+import { Login } from "../auth";
+import { LayoutPublic } from "../layouts";
 
 const PublicRoutes = (
   <>

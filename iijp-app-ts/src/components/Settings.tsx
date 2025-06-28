@@ -1,25 +1,21 @@
 import "../styles/navbar.css";
-import React, { useEffect, useRef, useState } from "react";
-import { MdSettingsInputComponent } from "react-icons/md";
+import { useEffect, useRef, useState } from "react";
 import { HiMoon, HiOutlineLogin, HiSun } from "react-icons/hi";
-import { FaGear, FaMoon, FaSun } from "react-icons/fa6";
+import { FaGear } from "react-icons/fa6";
 import "../styles/main.css";
-import { useToggleContext, useThemeContext } from "../context/ThemeProvider";
-import AuthUser from "../auth/AuthUser";
-import axios from "axios";
+import { useThemeContext } from "../context/ThemeProvider";
+import { AuthUser } from "../auth";
 import Config from "../auth/Config";
-import { is } from "date-fns/locale";
 
 const Settings = ({ reversed = false }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const isDark = useThemeContext();
-  const ajustesRef = useRef(null);
-  const listaRef = useRef(null);
-  const toggleContext = useToggleContext();
-  const { getToken, getLogout, can } = AuthUser();
+  const { isDark, toggleTheme } = useThemeContext();
+  const ajustesRef = useRef<HTMLButtonElement | null>(null);
+  const listaRef = useRef<HTMLDivElement | null>(null);
+  const { getToken, getLogout } = AuthUser();
 
-  const [timer, setTimer] = useState(null);
+  const [timer, setTimer] = useState<number | null>(null);
 
   const restartTimer = () => {
     if (timer) {
@@ -53,7 +49,7 @@ const Settings = ({ reversed = false }) => {
   }, [timer]);
 
   const eventoBoton = () => {
-    toggleContext();
+    toggleTheme();
     setTimeout(() => {
       setSettingsOpen(false);
       if (window.innerWidth <= 720 && menuOpen) {
@@ -98,8 +94,12 @@ const Settings = ({ reversed = false }) => {
         console.log(data);
         getLogout();
       }
-    } catch (error) {
-      console.log("Error al realizar la solicitud: " + error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("An error occurred:", error.message);
+      } else {
+        console.error("An unknown error occurred:", error);
+      }
     }
   };
 
@@ -159,7 +159,7 @@ const Settings = ({ reversed = false }) => {
         <button
           type="button"
           ref={ajustesRef}
-          onClick={() => actualizarAjustes(true)}
+          onClick={() => actualizarAjustes()}
           className={`flex text-sm  p-1  rounded-full md:me-0 focus:ring-4 dark:text-gray-400 dark:hover:text-white ${
             reversed
               ? "text-gray-300 hover:opacity-80"
@@ -191,7 +191,7 @@ const Settings = ({ reversed = false }) => {
                 ) : (
                   <HiMoon className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
                 )}
-             
+
                 <span className="ms-3">Cambiar tema</span>
               </a>
             </li>

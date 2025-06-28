@@ -1,14 +1,23 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import RoleService from "../services/RoleService";
-import AuthUser from "../auth/AuthUser";
-import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useLocation } from "react-router-dom";
+import type { ContextProviderProps, Permission } from "../types";
+import { AuthUser } from "../auth";
 
-export const PermissionContext = createContext();
+interface ValueContextType {
+  permisos: Permission[] | undefined;
+  setPermisos: React.Dispatch<React.SetStateAction<Permission[] | undefined>>;
+}
 
-export const PermissionContextProvider = ({ children }) => {
+export const PermissionContext = createContext<ValueContextType | undefined>(
+  undefined
+);
+
+export const PermissionContextProvider = ({
+  children,
+}: ContextProviderProps) => {
   const { getToken, hasAnyPermission } = AuthUser();
-  const [permisos, setPermisos] = useState([]);
+  const [permisos, setPermisos] = useState<Permission[] | undefined>(undefined);
 
   const token = getToken();
 
@@ -51,7 +60,7 @@ export const PermissionContextProvider = ({ children }) => {
     }
   };
 
-  const valor = { permisos, setPermisos };
+  const valor: ValueContextType = { permisos, setPermisos };
 
   return (
     <PermissionContext.Provider value={valor}>
@@ -60,7 +69,7 @@ export const PermissionContextProvider = ({ children }) => {
   );
 };
 
-export function usePermissionContext() {
+export function usePermissionContext(): ValueContextType {
   const context = useContext(PermissionContext);
   if (!context) {
     throw new Error(

@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import ModalContent from "./ModalContent";
 import { FaUserLock } from "react-icons/fa";
+
+interface PortalProps {
+  setSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  titulo?: string;
+  status?: string;
+}
+
 export default function Portal({
   setSettingsOpen,
   titulo = "Mostrar modal",
   status = "Login",
-}) {
+}: PortalProps) {
   const showMyModal = () => {
     setShowModal(true);
     setSettingsOpen(false);
@@ -32,4 +39,3 @@ export default function Portal({
     </>
   );
 }
-

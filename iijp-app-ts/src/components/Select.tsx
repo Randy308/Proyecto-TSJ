@@ -1,23 +1,26 @@
 import React, { useMemo, useState } from "react";
 import MultiBtnDropdown from "./MultiBtnDropdown";
+import type { FiltroNombre, ListaData, ListaX, Variable } from "../types";
 
-const Select = ({
-  memoizedParams,
-  limite,
-  listaX,
-  setListaX
-}) => {
-  const [visible, setVisible] = useState(null);
+interface SelectProps {
+  limite: number;
+  listaX: ListaX[];
+  setListaX: React.Dispatch<React.SetStateAction<ListaX[] | undefined>>;
+  memoizedParams: Variable;
+}
+
+const Select = ({ memoizedParams, limite, listaX, setListaX }: SelectProps) => {
+  const [visible, setVisible] = useState<string | null>(null);
   const result = useMemo(() => {
     return Object.entries(memoizedParams).map(([name, contenido]) => (
       <div key={name}>
         <MultiBtnDropdown
           setVisible={setVisible}
-          name={name}
+          name={name as FiltroNombre}
           listaX={listaX}
           limite={limite}
           setListaX={setListaX}
-          contenido={contenido}
+          contenido={contenido as ListaData[]}
           visible={visible}
         />
       </div>

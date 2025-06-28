@@ -11,7 +11,7 @@ import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
 import "../../data/dark.js";
 import "../../data/vintage.js";
-import { useThemeContext } from "../../context/ThemeProvider.jsx";
+import { useThemeContext } from "../../context/ThemeProvider.js";
 import Loading from "../Loading.js";
 import { useNavigate } from "react-router-dom";
 

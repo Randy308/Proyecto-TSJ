@@ -1,17 +1,26 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import AuthUser from "../auth/AuthUser";
 import UserService from "../services/UserService";
-import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useLocation } from "react-router-dom";
+import type { ContextProviderProps, User } from "../types";
+import { AuthUser } from "../auth";
 
-export const UserContext = createContext();
+interface ValueContextType {
+  users: User[] | undefined;
+  totalUser: number;
+  pageCount: number;
+  current: number;
+  obtenerUsers: () => Promise<void>;
+}
 
-export const UserContextProvider = ({ children }) => {
+export const UserContext = createContext<ValueContextType | undefined>(
+  undefined
+);
+
+export const UserContextProvider = ({ children }: ContextProviderProps) => {
   const { getToken, hasAnyPermission } = AuthUser();
   const token = getToken();
 
-  
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[] | undefined>(undefined);
   const location = useLocation();
   const [hasFetched, setHasFetched] = useState(false);
   //const [users, setUsers] = useSessionStorage("users", []);
@@ -60,12 +69,18 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
-  const valor = { users, totalUser, pageCount, current, obtenerUsers };
+  const valor: ValueContextType = {
+    users,
+    totalUser,
+    pageCount,
+    current,
+    obtenerUsers,
+  };
 
   return <UserContext.Provider value={valor}>{children}</UserContext.Provider>;
 };
 
-export function useUserContext() {
+export function useUserContext(): ValueContextType {
   const context = useContext(UserContext);
   if (!context) {
     throw new Error("useUserContext must be used within a UserProvider");

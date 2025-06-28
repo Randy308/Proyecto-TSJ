@@ -2,6 +2,20 @@ import React, { useEffect, useState } from "react";
 import { titulo } from "../utils/filterForm";
 import { useIcons } from "./icons/Icons";
 import { toast } from "react-toastify";
+import type { FiltroNombre, ListaData, ListaX } from "../types";
+
+interface MultiBtnDropdownProps {
+  setVisible: React.Dispatch<React.SetStateAction<string | null>>;
+  visible: string | null;
+  name: FiltroNombre;
+  limite: number;
+  listaX: ListaX[];
+  setListaX: React.Dispatch<React.SetStateAction<ListaX[] | undefined>>;
+  contenido: ListaData[];
+  size?: number;
+}
+
+
 const MultiBtnDropdown = ({
   setVisible,
   visible,
@@ -11,17 +25,17 @@ const MultiBtnDropdown = ({
   setListaX,
   contenido,
   size = 8,
-}) => {
-  const [activo, setActivo] = useState(false);
+}: MultiBtnDropdownProps) => {
+  const [activo, setActivo] = useState<boolean>(false);
 
   const { arrowDownIcon, arrowUpIcon, checkAllIcon, removeAllIcon, trashIcon } =
     useIcons();
 
-  const handleCheckboxChange = (event) => {
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const itemId = parseInt(event.target.name, 10);
 
     setListaX((prev) => {
-      const existingItem = prev.find((item) => item.name === name);
+      const existingItem = (prev ?? []).find((item) => item.name === name);
 
       if (existingItem) {
         if (
@@ -39,17 +53,17 @@ const MultiBtnDropdown = ({
 
         // Si los ids de este item quedan vacíos, eliminar este objeto
         if (updatedIds.length === 0) {
-          return prev.filter((item) => item.name !== name);
+          return (prev ?? []).filter((item) => item.name !== name);
         }
 
         // Actualizar el item con los ids modificados
-        return prev.map((item) =>
+        return (prev ?? []).map((item) =>
           item.name === name ? { ...item, ids: updatedIds } : item
         );
       } else {
         // Agregar un nuevo item si no existe y el límite no se ha excedido
-        if (prev.length < limite) {
-          return [...prev, { name, ids: [itemId] }];
+        if ((prev ?? []).length < limite) {
+          return [...(prev ?? []), { name, ids: [itemId] }];
         } else {
           toast.warning(`No se pueden agregar más de ${limite} variables.`);
           return prev;
@@ -58,18 +72,18 @@ const MultiBtnDropdown = ({
     });
   };
 
-  const eliminarElemento = (variable) => {
+  const eliminarElemento = (variable: FiltroNombre) => {
     console.log(listaX);
     const nuevaLista = listaX.filter((item) => item.name !== variable);
     setListaX(nuevaLista);
   };
   const clearList = () => {
-    setListaX((prev) => prev.filter((item) => !(item.name === name)));
+    setListaX((prev) => (prev ?? []).filter((item) => !(item.name === name)));
   };
 
   const selectAll = () => {
     setListaX((prev) => {
-      const existingItem = prev.find((item) => item.name === name);
+      const existingItem = (prev ?? []).find((item) => item.name === name);
 
       // Actualizar o crear un nuevo item
       const newItem = {
@@ -78,10 +92,12 @@ const MultiBtnDropdown = ({
       };
 
       if (existingItem) {
-        return prev.map((item) => (item.name === name ? newItem : item));
+        return (prev ?? []).map((item) =>
+          item.name === name ? newItem : item
+        );
       } else {
-        if (prev.length < limite) {
-          return [...prev, newItem];
+        if ((prev ?? []).length < limite) {
+          return [...(prev ?? []), newItem];
         } else {
           toast.warning(`No se pueden agregar más de ${limite} variables.`);
           return prev;
@@ -111,12 +127,15 @@ const MultiBtnDropdown = ({
       <div
         className={`p-2 rounded-lg border flex items-center justify-between text-sm  me-2 mb-2`}
       >
-        <div className="text-xs sm:text-sm text-black dark:text-gray-200"> {titulo(name)}</div>
+        <div className="text-xs sm:text-sm text-black dark:text-gray-200">
+          {" "}
+          {titulo(name)}
+        </div>
 
         <div className="flex gap-4">
           {listaX &&
             listaX.length > 0 &&
-            listaX.some((item) => item.name === name) && (
+            listaX.some((item: ListaX) => item.name === name) && (
               <button
                 className="p-2 bg-red-500 rounded-lg hover:bg-red-600 cursor-pointer "
                 onClick={() => eliminarElemento(name)}
@@ -129,7 +148,7 @@ const MultiBtnDropdown = ({
             className="p-2 rounded-lg cursor-pointer border border-gray-400 dark:border-gray-600 "
             onClick={() => handleClick()}
           >
-            {activo && activo.columna === name ? arrowUpIcon : arrowDownIcon}
+            {activo ? arrowUpIcon : arrowDownIcon}
           </button>
         </div>
       </div>
@@ -164,7 +183,7 @@ const MultiBtnDropdown = ({
               <input
                 type="checkbox"
                 id={currentItem.nombre + name}
-                name={currentItem.id}
+                name={currentItem.nombre}
                 value={currentItem.id}
                 className="hidden peer"
                 checked={listaX.some(
@@ -174,7 +193,6 @@ const MultiBtnDropdown = ({
                 onChange={handleCheckboxChange}
               />
               <label
-
                 htmlFor={currentItem.nombre + name}
                 className="w-full p-2 cursor-pointer rounded-sm dark:hover:text-gray-300 dark:border-gray-700 peer-checked:bg-gray-50  peer-checked:text-red-octopus-500 peer-checked:border-l-4 peer-checked:border-red-octopus-500 hover:text-gray-600 dark:peer-checked:text-gray-300  peer-checked:dark:bg-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700 capitalize text-sm"
               >

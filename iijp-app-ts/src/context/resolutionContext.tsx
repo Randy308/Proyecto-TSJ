@@ -1,16 +1,33 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import AuthUser from "../auth/AuthUser";
 import UserService from "../services/UserService";
-import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useLocation } from "react-router-dom";
+import type { ContextProviderProps } from "../types";
+import { AuthUser } from "../auth";
 
-export const ResolutionContext = createContext();
+interface Resolution {
+  periodo: string;
+  cantidad: number;
+}
 
-export const ResolutionContextProvider = ({ children }) => {
+interface ValueContextType {
+  resolutions: Resolution[] | undefined;
+  obtenerResolutions: () => Promise<void>;
+  totalResolutions: number;
+  pageCount: number;
+  current: number;
+}
+
+export const ResolutionContext = createContext<ValueContextType | undefined>(
+  undefined
+);
+
+export const ResolutionContextProvider = ({
+  children,
+}: ContextProviderProps) => {
   const { getToken, hasAnyPermission } = AuthUser();
   const token = getToken();
 
-  const [resolutions, setResolutions] = useState([]);
+  const [resolutions, setResolutions] = useState<Resolution[] | undefined>(undefined);
   const location = useLocation();
   const [hasFetched, setHasFetched] = useState(false);
   //const [users, setUsers] = useSessionStorage("users", []);
@@ -55,7 +72,7 @@ export const ResolutionContextProvider = ({ children }) => {
     }
   };
 
-  const valor = {
+  const valor: ValueContextType = {
     resolutions,
     totalResolutions,
     pageCount,
@@ -70,7 +87,7 @@ export const ResolutionContextProvider = ({ children }) => {
   );
 };
 
-export function useResolutionContext() {
+export function useResolutionContext(): ValueContextType {
   const context = useContext(ResolutionContext);
   if (!context) {
     throw new Error(

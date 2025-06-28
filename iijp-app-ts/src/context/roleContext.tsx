@@ -1,20 +1,33 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import RoleService from "../services/RoleService";
-import AuthUser from "../auth/AuthUser";
-import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useLocation } from "react-router-dom";
+import type { ContextProviderProps } from "../types";
+import { AuthUser } from "../auth";
 
-export const RoleContext = createContext();
 
-export const RoleContextProvider = ({ children }) => {
-  const { getToken, hasAnyPermission, getUser } = AuthUser();
-  const [roles, setRoles] = useState([]);
+interface Role {
+  roleName: string;
+  id: number;
+}
+
+interface ValueContextType {
+  roles: Role[] | undefined;
+  obtenerRoles: () => Promise<void>;
+}
+
+export const RoleContext = createContext<ValueContextType | undefined>(
+  undefined
+);
+
+export const RoleContextProvider = ({ children }:ContextProviderProps) => {
+  const { getToken, hasAnyPermission } = AuthUser();
+  const [roles, setRoles] = useState<Role[] | undefined>(undefined);
 
   const location = useLocation();
   const [hasFetched, setHasFetched] = useState(false);
 
   const token = getToken();
-  const user = getUser();
+  //const user = getUser();
   useEffect(() => {
     if (
       hasAnyPermission([
@@ -65,12 +78,12 @@ export const RoleContextProvider = ({ children }) => {
     }
   };
 
-  const valor = { roles, obtenerRoles };
+  const valor:ValueContextType = { roles, obtenerRoles };
 
   return <RoleContext.Provider value={valor}>{children}</RoleContext.Provider>;
 };
 
-export function useRoleContext() {
+export function useRoleContext():ValueContextType {
   const context = useContext(RoleContext);
   if (!context) {
     throw new Error("useRoleContext must be used within a RoleProvider");

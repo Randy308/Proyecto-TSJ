@@ -1,12 +1,26 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import AuthUser from "../auth/AuthUser";
 import UserService from "../services/UserService";
+import type { ContextProviderProps, Notification } from "../types";
+import { AuthUser } from "../auth";
 
-export const NotificationContext = createContext();
+interface ValueContextType {
+  notifications: Notification[] | undefined;
+  setNotifications: React.Dispatch<
+    React.SetStateAction<Notification[] | undefined>
+  >;
+}
 
-export const NotificationContextProvider = ({ children }) => {
+export const NotificationContext = createContext<ValueContextType | undefined>(
+  undefined
+);
+
+export const NotificationContextProvider = ({
+  children,
+}: ContextProviderProps) => {
   const { getToken, getLogout } = AuthUser();
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<
+    Notification[] | undefined
+  >(undefined);
   const token = getToken();
 
   useEffect(() => {
@@ -25,16 +39,25 @@ export const NotificationContextProvider = ({ children }) => {
         console.error("Error: Los datos obtenidos no son un array", data);
         setNotifications([]);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Existe un error:", err);
       setNotifications([]);
-      if (err.response?.status === 401) {
-        getLogout();
+
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "response" in err &&
+        typeof (err as any).response?.status === "number"
+      ) {
+        const status = (err as any).response.status;
+        if (status === 401) {
+          getLogout();
+        }
       }
     }
   };
 
-  const valor = { notifications, setNotifications };
+  const valor: ValueContextType = { notifications, setNotifications };
 
   return (
     <NotificationContext.Provider value={valor}>
@@ -43,7 +66,7 @@ export const NotificationContextProvider = ({ children }) => {
   );
 };
 
-export function useNotificationContext() {
+export function useNotificationContext(): ValueContextType {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(

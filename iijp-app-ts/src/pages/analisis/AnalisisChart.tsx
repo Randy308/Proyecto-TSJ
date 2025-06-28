@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import "../../data/dark.js";
 import "../../data/shine.js";
-import { useThemeContext } from "../../context/ThemeProvider.jsx";
+import { useThemeContext } from "../../context/ThemeProvider.js";
 const AnalisisChart = ({ option, border = true }) => {
   const isDarkMode = useThemeContext();
   const chartRef = useRef(null);

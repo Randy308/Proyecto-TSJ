@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { Login, Register } from "../types";
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
 const instance = axios.create({
@@ -30,7 +31,7 @@ const getCsrfToken = async () => {
 };
 
 export default {
-  getRegister: (data) => instance.post(`/register`, data), // Correct path
-  getLogin: (data) => instance.post(`/login`, data), // Correct path
+  getRegister: (data:Register) => instance.post(`/register`, data), // Correct path
+  getLogin: (data:Login) => instance.post(`/login`, data), // Correct path
   getLogout: () => instance.post(`/logout`), // Correct path
 };

@@ -1,4 +1,3 @@
-import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeProvider";
 
@@ -12,7 +11,6 @@ import { VariablesContextProvider } from "./context/variablesContext";
 import { NodosContextProvider } from "./context/nodosContext";
 import PublicRoutes from "./routes/PublicRoutes";
 import PrivateRoutes from "./routes/PrivateRoutes";
-import Inicio from "./pages/Inicio";
 import My404Component from "./components/My404Component";
 import { AnalisisContextProvider } from "./context/analisisContext";
 import { UserContextProvider } from "./context/userContext";

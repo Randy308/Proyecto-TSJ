@@ -8,6 +8,7 @@ import Loading from "../components/Loading";
 import { useHistoricContext } from "../context/historicContext";
 import edificioIIJP from "../images/derechoo.png"; // Importa la imagen del edificio IIJP
 import Novedades from "./Novedades";
+import type { Historic } from "../types";
 // "baseUrl": ".",
 // "paths": {
 //   "@/*": ["./src/*"]
@@ -30,21 +31,21 @@ const Inicio = () => {
 
   const [resoluciones, setResoluciones] = useState([]);
   const [jurisprudencia, setJurisprudencia] = useState([]);
-  const [maxRes, setMaxRes] = useState([]);
-  const [maxJuris, setMaxJuris] = useState([]);
+  const [maxRes, setMaxRes] = useState(0);
+  const [maxJuris, setMaxJuris] = useState(0);
 
   useEffect(() => {
     if (historic && historic.max_res && historic.max_juris) {
       setMaxRes(historic.max_res);
       setMaxJuris(historic.max_juris);
-      setResoluciones(historic.resoluciones || []);
-      setJurisprudencia(historic.jurisprudencia || []);
+      setResoluciones(historic.resoluciones);
+      setJurisprudencia(historic.jurisprudencia);
     } else {
       console.error("El objeto 'historic' no contiene los datos necesarios");
     }
   }, [historic]);
 
-  const option = {
+  const option:any = {
     visualMap: [
       {
         show: false,
@@ -133,12 +134,12 @@ const Inicio = () => {
       {
         type: "line",
         showSymbol: false,
-        data: resoluciones,
+        data: historic?.resoluciones || [],
       },
       {
         type: "line",
         showSymbol: false,
-        data: jurisprudencia,
+        data: historic?.jurisprudencia || [], 
         xAxisIndex: 1,
         yAxisIndex: 1,
       },

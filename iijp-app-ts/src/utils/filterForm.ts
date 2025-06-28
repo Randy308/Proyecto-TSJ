@@ -13,7 +13,7 @@ export const filterForm = (formData) => {
   );
 };
 
-export const filterTitle = (string) => {
+export const filterTitle = (string:string) => {
   const splitString = string.split("/");
   const tail = splitString.slice(1);
   for (let i = 0; i < tail.length; i++) {
@@ -49,7 +49,7 @@ export const filterParams = (resultado, data) => {
   }
   return lista;
 };
-export const filterAtributte = (atributo, tabla, data) => {
+export const filterAtributte = (atributo:number, tabla:string, data) => {
   if (!atributo || atributo === "null" || atributo === "undefined") {
     return "";
   }
@@ -62,7 +62,7 @@ export const filterAtributte = (atributo, tabla, data) => {
   return filtrado.length > 0 ? filtrado[0].nombre : atributo;
 };
 
-export const titulo = (nombre) => {
+export const titulo = (nombre:string) => {
   // Reemplaza el primer guion bajo por " de "
   const string = nombre.replace(/_/i, " de ");
 

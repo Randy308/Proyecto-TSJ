@@ -1,11 +1,21 @@
 import React, { useEffect } from "react";
-
-const TextInput = ({ input, setInput, inputError, setInputError }) => {
+interface TextInputProps {
+  input: string;
+  setInput: React.Dispatch<React.SetStateAction<string>>;
+  inputError: string;
+  setInputError: React.Dispatch<React.SetStateAction<string>>;
+}
+const TextInput = ({
+  input,
+  setInput,
+  inputError,
+  setInputError,
+}: TextInputProps) => {
   useEffect(() => {
     validateInput(input);
   }, [input]); // Dependencia agregada para validar al cambiar el input
 
-  const validateInput = (value) => {
+  const validateInput = (value: string) => {
     setInput(value);
 
     if (!value) {
