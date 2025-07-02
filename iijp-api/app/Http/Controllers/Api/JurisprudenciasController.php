@@ -5,14 +5,79 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Descriptor;
 use App\Models\Jurisprudencias;
+use App\Models\Resolutions;
 use App\Models\Tema;
+use App\Utils\Listas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Utils\NLP;
 
 class JurisprudenciasController extends Controller
 {
+    public function buscarSerieTemporal(Request $request)
+    {
+        $request->validate([
+            'campo' => 'required|string|in:maxima,sintesis,restrictor,ratio,precedente,proceso,demandante,demandado',
+            'busqueda' => 'required|string',
+        ]);
 
+
+        $busqueda = $request->input('busqueda');
+        $campo = $request->input('campo');
+
+        $stopwords = NLP::getStopwords();
+        if (in_array($busqueda, $stopwords)) {
+            return response()->json("Ingrese terminos de busqueda no stopwords", 422);
+        }
+
+        $lista = ["restrictor", "ratio"];
+
+        if (!in_array($campo, $lista)) {
+            $query = Resolutions::select(
+                DB::raw("DATE_TRUNC('year', fecha_emision)::date AS periodo"),
+                DB::raw('COUNT(*) as cantidad'),
+            )
+                ->where($campo, 'ilike', '%' . $busqueda . '%')
+                ->groupBy(DB::raw("DATE_TRUNC('year', fecha_emision)::date"))
+                ->orderBy(DB::raw("DATE_TRUNC('year', fecha_emision)::date"))
+                ->get();
+        } else {
+            $query = Jurisprudencias::join('resolutions as r', 'jurisprudencias.resolution_id', '=', 'r.id')
+                ->select(
+                    DB::raw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo"),
+                    DB::raw('COUNT(DISTINCT(r.id)) as cantidad'),
+                )
+                ->where($campo, 'ilike', '%' . $busqueda . '%')
+                ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
+                ->orderBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
+                ->get();
+        }
+
+
+
+        $result = $query->map(function ($item) {
+            return [$item->periodo, $item->cantidad];
+        })->toArray();
+
+
+        return response()->json([
+            'termino' => [
+                'name' => "termino_" . $busqueda,
+                'id' => $busqueda,
+                'value' => ucfirst($busqueda),
+                "detalles" => $campo,
+            ],
+            'resoluciones' => [
+                'name' => ucfirst($busqueda),
+                'type' => 'line',
+                'id' => $busqueda,
+                'data' => $result
+            ],
+            'departamentos' => $campo
+        ]);
+
+        return response()->json($result);
+    }
     public function actualizarNodo(Request $request)
     {
         $busqueda = $request->input('busqueda');
@@ -131,14 +196,14 @@ class JurisprudenciasController extends Controller
             'materia' => 'nullable|integer',
         ]);
 
-    
+
         $query = $request->input('busqueda', '');
         $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) {
             $options['facets'] = ['descriptor_facet'];
             return $meilisearch->search($query, $options);
         });
 
-         if ($request->has('materia')) {
+        if ($request->has('materia')) {
             $materia = $request->input('materia');
             $search->where('materia', $materia);
         }
@@ -149,7 +214,7 @@ class JurisprudenciasController extends Controller
 
         $facets = $search['facetDistribution']['descriptor_facet'] ?? [];
 
-        
+
         $facets = collect($facets)->map(function ($count, $facet) {
             $parts = explode('||', $facet);
             return [
@@ -160,9 +225,10 @@ class JurisprudenciasController extends Controller
             ];
         })->values()->toArray();
 
-        usort($facets, function ($a, $b) {return $a['cantidad'] < $b['cantidad'];});
+        usort($facets, function ($a, $b) {
+            return $a['cantidad'] < $b['cantidad'];
+        });
 
         return response()->json($facets);
-
     }
 }

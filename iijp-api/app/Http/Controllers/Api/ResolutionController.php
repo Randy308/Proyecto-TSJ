@@ -119,13 +119,13 @@ class ResolutionController extends Controller
         $nombre = strtolower($request->nombre);
 
         $campos = [
-            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false, "columna" => "id", "nombre" => "tipo_resolucion"],
-            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false, "columna" => "id", "nombre" => "departamento"],
-            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false, "columna" => "id", "nombre" => "sala"],
-            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false, "columna" => "id", "nombre" => "magistrado"],
-            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false, "columna" => "id", "nombre" => "forma_resolucion"],
-            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true, "columna" => "id", "nombre" => "tipo_jurisprudencia"],
-            "materia" => ["tabla" => "descriptors", "foreign_key" => "root_id", "join" => true, "columna" => "id", "nombre" => "materia"],
+            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false],
+            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false],
+            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false],
+            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false],
+            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false],
+            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true],
+            "materia" => ["tabla" => "descriptors", "foreign_key" => "root_id", "join" => true],
         ];
 
         if (!array_key_exists($nombre, $campos)) {
@@ -136,8 +136,6 @@ class ResolutionController extends Controller
 
 
         $filtroPrincipal = $campos[$nombre];
-
-
 
         $query = DB::table('resolutions as r');
         if ($filtroPrincipal["join"]) {
@@ -189,8 +187,6 @@ class ResolutionController extends Controller
             ], 422);
         }
 
-
-
         $nombre = strtolower($request->nombre);
         $nombreY = strtolower($request->nombreY);
         $campos = Listas::obtenerLista();
@@ -208,9 +204,6 @@ class ResolutionController extends Controller
 
         $filtroX = $campos[$nombre];
         $filtroY = $campos[$nombreY];
-        unset($campos[$nombre]);
-        unset($campos[$nombreY]);
-
 
         $arrayX = DB::table($filtroX["tabla"])
             ->select('nombre as x')->whereIn('id', $request->variable)->get()->pluck('x')->toArray();
@@ -267,11 +260,22 @@ class ResolutionController extends Controller
         }
 
 
+        // $resultado = array_map(function ($tag) use ($filtroX, $filtroY) {
+        //     return array(
+        //         $filtroX['nombre'] => $tag['x'],
+        //         $filtroY['nombre'] => $tag['nombre'],
+        //         'cantidad' => $tag['cantidad']
+        //     );
+        // }, $combinations);
+
+        //$this->ordenarArrayXY($combinations, 'x', 'nombre'),
         return response()->json([
             'total' => $total,
             'data' => $this->ordenarArrayXY($combinations, 'x', 'nombre'),
-            'multiVariable' => true
-        ]);;
+            'multiVariable' => true,
+            'x' => $filtroX['nombre'],
+            'nombre' => $filtroY['nombre'],
+        ]);
     }
     public function obtenerFiltros(Request $request)
     {
@@ -1551,7 +1555,7 @@ class ResolutionController extends Controller
 
 
 
-        $variable= json_decode(base64_decode($request->variable));
+        $variable = json_decode(base64_decode($request->variable));
         $variableY = json_decode(base64_decode($request->variableY));
         $request->merge([
             'variable' => $variable,
@@ -1925,16 +1929,46 @@ class ResolutionController extends Controller
         }
 
 
-        $filteredData = array_filter($resultado, function ($item) use ($variableY) {
+        // Paso 1: Filtrar filas que tienen todos los valores numéricos en 0 (excepto "nombre")
+        $filteredRows = array_filter($resultado, function ($item) {
             foreach ($item as $key => $value) {
-                if ($key !== $variableY && (int)$value !== 0) {
+                if ($key !== 'nombre' && (int)$value !== 0) {
                     return true;
                 }
             }
             return false;
         });
 
+        // Paso 2: Detectar claves que son 0 en todos los ítems restantes
+        $allKeys = array_keys(reset($filteredRows));
+        $keysToRemove = [];
 
-        return $filteredData;
+        foreach ($allKeys as $key) {
+            if ($key === 'nombre') continue; // No evaluar 'nombre'
+
+            $allZeros = true;
+            foreach ($filteredRows as $row) {
+                if ((int)$row[$key] !== 0) {
+                    $allZeros = false;
+                    break;
+                }
+            }
+
+            if ($allZeros) {
+                $keysToRemove[] = $key;
+            }
+        }
+
+        // Paso 3: Eliminar esas claves de cada fila
+        $finalData = array_map(function ($item) use ($keysToRemove) {
+            foreach ($keysToRemove as $key) {
+                unset($item[$key]);
+            }
+            return $item;
+        }, $filteredRows);
+
+        $finalData = array_values($finalData);
+
+        return $finalData;
     }
 }

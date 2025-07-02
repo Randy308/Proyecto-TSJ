@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { RoleData } from "../types";
 
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 const API_PATH = "/admin";
@@ -38,9 +39,9 @@ const RoleService = {
 
   getRole: (id:number) => instance.get(`${API_PATH}/roles/${id}`),
 
-  createRole: (roleData:FormData) => instance.post(`${API_PATH}/roles`, roleData),
+  createRole: (roleData:RoleData) => instance.post(`${API_PATH}/roles`, roleData),
 
-  updateRole: (id:number, roleData:FormData) =>
+  updateRole: (id:number, roleData:RoleData) =>
     instance.put(`${API_PATH}/roles/${id}`, roleData),
 
   deleteRole: (id:number) => instance.delete(`${API_PATH}/roles/${id}`),

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AuthUser from "../../../auth/AuthUser";
 import axios from "axios";
 import { FaUser } from "react-icons/fa";
 import UserService from "../../../services/UserService";
@@ -8,33 +7,37 @@ import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/userContext";
-const EliminarUsuario = ({ id, setShowModal }) => {
-  const { getToken, can } = AuthUser();
+import { AuthUser } from "../../../auth";
+import type { CreateUser } from "../../../types";
+
+interface UsuarioProps {
+  setShowModal: (val: boolean) => void;
+  id: number;
+}
+
+const EliminarUsuario = ({ id, setShowModal }: UsuarioProps) => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const { users, obtenerUsers } = useUserContext();
-  const [formData, setFormData] = useState([]);
-  const token = getToken();
+  const [formData, setFormData] = useState<CreateUser>({} as CreateUser);
 
   useEffect(() => {
     if (!can("eliminar_usuarios")) {
       navigate("/");
-    } 
+    }
   }, [can, navigate]);
-
   useEffect(() => {
-    setFormData(users.find((item) => item.id === id));
+    if (users) {
+      setFormData((users as CreateUser[]).find((item) => item.id === id) || {} as CreateUser);
+    }
+
   }, [users]);
 
-  const submitForm = async (e) => {
+  const submitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
-        withCredentials: true,
-      });
 
-      console.log("CSRF token retrieved successfully.");
-
-      await UserService.deleteUser(id, token)
+      await UserService.deleteUser(id)
         .then(({ data }) => {
           if (data) {
             setShowModal(false);
@@ -45,19 +48,30 @@ const EliminarUsuario = ({ id, setShowModal }) => {
         .catch(({ err }) => {
           console.log("Existe un error " + err);
         });
-    } catch (error) {
-      if (error.response) {
-        console.error("Server Error:", error.response.data);
-        console.error("Status Code:", error.response.status);
-      } else if (error.request) {
+    } catch (error: unknown) {
+      if (error instanceof axios.AxiosError) {
+        console.error("Server Error:", error.response?.data);
+        console.error("Status Code:", error.response?.status);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "request" in error
+      ) {
         console.error("Network Error: No response received from the server.");
-      } else {
-        console.error("Error Setting Up Request:", error.message);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        console.error(
+          "Error Setting Up Request:",
+          (error as { message: string }).message
+        );
       }
     }
   };
 
-  if (formData.length <= 0) {
+  if (formData === null || Object.keys(formData).length === 0) {
     return (
       <div className="h-[200px]">
         <Loading></Loading>

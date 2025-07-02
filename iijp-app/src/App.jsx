@@ -10,9 +10,6 @@ import { PostContextProvider } from "./context/postContext";
 //context para rutas protegidas
 import { VariablesContextProvider } from "./context/variablesContext";
 import { NodosContextProvider } from "./context/nodosContext";
-import PublicRoutes from "./routes/PublicRoutes";
-import PrivateRoutes from "./routes/PrivateRoutes";
-import Inicio from "./pages/Inicio";
 import My404Component from "./components/My404Component";
 import { AnalisisContextProvider } from "./context/analisisContext";
 import { UserContextProvider } from "./context/userContext";
@@ -20,6 +17,8 @@ import { RoleContextProvider } from "./context/roleContext";
 import { PermissionContextProvider } from "./context/permissionContext";
 import { NotificationContextProvider } from "./context/notificationContext";
 import { ResolutionContextProvider } from "./context/resolutionContext";
+import { PrivateRoutes } from "./routes/PrivateRoutes";
+import { PublicRoutes } from "./routes/PublicRoutes";
 
 function App() {
   return (

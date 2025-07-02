@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-
-
-import AuthUser from "../../../auth/AuthUser";
 import { useUserContext } from "../../../context/userContext";
 import Loading from "../../../components/Loading";
-const VerUsuario = ({ id }) => {
+import { AuthUser } from "../../../auth";
+import type { CreateUser } from "../../../types";
+
+
+interface UsuarioProps {
+  id: number;
+}
+const VerUsuario = ({ id }: UsuarioProps) => {
   const { can } = AuthUser();
   const navigate = useNavigate();
   const { users } = useUserContext();
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState<CreateUser>({} as CreateUser);
 
   useEffect(() => {
     if (!can("ver_usuarios")) {
@@ -19,10 +22,13 @@ const VerUsuario = ({ id }) => {
   }, [can, navigate]);
 
   useEffect(() => {
-    setFormData(users.find((item) => item.id === id));
+    if (users) {
+      setFormData((users as CreateUser[]).find((item) => item.id === id) || {} as CreateUser);
+    }
+
   }, [users]);
 
-  if (formData.length <= 0) {
+  if (Object.keys(formData).length <= 0) {
     return (
       <div className="h-[300px]">
         <Loading></Loading>

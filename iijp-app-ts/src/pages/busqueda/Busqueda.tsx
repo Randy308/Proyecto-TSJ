@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
 import { filterForm, filterParams, titulo } from "../../utils/filterForm";
@@ -7,10 +7,11 @@ import { IoMdSearch } from "react-icons/io";
 import ResolucionesService from "../../services/ResolucionesService";
 import PaginationData from "./PaginationData";
 import Paginate from "../../components/tables/Paginate";
+import type { DatosArray, FiltroNombre, ListaData } from "../../types";
 const Busqueda = () => {
   const { data } = useVariablesContext();
 
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState<DatosArray>({} as DatosArray);
   const [selector, setSelector] = useState(null);
   const [resoluciones, setResoluciones] = useState([]);
   const [termino, setTermino] = useState("");
@@ -36,13 +37,13 @@ const Busqueda = () => {
     });
   };
 
-  const handlePageClick = (page) => {
+  const handlePageClick = (page: number) => {
     const selectedPage = Math.min(page, lastPage);
     setActualPage(page);
     obtenerResoluciones(selectedPage);
   };
 
-  const obtenerResoluciones = async (page) => {
+  const obtenerResoluciones = async (page: number) => {
     if (isLoading) {
       return;
     }
@@ -121,8 +122,8 @@ const Busqueda = () => {
                 !["materia", "tipo_jurisprudencia"].includes(name) && (
                   <Filtros
                     key={name}
-                    nombre={name}
-                    data={contenido}
+                    nombre={name as FiltroNombre}
+                    data={contenido as ListaData[]}
                     formData={formData}
                     setFormData={setFormData}
                   />

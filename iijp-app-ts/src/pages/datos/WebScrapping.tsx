@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthUser from "../../auth/AuthUser";
-import ResolucionesService from "../../services/ResolucionesService";
 import AsyncButton from "../../components/AsyncButton";
-import TokenService from "../../services/TokenService";
 import { toast } from "react-toastify";
 import UserService from "../../services/UserService";
+import { AuthUser } from "../../auth";
 
 const WebScrapping = () => {
-  const { getToken, can } = AuthUser();
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);

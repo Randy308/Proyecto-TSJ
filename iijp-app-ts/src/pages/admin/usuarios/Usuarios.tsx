@@ -1,6 +1,6 @@
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { FaRegEye } from "react-icons/fa";
 import PortalButton from "../../../components/modal/PortalButton";
@@ -9,18 +9,14 @@ import EliminarUsuario from "./EliminarUsuario";
 import VerUsuario from "./VerUsuario";
 import EditarUsuario from "./EditarUsuario";
 import { useNavigate } from "react-router-dom";
-import { useRoleContext } from "../../../context/roleContext";
 import { useUserContext } from "../../../context/userContext";
 import Paginate from "../../../components/tables/Paginate";
-import AuthUser from "../../../auth/AuthUser";
-import { FaCircleUser, FaUser } from "react-icons/fa6";
+import { FaCircleUser } from "react-icons/fa6";
+import { AuthUser } from "../../../auth";
 const Usuarios = () => {
-  const { getToken, can } = AuthUser();
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-
-  const token = getToken();
-
   useEffect(() => {
     if (!can("ver_usuarios")) {
       navigate("/");
@@ -32,13 +28,9 @@ const Usuarios = () => {
   const { users, pageCount, obtenerUsers, totalUser, current } =
     useUserContext();
 
-  const [counter, setCounter] = useState(1);
-
-  const { roles } = useRoleContext();
-
-  const handlePageClick = (e) => {
-    const page = Math.min(e.selected + 1, pageCount);
-    obtenerUsers(page);
+  const handlePageClick = (page?: number) => {
+    const newPage = Math.min(page || 1, pageCount);
+    obtenerUsers(newPage);
   };
 
   return (
@@ -54,13 +46,8 @@ const Usuarios = () => {
               name="Crear nuevo usuario"
               Icon={TiUserAdd}
               title="Crear usuario"
-              content={(showModal, setShowModal) => (
-                <CrearUsuario
-                  setCounter={setCounter}
-                  roles={roles}
-                  showModal={showModal}
-                  setShowModal={setShowModal}
-                />
+              content={(_showModal, setShowModal) => (
+                <CrearUsuario setShowModal={setShowModal} />
               )}
             />
           </div>
@@ -104,18 +91,16 @@ const Usuarios = () => {
                         {item.name}
                       </td>
                       <td className="px-6 py-4">{item.email}</td>
-                      <td className="px-6 py-4 capitalize">{item.role}</td>
+                      <td className="px-6 py-4 capitalize">{item.roleName}</td>
                       <td className="px-6 py-4 flex flex-row gap-2 items-center">
                         {can("eliminar_usuarios") && (
                           <div>
                             <PortalButton
                               Icon={MdDeleteForever}
                               color="red"
-                              content={(showModal, setShowModal) => (
+                              content={(_showModal, setShowModal) => (
                                 <EliminarUsuario
-                                  setCounter={setCounter}
                                   id={item.id}
-                                  showModal={showModal}
                                   setShowModal={setShowModal}
                                 />
                               )}
@@ -128,13 +113,8 @@ const Usuarios = () => {
                               Icon={FaRegEye}
                               color="green"
                               title="Ver usuario"
-                              content={(showModal, setShowModal) => (
-                                <VerUsuario
-                                  setCounter={setCounter}
-                                  id={item.id}
-                                  showModal={showModal}
-                                  setShowModal={setShowModal}
-                                />
+                              content={(_showModal, _setShowModal) => (
+                                <VerUsuario id={item.id} />
                               )}
                             />
                           </div>
@@ -145,12 +125,9 @@ const Usuarios = () => {
                               Icon={FaEdit}
                               title="Editar usuario"
                               color="yellow"
-                              content={(showModal, setShowModal) => (
+                              content={(_showModal, setShowModal) => (
                                 <EditarUsuario
-                                  setCounter={setCounter}
-                                  roles={roles}
                                   id={item.id}
-                                  showModal={showModal}
                                   setShowModal={setShowModal}
                                 />
                               )}
@@ -170,7 +147,7 @@ const Usuarios = () => {
                     className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-md"
                   >
                     <div className="text-lg font-bold text-gray-900 dark:text-white">
-                      {item.nombre}
+                      {item.name}
                     </div>
                     <div className="text-sm text-gray-500">ID: {item.id}</div>
                     <a className="flex items-center justify-center gap-2 mt-2 mb-2">
@@ -182,7 +159,7 @@ const Usuarios = () => {
                     </div>
                     <div className="text-sm">
                       <strong>Rol:</strong>{" "}
-                      <span className="uppercase">{item.role}</span>
+                      <span className="uppercase">{item.roleName}</span>
                     </div>
 
                     <div className="mt-2 flex gap-4 justify-center">
@@ -192,11 +169,9 @@ const Usuarios = () => {
                             Icon={MdDeleteForever}
                             color="red"
                             name={"Eliminar"}
-                            content={(showModal, setShowModal) => (
+                            content={(_showModal, setShowModal) => (
                               <EliminarUsuario
-                                setCounter={setCounter}
                                 id={item.id}
-                                showModal={showModal}
                                 setShowModal={setShowModal}
                               />
                             )}
@@ -210,12 +185,9 @@ const Usuarios = () => {
                             Icon={FaEdit}
                             name="Editar"
                             color="yellow"
-                            content={(showModal, setShowModal) => (
+                            content={(_showModal, setShowModal) => (
                               <EditarUsuario
-                                setCounter={setCounter}
-                                roles={roles}
                                 id={item.id}
-                                showModal={showModal}
                                 setShowModal={setShowModal}
                               />
                             )}
@@ -229,12 +201,9 @@ const Usuarios = () => {
                             color="green"
                             title="Ver usuario"
                             name={"Ver"}
-                            content={(showModal, setShowModal) => (
+                            content={(_showModal, _setShowModal) => (
                               <VerUsuario
-                                setCounter={setCounter}
                                 id={item.id}
-                                showModal={showModal}
-                                setShowModal={setShowModal}
                               />
                             )}
                           />

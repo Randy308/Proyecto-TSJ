@@ -16,10 +16,10 @@ const Select = ({ memoizedParams, limite, listaX, setListaX }: SelectProps) => {
       <div key={name}>
         <MultiBtnDropdown
           setVisible={setVisible}
-          name={name as FiltroNombre}
           listaX={listaX}
           limite={limite}
           setListaX={setListaX}
+          name={name as FiltroNombre}
           contenido={contenido as ListaData[]}
           visible={visible}
         />

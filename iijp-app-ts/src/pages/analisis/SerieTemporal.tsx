@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import SimpleChart from "../../components/charts/SimpleChart";
 import { agregarTotalLista, filtrarLista } from "../../utils/arrayUtils";
 import AnalisisChart from "./AnalisisChart";
 import TablaX from "../../components/tables/TablaX";
 import { invertirXY, obtenerEstadisticas } from "../../utils/math";
-import { use } from "echarts/lib/extension";
 import StatsService from "../../services/StatsService";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";

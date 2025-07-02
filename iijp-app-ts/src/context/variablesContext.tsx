@@ -3,8 +3,8 @@ import ResolucionesService from "../services/ResolucionesService";
 import type { ContextProviderProps, Variable } from "../types";
 
 interface ValueContextType {
-  data: Variable[] | undefined;
-  setData: React.Dispatch<React.SetStateAction<Variable[] | undefined>>;
+  data: Variable | undefined;
+  setData: React.Dispatch<React.SetStateAction<Variable| undefined>>;
 }
 
 export const VariablesContext = createContext<ValueContextType | undefined>(
@@ -14,7 +14,7 @@ export const VariablesContext = createContext<ValueContextType | undefined>(
 export const VariablesContextProvider = ({
   children,
 }: ContextProviderProps) => {
-  const [data, setData] = useState<Variable[] | undefined>([]);
+  const [data, setData] = useState<Variable | undefined>({} as Variable);
   useEffect(() => {
     obtenerVariables();
   }, []);
@@ -26,11 +26,11 @@ export const VariablesContextProvider = ({
         setData(data);
         console.log("Data obtenida:", typeof data);
       } else {
-        setData([]);
+        setData({} as Variable);
       }
     } catch (err) {
       console.error("Existe un error:", err);
-      setData([]);
+      setData({} as Variable);
     }
   };
 

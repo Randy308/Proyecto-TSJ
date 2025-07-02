@@ -6,7 +6,7 @@ import { Login } from "../../auth";
 
 interface ModalProps {
   onClose: React.MouseEventHandler<HTMLButtonElement>;
-  title: string;
+  title?: string;
   content?: React.ReactNode;
 }
 export default function ModalContent({ onClose, title, content }:ModalProps) {

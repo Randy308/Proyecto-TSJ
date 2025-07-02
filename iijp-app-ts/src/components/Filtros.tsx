@@ -1,18 +1,13 @@
 import React, { useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { titulo } from "../utils/filterForm";
-import type { DatosArray, FiltroNombre } from "../types";
+import type { DatosArray, FiltroNombre, ListaData } from "../types";
 
 
-
-interface Data {
-  id: number;
-  nombre: string;
-}
 interface FiltrosProps {
   nombre: FiltroNombre;
   formData: DatosArray;
-  data: Data[];
+  data: ListaData[];
   setFormData: React.Dispatch<React.SetStateAction<DatosArray>>;
 }
 const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {

@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { usePapaParse } from "react-papaparse";
-import { AgGridReact } from "ag-grid-react";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useThemeContext } from "../../context/ThemeProvider";
 import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
@@ -46,7 +43,7 @@ const TablaCSV = () => {
   const [archivo, setArchivo] = useState(null);
   const isDarkMode = useThemeContext();
   const sampleData = (data, samplePercentage) => {
-    const sampleSize = Math.ceil(data.length * samplePercentage);
+    const sampleSize = Math.ceil(20);
     const shuffledData = [...data].sort(() => 0.5 - Math.random()); // Shuffle array randomly
     return shuffledData.slice(0, sampleSize); // Take the first 'sampleSize' elements
   };
@@ -83,7 +80,7 @@ const TablaCSV = () => {
           }
           setError(null);
           setTotalData(results.data.length);
-          const sampledData = sampleData(results.data, 1);
+          const sampledData = sampleData(results.data, 0.1);
           setRowData(sampledData);
           if (results.data.length > 0) {
             const headers = Object.keys(results.data[0]).map((header) => ({
@@ -97,7 +94,6 @@ const TablaCSV = () => {
       },
     });
   };
-
   const cargarArchivo = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -170,10 +166,7 @@ const TablaCSV = () => {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div
-        className={isDarkMode ? "ag-theme-alpine-dark" : "ag-theme-alpine"}
-        style={{ height: 500, width: "95%" }}
-      >
+      <div>
         <label
           className="text-2xl font-extrabold dark:text-white"
           htmlFor="file_input"
@@ -195,26 +188,48 @@ const TablaCSV = () => {
             <h3 className="py-4 text-sm roboto-bold dark:text-white">
               Vista previa del contenido
             </h3>
+
+            {rowData.length > 0 && (
+              <div className="overflow-x-auto lg:max-w-[1200px] md:max-w-[500px] sm:max-w-[400px] max-w-[90dvw]">
+                <table className="table-auto border-collapse">
+                  <thead className="bg-gray-100 dark:bg-gray-800">
+                    <tr>
+                      {columnDefs.map((colDef) => (
+                        <th
+                          key={colDef.field}
+                          className="p-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border-b dark:border-gray-600"
+                        >
+                          {colDef.field}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rowData.map((row, rowIndex) => (
+                      <tr
+                        key={rowIndex}
+                        className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      >
+                        {columnDefs.map((colDef) => (
+                          <td
+                            key={colDef.field}
+                            className="p-3 text-sm text-gray-800 dark:text-gray-200 max-w-[200px] truncate whitespace-nowrap"
+                            title={row[colDef.field]} // Tooltip con el contenido completo
+                          >
+                            {row[colDef.field]}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <h4 className="py-4 text-sm dark:text-white">
               {totalData} filas encontradas
             </h4>
-            <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              pagination={true}
-              paginationPageSize={10}
-              paginationPageSizeSelector={[10, 20, 50, 100]}
-              domLayout="autoHeight"
-            />
             <div className="p-4 m-4 flex justify-end">
-              {/* <button
-                type="button"
-                onClick={() => handleClick()}
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-              >
-                Subir
-              </button> */}
-
               <div>
                 <AsyncButton
                   asyncFunction={handleClick}

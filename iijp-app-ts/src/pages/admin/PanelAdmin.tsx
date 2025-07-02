@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from "react";
-import AuthUser from "../../auth/AuthUser";
+import { useEffect, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import { generatePastelColor, titulo } from "../../utils/filterForm";
 import Notificaciones from "../notificaciones/Notificaciones";
 import { useHistoricContext } from "../../context/historicContext";
 import Loading from "../../components/Loading";
 import SimpleChart from "../../components/charts/SimpleChart";
-
+import { AuthUser } from "../../auth";
+import type { FiltroNombre, ListaData } from "../../types";
+interface HistoricData {
+  periodo: string;
+  cantidad: number;
+}
 const PanelAdmin = () => {
   const { can } = AuthUser();
   const { data } = useVariablesContext();
   const { historic } = useHistoricContext();
-  const [resoluciones, setResoluciones] = useState([]);
-  const [jurisprudencia, setJurisprudencia] = useState([]);
-  const [maxRes, setMaxRes] = useState([]);
-  const [maxJuris, setMaxJuris] = useState([]);
+  const [resoluciones, setResoluciones] = useState<HistoricData[]>([]);
+  const [jurisprudencia, setJurisprudencia] = useState<HistoricData[]>([]);
+  const [maxRes, setMaxRes] = useState<number>(0);
+  const [maxJuris, setMaxJuris] = useState<number>(0);
 
   const option = {
     visualMap: [
@@ -117,7 +121,7 @@ const PanelAdmin = () => {
     ],
   };
 
-  const permissions = [
+  const permissions: string[] = [
     "ver_todas_resoluciones",
     "ver_todas_jurisprudencia",
     "crear_usuarios",
@@ -168,11 +172,15 @@ const PanelAdmin = () => {
       console.error("El objeto 'historic' no contiene los datos necesarios");
     }
   }, [historic]);
-
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+  };
   return (
     <div className="pt-4 mt-4">
       <div className="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {Object.entries(data).map(([name, contenido]) => (
+
+
+        {Object.entries((data || {})).map(([name, contenido]) => (
           <a
             href="#"
             key={name}
@@ -180,10 +188,10 @@ const PanelAdmin = () => {
             className="block max-w-sm p-6 border text-white border-gray-200 rounded-lg shadow-sm hover:opacity-75 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
           >
             <h5 className="mb-2 text-2xl font-bold tracking-tight dark:text-white">
-              {titulo(name)}
+              {titulo(name  as FiltroNombre)}
             </h5>
             <p className="font-normal  dark:text-gray-400">
-              {contenido.length} registros disponibles en el sistema.
+              {(contenido as ListaData[]).length} registros disponibles en el sistema.
             </p>
           </a>
         ))}
@@ -192,7 +200,7 @@ const PanelAdmin = () => {
         <div className="lg:col-span-2 flex flex-col flex-wrap gap-4">
           <div className="p-4 lg:col-span-2">
             {resoluciones && resoluciones.length > 0 ? (
-              <SimpleChart option={option}></SimpleChart>
+              <SimpleChart option={option} handleClick={handleClick}></SimpleChart>
             ) : (
               <Loading></Loading>
             )}

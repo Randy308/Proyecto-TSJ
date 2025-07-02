@@ -1,7 +1,13 @@
-import React from "react";
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
-const Paginate = ({ handlePageClick, pageCount, actualPage, totalCount }) => {
+
+interface PaginateProps {
+  handlePageClick: (page?: number) => void;
+  pageCount: number;
+  actualPage: number;
+  totalCount: number;
+}
+const Paginate = ({ handlePageClick, pageCount, actualPage, totalCount }: PaginateProps) => {
 
 
   return (

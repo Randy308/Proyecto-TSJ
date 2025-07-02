@@ -24,7 +24,7 @@ export function transposeArray(data) {
   return keyValueArray;
 }
 
-export const invertirXY = (matriz) => {
+export const invertirXY = (matriz:any[][]) => {
   if (!matriz || matriz.length === 0) return [];
 
   const filas = matriz.length;

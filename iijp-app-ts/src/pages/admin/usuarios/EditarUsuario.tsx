@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AuthUser from "../../../auth/AuthUser";
 import axios from "axios";
 import UserService from "../../../services/UserService";
 import Loading from "../../../components/Loading";
@@ -7,14 +6,21 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
 import { useUserContext } from "../../../context/userContext";
+import type{ CreateUser, UserFields } from "../../../types";
+import { AuthUser } from "../../../auth";
 
-const EditarUsuario = ({ id, setShowModal }) => {
-  const { getToken, can } = AuthUser();
+
+interface UsuarioProps {
+  setShowModal: (val: boolean) => void;
+  id: number;
+}
+
+const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const { roles } = useRoleContext();
   const { users, obtenerUsers } = useUserContext();
-  const token = getToken();
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState<CreateUser>({} as CreateUser);
 
   useEffect(() => {
     if (!can("actualizar_usuarios")) {
@@ -22,31 +28,31 @@ const EditarUsuario = ({ id, setShowModal }) => {
     }
   }, [can, navigate]);
 
-  const setParams = (name, value) => {
+  const setParams = (name: UserFields, value: string | number ) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const actualizarInput = (event) => {
-    setParams(event.target.name, event.target.value);
+  const actualizarInput = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
+    setParams(event.target.name as UserFields, event.target.value);
   };
 
   useEffect(() => {
-    setFormData(users.find((item) => item.id === id));
+    if (users) {
+      setFormData((users as CreateUser[]).find((item) => item.id === id) || {} as CreateUser);
+    }
+
   }, [users]);
 
-  const submitForm = async (e) => {
+  const submitForm = async (e:React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
-        withCredentials: true,
-      });
 
       const filteredData = Object.fromEntries(
         Object.entries(formData).filter(
-          ([key, value]) =>
+          ([value]) =>
             value !== null &&
             value !== undefined &&
             value !== "" &&
@@ -57,8 +63,7 @@ const EditarUsuario = ({ id, setShowModal }) => {
         id,
         {
           ...filteredData,
-        },
-        token
+        } as CreateUser
       )
         .then(({ data }) => {
           if (data) {
@@ -72,19 +77,30 @@ const EditarUsuario = ({ id, setShowModal }) => {
         .catch(({ err }) => {
           console.log("Existe un error " + err);
         });
-    } catch (error) {
-      if (error.response) {
-        console.error("Server Error:", error.response.data);
-        console.error("Status Code:", error.response.status);
-      } else if (error.request) {
+    } catch (error: unknown) {
+      if (error instanceof axios.AxiosError) {
+        console.error("Server Error:", error.response?.data);
+        console.error("Status Code:", error.response?.status);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "request" in error
+      ) {
         console.error("Network Error: No response received from the server.");
-      } else {
-        console.error("Error Setting Up Request:", error.message);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        console.error(
+          "Error Setting Up Request:",
+          (error as { message: string }).message
+        );
       }
-    }
+    } 
   };
 
-  if (formData.length <= 0) {
+  if (formData === null || Object.keys(formData).length <= 0) {
     return (
       <div className="h-[400px]">
         <Loading></Loading>
@@ -163,7 +179,7 @@ const EditarUsuario = ({ id, setShowModal }) => {
             <option disabled defaultValue={""} value={""}>
               Escoge un rol
             </option>
-            {roles.map((item) => (
+            {roles && roles.map((item) => (
               <option key={item.id} value={item.roleName}>
                 {item.roleName}
               </option>

@@ -9,7 +9,7 @@ interface ValueContextType {
   totalUser: number;
   pageCount: number;
   current: number;
-  obtenerUsers: () => Promise<void>;
+  obtenerUsers: (page?: number) => Promise<void>;
 }
 
 export const UserContext = createContext<ValueContextType | undefined>(
@@ -50,7 +50,7 @@ export const UserContextProvider = ({ children }: ContextProviderProps) => {
     }
   }, [location.pathname, hasFetched, token]);
 
-  const obtenerUsers = async (page = 1) => {
+  const obtenerUsers = async (page:number = 1) => {
     try {
       const { data } = await UserService.getAllUsers(page);
       if (Array.isArray(data.data)) {

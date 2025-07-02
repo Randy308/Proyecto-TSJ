@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { FaHouse, FaRegCircle } from "react-icons/fa6";
+import { useEffect, useMemo, useState } from "react";
+import { FaRegCircle } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaSearch } from "react-icons/fa";
@@ -9,12 +9,11 @@ import { filterAtributte, filterForm, filterParams, filterTitle } from "../../ut
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
 import PortalButton from "../../components/modal/PortalButton";
-import { MdClear, MdOutlineZoomInMap } from "react-icons/md";
+import { MdClear } from "react-icons/md";
 import Paginate from "../../components/tables/Paginate";
 import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
 import { IoMdClose, IoMdRefresh } from "react-icons/io";
 import AsyncButton from "../../components/AsyncButton";
-import { se } from "date-fns/locale";
 import { useIcons } from "../../components/icons/Icons";
 
 const CronologiasAvanzadas = () => {

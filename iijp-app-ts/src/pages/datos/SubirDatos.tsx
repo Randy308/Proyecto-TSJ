@@ -1,21 +1,16 @@
-import React, { useEffect, useState } from "react";
-import {
-  FaChartPie,
-  FaMagnifyingGlassChart,
-  FaRegCircle,
-} from "react-icons/fa6";
+import { useEffect, useState } from "react";
+import { FaChartPie, FaMagnifyingGlassChart } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
-import AuthUser from "../../auth/AuthUser";
 import Loading from "../../components/Loading";
 import { useResolutionContext } from "../../context/resolutionContext";
 import Paginate from "../../components/tables/Paginate";
-import { FaCheckCircle } from "react-icons/fa";
 import PortalButton from "../../components/modal/PortalButton";
 import { MdOutlineZoomInMap } from "react-icons/md";
 import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
+import { AuthUser } from "../../auth";
 
 const SubirDatos = () => {
-  const { getToken, can, hasAnyPermission } = AuthUser();
+  const { can, hasAnyPermission } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const {
@@ -45,8 +40,8 @@ const SubirDatos = () => {
       permiso: "realizar_web_scrapping",
     },
   ];
-  const handlePageClick = (page) => {
-    const selectedPage = Math.min(page, pageCount);
+  const handlePageClick = (page?: number) => {
+    const selectedPage = Math.min(page || 1, pageCount);
     obtenerResolutions(selectedPage);
   };
 
@@ -90,7 +85,7 @@ const SubirDatos = () => {
           ) : null
         )}
       </div>
-      {resolutions.length > 0 ? (
+      {resolutions && resolutions.length > 0 ? (
         <>
           <div className="relative md:w-full overflow-x-auto space-y-4 my-4">
             {/* Selector global */}
@@ -135,7 +130,7 @@ const SubirDatos = () => {
                         name={"Ver"}
                         large={true}
                         full={false}
-                        content={(setShowModal) => (
+                        content={(_setShowModal) => (
                           <ResolucionTSJ id={item.id} />
                         )}
                       />
@@ -161,7 +156,7 @@ const SubirDatos = () => {
                       color="link"
                       full={false}
                       large={true}
-                      content={(setShowModal) => <ResolucionTSJ id={item.id} />}
+                      content={(_setShowModal) => <ResolucionTSJ id={item.id} />}
                     />
                   </div>
 
@@ -209,13 +204,11 @@ const SubirDatos = () => {
               pageCount={pageCount}
               actualPage={current}
               totalCount={totalResolutions}
-              lastPage={pageCount}
             />
           </div>
         </>
       ) : (
         <div className="text-center my-8 h-[400px] flex flex-col items-center justify-center">
-         
           <p className="text-gray-600 dark:text-gray-400">
             No cuenta con resoluciones registradas con su cuenta.
           </p>

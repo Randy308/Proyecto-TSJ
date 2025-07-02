@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/jurisprudencia-busqueda.css";
-import { FaFilter } from "react-icons/fa";
 import PaginationData from "./PaginationData";
-import { ImSearch } from "react-icons/im";
 import { MdCleaningServices } from "react-icons/md";
 import { FaSearch } from "react-icons/fa";
 import Paginate from "../../components/tables/Paginate";

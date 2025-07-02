@@ -1,20 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePapaParse } from "react-papaparse";
-import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useThemeContext } from "../../context/ThemeProvider";
-import axios from "axios";
-import AuthUser from "../../auth/AuthUser";
 import AsyncButton from "../../components/AsyncButton";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import TokenService from "../../services/TokenService";
-import JurisprudenciaService from "../../services/JurisprudenciaService";
 import UserService from "../../services/UserService";
+import { AuthUser } from "../../auth";
 
 const TablaJurisprudenciaCSV = () => {
-  const { getToken, can } = AuthUser();
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const cabeceras = [
@@ -29,20 +25,21 @@ const TablaJurisprudenciaCSV = () => {
   ];
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const isDarkMode = useThemeContext();
+
   const { readString } = usePapaParse();
-  const [columnDefs, setColumnDefs] = useState([]);
-  const [rowData, setRowData] = useState([]);
-  const [totalData, setTotalData] = useState([]);
-  const [error, setError] = useState(null);
-  const [archivo, setArchivo] = useState(null);
-  const sampleData = (data, samplePercentage) => {
+  const [rowData, setRowData] = useState<Array<Record<string, any>>>([]);
+  const [totalData, setTotalData] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [archivo, setArchivo] = useState<File | null>(null);
+  const sampleData = (data: string | any[], samplePercentage: number) => {
     const sampleSize = Math.ceil(data.length * samplePercentage);
     const shuffledData = [...data].sort(() => 0.5 - Math.random()); // Shuffle array randomly
     return shuffledData.slice(0, sampleSize); // Take the first 'sampleSize' elements
   };
 
-  const handleString = (CSVString) => {
-    setColumnDefs([]);
+  const handleString = (CSVString: string) => {
     setRowData([]);
     setTotalData(0);
     setError(null);
@@ -51,7 +48,7 @@ const TablaJurisprudenciaCSV = () => {
       delimiter: ",",
       skipEmptyLines: true,
       header: true,
-      complete: (results) => {
+      complete: (results: { errors: string | any[]; data: string | any[] }) => {
         if (results.errors.length > 0) {
           setError("Error al procesar el archivo CSV");
           console.error(results.errors);
@@ -85,20 +82,26 @@ const TablaJurisprudenciaCSV = () => {
               resizable: true,
               flex: 1,
             }));
-            setColumnDefs(headers);
+            console.log("Columnas:", headers);
           }
         }
       },
     });
   };
 
-  const cargarArchivo = (e) => {
-    const file = e.target.files[0];
+  const cargarArchivo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    const file = files && files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
-        const csvString = event.target.result;
-        handleString(csvString);
+        const target = event.target as FileReader | null;
+        if (target && typeof target.result === "string") {
+          const csvString = target.result;
+          handleString(csvString);
+        } else {
+          setError("No se pudo leer el archivo CSV");
+        }
       };
       reader.onerror = () => {
         setError("No se pudo leer el archivo CSV");
@@ -158,9 +161,6 @@ const TablaJurisprudenciaCSV = () => {
         setIsLoading(false);
       });
   };
-
-  const isDarkMode = useThemeContext();
-
   useEffect(() => {
     if (!can("subir_jurisprudencia")) {
       navigate("/");
@@ -199,23 +199,8 @@ const TablaJurisprudenciaCSV = () => {
             <h4 className="py-4 text-sm dark:text-white">
               {totalData} filas encontradas
             </h4>
-            <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              pagination={true}
-              paginationPageSize={10}
-              paginationPageSizeSelector={[10, 20, 50, 100]}
-              domLayout="autoHeight"
-            />
-            <div className="p-4 m-4 flex justify-end">
-              {/* <button
-                type="button"
-                onClick={() => handleClick()}
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-              >
-                Subir
-              </button> */}
 
+            <div className="p-4 m-4 flex justify-end">
               <div>
                 <AsyncButton
                   asyncFunction={handleClick}

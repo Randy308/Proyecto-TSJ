@@ -1,22 +1,18 @@
-import React, { useMemo, useState } from "react";
-import ArbolJurisprudencial from "./tabs/ArbolJurisprudencial";
-import { FaHouse } from "react-icons/fa6";
+import { useMemo, useState } from "react";
+import ArbolJurisprudencial from "./ArbolJurisprudencial";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
 import JurisprudenciaService from "../../services/JurisprudenciaService";
 import { filterForm } from "../../utils/filterForm";
-import { useVariablesContext } from "../../context/variablesContext";
 import AsyncButton from "../../components/AsyncButton";
 import { IoMdClose } from "react-icons/io";
 
 const GeneracionRapida = () => {
   const [currentID, setCurrentID] = useState(null);
-  const { data } = useVariablesContext();
   const [isLoading, setIsLoading] = useState(false);
 
-  const homeIcon = useMemo(() => <FaHouse className="w-5 h-5" />, []);
   const searchIcon = useMemo(
     () => (
       <FaSearch className="w-4 h-4 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" />
@@ -25,35 +21,14 @@ const GeneracionRapida = () => {
   );
 
   const [arbol, setArbol] = useState([]);
-  const [resultado, setResultado] = useState([]);
-  const [tabActivo, setTabActivo] = useState(1);
-  const [formData, setFormData] = useState({
-    fecha_exacta: "",
-    fecha_desde: "",
-    fecha_hasta: "",
-    cantidad: 15,
-    subtitulo: "",
-    recorrer: false,
-    seccion: false,
-  });
-  const [activador, setActivador] = useState(false);
-  const [ids, setIds] = useState([]);
+
   const [errorBusqueda, setErrorBusqueda] = useState("");
 
   const [busqueda, setBusqueda] = useState("");
   const [resultados, setResultados] = useState([]);
-  const eliminarNodo = (idBuscado) => {
-    if (tabActivo == 1) {
-      const indice = arbol.findIndex((elemento) => elemento.id === idBuscado);
-      const nuevoArbol = arbol.slice(0, indice + 1);
-      if (arbol.length !== nuevoArbol.length) {
-        setArbol(nuevoArbol);
-        setCurrentID(idBuscado);
-      }
-    }
-  };
 
-  const checkSearch = (valor) => {
+
+  const checkSearch = (valor:string) => {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'’-]+$/;
 
     if (regex.test(valor) || valor === "") {
@@ -62,8 +37,8 @@ const GeneracionRapida = () => {
       return false;
     }
   };
-  const actualizarInput = (e) => {
-    const valor = e.target.value;
+  const actualizarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e.currentTarget.value;
     if (checkSearch(valor)) {
       setBusqueda(valor);
       setErrorBusqueda("");
@@ -73,15 +48,11 @@ const GeneracionRapida = () => {
   };
 
   const vaciarNodo = () => {
-    if (tabActivo == 1) {
-      setArbol([]);
+   setArbol([]);
       setCurrentID(null);
-    }
   };
 
-  const obtenerCronologia = async (e) => {
-    e.preventDefault();
-
+  const obtenerCronologia = async () => {
     if (arbol.length <= 0) {
       toast.error("Seleccione una materia primero");
       return;
@@ -115,7 +86,7 @@ const GeneracionRapida = () => {
       });
   };
 
-  const actualizarNodos = async (descriptor, ids) => {
+  const actualizarNodos = async (descriptor:string) => {
     try {
       JurisprudenciaService.actualizarNodo({
         busqueda: descriptor,
@@ -126,14 +97,13 @@ const GeneracionRapida = () => {
             setArbol(data.nodos);
             setCurrentID(data.last);
             setResultados([]);
-            setIds(ids);
           }
         })
         .catch(({ err }) => {
           console.log("Existe un error " + err);
         });
-    } catch (error) {
-      const message = error.response?.data?.error || "Ocurrió un error";
+    } catch (error: unknown) {
+      const message = (error as any)?.response?.data?.error || "Ocurrió un error";
       console.error("Error fetching data:", message);
       console.error("Error :", error);
     }
@@ -160,8 +130,8 @@ const GeneracionRapida = () => {
           setErrorBusqueda("No se encontraron resultados");
           setResultados([]);
         });
-    } catch (error) {
-      const message = error.response?.data?.error || "Ocurrió un error";
+    } catch (error: unknown) {
+      const message = (error as any)?.response?.data?.error || "Ocurrió un error";
       console.error("Error fetching data:", message);
       console.error("Error :", error);
     }
@@ -203,11 +173,11 @@ const GeneracionRapida = () => {
             {errorBusqueda.length > 0 && (
               <div
                 id="alert-2"
-                class="flex items-center p-4 mb-4 text-red-800 rounded-lg  dark:bg-gray-800 dark:text-red-400"
+                className="flex items-center p-4 mb-4 text-red-800 rounded-lg  dark:bg-gray-800 dark:text-red-400"
                 role="alert"
               >
-                <FaInfo class="shrink-0 w-4 h-4" />
-                <div class="ms-3 text-sm font-medium">{errorBusqueda}</div>
+                <FaInfo className="shrink-0 w-4 h-4" />
+                <div className="ms-3 text-sm font-medium">{errorBusqueda}</div>
               </div>
             )}
             {arbol && arbol.length > 0 && (

@@ -3,10 +3,9 @@ import { IoMdClose } from "react-icons/io";
 import { Login } from "../../auth";
 interface LargeModalProps {
   onClose: React.MouseEventHandler<HTMLButtonElement>;
-  title: string;
   content: React.ReactNode;
 }
-export default function LargeModal({ onClose, title, content }:LargeModalProps) {
+export default function LargeModal({ onClose, content }:LargeModalProps) {
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 w-full h-full">
       <div className="bg-white dark:bg-gray-800 m-2 rounded-lg shadow-lg w-[90vw] sm:w-[70vw] h-[90vh]  flex-col">

@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
-import AuthUser from "../../../auth/AuthUser";
+import { useEffect, useState } from "react";
 import RoleService from "../../../services/RoleService";
-import axios from "axios";
-import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
+import { AuthUser } from "../../../auth";
+import type { Permission, RoleData } from "../../../types";
 
-const CrearRol = ({ setCounter, permissions, showModal, setShowModal }) => {
-  const { getToken, can } = AuthUser();
+interface CrearRolProps {
+  permissions: Permission[] | undefined;
+  showModal: boolean;
+  setShowModal: (val:boolean) => void;
+}
+const CrearRol = ({ permissions, showModal, setShowModal }: CrearRolProps) => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  const token = getToken();
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState<RoleData>({});
   const { obtenerRoles } = useRoleContext();
 
   useEffect(() => {
@@ -24,25 +27,18 @@ const CrearRol = ({ setCounter, permissions, showModal, setShowModal }) => {
     }
   }, [can, navigate]);
 
-  const setParams = (name, value) => {
+  const setParams = (name: string, value: string | number | boolean) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const removeParam = (name) => {
-    setFormData((prevData) => {
-      const { [name]: _, ...rest } = prevData;
-      return rest;
-    });
-  };
-
-  const actualizarInput = (event) => {
+  const actualizarInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setParams(event.target.name, event.target.value);
   };
 
-  const actualizarPermisos = (e) => {
+  const actualizarPermisos = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = e.target;
     const permisoId = parseInt(value, 10);
 
@@ -66,7 +62,7 @@ const CrearRol = ({ setCounter, permissions, showModal, setShowModal }) => {
     });
   };
 
-  const submitForm = async (e) => {
+  const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await RoleService.createRole({
@@ -76,7 +72,6 @@ const CrearRol = ({ setCounter, permissions, showModal, setShowModal }) => {
           if (data) {
             console.log(data);
             setShowModal(false);
-            setCounter((prev) => prev + 1);
             obtenerRoles();
             toast.success("El rol ha sido creado exitosamente");
           }
@@ -84,15 +79,8 @@ const CrearRol = ({ setCounter, permissions, showModal, setShowModal }) => {
         .catch(({ err }) => {
           console.log("Existe un error " + err);
         });
-    } catch (error) {
-      if (error.response) {
-        console.error("Server Error:", error.response.data);
-        console.error("Status Code:", error.response.status);
-      } else if (error.request) {
-        console.error("Network Error: No response received from the server.");
-      } else {
-        console.error("Error Setting Up Request:", error.message);
-      }
+    } catch (error: unknown) {
+      console.error("Error Setting Up Request:", error);
     }
   };
 
@@ -153,7 +141,7 @@ const CrearRol = ({ setCounter, permissions, showModal, setShowModal }) => {
         </div>
         <button
           type="submit"
-          onClick={submitForm}
+          onClick={() => submitForm}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Crear rol

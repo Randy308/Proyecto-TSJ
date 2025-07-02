@@ -1,6 +1,6 @@
 import type { FiltroNombre } from "./data";
 
-export interface Variable{
+export interface VariableOld{
     nombre:FiltroNombre
     datos:ListaData[]
 }

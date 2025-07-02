@@ -1,12 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import styles from "./ResolucionTSJ.module.css";
 import ResolucionesService from "../../services/ResolucionesService";
 import { titulo } from "../../utils/filterForm";
 const ResolucionTSJ = ({ id }:{id:number}) => {
-  const navigate = useNavigate();
   const [resolucion, setResolucion] = useState(null);
   const [fichas, setFichas] = useState(null);
   const [actual, setActual] = useState(2);
@@ -31,11 +29,11 @@ const ResolucionTSJ = ({ id }:{id:number}) => {
   const [visible, setVisible] = useState(false);
   const [subMenu, setSubMenu] = useState(0);
 
-  const cambiarEstado = (id) => {
+  const cambiarEstado = (id:number) => {
     setVisible((prev) => (prev === id ? null : id));
   };
 
-  const cambiarSubMenu = (id) => {
+  const cambiarSubMenu = (id:number) => {
     setSubMenu((prev) => (prev === id ? null : id));
   };
 
@@ -62,7 +60,7 @@ const ResolucionTSJ = ({ id }:{id:number}) => {
     );
   }
 
-  const renderContent = (id) => {
+  const renderContent = (id:number) => {
     switch (id) {
       case 2:
         return (

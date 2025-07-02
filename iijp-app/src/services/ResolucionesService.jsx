@@ -31,7 +31,7 @@ const ResolucionesService = {
     instance.get("/realizar-prediction", { params }),
   descomponerSerie: (params) => instance.get("/descomponer-serie", { params }),
 
-  obtenerElemento: (params) => instance.get("/obtener-elemento", { params }),
+  obtenerElemento: (params) => instance.get("/obtener-serie-terminos", { params }),
 
   realizarAnalisis: (params) =>
     instance.get("/obtener-estadisticas", {

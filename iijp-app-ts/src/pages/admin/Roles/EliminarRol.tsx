@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AuthUser from "../../../auth/AuthUser";
 import axios from "axios";
 import RoleService from "../../../services/RoleService";
 import Loading from "../../../components/Loading";
@@ -8,13 +7,20 @@ import { FaUser } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
+import { type RoleData  } from "../../../types";
+import { AuthUser } from "../../../auth";
 
-const EliminarRol = ({ id, setCounter, showModal, setShowModal }) => {
+interface Props {
+  id: number;
+  showModal: boolean;
+  setShowModal: (val:boolean) => void;
+}
+const EliminarRol = ({ id,  showModal, setShowModal }: Props) => {
   const { getToken, can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState<RoleData>({});
   const { roles, obtenerRoles } = useRoleContext();
   const token = getToken();
   useEffect(() => {
@@ -28,44 +34,44 @@ const EliminarRol = ({ id, setCounter, showModal, setShowModal }) => {
 
 
   useEffect(() => {
-    setFormData(roles.find((item) => item.id === id));
+      const foundRole = (roles || []).find((item) => item.id === id);
+    setFormData(foundRole || {});
   }, [roles]);
 
-  const submitForm = async (e) => {
+  const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await axios.get(`${process.env.REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
+      await axios.get(`${import.meta.env.VITE_REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
         withCredentials: true,
       });
 
       console.log("CSRF token retrieved successfully.");
 
-      await RoleService.deleteRole(id, token)
+      await RoleService.deleteRole(id)
         .then(({ data }) => {
           if (data) {
             console.log(data);
             setShowModal(false);
             obtenerRoles();
-            setCounter((prev) => prev + 1);
             toast.success("El rol ha sido eliminado exitosamente");
           }
         })
         .catch(({ err }) => {
           console.log("Existe un error " + err);
         });
-    } catch (error) {
-      if (error.response) {
-        console.error("Server Error:", error.response.data);
-        console.error("Status Code:", error.response.status);
-      } else if (error.request) {
+    } catch (error: unknown) {
+      if (error instanceof axios.AxiosError) {
+        console.error("Server Error:", error.response?.data);
+        console.error("Status Code:", error.response?.status);
+      } else if (typeof error === "object" && error !== null && "request" in error) {
         console.error("Network Error: No response received from the server.");
-      } else {
-        console.error("Error Setting Up Request:", error.message);
+      } else if (typeof error === "object" && error !== null && "message" in error) {
+        console.error("Error Setting Up Request:", (error as { message: string }).message);
       }
     }
   };
 
-  if (formData.length <= 0) {
+  if (Object.keys(formData).length <= 0) {
     return (
       <div className="h-[200px]">
         <Loading></Loading>
@@ -107,7 +113,7 @@ const EliminarRol = ({ id, setCounter, showModal, setShowModal }) => {
         <div className="flex justify-center pt-6">
           <button
             type="submit"
-            onClick={submitForm}
+            onClick={() =>submitForm}
             className="w-full sm:w-auto text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-6 py-3 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
           >
             Eliminar Rol

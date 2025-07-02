@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { CreateUser } from "../types";
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
 let csrfFetched = false;
@@ -48,8 +49,8 @@ const UserService = {
   getAllUsers: (page:number) => instance.get("/admin/user", { params: { page } }),
   getAllResolutions: (page:number) => instance.get("/admin/resolutions", { params: { page } }),
   getUser: (id:number) => instance.get(`/admin/user/${id}`),
-  createUser: (userData:FormData) => instance.post("/admin/user", userData),
-  updateUser: (id:number, userData:FormData) => instance.put(`/admin/user/${id}`, userData),
+  createUser: (userData:CreateUser) => instance.post("/admin/user", userData),
+  updateUser: (id:number, userData:CreateUser) => instance.put(`/admin/user/${id}`, userData),
   deleteUser: (id:number) => instance.delete(`/admin/user/${id}`),
 
   // Notificaciones

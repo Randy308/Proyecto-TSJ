@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@tailwindcss/vite':
         specifier: ^4.1.11
-        version: 4.1.11(vite@7.0.0(jiti@2.4.2)(lightningcss@1.30.1))
+        version: 4.1.11(vite@7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1))
       axios:
         specifier: ^1.10.0
         version: 1.10.0
@@ -41,6 +41,9 @@ importers:
       react-icons:
         specifier: ^5.5.0
         version: 5.5.0(react@19.1.0)
+      react-papaparse:
+        specifier: ^4.4.0
+        version: 4.4.0
       react-router-dom:
         specifier: ^7.6.3
         version: 7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -68,7 +71,7 @@ importers:
         version: 19.1.6(@types/react@19.1.8)
       '@vitejs/plugin-react-swc':
         specifier: ^3.10.2
-        version: 3.10.2(vite@7.0.0(jiti@2.4.2)(lightningcss@1.30.1))
+        version: 3.10.2(vite@7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1))
       eslint:
         specifier: ^9.29.0
         version: 9.30.0(jiti@2.4.2)
@@ -89,7 +92,7 @@ importers:
         version: 8.35.0(eslint@9.30.0(jiti@2.4.2))(typescript@5.8.3)
       vite:
         specifier: ^7.0.0
-        version: 7.0.0(jiti@2.4.2)(lightningcss@1.30.1)
+        version: 7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1)
 
 packages:
 
@@ -625,6 +628,12 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+
+  '@types/node@24.0.7':
+    resolution: {integrity: sha512-YIEUUr4yf8q8oQoXPpSlnvKNVKDQlPMWrmOcgzoduo7kvA2UF0/BwJ/eMKFTiTtkNL17I0M6Xe2tvwFU7be6iw==}
+
+  '@types/papaparse@5.3.16':
+    resolution: {integrity: sha512-T3VuKMC2H0lgsjI9buTB3uuKj3EMD2eap1MOuEQuBQ44EnDx/IkGhU6EwiTf9zG3za4SKlmwKAImdDKdNnCsXg==}
 
   '@types/react-dom@19.1.6':
     resolution: {integrity: sha512-4hOiT/dwO8Ko0gV1m/TJZYk3y0KBnY9vzDh7W+DH17b2HFSOGgdj33dhihPeuy3l0q23+4e+hoXHV6hCC4dCXw==}
@@ -1352,6 +1361,9 @@ packages:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
 
+  papaparse@5.5.3:
+    resolution: {integrity: sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==}
+
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -1402,6 +1414,10 @@ packages:
     resolution: {integrity: sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==}
     peerDependencies:
       react: '*'
+
+  react-papaparse@4.4.0:
+    resolution: {integrity: sha512-xTEwHZYJ+1dh9mQDQjjwJXmWyX20DdZ52u+ddw75V+Xm5qsjXSvWmC7c8K82vRwMjKAOH2S9uFyGpHEyEztkUQ==}
+    engines: {node: '>=8', npm: '>=5'}
 
   react-router-dom@7.6.3:
     resolution: {integrity: sha512-DiWJm9qdUAmiJrVWaeJdu4TKu13+iB/8IEi0EW/XgaHCjW/vWGrwzup0GVvaMteuZjKnh5bEvJP/K0MDnzawHw==}
@@ -1532,6 +1548,9 @@ packages:
     resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  undici-types@7.8.0:
+    resolution: {integrity: sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw==}
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
@@ -1950,12 +1969,12 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.1.11
       '@tailwindcss/oxide-win32-x64-msvc': 4.1.11
 
-  '@tailwindcss/vite@4.1.11(vite@7.0.0(jiti@2.4.2)(lightningcss@1.30.1))':
+  '@tailwindcss/vite@4.1.11(vite@7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1))':
     dependencies:
       '@tailwindcss/node': 4.1.11
       '@tailwindcss/oxide': 4.1.11
       tailwindcss: 4.1.11
-      vite: 7.0.0(jiti@2.4.2)(lightningcss@1.30.1)
+      vite: 7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1)
 
   '@types/d3-geo@3.1.0':
     dependencies:
@@ -1968,6 +1987,14 @@ snapshots:
   '@types/js-cookie@3.0.6': {}
 
   '@types/json-schema@7.0.15': {}
+
+  '@types/node@24.0.7':
+    dependencies:
+      undici-types: 7.8.0
+
+  '@types/papaparse@5.3.16':
+    dependencies:
+      '@types/node': 24.0.7
 
   '@types/react-dom@19.1.6(@types/react@19.1.8)':
     dependencies:
@@ -2069,11 +2096,11 @@ snapshots:
       '@typescript-eslint/types': 8.35.0
       eslint-visitor-keys: 4.2.1
 
-  '@vitejs/plugin-react-swc@3.10.2(vite@7.0.0(jiti@2.4.2)(lightningcss@1.30.1))':
+  '@vitejs/plugin-react-swc@3.10.2(vite@7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.0-beta.11
       '@swc/core': 1.12.7
-      vite: 7.0.0(jiti@2.4.2)(lightningcss@1.30.1)
+      vite: 7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -2738,6 +2765,8 @@ snapshots:
     dependencies:
       p-limit: 3.1.0
 
+  papaparse@5.5.3: {}
+
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -2774,6 +2803,11 @@ snapshots:
   react-icons@5.5.0(react@19.1.0):
     dependencies:
       react: 19.1.0
+
+  react-papaparse@4.4.0:
+    dependencies:
+      '@types/papaparse': 5.3.16
+      papaparse: 5.5.3
 
   react-router-dom@7.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
@@ -2903,11 +2937,13 @@ snapshots:
 
   typescript@5.8.3: {}
 
+  undici-types@7.8.0: {}
+
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
 
-  vite@7.0.0(jiti@2.4.2)(lightningcss@1.30.1):
+  vite@7.0.0(@types/node@24.0.7)(jiti@2.4.2)(lightningcss@1.30.1):
     dependencies:
       esbuild: 0.25.5
       fdir: 6.4.6(picomatch@4.0.2)
@@ -2916,6 +2952,7 @@ snapshots:
       rollup: 4.44.1
       tinyglobby: 0.2.14
     optionalDependencies:
+      '@types/node': 24.0.7
       fsevents: 2.3.3
       jiti: 2.4.2
       lightningcss: 1.30.1

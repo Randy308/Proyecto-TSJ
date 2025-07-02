@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import axios from "axios";
 import { toast } from "react-toastify";
 import UserService from "../../../services/UserService";
 import PasswordInput from "../../../components/form/PasswordInput";
@@ -11,15 +9,18 @@ import { useRoleContext } from "../../../context/roleContext";
 import NameInput from "../../../components/form/NameInput";
 import EmailInput from "../../../components/form/EmailInput";
 import { validateErrors } from "../../../utils/filterForm";
-import AuthUser from "../../../auth/AuthUser";
+import { AuthUser } from "../../../auth";
+import axios from "axios";
 
-const CrearUsuario = ({ setShowModal }) => {
-  const { getToken, can } = AuthUser();
+interface CrearUsuarioProps {
+  setShowModal: (val: boolean) => void;
+}
+const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
 
   const { obtenerUsers } = useUserContext();
   const { roles } = useRoleContext();
-  const token = getToken();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [selectedRol, setSelectedRol] = useState("");
@@ -29,7 +30,7 @@ const CrearUsuario = ({ setShowModal }) => {
   const [passwordError, setPasswordError] = useState("");
   const [nameError, setNameError] = useState("");
 
-  const changeRole = (event) => {
+  const changeRole = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedRol(event.target.value);
   };
 
@@ -37,11 +38,13 @@ const CrearUsuario = ({ setShowModal }) => {
     if (!can("ver_usuarios")) {
       navigate("/");
     } else {
-      setSelectedRol(roles[0].name);
+      if (roles && roles.length > 0) {
+        setSelectedRol(roles[0].roleName);
+      }
     }
   }, []);
 
-  const submitForm = async (e) => {
+  const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (
       !validateErrors(Object.values({ emailError, nameError, passwordError }))
@@ -49,16 +52,13 @@ const CrearUsuario = ({ setShowModal }) => {
       return;
     }
     try {
-
-
       await UserService.createUser(
         {
           name: name,
           email: email,
           password: password,
           role: selectedRol,
-        },
-        token
+        }
       )
         .then(({ data }) => {
           if (data) {
@@ -71,14 +71,25 @@ const CrearUsuario = ({ setShowModal }) => {
         .catch(({ err }) => {
           console.log("Existe un error " + err);
         });
-    } catch (error) {
-      if (error.response) {
-        console.error("Server Error:", error.response.data);
-        console.error("Status Code:", error.response.status);
-      } else if (error.request) {
+    } catch (error: unknown) {
+      if (error instanceof axios.AxiosError) {
+        console.error("Server Error:", error.response?.data);
+        console.error("Status Code:", error.response?.status);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "request" in error
+      ) {
         console.error("Network Error: No response received from the server.");
-      } else {
-        console.error("Error Setting Up Request:", error.message);
+      } else if (
+        typeof error === "object" &&
+        error !== null &&
+        "message" in error
+      ) {
+        console.error(
+          "Error Setting Up Request:",
+          (error as { message: string }).message
+        );
       }
     }
   };
@@ -120,7 +131,7 @@ const CrearUsuario = ({ setShowModal }) => {
             <option disabled defaultValue={""}>
               Escoge un rol
             </option>
-            {roles.map((item) => (
+            {roles && roles.map((item) => (
               <option key={item.id} value={item.roleName}>
                 {item.roleName}
               </option>
@@ -130,7 +141,7 @@ const CrearUsuario = ({ setShowModal }) => {
 
         <button
           type="submit"
-          onClick={submitForm}
+          onClick={() =>submitForm}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Enviar

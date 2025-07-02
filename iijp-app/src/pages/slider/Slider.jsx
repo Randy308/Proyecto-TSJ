@@ -2,12 +2,10 @@ import { useState, useEffect } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import "../../styles/slider.css";
-import { usePostContext } from "../../context/postContext";
+import { sliderData } from "../../data/SliderData";
 const Slider = () => {
-  const endpoint = process.env.REACT_APP_IMAGE_SERVER;
   const [currentSlide, setCurrentSlide] = useState(0);
-  const { posts } = usePostContext();
-  const slideLength = posts.length;
+  const slideLength = sliderData.length;
 
   const autoScroll = false;
   let slideInterval;
@@ -55,7 +53,7 @@ const Slider = () => {
         <IoIosArrowForward className="w-5 h-5" />
       </button>
 
-      {posts.map((slide, index) => {
+      {sliderData.map((slide, index) => {
         return (
           <div
             className={index === currentSlide ? "slide current" : "slide"}
@@ -69,7 +67,7 @@ const Slider = () => {
                 <div id="image-card" className="custom:p-1">
                   <figure className="image-container w-full h-auto sm:h-[500px] overflow-hidden rounded-lg">
                     <img
-                      src={`${endpoint}/${slide.ruta_imagen}`}
+                      src={`${slide.ruta_imagen}`}
                       alt="slide"
                       className="image rounded-lg"
                     />

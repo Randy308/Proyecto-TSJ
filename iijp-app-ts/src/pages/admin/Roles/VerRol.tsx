@@ -1,18 +1,23 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Loading from "../../../components/Loading";
-import AuthUser from "../../../auth/AuthUser";
-import RoleService from "../../../services/RoleService";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useRoleContext } from "../../../context/roleContext";
+import { AuthUser } from "../../../auth";
+import { type Permission, type RoleData } from "../../../types";
 
-const VerRol = ({ id, permissions, setCounter, showModal, setShowModal }) => {
-  const { getToken, can } = AuthUser();
+interface Props {
+  id: number;
+  permissions: Permission[] | undefined;
+  showModal: boolean;
+  setShowModal: (val:boolean) => void;
+}
+
+const VerRol = ({ id, permissions, showModal, setShowModal }: Props) => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  const token = getToken();
-  const [formData, setFormData] = useState([]);
+  const [formData, setFormData] = useState<RoleData>({});
   const { roles } = useRoleContext();
   useEffect(() => {
     if (!can("ver_rol")) {
@@ -23,12 +28,13 @@ const VerRol = ({ id, permissions, setCounter, showModal, setShowModal }) => {
   }, [can, navigate]);
 
   useEffect(() => {
-    setFormData(roles.find((item) => item.id === id));
+    const foundRole = (roles || []).find((item) => item.id === id);
+    setFormData(foundRole || {});
   }, [roles]);
 
-  if (formData.length <= 0) {
+  if (Object.keys(formData).length <= 0) {
     return (
-      <div className="h-[400px]">
+      <div className="h-[200px]">
         <Loading></Loading>
       </div>
     );
@@ -49,7 +55,6 @@ const VerRol = ({ id, permissions, setCounter, showModal, setShowModal }) => {
             name="roleName"
             value={formData.roleName || ""}
             disabled
-            onChange={(e) => actualizarInput(e)}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             required
           />
@@ -66,8 +71,8 @@ const VerRol = ({ id, permissions, setCounter, showModal, setShowModal }) => {
             aria-labelledby="dropdownSearchButton"
           >
             {permissions &&
-              permissions
-                .filter((item) => formData.permissions.includes(item.id)) // Filter permissions the role has
+              (permissions || [])
+                .filter((item) => Array.isArray(formData.permissions) && formData.permissions.includes(item.id)) // Filter permissions the role has
                 .map((item) => (
                   <li key={item.id}>
                     <label className="inline-flex items-center mb-5 cursor-pointer">

@@ -1,13 +1,10 @@
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 
 import { TiUserAdd } from "react-icons/ti";
 import { FaRegEye } from "react-icons/fa";
 import PortalButton from "../../../components/modal/PortalButton";
-
-import RoleService from "../../../services/RoleService";
-import AuthUser from "../../../auth/AuthUser";
 import EliminarRol from "./EliminarRol";
 import VerRol from "./VerRol";
 import EditarRol from "./EditarRol";
@@ -15,15 +12,13 @@ import CrearRol from "./CrearRol";
 import { useNavigate } from "react-router-dom";
 import { useRoleContext } from "../../../context/roleContext";
 import { usePermissionContext } from "../../../context/permissionContext";
+import { AuthUser } from "../../../auth";
 
-const ListaRoles = () => {
-  const { getToken, can } = AuthUser();
+export const ListaRoles = () => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  const token = getToken();
-
-  const [counter, setCounter] = useState(1);
   const { roles } = useRoleContext();
   const { permisos } = usePermissionContext();
 
@@ -51,7 +46,6 @@ const ListaRoles = () => {
               title="Crear rol"
               content={(showModal, setShowModal) => (
                 <CrearRol
-                  setCounter={setCounter}
                   permissions={permisos}
                   showModal={showModal}
                   setShowModal={setShowModal}
@@ -100,7 +94,6 @@ const ListaRoles = () => {
                               color="red"
                               content={(showModal, setShowModal) => (
                                 <EliminarRol
-                                  setCounter={setCounter}
                                   id={item.id}
                                   showModal={showModal}
                                   setShowModal={setShowModal}
@@ -118,7 +111,6 @@ const ListaRoles = () => {
                               title="Ver usuario"
                               content={(showModal, setShowModal) => (
                                 <VerRol
-                                  setCounter={setCounter}
                                   id={item.id}
                                   permissions={permisos}
                                   showModal={showModal}
@@ -137,7 +129,6 @@ const ListaRoles = () => {
                               color="yellow"
                               content={(showModal, setShowModal) => (
                                 <EditarRol
-                                  setCounter={setCounter}
                                   id={item.id}
                                   permissions={permisos}
                                   showModal={showModal}
@@ -173,7 +164,6 @@ const ListaRoles = () => {
                             name="Eliminar"
                             content={(showModal, setShowModal) => (
                               <EliminarRol
-                                setCounter={setCounter}
                                 id={item.id}
                                 showModal={showModal}
                                 setShowModal={setShowModal}
@@ -192,7 +182,6 @@ const ListaRoles = () => {
                             name="Ver rol"
                             content={(showModal, setShowModal) => (
                               <VerRol
-                                setCounter={setCounter}
                                 id={item.id}
                                 permissions={permisos}
                                 showModal={showModal}
@@ -212,7 +201,6 @@ const ListaRoles = () => {
                             color="yellow"
                             content={(showModal, setShowModal) => (
                               <EditarRol
-                                setCounter={setCounter}
                                 id={item.id}
                                 permissions={permisos}
                                 showModal={showModal}
@@ -235,5 +223,3 @@ const ListaRoles = () => {
     </div>
   );
 };
-
-export default ListaRoles;

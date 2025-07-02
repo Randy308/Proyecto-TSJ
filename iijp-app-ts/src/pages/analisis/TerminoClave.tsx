@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { useIcons } from "../../components/icons/Icons";
 import StatsService from "../../services/StatsService";
 import SelectDropdown from "./SelectDropdown";

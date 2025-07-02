@@ -7,11 +7,15 @@ import { AuthUser } from "../auth";
 interface Resolution {
   periodo: string;
   cantidad: number;
+  id: number;
+  fecha_emision: string;
+  nro_expediente: string;
+  nro_resolucion: string;
 }
 
 interface ValueContextType {
   resolutions: Resolution[] | undefined;
-  obtenerResolutions: () => Promise<void>;
+  obtenerResolutions: (page?: number) => Promise<void>;
   totalResolutions: number;
   pageCount: number;
   current: number;
@@ -27,7 +31,9 @@ export const ResolutionContextProvider = ({
   const { getToken, hasAnyPermission } = AuthUser();
   const token = getToken();
 
-  const [resolutions, setResolutions] = useState<Resolution[] | undefined>(undefined);
+  const [resolutions, setResolutions] = useState<Resolution[] | undefined>(
+    undefined
+  );
   const location = useLocation();
   const [hasFetched, setHasFetched] = useState(false);
   //const [users, setUsers] = useSessionStorage("users", []);
