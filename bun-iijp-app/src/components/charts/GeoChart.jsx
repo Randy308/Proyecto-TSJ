@@ -9,13 +9,14 @@ import boliviaJson from "../../data/Bolivia.json";
 import ReactECharts from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
-import "../../data/dark.js";
-import { useThemeContext } from "../../context/themeProvider.jsx";
+
+import dark from "../../data/dark.js";
+import { useThemeContext } from "../../context";
 import Loading from "../Loading";
 import { useNavigate } from "react-router-dom";
 
 const GeoChart = ({ contenido, receivedForm }) => {
-  const isDarkMode = useThemeContext();
+  const { isDark } = useThemeContext();
   const chartRef = useRef(null);
 
   const navigate = useNavigate();
@@ -117,11 +118,11 @@ const GeoChart = ({ contenido, receivedForm }) => {
         textStyle: {
           fontSize: 14,
           fontWeight: "bold",
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         subtextStyle: {
           fontSize: 12,
-          color: isDarkMode ? "#ccc" : "#666",
+          color: isDark ? "#ccc" : "#666",
         },
       },
       color: colorPalette,
@@ -135,12 +136,12 @@ const GeoChart = ({ contenido, receivedForm }) => {
         trigger: "item",
         showDelay: 0,
         transitionDuration: 0.2,
-        backgroundColor: isDarkMode
+        backgroundColor: isDark
           ? "rgba(0,0,0,0.8)"
           : "rgba(255,255,255,0.95)",
-        borderColor: isDarkMode ? "#555" : "#ccc",
+        borderColor: isDark ? "#555" : "#ccc",
         textStyle: {
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         formatter: tooltipFormatter,
       },
@@ -150,7 +151,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         left: "right",
         top: "top",
         iconStyle: {
-          borderColor: isDarkMode ? "#fff" : "#333",
+          borderColor: isDark ? "#fff" : "#333",
         },
         feature: {
           saveAsImage: {
@@ -176,7 +177,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
             show: false, // Oculta etiquetas por defecto
           },
           itemStyle: {
-            borderColor: isDarkMode ? "#444" : "#999",
+            borderColor: isDark ? "#444" : "#999",
             borderWidth: 1,
           },
           emphasis: {
@@ -201,7 +202,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         },
       ],
     }),
-    [mapData, dataKeys, colorPalette, isDarkMode, tooltipFormatter]
+    [mapData, dataKeys, colorPalette, isDark, tooltipFormatter]
   );
 
   const pieOption = useMemo(
@@ -212,21 +213,21 @@ const GeoChart = ({ contenido, receivedForm }) => {
         left: "center",
         textStyle: {
           fontSize: 16,
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         subtextStyle: {
           fontSize: 14,
-          color: isDarkMode ? "#ccc" : "#666",
+          color: isDark ? "#ccc" : "#666",
         },
       },
       tooltip: {
         trigger: "item",
-        backgroundColor: isDarkMode
+        backgroundColor: isDark
           ? "rgba(0,0,0,0.8)"
           : "rgba(255,255,255,0.95)",
-        borderColor: isDarkMode ? "#555" : "#ccc",
+        borderColor: isDark ? "#555" : "#ccc",
         textStyle: {
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         formatter: "{a}<br/>{b}: {c} resoluciones ({d}%)",
       },
@@ -236,7 +237,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         top: "middle",
         data: dataKeys,
         textStyle: {
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
       },
       color: colorPalette,
@@ -253,7 +254,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
             position: "outside",
             formatter: "{b}\n{d}%",
             fontSize: 12,
-            color: isDarkMode ? "#fff" : "#333",
+            color: isDark ? "#fff" : "#333",
           },
           emphasis: {
             label: {
@@ -265,7 +266,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
           labelLine: {
             show: pieData.data.length <= 6,
             lineStyle: {
-              color: isDarkMode ? "#666" : "#999",
+              color: isDark ? "#666" : "#999",
             },
           },
           data: pieData.data,
@@ -274,7 +275,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         },
       ],
     }),
-    [pieData, dataKeys, colorPalette, isDarkMode]
+    [pieData, dataKeys, colorPalette, isDark]
   );
 
   const handleMapClick = useCallback((event) => {
@@ -442,7 +443,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-[#100C2A] rounded-xl border border-gray-300 dark:border-gray-800 shadow-lg overflow-hidden">
           <ReactECharts
-            theme={isDarkMode ? "dark" : undefined}
+            theme={isDark ? "dark" : undefined}
             option={mapOption}
             style={{ height: "600px", width: "100%" }}
             onEvents={{ click: handleMapClick }}
@@ -453,7 +454,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         <div className="bg-white dark:bg-[#100C2A] rounded-xl border border-gray-300 dark:border-gray-800 shadow-lg overflow-hidden">
           <ReactECharts
             ref={chartRef}
-            theme={isDarkMode ? "dark" : undefined}
+            theme={isDark ? "dark" : undefined}
             option={pieOption}
             style={{ height: "600px", width: "100%" }}
             opts={{ renderer: "canvas" }}

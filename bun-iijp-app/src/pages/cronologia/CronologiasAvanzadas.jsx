@@ -14,7 +14,6 @@ import Paginate from "../../components/tables/Paginate";
 import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
 import { IoMdClose, IoMdRefresh } from "react-icons/io";
 import AsyncButton from "../../components/AsyncButton";
-import { se } from "date-fns/locale";
 import { useIcons } from "../../components/icons/Icons";
 
 const CronologiasAvanzadas = () => {

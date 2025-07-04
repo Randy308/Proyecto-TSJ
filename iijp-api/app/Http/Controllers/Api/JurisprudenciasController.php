@@ -11,9 +11,106 @@ use App\Utils\Listas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Utils\NLP;
+use Illuminate\Support\Facades\Validator;
+use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 
 class JurisprudenciasController extends Controller
 {
+    public function obtenerResolucionesIds(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'integer|distinct',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $query = $request->input('term', '');
+        $highlight = $request->input('highlight', 'contenido');
+
+        // Parámetros de paginación
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 50);
+        $offset = ($page - 1) * $perPage;
+        $highlight = ['contenido', 'demandante', 'demandado', 'proceso', 'sintesis', 'maxima', 'precedente'];
+
+        $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset) {
+            $options['attributesToHighlight'] = $highlight;
+            $options['attributesToCrop'] = $highlight;
+            $options['cropLength'] = 80;
+            $options['highlightPreTag'] = '<b class="highlight">';
+            $options['highlightPostTag'] = '</b>';
+            $options['limit'] = $perPage;
+            $options['offset'] = $offset;
+            $options['attributesToSearchOn'] = $highlight;
+            $options['attributesToRetrieve'] = [
+                'id',
+                'sala',
+                'nro_expediente',
+                'nro_resolucion',
+                'magistrado',
+                'tipo_resolucion',
+                'forma_resolucion',
+                'periodo',
+                '_formatted',
+            ];
+
+            return $meilisearch->search($query, $options);
+        });
+        if ($request->has('ids')) {
+            $ids = $request->input('ids');
+            $search->whereIn('id', $ids);
+        }
+
+        $search = $search->raw();
+
+        // Solo los _formatted
+        $formattedResults = collect($search['hits'])->map(function ($hit) {
+            return $hit['_formatted'] ?? [];
+        });
+
+
+  
+
+        $pdf = LaravelMpdf::loadView('resolution', ['results' => $formattedResults], [], [
+            'format'          => 'letter',
+            'margin_left'     => 25,  // 2.5 cm in mm
+            'margin_right'    => 25,  // 2.5 cm in mm
+            'margin_top'      => 25,  // 2.5 cm in mm
+            'margin_bottom'   => 25,  // 2.5 cm in mm
+            'orientation'     => 'P',
+            'title'           => 'Documento',
+            'author'          => 'IIJP',
+            'custom_font_dir' => public_path('fonts/'),
+            'custom_font_data' => [
+                'cambria' => [
+                    'R'  => 'Cambriax.ttf',
+                    'B'  => 'Cambria-Bold.ttf',
+                    'I'  => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf'
+                ],
+                'trebuchet_ms' => [
+                    'R'  => 'trebuc.ttf',
+                    'B'  => 'trebucbd.ttf',
+                    'I'  => 'trebucit.ttf'
+                ],
+                'times_new_roman' => [
+                    'R'  => 'times-new-roman.ttf',
+                    'B'  => 'times-new-roman-bold.ttf',
+                    'I'  => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf'
+                ],
+            ]
+        ]);
+
+        return $pdf->Output('document.pdf', 'I');
+    }
+
     public function buscarSerieTemporal(Request $request)
     {
         $request->validate([

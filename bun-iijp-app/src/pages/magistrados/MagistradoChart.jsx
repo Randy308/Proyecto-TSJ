@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import ReactECharts from "echarts-for-react";
-import "../../data/dark.js";
-import { useThemeContext } from "../../context/ThemeProvider.jsx";
+
+import { useThemeContext } from "../../context/themeProvider";
 const MagistradoChart = ({ option, setData }) => {
-  const isDarkMode = useThemeContext();
+  const {isDarkMode} = useThemeContext();
   const chartRef = useRef(null);
 
   

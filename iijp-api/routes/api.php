@@ -36,8 +36,8 @@ Route::prefix('v2')->group(function () {
 
 
     //rutas de cronología
+    Route::post('/obtener-resoluciones-ids', [JurisprudenciasController::class, 'obtenerResolucionesIds']);
     Route::get('/buscar-termino-jurisprudencia', [JurisprudenciasController::class, 'busquedaTerminos']);
-
     Route::get('/obtener-serie-terminos', [JurisprudenciasController::class, 'buscarSerieTemporal']);
     Route::get('/obtener-descriptor/{id}', [JurisprudenciasController::class, 'buscarDescriptorById']);
     Route::get('/buscar-descriptor', [JurisprudenciasController::class, 'buscarDescriptor']);

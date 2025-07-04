@@ -29,9 +29,14 @@ const ResolucionesService = {
   obtenerResolucion: (id) => instance.get(`/resolucion/${id}`),
   obtenerPrediccion: (params) =>
     instance.get("/realizar-prediction", { params }),
+  obtenerCronologiabyIds: (formData) =>
+    instance.post("/obtener-resoluciones-ids", formData, {
+      responseType: "blob",
+    }),
   descomponerSerie: (params) => instance.get("/descomponer-serie", { params }),
 
-  obtenerElemento: (params) => instance.get("/obtener-serie-terminos", { params }),
+  obtenerElemento: (params) =>
+    instance.get("/obtener-serie-terminos", { params }),
 
   realizarAnalisis: (params) =>
     instance.get("/obtener-estadisticas", {

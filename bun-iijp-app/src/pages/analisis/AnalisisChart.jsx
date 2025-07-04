@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import "../../data/dark.js";
-import { useThemeContext } from "../../context/themeProvider.jsx";
+import { useThemeContext } from "../../context";
 const AnalisisChart = ({ option, border = true }) => {
-  const isDarkMode = useThemeContext();
+  const {isDark} = useThemeContext();
   const chartRef = useRef(null);
 
   const handleUpdateAxisPointer = (event) => {
@@ -40,7 +40,7 @@ const AnalisisChart = ({ option, border = true }) => {
       <ReactECharts
         key={JSON.stringify(option)}
         option={option}
-        theme={isDarkMode ? "dark" : undefined}
+        theme={isDark ? "dark" : undefined}
         style={{
           height: "100%",
           width: "100%",

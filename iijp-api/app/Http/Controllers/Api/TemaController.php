@@ -389,8 +389,8 @@ class TemaController extends Controller
             ]
         ]);
 
-        //$pdf = LaravelMpdf::loadView('test');
         return $pdf->Output('document.pdf', 'I');
+        //$pdf = LaravelMpdf::loadView('test');
         //return $pdf->stream('document.pdf');
     }
 

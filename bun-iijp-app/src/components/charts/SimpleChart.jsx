@@ -1,11 +1,11 @@
-import React from "react";
 import ReactECharts from "echarts-for-react";
-import "../../data/dark.js";
-import { useThemeContext } from "../../context/themeProvider.jsx";
+import { useThemeContext } from "../../context";
+import * as echarts from "echarts";
+import dark from "../../data/dark.js";
+import { useEffect } from "react";
+
 const SimpleChart = ({ option, border = true, handleClick }) => {
-  const isDarkMode = useThemeContext();
-
-
+  const { isDark } = useThemeContext();
   return (
     <div
       className={`p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] h-[500px] md:h-[700px] ${
@@ -15,11 +15,8 @@ const SimpleChart = ({ option, border = true, handleClick }) => {
       <ReactECharts
         key={JSON.stringify(option)}
         option={option}
-        theme={isDarkMode ? "dark" : undefined}
-        style={{
-          height: "100%",
-          width: "100%",
-        }}
+        theme={isDark ? "dark" : undefined}
+        style={{ height: "100%", width: "100%" }}
         onEvents={{
           click: handleClick,
         }}

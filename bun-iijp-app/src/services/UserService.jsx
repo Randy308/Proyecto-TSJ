@@ -3,6 +3,8 @@ import Cookies from "js-cookie";
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 const API_PATH = "/admin";
 
+
+
 let csrfFetched = false;
 const getCsrfToken = async () => {
   if (csrfFetched) return;

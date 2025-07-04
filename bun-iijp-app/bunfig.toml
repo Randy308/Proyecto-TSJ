@@ -1,0 +1,4 @@
+entrypoints = ["src/main.jsx"]
+outdir = "dist"
+target = "browser"
+splitting = true

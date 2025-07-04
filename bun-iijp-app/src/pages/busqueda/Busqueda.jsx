@@ -164,6 +164,7 @@ const Busqueda = () => {
                       resolutions={resoluciones}
                       setFormData={setSearchType}
                       data={data}
+                      termino={termino}
                     />
 
                     <Paginate
