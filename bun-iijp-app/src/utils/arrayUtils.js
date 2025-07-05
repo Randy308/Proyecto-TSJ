@@ -13,13 +13,15 @@ export const agregarTotalLista = (data) => {
     return [];
   }
 
-  const encabezado = [...data[0], "Total"];
+  const encabezado = data[0].length > 2 ? [...data[0], "Total"] : data[0];
+  console.log(encabezado);
   const datos = data.slice(1);
 
   const datosConTotales = datos.map((fila) => {
     const valores = fila.slice(1); // ignorar primera columna (nombre)
+    console.log(valores.length);
     const suma = valores.reduce((acc, val) => acc + val, 0);
-    return [...fila, suma];
+    return valores.length > 1 ? [...fila, suma] : fila;
   });
 
   const columnasNumericas = datosConTotales[0].length - 1;

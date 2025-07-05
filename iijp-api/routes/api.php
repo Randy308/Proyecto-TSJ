@@ -74,11 +74,11 @@ Route::prefix('v2')->group(function () {
     Route::get('/obtener-terminos-avanzados', [ResolutionController::class, 'obtenerTerminos']);
     Route::get('/buscar-terminos', [ResolutionController::class, 'buscarTerminos']);
     Route::get('/obtener-estadistica-avanzada-x', [ResolutionController::class, 'getTerminosX']);
+    Route::get('/obtener-estadistica-avanzada-xy', [ResolutionController::class, 'getTerminosXY']);
     Route::get('/obtener-serie-temporal-x', [ResolutionController::class, 'obtenerSerieTemporalX']);
     Route::get('/obtener-mapa-x', [ResolutionController::class, 'obtenerMapaX']);
     Route::get('/buscar-resolutions-xy', [ResolutionController::class, 'buscarResolucionesXY']);
 
-    Route::get('/obtener-estadistica-avanzada-xy', [ResolutionController::class, 'getTerminosXY']);
     //rutas búsqueda
     Route::get('/obtener-parametros-busqueda', [CompareController::class, 'getParams'])->name('get-params');
     Route::get('/filtrar-autos-supremos', [ResolutionController::class, 'filtrarResolucionesContenido']);

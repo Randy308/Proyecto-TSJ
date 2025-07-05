@@ -153,9 +153,11 @@ class ResolutionController extends Controller
         }
         $data = $query->get();
         $total = array_sum($data->pluck('cantidad')->toArray());
+
+        $resultado = Math::completarArray2D($data, 'nombre', 'cantidad');
         return response()->json([
 
-            'data' => $data,
+            'data' => $resultado,
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
             'total' => $total,
@@ -269,9 +271,10 @@ class ResolutionController extends Controller
         // }, $combinations);
 
         //$this->ordenarArrayXY($combinations, 'x', 'nombre'),
+
         return response()->json([
             'total' => $total,
-            'data' => $this->ordenarArrayXY($combinations, 'x', 'nombre'),
+            'data' =>  Math::completarArray($combinations, 'x', 'nombre'),
             'multiVariable' => true,
             'x' => $filtroX['nombre'],
             'nombre' => $filtroY['nombre'],
@@ -1305,9 +1308,10 @@ class ResolutionController extends Controller
             ];
         }
 
+        $resultado = Math::completarArray2D($resultados, 'nombre', 'cantidad');
         return response()->json([
 
-            'data' => $resultados,
+            'data' => $resultado,
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
             'nombre' => "nombre",
@@ -1539,7 +1543,7 @@ class ResolutionController extends Controller
 
         return response()->json([
 
-            'data' => $this->ordenarArrayXY($combinations, $columnaX, $columnaY),
+            'data' =>  Math::completarArray($combinations, $columnaX, $columnaY),
             'tabla' => $request->tablaX,
             'columna' => $request->columnaX,
             'nombre' => $request->columnaY,
@@ -1740,7 +1744,7 @@ class ResolutionController extends Controller
 
         return response()->json([
             'total' => $total,
-            'data' => $this->ordenarArrayXY($combinations, 'termino_x', 'nombre'),
+            'data' =>  Math::completarArray($combinations, 'termino_x', 'nombre'),
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
             'nombre' => "nombre",

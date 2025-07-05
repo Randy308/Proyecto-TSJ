@@ -22,7 +22,21 @@ class Math
         return $branch;
     }
 
+    public static function completarArray2D($data, $nombre = 'nombre', $cantidad = 'cantidad')
+    {
+        $resultado = [];
 
+        $header = array_merge([$nombre, $cantidad]);
+        $resultado[] = $header;
+        // Rellenar los datos por (nombre)
+        foreach ($data as $element) {
+            $arrayElement = (array) $element;
+            $resultado[] = [$arrayElement[$nombre], $arrayElement[$cantidad]];
+        }
+
+
+        return $resultado;
+    }
     public static function completarArray($data, $columnaX = 'nombre', $columnaY = 'fecha')
     {
 
@@ -32,10 +46,13 @@ class Math
         $filasPorNombre = [];
         $datosSet = [];
 
-        foreach ($data as $row) {
-            $nombre = $row->$columnaX;
-            $dato = $row->$columnaY;
-            $cantidad = $row->cantidad;
+        foreach ($data as $element) {
+
+            $row = (array) $element;
+
+            $nombre = $row[$columnaX];
+            $dato = $row[$columnaY];
+            $cantidad = $row['cantidad'];
 
             $filasPorNombre[$nombre][$dato] = $cantidad;
             $datosSet[$dato] = true;
@@ -81,7 +98,7 @@ class Math
         $datos = array_keys($datosSet);
         sort($datos);
         $resultado = [];
-   
+
         // Rellenar los datos por (nombre)
         foreach ($filasPorNombre as $nombre => $valoresPorDato) {
             $lista = [];

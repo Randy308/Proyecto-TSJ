@@ -5,7 +5,6 @@ import { agregarTotalLista, filtrarLista } from "../../utils/arrayUtils";
 import AnalisisChart from "./AnalisisChart";
 import TablaX from "../../components/tables/TablaX";
 import { invertirXY, obtenerEstadisticas } from "../../utils/math";
-import { use } from "echarts/lib/extension";
 import StatsService from "../../services/StatsService";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
@@ -18,12 +17,12 @@ const SerieTemporal = () => {
   const [selectedPeriodo, setSelectedPeriodo] = useState("");
   const [data, setData] = useState([]);
 
-  const [tableData, setTableData] = useState([]);
   const [originalData, setOriginalData] = useSessionStorage("serie", []);
   const [total, setTotal] = useSessionStorage("total-serie", 0);
   const [series, setSeries] = useState([]);
   const [show, setShow] = useState(true);
 
+  const [tableData, setTableData] = useState([]);
   const [columns, setColumns] = useState(null);
   const option = {
     legend: {},
