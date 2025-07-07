@@ -14,11 +14,12 @@ import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
 import { agregarTotalLista } from "../../utils/arrayUtils";
 import { OptionChart } from "../../components/OptionChart";
+import type { ListaX } from "../../types";
 
 const AnalisisAvanzado = () => {
   const [limite, setLimite] = useState(2);
 
-  const [listaX, setListaX] = useState([]);
+  const [listaX, setListaX] = useState<ListaX[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
   const { data } = useVariablesContext();

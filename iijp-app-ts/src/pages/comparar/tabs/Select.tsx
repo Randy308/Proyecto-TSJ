@@ -1,10 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 
-const Select = ({ fieldName, items, setFormData, formData }) => {
+
+interface SelectProps {  fieldName: string;
+  items: { id: string; nombre: string }[];
+  setFormData: (data: Record<string, any>) => void;
+  formData: Record<string, any>;
+}
+
+
+const Select = ({ fieldName, items, setFormData, formData }: SelectProps) => {
   const [selectedTipo, setSelectedTipo] = useState(formData[fieldName] || "all");
 
   useEffect(() => {
-    const setParametros = (name, value) => {
+    const setParametros = (name: string, value: string) => {
       const updatedFormData = {
         ...formData,
         [name]: value,
@@ -14,13 +23,14 @@ const Select = ({ fieldName, items, setFormData, formData }) => {
     };
 
     setParametros(fieldName, selectedTipo);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTipo, fieldName]);
 
-  const cambiarOpcion = (event) => {
+  const cambiarOpcion = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTipo(event.target.value);
   };
 
-  const convertirTitulo = (name) => {
+  const convertirTitulo = (name: unknown) => {
     return String(name)
       .replace(/_/g, " ")
       .replace(/\b\w/g, (char) => char.toUpperCase());

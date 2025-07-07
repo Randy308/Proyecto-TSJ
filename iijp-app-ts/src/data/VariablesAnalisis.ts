@@ -1,4 +1,10 @@
-export const variablesAnalisis = [
+export interface Variable {
+  tabla: string;
+  columna: string;
+  nombre: string;
+  busqueda: boolean;
+}
+export const variablesAnalisis: Variable[] = [
   {
     tabla: "resolutions",
     columna: "precedente",

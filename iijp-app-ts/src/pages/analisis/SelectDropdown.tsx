@@ -1,20 +1,30 @@
 import React, { useState } from "react";
 import { useIcons } from "../../components/icons/Icons";
 import { toast } from "react-toastify";
+import type { FiltroNombre, ListaData, ListaX } from "../../types";
+
+interface SelectProps {
+  name: FiltroNombre;
+  listaX: ListaX[];
+  setListaX: React.Dispatch<React.SetStateAction<ListaX[]>>;
+  contenido: ListaData[];
+  agregarTermino: () => void;
+  size?: number;
+}
+
 const SelectDropdown = ({
   name,
-  tabla,
   listaX,
   setListaX,
   contenido,
   agregarTermino,
   size = 6,
-}) => {
-  const [limite, setLimite] = useState(2);
+}: SelectProps) => {
+  const [limite] = useState(2);
 
   const { removeAllIcon, checkAllIcon } = useIcons();
 
-  const handleCheckboxChange = (event) => {
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const itemId = event.target.name;
 
     setListaX((prev) => {
@@ -47,7 +57,7 @@ const SelectDropdown = ({
       } else {
         // Agregar un nuevo item si no existe y el límite no se ha excedido
         if (prev.length < limite) {
-          return [...prev, { name, tabla, ids: [itemId] }];
+          return [...prev, { name, ids: [itemId] }];
         } else {
           toast.error(
             `No se puede agregar más de ${limite} variables. Por favor, elimine alguna.`
@@ -66,7 +76,7 @@ const SelectDropdown = ({
 
   const selectAll = () => {
     setListaX((prev) => {
-      const existingItem = prev.find((item) => item.name === name);
+      const existingItem = (prev ?? []).find((item) => item.name === name);
 
       // Actualizar o crear un nuevo item
       const newItem = {
@@ -75,10 +85,10 @@ const SelectDropdown = ({
       };
 
       if (existingItem) {
-        return prev.map((item) => (item.name === name ? newItem : item));
+        return (prev ?? []).map((item) => (item.name === name ? newItem : item));
       } else {
-        if (prev.length < limite) {
-          return [...prev, newItem];
+        if ((prev ?? []).length < limite) {
+          return [...(prev ?? []), newItem];
         } else {
           toast.warning(`No se pueden agregar más de ${limite} variables.`);
           return prev;

@@ -1,9 +1,9 @@
-import type { DatosArray, FiltroNombre, ListaData, MagistradoItem, Variable } from "../types";
+import type { DatosArray,  ListaData, MagistradoItem, Variable } from "../types";
 
 export const filterForm = (formData: object) => {
   return Object.fromEntries(
     Object.entries(formData).filter(
-      ([key, value]) =>
+      ([, value]) =>
         value !== null &&
         value !== undefined &&
         value !== "" &&
@@ -27,7 +27,7 @@ export const filterTitle = (string: string) => {
   }
   return tail.join("/");
 };
-export const validateErrors = (lista) => {
+export const validateErrors = (lista: string[]) => {
   for (const item of lista) {
     if (item !== "") {
       return false;
@@ -60,8 +60,8 @@ export const filterParams = (
   return lista;
 };
 
-export const filterAtributte = (atributo: string, tabla: string, data) => {
-  if (!atributo || atributo === "null" || atributo === "undefined") {
+export const filterAtributte = (atributo: string, tabla: keyof Variable, data:Variable) => {
+  if (!atributo || atributo === "null" || atributo === "undefined" || atributo === "") {
     return "";
   }
   const objeto = data[tabla];
@@ -78,7 +78,7 @@ export const titulo = (nombre: string) => {
   const string = nombre.replace(/_/i, " de ");
 
   // Función para poner tilde en "on" final
-  const agregarTilde = (str) => {
+  const agregarTilde = (str:string) => {
     // Si termina en "on" y no tiene tilde ya, reemplaza por "ón"
     return str.endsWith("on") ? str.slice(0, -2) + "ón" : str;
   };

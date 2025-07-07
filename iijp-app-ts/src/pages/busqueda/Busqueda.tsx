@@ -8,32 +8,33 @@ import ResolucionesService from "../../services/ResolucionesService";
 import PaginationData from "./PaginationData";
 import Paginate from "../../components/tables/Paginate";
 import { toast } from "react-toastify";
-import { DatosArray, Variable, type FiltroNombre, type ListaData } from "../../types";
+import{ type DatosArray, type Variable,  type FiltroNombre,  type ListaData, type Resolucion } from "../../types";
 const Busqueda = () => {
   const { data } = useVariablesContext();
 
   const [formData, setFormData] = useState<DatosArray>({});
   const [selector, setSelector] = useState<Variable>({} as Variable);
-  const [resoluciones, setResoluciones] = useState([]);
+  const [resoluciones, setResoluciones] = useState<Resolucion[]>([]);
   const [termino, setTermino] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [searchType, setSearchType] = useState(null);
+  // const [searchType, setSearchType] = useState(null);
   const [lastPage, setLastPage] = useState(1);
   const [actualPage, setActualPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
   const [totalCount, setTotalCount] = useState(1);
 
-  const removeItem = (value, nombre) => {
+  const removeItem = (value: number, nombre: keyof DatosArray) => {
     setFormData((prev) => {
       const newFormData = { ...prev };
-      const selectedIds = newFormData[nombre].filter((id) => id !== value);
+      if (newFormData[nombre]) {
+        const selectedIds = newFormData[nombre].filter((id) => id !== value);
 
-      if (selectedIds.length > 0) {
-        newFormData[nombre] = selectedIds;
-      } else {
-        delete newFormData[nombre];
+        if (selectedIds.length > 0) {
+          newFormData[nombre] = selectedIds;
+        } else {
+          delete newFormData[nombre];
+        }
       }
-
       return newFormData;
     });
   };
@@ -143,11 +144,11 @@ const Busqueda = () => {
                     {titulo(name)}:
                   </span>
                   <div className="flex gap-4 flex-wrap">
-                    {contenido.map((item, index) => (
+                    {contenido.map((item: ListaData, index:number) => (
                       <div
                         key={index}
                         className="text-xs p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
-                        onClick={() => removeItem(item.id, name)}
+                        onClick={() => removeItem(item.id, name as keyof Variable)}
                       >
                         <span>{item.nombre}</span>
                         <IoMdClose className="group-hover:text-red-400" />
@@ -165,8 +166,6 @@ const Busqueda = () => {
                   <>
                     <PaginationData
                       resolutions={resoluciones}
-                      setFormData={setSearchType}
-                      data={data}
                       termino={termino}
                     />
 

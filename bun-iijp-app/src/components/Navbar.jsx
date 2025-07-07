@@ -22,7 +22,7 @@ const Navbar = () => {
 
   const handleMenuClick = (id) => {
     if (isOpen === id) {
-       setIsOpen(null);
+      setIsOpen(null);
     } else {
       setIsOpen(id);
     }
@@ -76,9 +76,16 @@ const Navbar = () => {
             )}
           </button>
         </div>
-        <a className="flex items-center justify-center m-1 bg-white rounded-lg">
+        {/* <a className="flex items-center justify-center m-1 bg-white rounded-lg">
           <img src={LogoUmss} alt="first-logo" className="h-16 self-center " />
-        </a>
+        </a> */}
+        <div className="h-16 flex items-center">
+          <span className="self-center hidden sm:block text-sm font-semibold  text-white whitespace-nowrap ">
+            {" "}
+            ESTA PÁGINA SE ENCUENTRA EN CONSTRUCCIÓN
+          </span>
+        </div>
+
         <div
           className={`items-center md:flex-1 md:px-4 justify-center md:flex md:w-auto md:order-1 ${
             menuOpen ? " " : "hidden"

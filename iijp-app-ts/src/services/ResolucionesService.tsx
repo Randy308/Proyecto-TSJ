@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { FormListaX, ListaX } from "../types";
+import type { FormListaX } from "../types";
 
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
@@ -20,11 +20,11 @@ const ResolucionesService = {
     instance.get(`/magistrado-estadisticas-departamentos/${id}`, {
       params,
     }),
-  obtenerCronologiabyIds: (formData:FormData) =>
+  obtenerCronologiabyIds: (formData:object) =>
     instance.post("/obtener-resoluciones-ids", formData, {
       responseType: "blob",
     }),
-  buscarResoluciones: (params:FormData) =>
+  buscarResoluciones: (params:object) =>
     instance.get("/filtrar-autos-supremos", {
       params,
     }),
@@ -36,7 +36,7 @@ const ResolucionesService = {
     instance.get("/realizar-prediction", { params }),
   descomponerSerie: (params:FormData) => instance.get("/descomponer-serie", { params }),
 
-  obtenerElemento: (params:FormData) => instance.get("/obtener-serie-terminos", { params }),
+  obtenerElemento: (params:object) => instance.get("/obtener-serie-terminos", { params }),
 
   realizarAnalisis: (params:FormListaX) =>
     instance.get("/obtener-estadisticas", {

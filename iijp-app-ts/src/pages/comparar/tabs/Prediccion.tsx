@@ -1,13 +1,26 @@
-import SimpleChart from "../../../components/SimpleChart";
+import type{ EChartsOption } from "echarts-for-react";
+import SimpleChart from "../../../components/charts/SimpleChart";
 import Loading from "../../../components/Loading";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 
-const Prediccion = ({ proyeccion }) => {
-  const [original, setOriginal] = useState([]);
+interface SerieTemporal {
+  periodo: string[];
+  cantidad: number[];
+}
+interface ProyeccionProps {
+  proyeccion: {
+    periodo: string[];
+    prediccion: SerieTemporal[];
+    original: SerieTemporal[];
+  };
+}
 
-  const [prediccion, setPrediccion] = useState(null);
-  const [xAxis, setXAxis] = useState(null);
-  const [option, setOption] = useState({});
+const Prediccion = ({ proyeccion }: ProyeccionProps) => {
+  const [original, setOriginal] = useState<SerieTemporal[]>([]);
+
+  const [prediccion, setPrediccion] = useState<SerieTemporal[]>([]);
+  const [xAxis, setXAxis] = useState<string[]>([]);
+  const [option, setOption] = useState<EChartsOption>({});
   useEffect(() => {
     if (proyeccion) {
       setXAxis(proyeccion.periodo);
@@ -29,12 +42,6 @@ const Prediccion = ({ proyeccion }) => {
         legend: {
           data: ["Serie original", "Predicción"],
           padding: [20, 20, 10, 20],
-        },
-        grid: {
-          left: "3%",
-          right: "4%",
-          bottom: "3%",
-          containLabel: true,
         },
         toolbox: {
           feature: {
@@ -69,7 +76,7 @@ const Prediccion = ({ proyeccion }) => {
         },
       });
     }
-  }, [prediccion, xAxis]);
+  }, [original, prediccion, xAxis]);
 
   return (
     <div>

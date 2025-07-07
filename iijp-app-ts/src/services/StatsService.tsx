@@ -13,7 +13,7 @@ const instance = axios.create({
 });
 
 const StatsService = {
-  obtenerTerminos: (params:FormData) =>
+  obtenerTerminos: (params:object) =>
     instance.get("/obtener-terminos-avanzados", {
       params,
     }),

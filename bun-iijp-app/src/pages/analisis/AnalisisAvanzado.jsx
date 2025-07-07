@@ -109,9 +109,9 @@ const AnalisisAvanzado = () => {
     const params = isMultiVariable
       ? {
           nombre: listaX[0].name,
-          variable: btoa(JSON.stringify(listaX[0].ids)),
+          variable: listaX[0].ids,
           nombreY: listaX[1].name,
-          variableY: btoa(JSON.stringify(listaX[1].ids)),
+          variableY: listaX[1].ids,
         }
       : {
           nombre: listaX[0].name,
@@ -374,12 +374,12 @@ const AnalisisAvanzado = () => {
               {!actual ? (
                 <TablaX data={tableData.slice(1)} columns={columns} />
               ) : (
-                // <SimpleChart option={option} handleClick={handleClick} />
-                <OptionChart
+                <SimpleChart option={option} handleClick={handleClick} />
+                /* <OptionChart
                   dataset={data}
                   chartType={selected}
                   isMultiVariable={multiVariable}
-                />
+                /> */
               )}
             </div>
           ) : (

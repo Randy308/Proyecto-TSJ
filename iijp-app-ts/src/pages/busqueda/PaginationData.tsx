@@ -15,15 +15,23 @@ import { useIcons } from "../../components/icons/Icons";
 import ResolucionesService from "../../services/ResolucionesService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Loading from "../../components/Loading";
+import type { Resolucion, Variable } from "../../types";
+import { useVariablesContext } from "../../context";
 
-const PaginationData = ({ resolutions, data, termino }) => {
-  const [selectedIds, setSelectedIds] = useState([]);
+interface PaginationDataProps {
+  resolutions: Resolucion[];
+  termino: string;
+}
+const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const limite = 40;
 
+  const { data } = useVariablesContext();
   const { removeAllIcon, checkAllIcon } = useIcons();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const handleCheckbox = (e) => {
+  const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newID = Number(e.target.value);
 
     setSelectedIds((prev) => {
@@ -42,7 +50,7 @@ const PaginationData = ({ resolutions, data, termino }) => {
       }
     });
   };
-  const selectAll = (e) => {
+  const selectAll = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const disponiblesIds = resolutions.map((item) => Number(item.id));
     const nuevasAAgregar = disponiblesIds.filter(
@@ -62,14 +70,14 @@ const PaginationData = ({ resolutions, data, termino }) => {
     });
   };
 
-  const clearList = (e) => {
+  const clearList = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     setSelectedIds((prev) =>
       prev.filter((id) => !resolutions.some((item) => Number(item.id) === id))
     );
   };
 
-  const obtenerCronologia = async (e) => {
+  const obtenerCronologia = async (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
 
     if (selectedIds.length <= 0) {
@@ -107,6 +115,9 @@ const PaginationData = ({ resolutions, data, termino }) => {
     console.log("Selected IDs:", selectedIds);
   }, [selectedIds]);
 
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <div className="relative overflow-x-auto flex flex-col gap-4 p-4">
       <div className="flex items-center gap-2 px-2">
@@ -174,48 +185,51 @@ const PaginationData = ({ resolutions, data, termino }) => {
                 withIcon={false}
                 full={false}
                 name={`${filterAtributte(
-                  item.tipo_resolucion,
+                  (item.tipo_resolucion || "").toLowerCase(),
                   "tipo_resolucion",
-                  data
-                )} Nº${filterTitle(item.nro_resolucion)}`}
+                  (data || {}) as Variable
+                )} Nº${filterTitle(item.nro_resolucion || "")}`}
                 large={true}
-                content={(setShowModal) => <ResolucionTSJ id={item.id} />}
+                content={() => <ResolucionTSJ id={Number(item.id)} />}
               />
             </div>
 
             <div className="space-y-2 text-sm">
-              {Object.keys(item).map(
-                (key) =>
-                  ![
-                    "id",
-                    "contenido",
-                    "demandante",
-                    "demandado",
-                    "nro_resolucion",
-                    "tipo_resolucion",
-                  ].includes(key) &&
-                  item[key] && (
-                    <div
-                      key={key}
-                      className="flex flex-col sm:flex-row sm:items-start"
-                    >
-                      <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">
-                        {titulo(key)}:
-                      </span>
-                      <span className="text-gray-600 dark:text-gray-400 sm:ml-2">
-                        {key === "fecha_emision"
-                          ? format(
-                              item.fecha_emision,
-                              "d 'de' MMMM 'de' yyyy",
-                              {
-                                locale: es,
-                              }
-                            )
-                          : filterAtributte(item[key], key, data)}
-                      </span>
-                    </div>
-                  )
-              )}
+              {Object.keys(item)
+                .filter(
+                  (key) =>
+                    ![
+                      "id",
+                      "contenido",
+                      "demandante",
+                      "demandado",
+                      "nro_resolucion",
+                      "tipo_resolucion",
+                    ].includes(key) && item[key as keyof Resolucion]
+                )
+                .map((key) => (
+                  <div
+                    key={key}
+                    className="flex flex-col sm:flex-row sm:items-start"
+                  >
+                    <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">
+                      {titulo(key)}:
+                    </span>
+                    <span className="text-gray-600 dark:text-gray-400 sm:ml-2">
+                      {key === "fecha_emision"
+                        ? format(
+                            item.fecha_emision || new Date(),
+                            "d 'de' MMMM 'de' yyyy",
+                            { locale: es }
+                          )
+                        : filterAtributte(
+                            (item[key as keyof Resolucion] || "").toString(),
+                            key as keyof Variable,
+                            (data || {}) as Variable
+                          )}
+                    </span>
+                  </div>
+                ))}
 
               {item.demandante && (
                 <div>

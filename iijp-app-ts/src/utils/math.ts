@@ -1,30 +1,45 @@
 import type { AnalisisData } from "../types";
 
-export function transposeArray(data: AnalisisData) {
-  const transposed:object = {};
-  data.forEach((item) => {
-    Object.keys(item).forEach((key) => {
-      if (!transposed[key]) {
-        transposed[key] = [];
-      }
-      transposed[key].push(item[key]);
-    });
-  });
+export function transposeArray(data: AnalisisData): AnalisisData {
+  if (!data.length) return [];
 
-  const result = Object.entries(transposed).map(([key, values]) => [
-    key,
-    ...values,
-  ]);
-  const headers = result[0];
+  const rowLength = data[0].length;
+  const transposed: AnalisisData = [];
 
-  const keyValueArray = result.slice(1).map((row) => {
-    return headers.reduce((obj, header, index) => {
-      obj[header] = row[index];
-      return obj;
-    }, {});
-  });
-  return keyValueArray;
+  for (let i = 0; i < rowLength; i++) {
+    const newRow = data.map(row => row[i]);
+    transposed.push(newRow);
+  }
+
+  return transposed;
 }
+
+
+// export function transposeArray(data: AnalisisData) {
+//   const transposed:object = {};
+//   data.forEach((item) => {
+//     Object.keys(item).forEach((key) => {
+//       if (!transposed[key]) {
+//         transposed[key] = [];
+//       }
+//       transposed[key].push(item[key]);
+//     });
+//   });
+
+//   const result = Object.entries(transposed).map(([key, values]) => [
+//     key,
+//     ...values,
+//   ]);
+//   const headers = result[0];
+
+//   const keyValueArray = result.slice(1).map((row) => {
+//     return headers.reduce((obj, header, index) => {
+//       obj[header] = row[index];
+//       return obj;
+//     }, {});
+//   });
+//   return keyValueArray;
+// }
 
 export const invertirXY = (matriz: AnalisisData) => {
   if (!matriz || matriz.length === 0) return [];
@@ -43,28 +58,27 @@ export const invertirXY = (matriz: AnalisisData) => {
 export const obtenerEstadisticas = (data: AnalisisData) => {
   if (!data || data.length === 0) return {};
 
-  const valores = data[data.length - 1].slice(1, -1);
-  if (!Array.isArray(valores) || valores.length === 0) return {};
-  if (valores.some((val) => isNaN(Number(val)))) {
-    console.error("Invalid data for statistics:", valores);
+  const rawValues = data[data.length - 1].slice(1, -1);
+  const valores = rawValues.map(Number).filter((v) => !isNaN(v));
+
+  if (valores.length === 0) {
+    console.error("No numeric data found for statistics:", rawValues);
     return {};
   }
-  const total =
-    Math.round(valores.reduce((acc, val) => acc + Number(val), 0) * 100) / 100;
-  const mean = Math.round((total / valores.length) * 100) / 100;
-  const min = Math.round(Math.min(...valores) * 100) / 100;
-  const max = Math.round(Math.max(...valores) * 100) / 100;
+
+  const total = valores.reduce((acc, val) => acc + val, 0);
+  const mean = total / valores.length;
+  const min = Math.min(...valores);
+  const max = Math.max(...valores);
   const variance =
-    Math.round(
-      (valores.reduce((a, b) => a + (b - mean) ** 2, 0) / valores.length) * 100
-    ) / 100;
-  const stdDev = Math.round(Math.sqrt(variance) * 100) / 100;
-  console.log("Data received for statistics:", valores);
+    valores.reduce((acc, val) => acc + (val - mean) ** 2, 0) / valores.length;
+  const stdDev = Math.sqrt(variance);
+
   return {
-    mean,
-    min,
-    max,
-    stdDev,
-    variance,
+    mean: Math.round(mean * 100) / 100,
+    min: Math.round(min * 100) / 100,
+    max: Math.round(max * 100) / 100,
+    stdDev: Math.round(stdDev * 100) / 100,
+    variance: Math.round(variance * 100) / 100,
   };
 };

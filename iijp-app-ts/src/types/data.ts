@@ -6,7 +6,17 @@ export type FiltroNombre =
   | "forma_resolucion"
   | "tipo_jurisprudencia"
   | "materia"
-  | "periodo";
+  | "periodo"
+  | "proceso"
+  | "demandante"
+  | "demandado"
+  | "maxima"
+  | "sintesis"
+  | "precedente"
+  | "ratio"
+  | "restrictor"
+  | "descriptor";
+  
 type AllOrNumber = number | "all";
 
 export interface Datos {
@@ -33,7 +43,12 @@ export interface DatosArray {
 
 export interface ListaX {
   name: FiltroNombre;
-  ids: number[];
+  ids: (number|string)[];
+}
+
+export interface ListaXTerminos {
+  name: FiltroNombre;
+  ids: string[];
 }
 
 export interface FormListaX  {

@@ -3,10 +3,8 @@ import Dropdown from "../../components/Dropdown";
 import SimpleChart from "../../components/charts/SimpleChart";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
-import GeoChart from "../../components/charts/GeoChart";
 import ResolucionesService from "../../services/ResolucionesService";
 import { filterForm } from "../../utils/filterForm";
-import { useVariablesContext } from "../../context/variablesContext";
 
 interface Resolucion {
   id: number;
@@ -14,18 +12,26 @@ interface Resolucion {
   type: string;
 }
 
+interface Termino {
+  id: number;
+  name: string;
+  detalles: string;
+  value: string;
+}
+
+interface FormData {
+  campo: string;
+  busqueda: string;
+}
 const CompararDatos = () => {
   const [resoluciones, setResoluciones] = useState<Resolucion[] | null>(null);
-  const [geoData, setGeoData] = useState([]);
+  // const [geoData, setGeoData] = useState([]);
 
-  const { data } = useVariablesContext();
-
-  const [terminos, setTerminos] = useState([]);
+  const [terminos, setTerminos] = useState<Termino[]>([]);
 
   const [option, setOption] = useState({});
-  const [key, setKey] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     campo: "proceso",
     busqueda: "proceso",
   });
@@ -80,11 +86,6 @@ const CompararDatos = () => {
     setIsLoading(true);
 
     const validatedForm = filterForm(formData);
-
-    setKey((prevKey) => ({
-      ...prevKey,
-      [validatedForm.campo]: validatedForm.busqueda,
-    }));
 
     ResolucionesService.obtenerElemento({
       ...validatedForm,
@@ -156,7 +157,7 @@ const CompararDatos = () => {
       });
   };
 
-  const removeItemById = (id:number) => {
+  const removeItemById = (id: number) => {
     setResoluciones((prevResoluciones) =>
       (prevResoluciones || []).filter((item) => item.id !== id)
     );
@@ -164,7 +165,7 @@ const CompararDatos = () => {
     const keyItem = terminos.find((item) => item.id === id);
     if (!keyItem) return;
 
-    const terminoKey = keyItem.name;
+    // const terminoKey = keyItem.name;
 
     // setGeoData((prevGeoData) =>
     //   prevGeoData
@@ -191,7 +192,7 @@ const CompararDatos = () => {
     });
   };
 
-  const updateFormData = (key, value) => {
+  const updateFormData = (key: keyof typeof formData, value: string) => {
     setFormData((prevData) => ({
       ...prevData,
       [key]: value,
@@ -265,7 +266,6 @@ const CompararDatos = () => {
               key={index}
               item={item}
               removeItemById={memoRemoveItemById}
-              data={data}
             />
           ))}
       </div>

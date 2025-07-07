@@ -1,57 +1,49 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
-import { useSessionStorage } from "../hooks/useSessionStorage";
 import { useNavigate } from "react-router-dom";
-const Dropdown = ({ item, removeItemById, data }) => {
-  const [visible, setVisible] = useState(false);
-  const [oculto, setOculto] = useState(true);
-  function toTitleCase(str) {
-    return str.replace(
-      /\w\S*/g,
-      (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
-    );
-  }
+import { useVariablesContext } from "../context";
 
-  const [terminos, setTerminos] = useState([]);
+interface Termino{
+  id: number;
+  name: string;
+  detalles: string;
+  value: string;
+}
+
+
+interface DropdownProps {
+  item: Termino;
+  removeItemById: (id: number) => void;
+}
+
+const Dropdown = ({ item, removeItemById }: DropdownProps) => {
+  const [visible, setVisible] = useState(false);
+
+
+
+  const { data } = useVariablesContext();
+  const [terminos, setTerminos] = useState<object>({});
 
   sessionStorage.removeItem("formData");
-  const [formData, setFormData] = useSessionStorage("formData", {
-    tipo_resolucion: "all",
-    sala: "all",
-    magistrado: "all",
-    departamento: "all",
-    forma_resolucion: "all",
-    tipo_jurisprudencia: "all",
-    materia: "all",
-  });
+
   const navigate = useNavigate();
-  const guardar = (item) => {
-    if (typeof item === "object" && item !== null) {
-      const updatedFormData = { ...formData, ...item };
 
-      setFormData(updatedFormData);
-    }
-
-    console.log(item);
-    navigate("/busqueda", { state: { flag: true } });
-  };
-
-  const navegar = (item, ruta = "/proyeccion") => {
+  const navegar = (item: Termino, ruta = "/proyeccion") => {
     navigate(ruta, { state: { parametros: item } });
   };
 
-  const transformarClave = (clave) => {
+  const transformarClave = (clave: string) => {
     const nuevaClave = clave.replace(/_/g, " de "); // Reemplazar guiones bajos
     return nuevaClave.charAt(0).toUpperCase() + nuevaClave.slice(1); // Capitalizar la primera letra
   };
 
   // Función para obtener los nombres de los parámetros
 
-  const obtenerNombresParametros = (detalles) => {
-    let resultado = {};
+  const obtenerNombresParametros = (item: Termino) => {
+    const resultado: object = {};
 
-    Object.entries(detalles).forEach(([clave, valor]) => {
-      if (data[clave]) {
+    Object.entries(item.detalles).forEach(([clave, valor]) => {
+      if (data && data[clave]) {
         // Buscar el elemento en la lista correspondiente
         const encontrado = data[clave].find(
           (item) => String(item.id) === valor
@@ -66,7 +58,10 @@ const Dropdown = ({ item, removeItemById, data }) => {
   };
 
   useEffect(() => {
-    setTerminos(obtenerNombresParametros(item.detalles));
+
+    console.log("item", item);
+    setTerminos(obtenerNombresParametros(item));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -92,7 +87,7 @@ const Dropdown = ({ item, removeItemById, data }) => {
             <li>
               <a
                 onClick={() =>
-                  navegar(item.detalles, "/jurisprudencia/avanzado")
+                  navegar(item, "/jurisprudencia/avanzado")
                 }
                 className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >

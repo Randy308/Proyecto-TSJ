@@ -46,6 +46,7 @@ export interface Resolucion {
   maxima?: string;
   sintesis?: string;
   contenido?: string;
+  id?: number;
   
 }
 export interface Jurisprudencia {
