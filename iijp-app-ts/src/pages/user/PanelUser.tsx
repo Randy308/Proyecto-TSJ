@@ -1,5 +1,4 @@
-import React from "react";
-import AuthUser from "../../auth/AuthUser";
+import {AuthUser} from "../../auth";
 export const PanelUser = () => {
   const { can } = AuthUser();
 

@@ -11,7 +11,8 @@ interface NameInputProps {
 const NameInput = ({ input, setInput, inputError, setInputError, titulo="Nombre Completo" }:NameInputProps) => {
   useEffect(() => {
     validateInput(input);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [input]);
 
   const validateInput = (e:string) => {
     const value = e;

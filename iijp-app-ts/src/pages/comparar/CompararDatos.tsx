@@ -1,72 +1,34 @@
 import React, { useEffect, useState } from "react";
-import "../../styles/jurisprudencia-busqueda.css";
-import "../../styles/paginate.css";
 import Dropdown from "../../components/Dropdown";
-import Select from "./tabs/Select";
 import SimpleChart from "../../components/charts/SimpleChart";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
-import { Link } from "react-router-dom";
-import { useSessionStorage } from "../../hooks/useSessionStorage";
 import GeoChart from "../../components/charts/GeoChart";
 import ResolucionesService from "../../services/ResolucionesService";
 import { filterForm } from "../../utils/filterForm";
 import { useVariablesContext } from "../../context/variablesContext";
-const CompararDatos = () => {
-  const [resoluciones, setResoluciones] = useState(null);
-  const [geoData, setGeoData] = useState([]);
-  const [limiteSuperior, setLimiteSuperior] = useSessionStorage(
-    "limiteSuperior",
-    ""
-  );
-  const [limiteInferior, setLimiteInferior] = useSessionStorage(
-    "limiteInferior",
-    ""
-  );
-  const [numeroBusqueda, setNumeroBusqueda] = useState(1);
 
-  const [hasFetchedDates, setHasFetchedDates] = useSessionStorage(
-    "hasFetchedDates",
-    false
-  );
+interface Resolucion {
+  id: number;
+  name: string;
+  type: string;
+}
+
+const CompararDatos = () => {
+  const [resoluciones, setResoluciones] = useState<Resolucion[] | null>(null);
+  const [geoData, setGeoData] = useState([]);
 
   const { data } = useVariablesContext();
-  const [hasFetchedData, setHasFetchedData] = useSessionStorage(
-    "hasFetchedData",
-    false
-  );
 
   const [terminos, setTerminos] = useState([]);
 
   const [option, setOption] = useState({});
-
+  const [key, setKey] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    tipo_resolucion: "all",
-    sala: "all",
-    magistrado: "all",
-    forma_resolucion: "all",
-    tipo_jurisprudencia: "all",
-    materia: "all",
+    campo: "proceso",
+    busqueda: "proceso",
   });
-
-  useEffect(() => {
-    if (!hasFetchedDates) {
-      getParams();
-    }
-  }, []);
-
-  const getParams = async () => {
-    ResolucionesService.obtenerFechas()
-      .then(({ data }) => {
-        setLimiteInferior(data.inferior);
-        setLimiteSuperior(data.superior);
-        setHasFetchedDates(true);
-      })
-      .catch((error) => {
-        console.error("Error al realizar la solicitud:", error);
-      });
-  };
 
   useEffect(() => {
     if (resoluciones) {
@@ -82,12 +44,12 @@ const CompararDatos = () => {
           data: resoluciones.map((item) => item.name),
           padding: [20, 20, 10, 20],
         },
-        grid: {
-          left: "3%",
-          right: "4%",
-          bottom: "3%",
-          containLabel: true,
-        },
+        // grid: {
+        //   left: "3%",
+        //   right: "4%",
+        //   bottom: "3%",
+        //   containLabel: true,
+        // },
         toolbox: {
           feature: {
             saveAsImage: {},
@@ -119,15 +81,16 @@ const CompararDatos = () => {
 
     const validatedForm = filterForm(formData);
 
+    setKey((prevKey) => ({
+      ...prevKey,
+      [validatedForm.campo]: validatedForm.busqueda,
+    }));
+
     ResolucionesService.obtenerElemento({
-      fecha_final: limiteSuperior,
-      fecha_inicial: limiteInferior,
-      numero_busqueda: numeroBusqueda,
       ...validatedForm,
     })
       .then((response) => {
         if (response.data.resoluciones.data.length > 0) {
-          setNumeroBusqueda((prev) => prev + 1);
           setResoluciones((prev) =>
             prev
               ? [...prev, response.data.resoluciones]
@@ -140,45 +103,45 @@ const CompararDatos = () => {
               : [response.data.termino]
           );
 
-          setGeoData((prevGeoData) => {
-            if (prevGeoData.length === 0) {
-              return response.data.departamentos.map((d) => ({
-                name: d.name,
-                results: {
-                  [`termino_${numeroBusqueda}`]: d[`termino_${numeroBusqueda}`],
-                },
-              }));
-            }
+          // setGeoData((prevGeoData) => {
+          //   if (prevGeoData.length === 0) {
+          //     return response.data.departamentos.map((d) => ({
+          //       name: d.name,
+          //       results: {
+          //         [`termino_${numeroBusqueda}`]: d[`termino_${numeroBusqueda}`],
+          //       },
+          //     }));
+          //   }
 
-            const geoDataMap = new Map(
-              prevGeoData.map((d) => [d.name, { ...d }])
-            );
+          //   const geoDataMap = new Map(
+          //     prevGeoData.map((d) => [d.name, { ...d }])
+          //   );
 
-            response.data.departamentos.forEach((nuevoDepartamento) => {
-              const nombre = nuevoDepartamento.name;
-              const nuevoIndice = `termino_${numeroBusqueda}`;
-              const nuevoValor = nuevoDepartamento[nuevoIndice];
+          //   response.data.departamentos.forEach((nuevoDepartamento) => {
+          //     const nombre = nuevoDepartamento.name;
+          //     const nuevoIndice = `termino_${numeroBusqueda}`;
+          //     const nuevoValor = nuevoDepartamento[nuevoIndice];
 
-              if (geoDataMap.has(nombre)) {
-                const existente = geoDataMap.get(nombre);
+          //     if (geoDataMap.has(nombre)) {
+          //       const existente = geoDataMap.get(nombre);
 
-                if (!existente.results) {
-                  existente.results = {};
-                }
+          //       if (!existente.results) {
+          //         existente.results = {};
+          //       }
 
-                existente.results[nuevoIndice] = nuevoValor;
-              } else {
-                geoDataMap.set(nombre, {
-                  name: nombre,
-                  results: {
-                    [nuevoIndice]: nuevoValor,
-                  },
-                });
-              }
-            });
+          //       existente.results[nuevoIndice] = nuevoValor;
+          //     } else {
+          //       geoDataMap.set(nombre, {
+          //         name: nombre,
+          //         results: {
+          //           [nuevoIndice]: nuevoValor,
+          //         },
+          //       });
+          //     }
+          //   });
 
-            return Array.from(geoDataMap.values());
-          });
+          //   return Array.from(geoDataMap.values());
+          // });
 
           limpiarFiltros();
         } else {
@@ -193,9 +156,9 @@ const CompararDatos = () => {
       });
   };
 
-  const removeItemById = (id) => {
+  const removeItemById = (id:number) => {
     setResoluciones((prevResoluciones) =>
-      prevResoluciones.filter((item) => item.id !== id)
+      (prevResoluciones || []).filter((item) => item.id !== id)
     );
 
     const keyItem = terminos.find((item) => item.id === id);
@@ -203,54 +166,77 @@ const CompararDatos = () => {
 
     const terminoKey = keyItem.name;
 
-    setGeoData((prevGeoData) =>
-      prevGeoData
-        .map((item) => {
-          const newItem = { ...item, results: { ...item.results } };
-          delete newItem.results[terminoKey];
+    // setGeoData((prevGeoData) =>
+    //   prevGeoData
+    //     .map((item) => {
+    //       const newItem = { ...item, results: { ...item.results } };
+    //       delete newItem.results[terminoKey];
 
-          // Si `results` queda vacío, eliminar el objeto
-          return Object.keys(newItem.results).length === 0 ? null : newItem;
-        })
-        .filter((item) => item !== null)
-    );
+    //       // Si `results` queda vacío, eliminar el objeto
+    //       return Object.keys(newItem.results).length === 0 ? null : newItem;
+    //     })
+    //     .filter((item) => item !== null)
+    // );
 
     setTerminos((prevTerminos) =>
       prevTerminos.filter((item) => item.id !== id)
     );
   };
+  const memoRemoveItemById = React.useCallback(removeItemById, [terminos]);
 
   const limpiarFiltros = () => {
     setFormData({
-      tipo_resolucion: "all",
-      sala: "all",
-      magistrado: "all",
-      forma_resolucion: "all",
-      tipo_jurisprudencia: "all",
-      materia: "all",
+      campo: "all",
+      busqueda: "",
     });
+  };
+
+  const updateFormData = (key, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [key]: value,
+    }));
   };
 
   return (
     <div
-      className="sm:container mx-auto custom:px-0"
+      className="px-1 sm:px-5 md:px-10 lg:px-40 custom:px-0"
       id="jurisprudencia-busqueda"
     >
       <div className="row p-4">
         <div className="flex flex-col bg-white dark:bg-[#111827] rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
           <div className="w-full p-4 text-center bg-white border border-gray-200 rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
-            <div className="grid grid-cols-3 gap-4 custom:grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {data &&
-                Object.entries(data).map(([key, items]) => (
-                  <Select
-                    key={key}
-                    formData={formData}
-                    items={items}
-                    fieldName={key}
-                    setFormData={setFormData}
-                  />
-                ))}
-            </div>
+            <form className="w-full flex justify-center items-center flex-row gap-4">
+              <div className="max-w-sm mx-auto h-full">
+                <select
+                  id="countries"
+                  onChange={(e) => updateFormData("campo", e.target.value)}
+                  value={formData.campo}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                >
+                  <option defaultValue={"all"} disabled>
+                    Elija una opción
+                  </option>
+                  <option value="proceso">Buscar en Proceso</option>
+                  <option value="sintesis">Buscar en Síntesis</option>
+                  <option value="precedente">Buscar en Precedente</option>
+                  <option value="ratio">Buscar en Ratio</option>
+                  <option value="restrictor">Buscar en Restrictor</option>
+                  <option value="proceso">Buscar en Proceso</option>
+                </select>
+              </div>
+              <div className="relative flex-1">
+                <input
+                  type="search"
+                  id="default-search"
+                  onChange={(e) => updateFormData("busqueda", e.target.value)}
+                  value={formData.busqueda}
+                  className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Buscar términos clave..."
+                  required
+                />
+              </div>
+            </form>
             <div className="flex flex-row justify-end gap-4 p-4">
               <div>
                 <AsyncButton
@@ -278,7 +264,7 @@ const CompararDatos = () => {
             <Dropdown
               key={index}
               item={item}
-              removeItemById={removeItemById}
+              removeItemById={memoRemoveItemById}
               data={data}
             />
           ))}
@@ -289,11 +275,11 @@ const CompararDatos = () => {
         </div>
       )}
 
-      {geoData && geoData.length > 0 && (
+      {/* {geoData && geoData.length > 0 && (
         <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px] mb-8">
           <GeoChart contenido={geoData}></GeoChart>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

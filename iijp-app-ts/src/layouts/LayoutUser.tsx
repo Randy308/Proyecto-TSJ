@@ -15,7 +15,7 @@ export const LayoutUser = () => {
     } else {
       setLoading(false);
     }
-  }, [hasAccess, navigate]);
+  }, [hasAccess, navigate, user]);
 
   if (loading) {
     return <Loading />;

@@ -1,5 +1,7 @@
-export function transposeArray(data) {
-  const transposed = {};
+import type { AnalisisData } from "../types";
+
+export function transposeArray(data: AnalisisData) {
+  const transposed:object = {};
   data.forEach((item) => {
     Object.keys(item).forEach((key) => {
       if (!transposed[key]) {
@@ -24,7 +26,7 @@ export function transposeArray(data) {
   return keyValueArray;
 }
 
-export const invertirXY = (matriz:any[][]) => {
+export const invertirXY = (matriz: AnalisisData) => {
   if (!matriz || matriz.length === 0) return [];
 
   const filas = matriz.length;
@@ -38,12 +40,12 @@ export const invertirXY = (matriz:any[][]) => {
   return transpuesta;
 };
 
-export const obtenerEstadisticas = (data) => {
+export const obtenerEstadisticas = (data: AnalisisData) => {
   if (!data || data.length === 0) return {};
 
   const valores = data[data.length - 1].slice(1, -1);
   if (!Array.isArray(valores) || valores.length === 0) return {};
-  if (valores.some((val) => isNaN(val))) {
+  if (valores.some((val) => isNaN(Number(val)))) {
     console.error("Invalid data for statistics:", valores);
     return {};
   }

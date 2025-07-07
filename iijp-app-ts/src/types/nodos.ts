@@ -3,4 +3,5 @@ export interface Nodos{
     parent_id:number;
     nombre:string;
     cantidad:number
+    descriptor_id:number;
 }

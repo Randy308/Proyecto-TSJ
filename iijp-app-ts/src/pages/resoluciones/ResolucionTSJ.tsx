@@ -4,13 +4,15 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import styles from "./ResolucionTSJ.module.css";
 import ResolucionesService from "../../services/ResolucionesService";
 import { titulo } from "../../utils/filterForm";
-const ResolucionTSJ = ({ id }:{id:number}) => {
-  const [resolucion, setResolucion] = useState(null);
-  const [fichas, setFichas] = useState(null);
+import type { Jurisprudencia, Resolucion } from "../../types";
+
+
+const ResolucionTSJ = ({ id }: { id: number }) => {
+  const [resolucion, setResolucion] = useState<Resolucion>({} as Resolucion);
+  const [fichas, setFichas] = useState<Jurisprudencia[]>([]);
   const [actual, setActual] = useState(2);
   const docRef = useRef(null);
-  const sidebarRef = useRef(null);
-  const [height, setHeight] = useState("100dvh");
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const getResolution = async () => {
@@ -26,31 +28,12 @@ const ResolucionTSJ = ({ id }:{id:number}) => {
     getResolution();
   }, [id]);
 
-  const [visible, setVisible] = useState(false);
-  const [subMenu, setSubMenu] = useState(0);
+  const [subMenu, setSubMenu] = useState<number | null>(0);
 
-  const cambiarEstado = (id:number) => {
-    setVisible((prev) => (prev === id ? null : id));
-  };
-
-  const cambiarSubMenu = (id:number) => {
+  const cambiarSubMenu = (id: number) => {
     setSubMenu((prev) => (prev === id ? null : id));
   };
 
-  useEffect(() => {
-    const adjustHeight = () => {
-      if (subMenu === null) {
-        setHeight("100dvh");
-      } else if (docRef.current && sidebarRef.current) {
-        const sidebarHeight = sidebarRef.current.offsetHeight;
-        setHeight(`${Math.max(window.innerHeight, sidebarHeight)}px`);
-      }
-    };
-
-    adjustHeight();
-    window.addEventListener("resize", adjustHeight);
-    return () => window.removeEventListener("resize", adjustHeight);
-  }, [subMenu]);
 
   if (resolucion === null) {
     return (
@@ -60,15 +43,15 @@ const ResolucionTSJ = ({ id }:{id:number}) => {
     );
   }
 
-  const renderContent = (id:number) => {
+  const renderContent = (id: number) => {
     switch (id) {
       case 2:
         return (
           <table className="flex-1 m-8 table-auto text-left border border-collapse text-black dark:text-gray-200">
             <tbody>
-              {Object.keys(resolucion).map(
+              {(Object.keys(resolucion) as (keyof Resolucion)[]).map(
                 (key) =>
-                  key != "contenido" &&
+                  key !== "contenido" &&
                   resolucion[key] && (
                     <tr
                       className="border-2 border-gray-200 dark:border-gray-700"
@@ -92,27 +75,26 @@ const ResolucionTSJ = ({ id }:{id:number}) => {
       case 3:
         return (
           <div className="flex-1">
-            {fichas.map((item, index) => (
-              <div key={index}>
-                {/* Título del dropdown */}
-                <div
-                  className="bg-red-octopus-50 rounded-lg p-4 m-4 flex flex-row justify-start gap-4 hover:cursor-pointer"
-                  onClick={() => cambiarSubMenu(index)}
-                >
-                  <IoMdArrowDropdown className="text-2xl" />
-                  <p>Ficha Jurisprudencial</p>
-                  <p className="text-white flex items-center rounded-full bg-red-octopus-900 px-2">
-                    {index + 1}
-                  </p>
-                </div>
+            {fichas &&
+              fichas.map((item, index) => (
+                <div key={index}>
+                  {/* Título del dropdown */}
+                  <div
+                    className="bg-red-octopus-50 rounded-lg p-4 m-4 flex flex-row justify-start gap-4 hover:cursor-pointer"
+                    onClick={() => cambiarSubMenu(index)}
+                  >
+                    <IoMdArrowDropdown className="text-2xl" />
+                    <p>Ficha Jurisprudencial</p>
+                    <p className="text-white flex items-center rounded-full bg-red-octopus-900 px-2">
+                      {index + 1}
+                    </p>
+                  </div>
 
-                {subMenu === index && (
-                  
+                  {subMenu === index && (
                     <table className="table-auto m-4 text-left border border-collapse text-black dark:text-gray-200">
                       <tbody>
-                        {Object.keys(item).map(
+                        {(Object.keys(item) as (keyof Jurisprudencia)[]).map(
                           (key) =>
-                            key != "contenido" &&
                             item[key] && (
                               <tr
                                 className="mt-4 border-2 border-gray-200 dark:border-gray-700"
@@ -132,26 +114,30 @@ const ResolucionTSJ = ({ id }:{id:number}) => {
                         )}
                       </tbody>
                     </table>
-                  
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              ))}
           </div>
         );
       case 4:
         return (
           <div ref={docRef} className="bg-white p-4 m-5 rounded-lg">
-            {resolucion.contenido.split("\r").map((line, index) =>
-              line === line.toUpperCase() ? (
-                <div className={`${styles.tinosBold} text-center`} key={index}>
-                  {line}
-                </div>
-              ) : (
-                <div key={index} className={styles.tinosRegular}>
-                  {line}
-                </div>
-              )
-            )}
+            {resolucion.contenido
+              ? resolucion.contenido.split("\r").map((line, index) =>
+                  line === line.toUpperCase() ? (
+                    <div
+                      className={`${styles.tinosBold} text-center`}
+                      key={index}
+                    >
+                      {line}
+                    </div>
+                  ) : (
+                    <div key={index} className={styles.tinosRegular}>
+                      {line}
+                    </div>
+                  )
+                )
+              : null}
           </div>
         );
       default:
@@ -223,7 +209,9 @@ const ResolucionTSJ = ({ id }:{id:number}) => {
           </label>
         </div>
       </div>
-      <div className="mb-2 flex-1 overflow-y-scroll flex justify-center">{renderContent(actual)}</div>
+      <div className="mb-2 flex-1 overflow-y-scroll flex justify-center">
+        {renderContent(actual)}
+      </div>
     </div>
   );
 };

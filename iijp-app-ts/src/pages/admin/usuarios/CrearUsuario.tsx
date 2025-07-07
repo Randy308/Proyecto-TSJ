@@ -42,7 +42,8 @@ const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
         setSelectedRol(roles[0].roleName);
       }
     }
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roles]);
 
   const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();

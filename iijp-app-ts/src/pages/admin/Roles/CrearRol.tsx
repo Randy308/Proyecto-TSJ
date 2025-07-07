@@ -5,13 +5,14 @@ import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
 import { AuthUser } from "../../../auth";
 import type { Permission, RoleData } from "../../../types";
+import Loading from "../../../components/Loading";
 
 interface CrearRolProps {
   permissions: Permission[] | undefined;
-  showModal: boolean;
+  showModal?: boolean;
   setShowModal: (val:boolean) => void;
 }
-const CrearRol = ({ permissions, showModal, setShowModal }: CrearRolProps) => {
+const CrearRol = ({ permissions, setShowModal }: CrearRolProps) => {
   const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -84,6 +85,10 @@ const CrearRol = ({ permissions, showModal, setShowModal }: CrearRolProps) => {
     }
   };
 
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <div className="container mx-auto pt-4 mt-4">
       <form>
@@ -115,7 +120,7 @@ const CrearRol = ({ permissions, showModal, setShowModal }: CrearRolProps) => {
             className="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200"
             aria-labelledby="dropdownSearchButton"
           >
-            {permissions.map((item) => (
+            {(permissions || []).map((item) => (
               <li key={item.id}>
                 <label className="inline-flex items-center my-2 cursor-pointer">
                   <input

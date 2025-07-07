@@ -13,6 +13,7 @@ import TerminoClave from "./TerminoClave";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
 import { agregarTotalLista } from "../../utils/arrayUtils";
+import { OptionChart } from "../../components/OptionChart";
 
 const AnalisisAvanzado = () => {
   const [limite, setLimite] = useState(2);
@@ -373,7 +374,12 @@ const AnalisisAvanzado = () => {
               {!actual ? (
                 <TablaX data={tableData.slice(1)} columns={columns} />
               ) : (
-                <SimpleChart option={option} handleClick={handleClick} />
+                // <SimpleChart option={option} handleClick={handleClick} />
+                <OptionChart
+                  dataset={data}
+                  chartType={selected}
+                  isMultiVariable={multiVariable}
+                />
               )}
             </div>
           ) : (

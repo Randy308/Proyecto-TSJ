@@ -8,11 +8,11 @@ import { type Permission, type RoleData } from "../../../types";
 interface Props {
   id: number;
   permissions: Permission[] | undefined;
-  showModal: boolean;
-  setShowModal: (val:boolean) => void;
+  showModal?: boolean;
+  setShowModal?: (val:boolean) => void;
 }
 
-const VerRol = ({ id, permissions, showModal, setShowModal }: Props) => {
+const VerRol = ({ id, permissions }: Props) => {
   const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ const VerRol = ({ id, permissions, showModal, setShowModal }: Props) => {
   useEffect(() => {
     const foundRole = (roles || []).find((item) => item.id === id);
     setFormData(foundRole || {});
-  }, [roles]);
+  }, [id, roles]);
 
   if (Object.keys(formData).length <= 0) {
     return (
@@ -38,6 +38,10 @@ const VerRol = ({ id, permissions, showModal, setShowModal }: Props) => {
         <Loading></Loading>
       </div>
     );
+  }
+
+  if (loading) {
+    return <Loading />;
   }
   return (
     <div className="container mx-auto pt-4 mt-4">

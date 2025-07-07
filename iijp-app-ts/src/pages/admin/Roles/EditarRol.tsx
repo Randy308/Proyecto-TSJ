@@ -11,10 +11,10 @@ import Loading from "../../../components/Loading";
 interface Props {
   id: number;
   permissions: Permission[] | undefined;
-  showModal: boolean;
+  showModal?: boolean;
   setShowModal: (val:boolean) => void;
 }
-const EditarRol = ({ id, permissions, showModal, setShowModal }: Props) => {
+const EditarRol = ({ id, permissions, setShowModal }: Props) => {
   const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,7 @@ const EditarRol = ({ id, permissions, showModal, setShowModal }: Props) => {
   useEffect(() => {
     const foundRole = (roles || []).find((item) => item.id === id);
     setFormData(foundRole || {});
-  }, [roles]);
+  }, [id, roles]);
 
   const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -128,6 +128,9 @@ const EditarRol = ({ id, permissions, showModal, setShowModal }: Props) => {
     );
   }
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <div className="container mx-auto pt-4 mt-4">
       <form>

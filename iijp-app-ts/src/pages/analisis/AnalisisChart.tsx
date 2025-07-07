@@ -1,20 +1,28 @@
-import React, { useEffect, useRef } from "react";
+import { useRef } from "react";
 import ReactECharts from "echarts-for-react";
+import type { ECElementEvent, ECharts, EChartsOption } from "echarts";
 import "../../data/dark.js";
-import "../../data/shine.js";
-import { useThemeContext } from "../../context/ThemeProvider.js";
-const AnalisisChart = ({ option, border = true }) => {
-  const isDarkMode = useThemeContext();
-  const chartRef = useRef(null);
+import { useThemeContext } from "../../context";
+import type EChartsReact from "echarts-for-react";
 
-  const handleUpdateAxisPointer = (event) => {
-    const chartInstance = chartRef.current?.getEchartsInstance();
+interface AnalisisChartProps {
+  option: EChartsOption;
+  border?: boolean;
+}
+
+const AnalisisChart = ({ option, border = true }: AnalisisChartProps) => {
+  const { isDark } = useThemeContext();
+  const chartRef = useRef<EChartsReact | null>(null);
+  const handleUpdateAxisPointer = (event: ECElementEvent) => {
+    const chartInstance: ECharts | undefined =
+      chartRef.current?.getEchartsInstance?.();
     if (!chartInstance) return;
 
     const xAxisInfo = event.axesInfo?.[0];
     if (!xAxisInfo) return;
 
     const dimension = xAxisInfo.value + 1;
+
     chartInstance.setOption({
       series: {
         id: "pie",
@@ -28,8 +36,15 @@ const AnalisisChart = ({ option, border = true }) => {
       },
     });
   };
-  const handleClick = (params) => {
-    console.log(params);
+
+  const handleClick = (event: ECElementEvent) => {
+    console.log(event);
+  };
+
+  const onEvents = {
+    click: handleClick,
+    updateAxisPointer: handleUpdateAxisPointer,
+    // Add other event handlers as needed
   };
 
   return (
@@ -41,15 +56,12 @@ const AnalisisChart = ({ option, border = true }) => {
       <ReactECharts
         key={JSON.stringify(option)}
         option={option}
-        theme={isDarkMode ? "dark" : "shine"}
+        theme={isDark ? "dark" : undefined}
         style={{
           height: "100%",
           width: "100%",
         }}
-        onEvents={{
-          updateAxisPointer: handleUpdateAxisPointer,
-          click: handleClick,
-        }}
+        onEvents={onEvents}
         ref={chartRef}
       />
     </div>

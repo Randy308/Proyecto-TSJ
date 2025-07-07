@@ -1,16 +1,17 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useRef, useState } from "react";
-import { useNotificationContext } from "../context/notificationContext";
+import { useNotificationContext } from "../context";
 import { FaBell } from "react-icons/fa6";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import UserService from "../services/UserService";
-import { AuthUser } from "../auth";
 import Loading from "./Loading";
+import { AuthUser } from "../auth";
 
 const Notifications = () => {
   const { getToken } = AuthUser();
   if (!getToken()) {
-    return null;
+    return;
   }
 
   const { notifications, setNotifications } = useNotificationContext();
@@ -18,7 +19,7 @@ const Notifications = () => {
   const bellRef = useRef<HTMLButtonElement | null>(null);
   const notificationRef = useRef<HTMLDivElement | null>(null);
 
-  const [timer, setTimer] = useState<number | null>(null);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
 
   const restartTimer = () => {
     if (timer) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import MultiBtnDropdown from "../../components/MultiBtnDropdown";
 import { BsCheck2All } from "react-icons/bs";
@@ -8,17 +8,13 @@ import ResolucionesService from "../../services/ResolucionesService";
 import { filterForm } from "../../utils/filterForm";
 import { useNavigate } from "react-router-dom";
 import { departamentos } from "../../data/Mapa";
+import type { FormListaX, ListaX, MagistradoItem } from "../../types";
+import { toast } from "react-toastify";
 
-interface Depto {
-  id: string | number;
-  name: string;
-  d: string;
-}
 const EstadisticasBasicas = () => {
   const { data } = useVariablesContext();
-  const [selector, setSelector] = useState([]);
-  const [limite, _setLimite] = useState(1);
-
+  const [selector, setSelector] = useState<ListaX[]>([] as ListaX[]);
+  const limite = useMemo(() => 1, []);
   const checkIcon = useMemo(() => <BsCheck2All className="w-5 h-5" />, []);
   const removeIcon = useMemo(
     () => (
@@ -30,14 +26,16 @@ const EstadisticasBasicas = () => {
     () => <IoIosArrowForward className="w-7 pr-4" />,
     []
   );
-  const [periodo, setPeriodo] = useState("all");
-  const [visible, setVisible] = useState(null);
+  const [periodo, setPeriodo] = useState<string>("all");
+  const [visible, setVisible] = useState<string |null>(null);
 
-  const [selectedDepto, setSelectedDepto] = useState([]);
-  const [validMagistrados, setValidMagistrados] = useState([]);
+  const [selectedDepto, setSelectedDepto] = useState<string[]>([]);
+  const [validMagistrados, setValidMagistrados] = useState<
+    MagistradoItem[] | undefined
+  >([]);
   const navigate = useNavigate();
 
-  const handleClick = (name) => {
+  const handleClick = (name: string) => {
     setSelectedDepto((prev) => {
       if (prev.includes(name)) {
         // Remove it
@@ -50,28 +48,36 @@ const EstadisticasBasicas = () => {
     });
   };
   const clearList = () => {
-    setPeriodo(null);
+    togglePeriodo("all");
   };
-  useEffect(() => {
+
+  const updateMagistrados = (periodo: string) => {
     if (periodo === "all" || periodo === null) {
-      setValidMagistrados(data.magistrado);
+      setValidMagistrados(data?.magistrado);
     } else {
       const startDate = parseInt(periodo);
-      const filteredMagistrados = data.magistrado.filter((item) => {
+      const filteredMagistrados = data?.magistrado.filter((item) => {
         const fechaMin = parseInt(item.fecha_min);
         const fechaMax = parseInt(item.fecha_max);
         return fechaMax >= startDate && fechaMin <= startDate;
       });
       setValidMagistrados(filteredMagistrados);
     }
-  }, [periodo, data]);
+  };
 
-  const togglePeriodo = (nombre) => {
-    setPeriodo((prev) => (prev === nombre ? null : nombre));
+  const togglePeriodo = (nombre: string) => {
+    const next = periodo === nombre ? "all" : nombre;
+    setPeriodo(next);
     setSelector([]);
+    updateMagistrados(next);
   };
 
   const fetchData = async () => {
+
+    if(!selector || selector.length <= 0){
+      toast.warning("Debe de seleccionar una variable primero")
+      return 
+    }
     const validatedData = filterForm({
       variable: selector[0].ids,
       nombre: selector[0].name,
@@ -79,7 +85,7 @@ const EstadisticasBasicas = () => {
       departamento: selectedDepto,
     });
 
-    ResolucionesService.realizarAnalisis(validatedData)
+    ResolucionesService.realizarAnalisis(validatedData as FormListaX)
       .then(({ data }) => {
         if (data) {
           navigate(`/estadisticas-basicas/${selector[0].name}`, {
@@ -91,6 +97,12 @@ const EstadisticasBasicas = () => {
         console.log("Existe un error " + err);
       });
   };
+
+  useEffect(() => {
+    updateMagistrados("all");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   return (
     <div>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 p-4">
@@ -214,7 +226,7 @@ const EstadisticasBasicas = () => {
 
           <div className="lg:col-span-2 h-[700px] bg-white pt-4 dark:bg-gray-600 dark:text-white shadow-md rounded-lg flex items-center justify-center">
             <svg
-              viewBox="0 0 900 900"
+              viewBox="0 0 1000 1000" // Ajusta según tu SVG real
               className="w-full h-full p-8"
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="xMidYMid meet"

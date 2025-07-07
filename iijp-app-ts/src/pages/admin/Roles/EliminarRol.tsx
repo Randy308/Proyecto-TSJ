@@ -12,17 +12,16 @@ import { AuthUser } from "../../../auth";
 
 interface Props {
   id: number;
-  showModal: boolean;
+  showModal?: boolean;
   setShowModal: (val:boolean) => void;
 }
-const EliminarRol = ({ id,  showModal, setShowModal }: Props) => {
-  const { getToken, can } = AuthUser();
+const EliminarRol = ({ id, setShowModal }: Props) => {
+  const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState<RoleData>({});
   const { roles, obtenerRoles } = useRoleContext();
-  const token = getToken();
   useEffect(() => {
     if (!can("eliminar_roles")) {
       navigate("/");
@@ -36,7 +35,7 @@ const EliminarRol = ({ id,  showModal, setShowModal }: Props) => {
   useEffect(() => {
       const foundRole = (roles || []).find((item) => item.id === id);
     setFormData(foundRole || {});
-  }, [roles]);
+  }, [id, roles]);
 
   const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -77,6 +76,10 @@ const EliminarRol = ({ id,  showModal, setShowModal }: Props) => {
         <Loading></Loading>
       </div>
     );
+  }
+
+  if (loading) {
+    return <Loading />;
   }
 
   return (

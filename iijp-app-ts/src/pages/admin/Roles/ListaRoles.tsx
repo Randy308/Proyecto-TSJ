@@ -1,7 +1,6 @@
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
 import  { useEffect, useState } from "react";
-
 import { TiUserAdd } from "react-icons/ti";
 import { FaRegEye } from "react-icons/fa";
 import PortalButton from "../../../components/modal/PortalButton";
@@ -13,8 +12,9 @@ import { useNavigate } from "react-router-dom";
 import { useRoleContext } from "../../../context/roleContext";
 import { usePermissionContext } from "../../../context/permissionContext";
 import { AuthUser } from "../../../auth";
+import Loading from "../../../components/Loading";
 
-export const ListaRoles = () => {
+export function ListaRoles () {
   const { can } = AuthUser();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -30,6 +30,10 @@ export const ListaRoles = () => {
     }
   }, [can, navigate]);
 
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="md:px-20 px-2">

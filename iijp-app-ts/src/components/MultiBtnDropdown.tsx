@@ -10,9 +10,10 @@ interface MultiBtnDropdownProps {
   name: FiltroNombre;
   limite: number;
   listaX: ListaX[];
-  setListaX: React.Dispatch<React.SetStateAction<ListaX[] | undefined>>;
+  setListaX: React.Dispatch<React.SetStateAction<ListaX[]>>;
   contenido: ListaData[];
   size?: number;
+  isCategorical?:boolean;
 }
 
 
@@ -25,6 +26,7 @@ const MultiBtnDropdown = ({
   setListaX,
   contenido,
   size = 8,
+  isCategorical = true
 }: MultiBtnDropdownProps) => {
   const [activo, setActivo] = useState<boolean>(false);
 
@@ -32,8 +34,7 @@ const MultiBtnDropdown = ({
     useIcons();
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const itemId = parseInt(event.target.name, 10);
-
+    const itemId = isCategorical ? parseInt(event.target.value, 10) : parseInt(event.target.name, 10);
     setListaX((prev) => {
       const existingItem = (prev ?? []).find((item) => item.name === name);
 
@@ -120,6 +121,7 @@ const MultiBtnDropdown = ({
     if (visible != name) {
       setActivo(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   return (

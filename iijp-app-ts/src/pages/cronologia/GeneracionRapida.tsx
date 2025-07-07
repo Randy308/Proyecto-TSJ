@@ -8,9 +8,19 @@ import JurisprudenciaService from "../../services/JurisprudenciaService";
 import { filterForm } from "../../utils/filterForm";
 import AsyncButton from "../../components/AsyncButton";
 import { IoMdClose } from "react-icons/io";
+import type { Nodos } from "../../types";
 
+interface ArbolJurisprudencial {
+  id: number;
+  nombre: string;
+}
+interface ResultadosBusqueda {
+
+  descriptor: string;
+  cantidad: number;
+}
 const GeneracionRapida = () => {
-  const [currentID, setCurrentID] = useState(null);
+  const [currentID, setCurrentID] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const searchIcon = useMemo(
@@ -20,15 +30,14 @@ const GeneracionRapida = () => {
     []
   );
 
-  const [arbol, setArbol] = useState([]);
+  const [arbol, setArbol] = useState<Nodos[]>([]);
 
   const [errorBusqueda, setErrorBusqueda] = useState("");
 
   const [busqueda, setBusqueda] = useState("");
-  const [resultados, setResultados] = useState([]);
+  const [resultados, setResultados] = useState<ResultadosBusqueda[]>([]);
 
-
-  const checkSearch = (valor:string) => {
+  const checkSearch = (valor: string) => {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'’-]+$/;
 
     if (regex.test(valor) || valor === "") {
@@ -48,8 +57,8 @@ const GeneracionRapida = () => {
   };
 
   const vaciarNodo = () => {
-   setArbol([]);
-      setCurrentID(null);
+    setArbol([]);
+    setCurrentID(null);
   };
 
   const obtenerCronologia = async () => {
@@ -62,7 +71,6 @@ const GeneracionRapida = () => {
     const validatedData = filterForm({
       tema_id: arbol[arbol.length - 1].id,
       descriptor: nombresTemas,
-      ...formData,
     });
     setIsLoading(true);
     JurisprudenciaService.obtenerCronologia(validatedData)
@@ -86,7 +94,7 @@ const GeneracionRapida = () => {
       });
   };
 
-  const actualizarNodos = async (descriptor:string) => {
+  const actualizarNodos = async (descriptor: string) => {
     try {
       JurisprudenciaService.actualizarNodo({
         busqueda: descriptor,
@@ -103,7 +111,11 @@ const GeneracionRapida = () => {
           console.log("Existe un error " + err);
         });
     } catch (error: unknown) {
-      const message = (error as any)?.response?.data?.error || "Ocurrió un error";
+      let message = "Ocurrió un error";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        // @ts-expect-error: We are checking for response property
+        message = error.response?.data?.error || message;
+      }
       console.error("Error fetching data:", message);
       console.error("Error :", error);
     }
@@ -131,7 +143,11 @@ const GeneracionRapida = () => {
           setResultados([]);
         });
     } catch (error: unknown) {
-      const message = (error as any)?.response?.data?.error || "Ocurrió un error";
+      let message = "Ocurrió un error";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        // @ts-expect-error: We are checking for response property
+        message = error.response?.data?.error || message;
+      }
       console.error("Error fetching data:", message);
       console.error("Error :", error);
     }
@@ -224,7 +240,7 @@ const GeneracionRapida = () => {
                     <div
                       className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 hover:dark:bg-gray-700 hover:bg-gray-200 rounded-md p-3 my-2 cursor-pointer transition-all ease-in-out duration-200"
                       key={index}
-                      onClick={() => actualizarNodos(item.descriptor, item.ids)}
+                      onClick={() => actualizarNodos(item.descriptor)}
                     >
                       <span className="text-black font-semibold dark:text-white ">
                         {item.descriptor}
@@ -240,7 +256,6 @@ const GeneracionRapida = () => {
                   currentID={currentID}
                   setCurrentID={setCurrentID}
                   setArbol={setArbol}
-                  arbol={arbol}
                 />
               )}
             </div>

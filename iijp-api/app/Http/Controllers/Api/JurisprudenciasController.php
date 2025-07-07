@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Descriptor;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
-use App\Models\Tema;
-use App\Utils\Listas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Utils\NLP;
@@ -75,7 +73,7 @@ class JurisprudenciasController extends Controller
         });
 
 
-  
+
 
         $pdf = LaravelMpdf::loadView('resolution', ['results' => $formattedResults], [], [
             'format'          => 'letter',

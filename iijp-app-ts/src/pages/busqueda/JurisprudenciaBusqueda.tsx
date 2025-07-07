@@ -59,19 +59,7 @@ const JurisprudenciaBusqueda = () => {
     setFormData(updatedFormData);
   };
 
-  const cambiarFechaExacta = (event) => {
-    setParams("fecha_exacta", event.target.value);
-    removeParam("fecha_inicial");
-    removeParam("fecha_final");
-  };
-  const cambiarFechaDesde = (event) => {
-    setParams("fecha_inicial", event.target.value);
-    removeParam("fecha_exacta");
-  };
-  const cambiarFechaHasta = (event) => {
-    setParams("fecha_final", event.target.value);
-    removeParam("fecha_exacta");
-  };
+ 
 
   const actualizarInput = (event) => {
     setTexto(event.target.value);

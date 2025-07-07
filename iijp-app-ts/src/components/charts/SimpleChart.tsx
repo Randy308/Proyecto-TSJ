@@ -1,17 +1,16 @@
 import ReactECharts from "echarts-for-react";
 import "../../data/dark.js";
-import "../../data/shine.js";
-import { useThemeContext } from "../../context/ThemeProvider.js";
+import { useThemeContext } from "../../context";
 
 interface SimpleChartProp {
-  option: any;
+  option: object;
   border?: boolean;
 }
 const SimpleChart = ({
   option,
   border = true,
 }: SimpleChartProp) => {
-  const isDarkMode = useThemeContext();
+  const {isDark} = useThemeContext();
 
   return (
     <div
@@ -22,7 +21,7 @@ const SimpleChart = ({
       <ReactECharts
         key={JSON.stringify(option)}
         option={option}
-        theme={isDarkMode ? "dark" : "shine"}
+        theme={isDark ? "dark" : undefined}
         style={{
           height: "100%",
           width: "100%",

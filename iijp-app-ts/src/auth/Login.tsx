@@ -6,7 +6,7 @@ import EmailInput from "../components/form/EmailInput";
 import { CgSpinner } from "react-icons/cg";
 import { AuthUser } from "./AuthUser";
 
-export const Login = () => {
+export function Login () {
   const { getToken, saveToken } = AuthUser();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);

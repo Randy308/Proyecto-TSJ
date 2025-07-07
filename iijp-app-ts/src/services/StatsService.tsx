@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { ReceivedForm } from "../types";
 
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
@@ -21,7 +22,7 @@ const StatsService = {
 
   getTimeSeries: (params:FormData) =>
     instance.get(`obtener-serie-temporal-x`, { params }),
-  getMapa: (params:FormData) => instance.get(`obtener-mapa-x`, { params }),
+  getMapa: (params:ReceivedForm) => instance.get(`obtener-mapa-x`, { params }),
 
   getStatsXY: (params:FormData) =>
     instance.get(`obtener-estadistica-avanzada-xy/`, { params }),

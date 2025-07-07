@@ -3,14 +3,6 @@
   --secondaryColor: #fff;
   --secondaryFontColor: #eaf8bf;
 }
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
-
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  font-family: "Roboto Flex", sans-serif;
-}
 
 .footer {
   left: 0;
@@ -43,7 +35,7 @@
   transform: scale(1.2);
 }
 
-div#parent-container.dark-theme main .footer {
+.dark-theme .footer {
   background: rgb(53, 78, 126);
   background: linear-gradient(
     90deg,

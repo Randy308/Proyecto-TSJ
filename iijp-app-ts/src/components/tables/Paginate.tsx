@@ -2,7 +2,7 @@ import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
 
 interface PaginateProps {
-  handlePageClick: (page?: number) => void;
+  handlePageClick: (page: number) => void;
   pageCount: number;
   actualPage: number;
   totalCount: number;

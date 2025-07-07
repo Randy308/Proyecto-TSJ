@@ -2,8 +2,9 @@ import React, { useMemo } from "react";
 import { FaPlay } from "react-icons/fa6";
 import { useIcons } from "./icons/Icons";
 
+
 interface AsyncProps {
-  asyncFunction: () => Promise<void>;
+  asyncFunction: (e:React.MouseEvent<HTMLButtonElement>) => Promise<void>;
   isLoading: boolean;
   name: string;
   full?: boolean;
@@ -26,7 +27,7 @@ const AsyncButton = ({
   return (
     <button
       type="button"
-      onClick={() => asyncFunction()}
+      onClick={(e) => asyncFunction(e)}
       className={`inline-flex items-center justify-center h-12 px-4 py-3 ${
         full ? "w-full " : ""
       }rounded-lg font-medium ${

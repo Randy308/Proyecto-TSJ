@@ -1,3 +1,5 @@
+import type { AnalisisData } from "../types";
+
 export const sumArray = (arrays, nombre = "Otros") => {
   if (arrays.length === 0) return [];
 
@@ -8,18 +10,20 @@ export const sumArray = (arrays, nombre = "Otros") => {
   return result;
 };
 
-export const agregarTotalLista = (data) => {
+export const agregarTotalLista = (data: AnalisisData) => {
   if (!data || data.length === 0) {
     return [];
   }
 
-  const encabezado = [...data[0], "Total"];
+  const encabezado = data[0].length > 2 ? [...data[0], "Total"] : data[0];
+  console.log(encabezado);
   const datos = data.slice(1);
 
   const datosConTotales = datos.map((fila) => {
     const valores = fila.slice(1); // ignorar primera columna (nombre)
-    const suma = valores.reduce((acc, val) => acc + val, 0);
-    return [...fila, suma];
+    console.log(valores.length);
+    const suma = valores.reduce((acc, val) => Number(acc) + Number(val), 0);
+    return valores.length > 1 ? [...fila, suma] : fila;
   });
 
   const columnasNumericas = datosConTotales[0].length - 1;

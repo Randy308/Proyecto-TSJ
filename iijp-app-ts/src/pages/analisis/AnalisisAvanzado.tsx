@@ -1,30 +1,22 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AsyncButton from "../../components/AsyncButton";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import StatsService from "../../services/StatsService";
 import TablaX from "../../components/tables/TablaX";
 import SimpleChart from "../../components/charts/SimpleChart";
 import Loading from "../../components/Loading";
-
 import { SwitchChart } from "../../components/charts/SwitchChart";
 import { useVariablesContext } from "../../context/variablesContext";
 import Select from "../../components/Select";
-import { transposeArray } from "../../utils/math";
-import { useIcons } from "../../components/icons/Icons";
+import { invertirXY } from "../../utils/math";
 import TerminoClave from "./TerminoClave";
-import { use } from "echarts/lib/extension";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
-import { se } from "date-fns/locale";
-import { set } from "date-fns";
 import { toast } from "react-toastify";
-import { jurisprudenciaItems } from "../../data/JurisprudenciaItems";
-import Tarjetas from "./Tarjetas";
-import { useSearchParams } from "react-router-dom";
+import { agregarTotalLista } from "../../utils/arrayUtils";
+import { OptionChart } from "../../components/OptionChart";
 
 const AnalisisAvanzado = () => {
   const [limite, setLimite] = useState(2);
-  const [checkedX, setCheckedX] = useState(true);
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const [listaX, setListaX] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
@@ -38,14 +30,13 @@ const AnalisisAvanzado = () => {
   const [columns, setColumns] = useState(null);
 
   const [serie, setSerie] = useSessionStorage("serie", []);
-
   const [mapa, setMapa] = useSessionStorage("mapa", []);
 
   const [actual, setActual] = useState(true);
   const [lista, setLista] = useState([]);
   const [multiVariable, setMultiVariable] = useState(false);
-  const { cleanIcon } = useIcons();
   const [total, setTotal] = useState(0);
+  const [tableData, setTableData] = useState([]);
 
   const location = useLocation();
 
@@ -66,42 +57,15 @@ const AnalisisAvanzado = () => {
 
   useEffect(() => {
     if (contenido && contenido.length > 0) {
-      const totalCounts = { [nombre]: "Total" };
-
-      const processedData = multiVariable
-        ? contenido.map((item) => {
-            const total = Object.entries(item).reduce(
-              (sum, [key, value]) => (key !== nombre ? sum + value : sum),
-              0
-            );
-            return { ...item, Total: total };
-          })
-        : contenido;
-
-      processedData.forEach((entry) => {
-        Object.keys(entry).forEach((key) => {
-          if (key !== nombre) {
-            totalCounts[key] = (totalCounts[key] || 0) + entry[key];
-          }
-        });
-      });
-
-      setLista([...processedData, totalCounts]);
-
-      const headers = Object.keys(contenido[0]).map(
-        (item) => item.charAt(0).toUpperCase() + item.slice(1)
-      );
-      const values = processedData.map((item) => Object.values(item));
-
       setOption({
         legend: {},
         tooltip: { trigger: "item" },
         grid: { containLabel: true },
-        dataset: { source: [headers, ...values] },
+        dataset: { source: contenido },
         toolbox: { feature: { saveAsImage: {} } },
         xAxis: { type: "category", boundaryGap: true },
         yAxis: {},
-        series: createSeries(headers.length - 1),
+        series: createSeries(contenido[0].length - 1),
       });
     }
   }, [contenido]);
@@ -111,24 +75,18 @@ const AnalisisAvanzado = () => {
     setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
 
-  useEffect(() => {
-    console.log("Lista actualizada:", lista);
-  }, [lista]);
-
   const invertirAxis = () => {
     setSelected("column");
     setOption((prevOption) => SwitchChart(prevOption, "column", true));
-    const transposed = transposeArray(lista);
-    console.log(transposed);
-    setLista(transposed);
+    setTableData(invertirXY(tableData));
   };
 
   useEffect(() => {
-    if (lista && lista.length > 0) {
-      let keys = Object.keys(lista[0]);
+    if (tableData && tableData.length > 0) {
+      let keys = tableData[0];
       setColumns(
-        keys.map((item) => ({
-          accessorKey: item,
+        keys.map((item, index) => ({
+          accessorKey: index.toString(),
           header: item
             .replace(/_/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
@@ -136,7 +94,8 @@ const AnalisisAvanzado = () => {
         }))
       );
     }
-  }, [lista]);
+    console.log(tableData);
+  }, [tableData]);
 
   ///end
   const getDatos = () => {
@@ -169,6 +128,10 @@ const AnalisisAvanzado = () => {
           setContenido(data.data.length > 0 ? data.data : []);
           setMultiVariable(data.multiVariable);
           setTotal(data.total);
+          setTableData(
+            data.data.length > 0 ? agregarTotalLista(data.data) : []
+          );
+
           setMapa([]);
           setSerie([]);
         }
@@ -206,6 +169,11 @@ const AnalisisAvanzado = () => {
     ),
     [memoizedParams, limite, listaX]
   );
+
+  const memoTerminoClave = useMemo(() => {
+    return <TerminoClave setListaX={setListaX} listaX={listaX} />;
+  }, [listaX]);
+  const memoGetDatos = useMemo(() => getDatos, [listaX]);
   const irAMapa = () => {
     if (listaX.length === 0) {
       return;
@@ -248,6 +216,9 @@ const AnalisisAvanzado = () => {
           if (data) {
             setContenido(data.data.length > 0 ? data.data : []);
             setMultiVariable(data.multiVariable);
+            setTableData(
+              data.data.length > 0 ? agregarTotalLista(data.data) : []
+            );
           }
         })
         .catch((error) => {
@@ -263,29 +234,35 @@ const AnalisisAvanzado = () => {
     }
   }, [receivedForm]);
 
-  const handleClick = (params) => {
-    if (
-      multiVariable &&
-      params.seriesName !== "Cantidad" &&
-      params.name !== "Cantidad"
-    ) {
-      const newItem = {
-        nameX: listaX[0].name,
-        valueX: params.name,
-        nameY: listaX[1].name,
-        valueY: params.seriesName,
-      };
+  const handleClick = useCallback(
+    (params) => {
+      if (
+        multiVariable &&
+        params.seriesName !== "Cantidad" &&
+        params.name !== "Cantidad"
+      ) {
+        const newItem = {
+          nameX: listaX[0].name,
+          valueX: params.name,
+          nameY: listaX[1].name,
+          valueY: params.seriesName,
+        };
 
-      console.log("Clicked on series:", newItem);
-    } else if (params.seriesName === "Cantidad" || params.name === "Cantidad") {
-      const newItem = {
-        nameX: listaX[0].name,
-        valueX: params.name != "Cantidad" ? params.name : params.seriesName,
-      };
+        console.log("Clicked on series:", newItem);
+      } else if (
+        params.seriesName === "Cantidad" ||
+        params.name === "Cantidad"
+      ) {
+        const newItem = {
+          nameX: listaX[0].name,
+          valueX: params.name != "Cantidad" ? params.name : params.seriesName,
+        };
 
-      console.log("Clicked on series:", newItem);
-    }
-  };
+        console.log("Clicked on series:", newItem);
+      }
+    },
+    [multiVariable]
+  );
 
   return (
     <div className="p-4 space-y-4">
@@ -324,8 +301,6 @@ const AnalisisAvanzado = () => {
           )}
         </p>
       </div>
-      <Tarjetas items={listaX} />
-
       <div className="p-2 relative flex flex-col md:flex-row gap-4">
         <div className="p-2 md:w-[300px] border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
           {contenido && contenido.length > 0 && (
@@ -366,12 +341,12 @@ const AnalisisAvanzado = () => {
 
           <div className={`overflow-y-auto max-h-[450px] flex-1`}>
             {memoizedParams && memoizedJSX}
-            <TerminoClave setListaX={setListaX} listaX={listaX} />
+            {memoTerminoClave}
           </div>
           <div className="flex flex-wrap gap-2 mt-4 pt-4 justify-end">
             <AsyncButton
               name={"Realizar analisis"}
-              asyncFunction={getDatos}
+              asyncFunction={memoGetDatos}
               isLoading={isLoadingData}
               full={true}
             />
@@ -397,9 +372,14 @@ const AnalisisAvanzado = () => {
           {contenido && contenido.length > 0 ? (
             <div className="col-span-3 grid grid-cols-1">
               {!actual ? (
-                <TablaX data={lista} columns={columns} />
+                <TablaX data={tableData.slice(1)} columns={columns} />
               ) : (
                 <SimpleChart option={option} handleClick={handleClick} />
+                // <OptionChart
+                //   dataset={data}
+                //   chartType={selected}
+                //   isMultiVariable={multiVariable}
+                // />
               )}
             </div>
           ) : (

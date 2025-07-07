@@ -1,16 +1,13 @@
-import { createContext, useContext, useEffect } from "react";
+import { useEffect } from "react";
 import type { ContextProviderProps } from "../types";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { ThemeContext } from "../context";
 
 
 interface ValueContextType {
   isDark: boolean;
   toggleTheme: () => void;
 }
-
-export const themeContext = createContext<ValueContextType | undefined>(
-  undefined
-);
 
 export function ThemeProvider({ children }: ContextProviderProps) {
   const [isDark, setIsDark] = useLocalStorage<boolean>("theme", false);
@@ -32,23 +29,14 @@ export function ThemeProvider({ children }: ContextProviderProps) {
   const valor: ValueContextType = { isDark, toggleTheme };
 
   return (
-    <themeContext.Provider value={valor}>
+    <ThemeContext.Provider value={valor}>
       <div
         id="parent-container"
         className={isDark ? "dark-theme" : "light-theme"}
       >
         {children}
       </div>
-    </themeContext.Provider>
+    </ThemeContext.Provider>
   );
 }
 
-export function useThemeContext(): ValueContextType {
-  const context = useContext(themeContext);
-  if (!context) {
-    throw new Error("useThemeContext must be used within a ThemeProvider");
-  }
-  return context;
-}
-
-export default ThemeProvider;

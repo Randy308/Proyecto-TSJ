@@ -19,6 +19,7 @@ const WebScrapping = () => {
     } else {
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Eliminamos `can` de dependencias para evitar reejecuciones innecesarias
 
   const comprobarResoluciones = async () => {

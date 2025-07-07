@@ -16,6 +16,7 @@ export const Register = () => {
     if (getToken()) {
       navigate("/");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const submitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {

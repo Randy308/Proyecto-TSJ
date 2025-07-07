@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { DatosArrayForm } from "../types";
 
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
@@ -12,34 +13,34 @@ const instance = axios.create({
 });
 
 const JurisprudenciaService = {
-  searchTermino: (formData:any[]) =>
+  searchTermino: (formData:object) =>
     instance.get("/buscar-termino-jurisprudencia", {
       params: formData,
     }),
-  busquedaRapida: (formData:any[]) =>
-    instance.get("/obtener-descriptor", {
+  busquedaRapida: (formData:object) =>
+    instance.get("/buscar-descriptor", {
       params: formData,
     }),
-  actualizarNodo: (formData:any[]) =>
+  actualizarNodo: (formData:object) =>
     instance.get("/actualizar-nodo", {
       params: formData,
     }),
-  parametrosCronologia: (formData:any[]) =>
+  parametrosCronologia: (formData:object) =>
     instance.get("/obtener-parametros-cronologia", {
       params: formData,
     }),
-  obtenerCronologia: (formData:any[]) =>
+  obtenerCronologia: (formData:object) =>
     instance.post("/obtener-cronologias", formData, {
       responseType: "blob",
     }),
-  obtenerCronologiabyIds: (formData:any[]) =>
+  obtenerCronologiabyIds: (formData:object) =>
     instance.post("/obtener-cronologias-ids", formData, {
       responseType: "blob",
     }),
 
   obtenerNodos: () =>
     instance.get("/obtener-nodos"),
-  obtenerResoluciones: (formData:any[]) =>
+  obtenerResoluciones: (formData:DatosArrayForm) =>
     instance.get("/obtener-resoluciones-cronologia", {
       params: formData,
     }),

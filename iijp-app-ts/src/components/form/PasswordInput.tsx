@@ -32,7 +32,9 @@ const PasswordInput = ({
 
   useEffect(() => {
     validatePassword(password);
-  }, []);
+    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [password]);
   return (
     <div className="mb-6">
       <label

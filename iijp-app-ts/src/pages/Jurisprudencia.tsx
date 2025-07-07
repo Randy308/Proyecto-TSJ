@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import "../styles/jurisprudencia.css";
 import { jurisprudenciaItems } from "../data/JurisprudenciaItems";
 const Jurisprudencia = () => {
   return (

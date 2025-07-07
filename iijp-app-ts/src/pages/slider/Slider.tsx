@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
-import "../../styles/slider.css";
 import { sliderData } from "../../data/SliderData";
 
 const Slider = () => {
@@ -9,8 +8,8 @@ const Slider = () => {
   const slideLength = sliderData.length;
 
   const autoScroll = false;
-  let slideInterval: number;
-  let intervalTime = 9000;
+  let slideInterval: NodeJS.Timeout;
+  const intervalTime = 9000;
 
   const nextSlide = () => {
     setCurrentSlide(currentSlide === slideLength - 1 ? 0 : currentSlide + 1);
@@ -35,6 +34,7 @@ const Slider = () => {
       auto();
     }
     return () => clearInterval(slideInterval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSlide]);
 
   return (

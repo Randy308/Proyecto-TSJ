@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import ModalContent from "./ModalContent";
 import { FaUserLock } from "react-icons/fa";

@@ -1,122 +1,63 @@
 import Loading from "../../components/Loading";
 import SimpleChart from "../../components/charts/SimpleChart";
 import TablaX from "../../components/tables/TablaX";
-import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { SwitchChart } from "../../components/charts/SwitchChart";
-import axios from "axios";
 import Select from "../../components/Select";
-import { MdOutlineCleaningServices } from "react-icons/md";
 import AsyncButton from "../../components/AsyncButton";
-import { transposeArray } from "../../utils/math";
+import { invertirXY } from "../../utils/math";
 import { LuArrowLeftRight } from "react-icons/lu";
 import ResolucionesService from "../../services/ResolucionesService";
 import { useVariablesContext } from "../../context/variablesContext";
 import { filterParams } from "../../utils/filterForm";
-import { agregarSuma } from "../../utils/arrayUtils";
-const endpoint = process.env.REACT_APP_BACKEND;
-
+import { agregarTotalLista } from "../../utils/arrayUtils";
+import type { Variable, AnalisisData, ListaX } from "../../types";
+interface Columns {
+  accessorKey: string;
+  header: string;
+}
 const AnalisisBasico = () => {
-  const { id } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const receivedData = location.state?.data;
   const receivedForm = location.state?.validatedData;
-  const [datos, setDatos] = useState(null);
+  const [datos, setDatos] = useState<AnalisisData>([]);
   const [columna, setColumna] = useState(null);
-  const [umbral, setUmbral] = useState(0.05);
   const [option, setOption] = useState({});
-  const [terminos, setTerminos] = useState(null);
-  const [params, setParams] = useState(null);
-  const [columns, setColumns] = useState(null);
-  const [selected, setSelected] = useState();
+  const [params, setParams] = useState<Variable>({} as Variable);
+  const [columns, setColumns] = useState<Columns[]>([]);
+  const [selected, setSelected] = useState<string>("");
   const [actual, setActual] = useState(true);
-  const [lista, setLista] = useState([]);
   const [multiVariable, setMultiVariable] = useState(false);
-  const [totalRes, setTotalRes] = useState(0);
-  const [original, setOriginal] = useState([]);
-  const [nombre, setNombre] = useState("Nombre");
   const [isLoading, setIsLoading] = useState(false);
   const { data } = useVariablesContext();
-  useEffect(() => {
-    if (receivedForm) {
-      ResolucionesService.obtenerFiltrosEstadisticos(receivedForm)
-        .then((response) => {
-          if (response.data) {
-            setParams(filterParams(response.data, data));
-          }
-        })
-        .catch((err) => {
-          console.log("Existe un error " + err);
-        });
-    }
-  }, [receivedForm]);
+
+  const [tableData, setTableData] = useState<AnalisisData>([]);
 
   const memoizedParams = useMemo(() => params, [params]);
-  const [limite, setLimite] = useState(0);
-  const [listaX, setListaX] = useState([]);
+  const limite = useMemo(() => 1, []);
+  const [listaX, setListaX] = useState<ListaX[]>([]);
   const [checkedX, setCheckedX] = useState(false);
 
-  useEffect(() => {
-    if (receivedData === null || !Array.isArray(receivedData.data)) {
-      navigate("/estadisticas-basicas");
-    } else {
-      setTerminos(receivedData.terminos);
-      setDatos(receivedData.data.length > 0 ? receivedData.data : []);
-      setOriginal(receivedData.data.length > 0 ? receivedData.data : []);
-      setColumna(receivedData.columna);
-      setTotalRes(receivedData.total);
-      setMultiVariable(receivedData.multiVariable);
-      setNombre(receivedData.nombre);
-    }
-  }, [receivedData]);
-
-  const createSeries = (length) => {
+  const createSeries = (length: number) => {
     const series = [];
     for (let index = 0; index < length; index++) {
       series.push({ type: "bar", seriesLayoutBy: "column" });
     }
     return series;
   };
-  useEffect(() => {
-    if (datos && datos.length > 0) {
-      const { nuevaLista, headers, values } = agregarSuma(
-        multiVariable,
-        datos,
-        nombre
-      );
 
-      setLista(nuevaLista);
-      setOption({
-        legend: {},
-        tooltip: { trigger: "item" },
-        grid: { containLabel: true },
-        dataset: { source: [headers, ...values] },
-        toolbox: { feature: { saveAsImage: {} } },
-        xAxis: { type: "category", boundaryGap: true },
-        yAxis: {},
-        series: createSeries(headers.length - 1),
-      });
-    }
-  }, [datos]);
-
-  const handleChartTypeChange = (type) => {
+  const handleChartTypeChange = (type: string) => {
     setSelected(type);
     setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
 
   const updateCheck = () => {
-    const change = !checkedX;
-    setCheckedX(change);
-    if (!change) {
-      setListaX([]);
-      setLimite(0);
-    } else {
-      setLimite(1);
-    }
+    setCheckedX((change) => !change);
   };
 
-  const realizarAnalisis = () => {
+  const realizarAnalisis = async () => {
     setIsLoading(true);
 
     const isMultiVariable = listaX.length > 0;
@@ -136,9 +77,11 @@ const AnalisisBasico = () => {
         console.log("Datos cargados desde API", data);
         if (data) {
           setDatos(data.data.length > 0 ? data.data : []);
-          setOriginal(data.data.length > 0 ? data.data : []);
-
           setMultiVariable(data.multiVariable);
+          setTableData(
+            data.data.length > 0 ? agregarTotalLista(data.data) : []
+          );
+          console.log("Datos de tabla:", data.data);
         }
       })
       .catch((error) => {
@@ -153,46 +96,68 @@ const AnalisisBasico = () => {
   const invertirAxis = () => {
     setSelected("column");
     setOption((prevOption) => SwitchChart(prevOption, "column", true));
-    const transposed = transposeArray(lista);
-    setLista(transposed);
+    setTableData(invertirXY(tableData));
   };
 
   useEffect(() => {
-    if (original && original.length > 0 && totalRes > 0) {
-      let acumulado = 0;
-      const filteredData = original
-        .map((item) => {
-          if (item.cantidad / totalRes >= umbral) {
-            return { nombre: item.nombre, cantidad: item.cantidad };
-          } else {
-            acumulado += item.cantidad;
-            return null;
-          }
-        })
-        .filter((item) => item !== null);
-
-      if (acumulado > 0) {
-        filteredData.push({ nombre: "Otros", cantidad: acumulado });
-      }
-
-      //setDatos(filteredData);
-    }
-  }, [original, totalRes, umbral]);
-
-  useEffect(() => {
-    if (lista && lista.length > 0) {
-      let keys = Object.keys(lista[0]);
+    if (tableData && tableData.length > 0) {
+      const keys = tableData[0];
       setColumns(
-        keys.map((item) => ({
-          accessorKey: item,
-          header: item
+        keys.map((item, index) => ({
+          accessorKey: index.toString(),
+          header: String(item)
             .replace(/_/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
-          enableSorting: true,
         }))
       );
     }
-  }, [lista]);
+    console.log(tableData);
+  }, [tableData]);
+
+  useEffect(() => {
+    if (datos && datos.length > 0) {
+      setOption({
+        legend: {},
+        tooltip: { trigger: "item" },
+        grid: { containLabel: true },
+        dataset: { source: datos },
+        toolbox: { feature: { saveAsImage: {} } },
+        xAxis: { type: "category", boundaryGap: true },
+        yAxis: {},
+        series: createSeries(datos[0].length - 1),
+      });
+    }
+  }, [datos]);
+
+  useEffect(() => {
+    if (receivedData === null || !Array.isArray(receivedData.data)) {
+      navigate("/estadisticas-basicas");
+    } else {
+      const values = receivedData.data.length > 0 ? receivedData.data : [];
+      setDatos(values);
+      //setTableData(values);
+      setTableData(agregarTotalLista(values));
+      setColumna(receivedData.columna);
+      setMultiVariable(receivedData.multiVariable);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receivedData]);
+
+  useEffect(() => {
+    if (receivedForm) {
+      ResolucionesService.obtenerFiltrosEstadisticos(receivedForm)
+        .then((response) => {
+          if (response.data) {
+            setParams(filterParams(response.data, (data as Variable) || {}));
+          }
+        })
+        .catch((err) => {
+          console.log("Existe un error " + err);
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receivedForm]);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-1 p-2 m-2 lg:grid-cols-5">
       <div className="p-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
@@ -216,7 +181,7 @@ const AnalisisBasico = () => {
               onChange={(e) => handleChartTypeChange(e.target.value)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
-              <option disabled defaultValue>
+              <option disabled defaultValue={""}>
                 Elige un tipo de gráfico
               </option>
               <option value="bar">Barras</option>
@@ -301,7 +266,7 @@ const AnalisisBasico = () => {
       {datos && datos.length > 0 ? (
         <div className="lg:col-span-4 md:col-span-3">
           {!actual ? (
-            <TablaX data={lista} columns={columns} />
+            <TablaX data={tableData.slice(1)} columns={columns} />
           ) : (
             <SimpleChart option={option} />
           )}

@@ -5,7 +5,7 @@ import type { FiltroNombre, ListaData, ListaX, Variable } from "../types";
 interface SelectProps {
   limite: number;
   listaX: ListaX[];
-  setListaX: React.Dispatch<React.SetStateAction<ListaX[] | undefined>>;
+  setListaX: React.Dispatch<React.SetStateAction<ListaX[]>>;
   memoizedParams: Variable;
 }
 

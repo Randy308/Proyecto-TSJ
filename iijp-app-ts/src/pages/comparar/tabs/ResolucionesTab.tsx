@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "../../../styles/paginate.css";
 import Paginate from "../../../components/tables/Paginate";
 import PaginationData from "../../busqueda/PaginationData";
 const ResolucionesTab = ({ setActualFormData, data, realizarBusqueda }) => {

@@ -1,9 +1,8 @@
-import "../styles/navbar.css";
 import { useEffect, useRef, useState } from "react";
 import { HiMoon, HiOutlineLogin, HiSun } from "react-icons/hi";
 import { FaGear } from "react-icons/fa6";
 import "../styles/main.css";
-import { useThemeContext } from "../context/ThemeProvider";
+import { useThemeContext } from "../context";
 import { AuthUser } from "../auth";
 import Config from "../auth/Config";
 
@@ -15,7 +14,7 @@ const Settings = ({ reversed = false }) => {
   const listaRef = useRef<HTMLDivElement | null>(null);
   const { getToken, getLogout } = AuthUser();
 
-  const [timer, setTimer] = useState<number | null>(null);
+  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
 
   const restartTimer = () => {
     if (timer) {

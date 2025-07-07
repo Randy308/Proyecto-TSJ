@@ -31,7 +31,7 @@ const PortalButton = ({
 
   const modalIcon = useMemo(
     () => <Icon className={`w-4 h-4 ${name ? "mr-2" : ""}`} />,
-    []
+    [Icon, name]
   );
 
   const buttonColorClasses = {

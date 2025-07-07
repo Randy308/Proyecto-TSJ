@@ -13,6 +13,7 @@ import { useUserContext } from "../../../context/userContext";
 import Paginate from "../../../components/tables/Paginate";
 import { FaCircleUser } from "react-icons/fa6";
 import { AuthUser } from "../../../auth";
+import Loading from "../../../components/Loading";
 const Usuarios = () => {
   const { can } = AuthUser();
   const navigate = useNavigate();
@@ -32,6 +33,10 @@ const Usuarios = () => {
     const newPage = Math.min(page || 1, pageCount);
     obtenerUsers(newPage);
   };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <div className="md:px-10 px-2 pt-4">
@@ -113,7 +118,7 @@ const Usuarios = () => {
                               Icon={FaRegEye}
                               color="green"
                               title="Ver usuario"
-                              content={(_showModal, _setShowModal) => (
+                              content={() => (
                                 <VerUsuario id={item.id} />
                               )}
                             />
@@ -201,7 +206,7 @@ const Usuarios = () => {
                             color="green"
                             title="Ver usuario"
                             name={"Ver"}
-                            content={(_showModal, _setShowModal) => (
+                            content={() => (
                               <VerUsuario
                                 id={item.id}
                               />

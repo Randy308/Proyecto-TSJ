@@ -1,4 +1,4 @@
-interface Serie {
+export interface Serie {
     periodo: string;
     cantidad: number;
 }

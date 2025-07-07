@@ -1,26 +1,45 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 import boliviaJson from "../../data/Bolivia.json";
-import ReactECharts from "echarts-for-react";
+import ReactECharts, { type EChartsOption } from "echarts-for-react";
 import { registerMap } from "echarts/core";
 import { geoMercator } from "d3-geo";
 import "../../data/dark.js";
-import "../../data/vintage.js";
-import { useThemeContext } from "../../context/ThemeProvider.js";
+import { useThemeContext } from "../../context";
 import Loading from "../Loading.js";
 import { useNavigate } from "react-router-dom";
+import type { ECElementEvent } from "echarts";
+import type { ReceivedForm } from "../../types";
 
-const GeoChart = ({ contenido, receivedForm }) => {
-  const isDarkMode = useThemeContext();
+
+type EChartsGeoJSON = {
+  type: "FeatureCollection";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  features: any[];
+};
+
+interface contenidoItem {
+  name: string;
+  results: Record<string, number>;
+}
+
+interface contenidoItemWithTotal extends contenidoItem {
+  winner: string | undefined;
+  total: number;
+  value: number;
+}
+interface GeoChartProps {
+  contenido: contenidoItem[];
+  receivedForm: ReceivedForm;
+}
+
+const GeoChart = ({ contenido, receivedForm }: GeoChartProps) => {
+  const { isDark } = useThemeContext();
   const chartRef = useRef(null);
 
   const navigate = useNavigate();
-  const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState<string | null>(
+    null
+  );
 
   const colorPalette = useMemo(
     () => [
@@ -38,10 +57,10 @@ const GeoChart = ({ contenido, receivedForm }) => {
   );
 
   useMemo(() => {
-    registerMap("Bolivia", boliviaJson);
+    registerMap("Bolivia", boliviaJson as EChartsGeoJSON);
   }, []);
 
-  const getKeyWithMaxValue = useCallback((obj) => {
+  const getKeyWithMaxValue = useCallback((obj: Record<string, number>) => {
     if (!obj || Object.keys(obj).length === 0) return undefined;
     return Object.entries(obj).reduce((maxEntry, currentEntry) =>
       currentEntry[1] > maxEntry[1] ? currentEntry : maxEntry
@@ -52,7 +71,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
     return contenido.length > 0 ? Object.keys(contenido[0].results) : [];
   }, [contenido]);
 
-  const mapData = useMemo(() => {
+  const mapData: contenidoItemWithTotal[] = useMemo(() => {
     return contenido.map((item) => {
       const winner = getKeyWithMaxValue(item.results);
       const totalResoluciones = Object.values(item.results).reduce(
@@ -62,7 +81,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
 
       return {
         name: item.name,
-        value: dataKeys.indexOf(winner),
+        value: dataKeys.indexOf((winner || "").toLowerCase()),
         results: item.results,
         winner,
         total: totalResoluciones,
@@ -71,7 +90,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
   }, [contenido, dataKeys, getKeyWithMaxValue]);
 
   const mapDataIndex = useMemo(() => {
-    const index = {};
+    const index: { [key: string]: contenidoItemWithTotal } = {};
     for (const item of mapData) {
       index[item.name] = item;
     }
@@ -96,7 +115,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
   }, [selectedDepartment, contenido, dataKeys]);
 
   const tooltipFormatter = useCallback(
-    (params) => {
+    (params: contenidoItemWithTotal) => {
       const state = mapDataIndex[params.name];
       if (!state) return params.name;
       return `
@@ -109,7 +128,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
     [mapDataIndex]
   );
 
-  const mapOption = useMemo(
+  const mapOption: EChartsOption = useMemo(
     () => ({
       title: {
         text: "Desglose Comparativo de Resoluciones",
@@ -118,11 +137,11 @@ const GeoChart = ({ contenido, receivedForm }) => {
         textStyle: {
           fontSize: 14,
           fontWeight: "bold",
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         subtextStyle: {
           fontSize: 12,
-          color: isDarkMode ? "#ccc" : "#666",
+          color: isDark ? "#ccc" : "#666",
         },
       },
       color: colorPalette,
@@ -136,12 +155,10 @@ const GeoChart = ({ contenido, receivedForm }) => {
         trigger: "item",
         showDelay: 0,
         transitionDuration: 0.2,
-        backgroundColor: isDarkMode
-          ? "rgba(0,0,0,0.8)"
-          : "rgba(255,255,255,0.95)",
-        borderColor: isDarkMode ? "#555" : "#ccc",
+        backgroundColor: isDark ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.95)",
+        borderColor: isDark ? "#555" : "#ccc",
         textStyle: {
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         formatter: tooltipFormatter,
       },
@@ -151,7 +168,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         left: "right",
         top: "top",
         iconStyle: {
-          borderColor: isDarkMode ? "#fff" : "#333",
+          borderColor: isDark ? "#fff" : "#333",
         },
         feature: {
           saveAsImage: {
@@ -170,14 +187,19 @@ const GeoChart = ({ contenido, receivedForm }) => {
           silent: false,
           map: "Bolivia",
           projection: {
-            project: (point) => geoMercator()(point),
-            unproject: (point) => geoMercator().invert(point),
+            project: (point: [number, number]) => geoMercator()(point),
+            unproject: (point: [number, number]) => {
+              const mercator = geoMercator();
+              return typeof mercator.invert === "function"
+                ? mercator.invert(point)
+                : undefined;
+            },
           },
           label: {
             show: false, // Oculta etiquetas por defecto
           },
           itemStyle: {
-            borderColor: isDarkMode ? "#444" : "#999",
+            borderColor: isDark ? "#444" : "#999",
             borderWidth: 1,
           },
           emphasis: {
@@ -202,10 +224,10 @@ const GeoChart = ({ contenido, receivedForm }) => {
         },
       ],
     }),
-    [mapData, dataKeys, colorPalette, isDarkMode, tooltipFormatter]
+    [mapData, dataKeys, colorPalette, isDark, tooltipFormatter]
   );
 
-  const pieOption = useMemo(
+  const pieOption: EChartsOption = useMemo(
     () => ({
       title: {
         text: "Distribución Detallada",
@@ -213,21 +235,19 @@ const GeoChart = ({ contenido, receivedForm }) => {
         left: "center",
         textStyle: {
           fontSize: 16,
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         subtextStyle: {
           fontSize: 14,
-          color: isDarkMode ? "#ccc" : "#666",
+          color: isDark ? "#ccc" : "#666",
         },
       },
       tooltip: {
         trigger: "item",
-        backgroundColor: isDarkMode
-          ? "rgba(0,0,0,0.8)"
-          : "rgba(255,255,255,0.95)",
-        borderColor: isDarkMode ? "#555" : "#ccc",
+        backgroundColor: isDark ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.95)",
+        borderColor: isDark ? "#555" : "#ccc",
         textStyle: {
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
         formatter: "{a}<br/>{b}: {c} resoluciones ({d}%)",
       },
@@ -237,7 +257,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         top: "middle",
         data: dataKeys,
         textStyle: {
-          color: isDarkMode ? "#fff" : "#333",
+          color: isDark ? "#fff" : "#333",
         },
       },
       color: colorPalette,
@@ -254,7 +274,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
             position: "outside",
             formatter: "{b}\n{d}%",
             fontSize: 12,
-            color: isDarkMode ? "#fff" : "#333",
+            color: isDark ? "#fff" : "#333",
           },
           emphasis: {
             label: {
@@ -266,7 +286,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
           labelLine: {
             show: pieData.data.length <= 6,
             lineStyle: {
-              color: isDarkMode ? "#666" : "#999",
+              color: isDark ? "#666" : "#999",
             },
           },
           data: pieData.data,
@@ -275,10 +295,10 @@ const GeoChart = ({ contenido, receivedForm }) => {
         },
       ],
     }),
-    [pieData, dataKeys, colorPalette, isDarkMode]
+    [pieData, dataKeys, colorPalette, isDark]
   );
 
-  const handleMapClick = useCallback((event) => {
+  const handleMapClick = useCallback((event: ECElementEvent) => {
     if (event.name) {
       setSelectedDepartment((prev) =>
         prev === event.name ? null : event.name
@@ -296,6 +316,8 @@ const GeoChart = ({ contenido, receivedForm }) => {
       state: { params: receivedForm },
     });
   };
+
+
 
   if (!Array.isArray(contenido) || contenido.length === 0) {
     return (
@@ -443,7 +465,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-[#100C2A] rounded-xl border border-gray-300 dark:border-gray-800 shadow-lg overflow-hidden">
           <ReactECharts
-            theme={isDarkMode ? "dark" : "vintage"}
+            theme={isDark ? "dark" : undefined}
             option={mapOption}
             style={{ height: "600px", width: "100%" }}
             onEvents={{ click: handleMapClick }}
@@ -454,7 +476,7 @@ const GeoChart = ({ contenido, receivedForm }) => {
         <div className="bg-white dark:bg-[#100C2A] rounded-xl border border-gray-300 dark:border-gray-800 shadow-lg overflow-hidden">
           <ReactECharts
             ref={chartRef}
-            theme={isDarkMode ? "dark" : "shine"}
+            theme={isDark ? "dark" : undefined}
             option={pieOption}
             style={{ height: "600px", width: "100%" }}
             opts={{ renderer: "canvas" }}

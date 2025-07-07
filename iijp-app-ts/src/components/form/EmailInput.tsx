@@ -12,12 +12,12 @@ const EmailInput = ({
   emailError,
   setEmailError,
 }: EmailInputProps) => {
-  // useEffect(() => {
-  //   validateEmail(email);
-  // }, []);
+  useEffect(() => {
+    validateEmail(email);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [email]);
 
-  const validateEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.trim();
+  const validateEmail = (value: string) => {
     setEmail(value);
 
     if (!value) {
@@ -44,7 +44,7 @@ const EmailInput = ({
         id="email"
         name="email"
         value={email}
-        onChange={(e) => validateEmail(e)}
+        onChange={(e) => validateEmail(e.target.value)}
         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="Ingrese su email"
         required

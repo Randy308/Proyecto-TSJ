@@ -31,7 +31,7 @@ const EliminarUsuario = ({ id, setShowModal }: UsuarioProps) => {
       setFormData((users as CreateUser[]).find((item) => item.id === id) || {} as CreateUser);
     }
 
-  }, [users]);
+  }, [id, users]);
 
   const submitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

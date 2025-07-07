@@ -26,7 +26,7 @@ const VerUsuario = ({ id }: UsuarioProps) => {
       setFormData((users as CreateUser[]).find((item) => item.id === id) || {} as CreateUser);
     }
 
-  }, [users]);
+  }, [id, users]);
 
   if (Object.keys(formData).length <= 0) {
     return (

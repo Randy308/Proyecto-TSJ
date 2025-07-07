@@ -1,4 +1,6 @@
-export const filterForm = (formData) => {
+import type { DatosArray, FiltroNombre, ListaData, MagistradoItem, Variable } from "../types";
+
+export const filterForm = (formData: object) => {
   return Object.fromEntries(
     Object.entries(formData).filter(
       ([key, value]) =>
@@ -13,7 +15,7 @@ export const filterForm = (formData) => {
   );
 };
 
-export const filterTitle = (string:string) => {
+export const filterTitle = (string: string) => {
   const splitString = string.split("/");
   const tail = splitString.slice(1);
   for (let i = 0; i < tail.length; i++) {
@@ -33,23 +35,32 @@ export const validateErrors = (lista) => {
   }
   return true;
 };
-export const filterParams = (resultado, data) => {
-  const lista = {};
+export const filterParams = (
+  resultado: DatosArray,
+  data: Variable
+): Variable => {
+  const lista = {} as Variable;
 
   for (const [key, ids] of Object.entries(resultado)) {
-    const tabla = key;
-    const objeto = data[tabla];
+    // Validar que la clave existe en `data`
+    if (key in data) {
+      const tabla = key as keyof Variable;
+      const objeto = data[tabla];
 
-    if (!Array.isArray(objeto)) continue;
+      if (!Array.isArray(objeto)) continue;
 
-    // Filtrar los valores que están en la lista de IDs
-    const filtrado = objeto.filter((item) => ids.includes(item.id));
+      // Filtrar por IDs
+      const filtrado = objeto.filter((item) => ids?.includes(item.id));
 
-    lista[tabla] = filtrado;
+      lista[tabla] = filtrado as ListaData[] & MagistradoItem[]; // usamos `as any` para evitar conflicto de tipos exactos
+    }
   }
+
+  console.log("Lista filtrada:", lista);
   return lista;
 };
-export const filterAtributte = (atributo:number, tabla:string, data) => {
+
+export const filterAtributte = (atributo: string, tabla: string, data) => {
   if (!atributo || atributo === "null" || atributo === "undefined") {
     return "";
   }
@@ -62,7 +73,7 @@ export const filterAtributte = (atributo:number, tabla:string, data) => {
   return filtrado.length > 0 ? filtrado[0].nombre : atributo;
 };
 
-export const titulo = (nombre:string) => {
+export const titulo = (nombre: string) => {
   // Reemplaza el primer guion bajo por " de "
   const string = nombre.replace(/_/i, " de ");
 

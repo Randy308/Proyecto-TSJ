@@ -10,6 +10,7 @@ export const LayoutAdmin = () => {
     if (rol != "admin") {
       navigate("/");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

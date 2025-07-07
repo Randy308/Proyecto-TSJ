@@ -130,7 +130,7 @@ const SubirDatos = () => {
                         name={"Ver"}
                         large={true}
                         full={false}
-                        content={(_setShowModal) => (
+                        content={() => (
                           <ResolucionTSJ id={item.id} />
                         )}
                       />
@@ -156,7 +156,7 @@ const SubirDatos = () => {
                       color="link"
                       full={false}
                       large={true}
-                      content={(_setShowModal) => <ResolucionTSJ id={item.id} />}
+                      content={() => <ResolucionTSJ id={item.id} />}
                     />
                   </div>
 

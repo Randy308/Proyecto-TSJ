@@ -1,14 +1,41 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePapaParse } from "react-papaparse";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
-import { useThemeContext } from "../../context/ThemeProvider";
+import { AuthUser } from "../../auth";
 import AsyncButton from "../../components/AsyncButton";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import UserService from "../../services/UserService";
-import { AuthUser } from "../../auth";
+import Loading from "../../components/Loading";
 
+
+type nameCol = keyof Resolucion;
+interface Cols {
+  field: nameCol;
+  sortable: boolean;
+  resizable: boolean;
+}
+
+interface Resolucion {
+  id: string;
+  nro_resolucion: string;
+  nro_expediente: string;
+  fecha_emision: string;
+  fecha_publicacion: string;
+  tipo_resolucion: string;
+  departamento: string;
+  id_sala: string;
+  sala: string;
+  magistrado: string;
+  forma_resolucion: string;
+  proceso: string;
+  precedente: string;
+  demandante: string;
+  demandado: string;
+  id_tema: string;
+  maxima: string;
+  sintesis: string;
+  contenido: string;
+}
 const TablaCSV = () => {
   const { can } = AuthUser();
   const navigate = useNavigate();
@@ -35,19 +62,20 @@ const TablaCSV = () => {
     "contenido",
   ];
   const [isLoading, setIsLoading] = useState(false);
-  const isDarkMode = useThemeContext();
   const { readString } = usePapaParse();
-  const [rowData, setRowData] = useState<Array<Record<string, any>>>([]);
+  const [columnDefs, setColumnDefs] = useState<Cols[]>([]);
+  const [rowData, setRowData] = useState<Resolucion[]>([]);
   const [totalData, setTotalData] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [archivo, setArchivo] = useState<File | null>(null);
-  const sampleData = (data: string | any[], samplePercentage: number) => {
-    const sampleSize = Math.ceil(data.length * samplePercentage);
+  const sampleData = (data: Resolucion[]) => {
+    const sampleSize = Math.ceil(20);
     const shuffledData = [...data].sort(() => 0.5 - Math.random()); // Shuffle array randomly
     return shuffledData.slice(0, sampleSize); // Take the first 'sampleSize' elements
   };
 
   const handleString = (CSVString: string) => {
+    setColumnDefs([]);
     setRowData([]);
     setTotalData(0);
     setError(null);
@@ -56,14 +84,12 @@ const TablaCSV = () => {
       delimiter: ",",
       skipEmptyLines: true,
       header: true,
-      complete: (results: { errors: string | any[]; data: string | any[] }) => {
+      complete: (results) => {
         if (results.errors.length > 0) {
           setError("Error al procesar el archivo CSV");
           console.error(results.errors);
         } else {
-          const header = Object.keys(results.data[0]);
-
-          console.log("Resultados:", header);
+          const header = Object.keys(results.data[0] as object);
           if (header.length !== cabeceras.length) {
             setError(
               `El archivo CSV debe tener ${cabeceras.length} columnas. Actualmente tiene ${header.length}.`
@@ -79,37 +105,35 @@ const TablaCSV = () => {
             return;
           }
           setError(null);
-
           setTotalData(results.data.length);
-          const sampledData = sampleData(results.data, 0.1);
+          const sampledData = sampleData(results.data as Resolucion[]);
           setRowData(sampledData);
           if (results.data.length > 0) {
-            const headers = Object.keys(results.data[0]).map((header) => ({
-              field: header,
-              sortable: true,
-              resizable: true,
-              flex: 1,
-            }));
-            console.log("Columnas:", headers);
+            const headers = Object.keys(results.data[0] as object).map(
+              (header) => ({
+                field: header as nameCol,
+                sortable: true,
+                resizable: true,
+              })
+            );
+            setColumnDefs(headers);
           }
         }
       },
     });
   };
-
   const cargarArchivo = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    const file = files && files[0];
-    if (file) {
+    if (files && files[0]) {
+      const file = files[0];
       const reader = new FileReader();
       reader.onload = (event) => {
-        const target = event.target as FileReader | null;
-        if (target && typeof target.result === "string") {
-          const csvString = target.result;
-          handleString(csvString);
-        } else {
+        if (!event.target) {
           setError("No se pudo leer el archivo CSV");
+          return;
         }
+        const csvString = event.target.result;
+        handleString(csvString as string);
       };
       reader.onerror = () => {
         setError("No se pudo leer el archivo CSV");
@@ -131,39 +155,34 @@ const TablaCSV = () => {
     const formData = new FormData();
     formData.append("excelFile", archivo);
 
-    UserService.subirJurisprudencia(formData)
+    UserService.subirResoluciones(formData)
       .then(({ data }) => {
         if (data.success) {
-          const successMessage = data.mensaje || "Datos cargados exitosamente.";
-          const detailsMessage = `Total de registros procesados: ${data.total_records}, Registros omitidos: ${data.skipped_records}`;
+          const { mensaje, total_filas, filas_omitidas } = data;
 
-          toast.success(`${successMessage} ${detailsMessage}`);
-          console.log("Resultado:", data);
-        } else {
-          toast.warning(
-            data.mensaje || "El servidor no pudo completar la operación."
+          toast.success(
+            `${mensaje} Total filas procesadas: ${total_filas}. Filas omitidas: ${filas_omitidas}.`,
+            {
+              position: "top-right",
+              autoClose: 5000,
+              closeOnClick: true,
+              draggable: true,
+            }
           );
+        } else {
+          toast.error("El procesamiento no se completó correctamente.", {
+            position: "top-right",
+            autoClose: 5000,
+          });
         }
       })
       .catch((error) => {
         console.error("Error al realizar la solicitud:", error);
-
-        if (error.response) {
-          const { status, data } = error.response;
-          console.error(`Error ${status}:`, data);
-
-          if (data.error) {
-            toast.error(data.error);
-          } else {
-            toast.error("Ocurrió un error en el servidor.");
-          }
-        } else if (error.request) {
-          toast.error(
-            "No se pudo contactar al servidor. Por favor, inténtalo más tarde."
-          );
-        } else {
-          toast.error(`Error inesperado: ${error.message}`);
-        }
+        toast.error(`Error al realizar la solicitud: ${error.message}`, {
+          position: "top-right",
+          autoClose: 5000,
+        });
+        setIsLoading(false);
       })
       .finally(() => {
         setIsLoading(false);
@@ -178,12 +197,12 @@ const TablaCSV = () => {
     }
   }, [can, navigate]);
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <div className="flex flex-col justify-center items-center">
-      <div
-        className={isDarkMode ? "ag-theme-alpine-dark" : "ag-theme-alpine"}
-        style={{ height: 500, width: "95%" }}
-      >
+      <div>
         <label
           className="text-2xl font-extrabold dark:text-white"
           htmlFor="file_input"
@@ -205,18 +224,48 @@ const TablaCSV = () => {
             <h3 className="py-4 text-sm roboto-bold dark:text-white">
               Vista previa del contenido
             </h3>
+
+            {rowData.length > 0 && (
+              <div className="overflow-x-auto lg:max-w-[1200px] md:max-w-[500px] sm:max-w-[400px] max-w-[90dvw]">
+                <table className="table-auto border-collapse">
+                  <thead className="bg-gray-100 dark:bg-gray-800">
+                    <tr>
+                      {columnDefs.map((colDef) => (
+                        <th
+                          key={colDef.field}
+                          className="p-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300 border-b dark:border-gray-600"
+                        >
+                          {colDef.field}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rowData.map((row, rowIndex) => (
+                      <tr
+                        key={rowIndex}
+                        className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      >
+                        {columnDefs.map((colDef) => (
+                          <td
+                            key={colDef.field}
+                            className="p-3 text-sm text-gray-800 dark:text-gray-200 max-w-[200px] truncate whitespace-nowrap"
+                            title={row[colDef.field]} // Tooltip con el contenido completo
+                          >
+                            {row[colDef.field]}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <h4 className="py-4 text-sm dark:text-white">
               {totalData} filas encontradas
             </h4>
             <div className="p-4 m-4 flex justify-end">
-              {/* <button
-                type="button"
-                onClick={() => handleClick()}
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
-              >
-                Subir
-              </button> */}
-
               <div>
                 <AsyncButton
                   asyncFunction={handleClick}

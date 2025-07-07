@@ -5,7 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
 import JurisprudenciaService from "../../services/JurisprudenciaService";
-import { filterAtributte, filterForm, filterParams, filterTitle } from "../../utils/filterForm";
+import {
+  filterAtributte,
+  filterForm,
+  filterParams,
+  filterTitle,
+} from "../../utils/filterForm";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
 import PortalButton from "../../components/modal/PortalButton";
@@ -15,6 +20,31 @@ import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
 import { IoMdClose, IoMdRefresh } from "react-icons/io";
 import AsyncButton from "../../components/AsyncButton";
 import { useIcons } from "../../components/icons/Icons";
+import type {
+  DatosArray,
+  DatosArrayForm,
+  FiltroNombre,
+  ListaData,
+  Variable,
+} from "../../types";
+
+interface Resultado {
+  descriptor: string;
+  id: number;
+  nro_resolucion: string;
+  periodo: string;
+  ratio: string;
+  resolution_id: string;
+  restrictor: string;
+  tipo_resolucion: string;
+}
+
+interface TerminoBusqueda {
+  cantidad: string;
+  descriptor: string;
+  descriptor_id: string;
+  root_id: string;
+}
 
 const CronologiasAvanzadas = () => {
   const { data } = useVariablesContext();
@@ -24,14 +54,11 @@ const CronologiasAvanzadas = () => {
   const searchIcon = useMemo(() => <FaSearch className="w-4 h-4 " />, []);
 
   const refreshIcon = useMemo(() => <IoMdRefresh className="w-4 h-4" />, []);
-  const [descriptor, setDescriptor] = useState([]);
-  const [descriptorName, setDescriptorName] = useState("");
-  const [resultado, setResultado] = useState([]);
+  const [descriptor, setDescriptor] = useState<number | null>(null);
+  const [descriptorName, setDescriptorName] = useState<string>("");
+  const [facetas, setFacetas] = useState<Variable>({} as Variable);
   const [checked, setChecked] = useState(true);
-  const [formData, setFormData] = useState({
-    subtitulo: "",
-    seccion: false,
-  });
+  const [formData, setFormData] = useState<DatosArray>({});
 
   const navigate = useNavigate();
 
@@ -39,18 +66,17 @@ const CronologiasAvanzadas = () => {
   const [actualPage, setActualPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
   const [totalCount, setTotalCount] = useState(1);
-  const [resoluciones, setResoluciones] = useState([]);
+  const [resoluciones, setResoluciones] = useState<Resultado[]>([]);
 
   const { removeAllIcon, checkAllIcon } = useIcons();
-  const [selectedAll, setSelectedAll] = useState(false);
 
-  const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [errorBusqueda, setErrorBusqueda] = useState("");
 
-  const [busqueda, setBusqueda] = useState("");
-  const [resultados, setResultados] = useState([]);
+  const [busqueda, setBusqueda] = useState<string>("");
+  const [resultados, setResultados] = useState<TerminoBusqueda[]>([]);
 
-  const checkSearch = (valor) => {
+  const checkSearch = (valor: string) => {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'’-]+$/;
 
     if (regex.test(valor) || valor === "") {
@@ -59,7 +85,7 @@ const CronologiasAvanzadas = () => {
       return false;
     }
   };
-  const actualizarInput = (e) => {
+  const actualizarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
     if (checkSearch(valor)) {
       setBusqueda(valor);
@@ -69,7 +95,7 @@ const CronologiasAvanzadas = () => {
     }
   };
 
-  const agregarResoluciones = (item) => {
+  const agregarResoluciones = (item: TerminoBusqueda) => {
     setDescriptor(Number.parseInt(item.descriptor_id));
     setDescriptorName(item.descriptor);
     //setMateria(Number.parseInt(item.root_id));
@@ -81,7 +107,7 @@ const CronologiasAvanzadas = () => {
     //obtenerResoluciones()
   };
 
-  const obtenerCronologia = async (e) => {
+  const obtenerCronologia = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     if (selectedIds.length <= 0) {
@@ -117,7 +143,7 @@ const CronologiasAvanzadas = () => {
       });
   };
 
-  const search = async () => {
+  const searchDescriptors = async () => {
     if (!checkSearch(busqueda)) {
       return;
     }
@@ -126,7 +152,7 @@ const CronologiasAvanzadas = () => {
       return;
     }
 
-    if(busqueda.length < 1 ) {
+    if (busqueda.length < 1) {
       setErrorBusqueda("Debe ingresar un término de búsqueda");
       return;
     }
@@ -150,8 +176,12 @@ const CronologiasAvanzadas = () => {
           setErrorBusqueda("No se encontraron resultados");
           setResultados([]);
         });
-    } catch (error) {
-      const message = error.response?.data?.error || "Ocurrió un error";
+    } catch (error: unknown) {
+      let message = "Ocurrió un error";
+      if (typeof error === "object" && error !== null && "response" in error) {
+        // @ts-expect-error: We are checking for response property
+        message = error.response?.data?.error || message;
+      }
       console.error("Error fetching data:", message);
       console.error("Error :", error);
     }
@@ -159,6 +189,7 @@ const CronologiasAvanzadas = () => {
 
   useEffect(() => {
     obtenerResoluciones();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData]);
 
   const obtenerResoluciones = async (page = 1) => {
@@ -175,11 +206,11 @@ const CronologiasAvanzadas = () => {
     setPageCount(1);
     setTotalCount(1);
 
-    JurisprudenciaService.obtenerResoluciones(validatedData)
+    JurisprudenciaService.obtenerResoluciones(validatedData as DatosArrayForm)
       .then((response) => {
         if (response.data.data.length > 0) {
           setResoluciones(response.data.data);
-          setResultado(filterParams(response.data.facets, data));
+          setFacetas(filterParams(response.data.facets, (data as Variable) || {}));
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
           setTotalCount(response.data.total);
@@ -190,18 +221,15 @@ const CronologiasAvanzadas = () => {
       .catch((error) => {
         const message = error.response?.data?.error || "Ocurrió un error";
         console.error("Error fetching data:", message);
-      })
-      .finally(() => {
-        setSelectedAll(false);
       });
   };
-  const handlePageClick = (page) => {
+  const handlePageClick = (page: number) => {
     const selectedPage = Math.min(page, lastPage);
     setActualPage(page);
     obtenerResoluciones(selectedPage);
   };
 
-  const handleCheckbox = (e) => {
+  const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newID = Number(e.target.value);
 
     setSelectedIds((prev) => {
@@ -221,7 +249,7 @@ const CronologiasAvanzadas = () => {
     });
   };
 
-  const selectAll = (e) => {
+  const selectAll = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const disponiblesIds = resoluciones.map((item) =>
       Number(item.resolution_id)
@@ -241,10 +269,9 @@ const CronologiasAvanzadas = () => {
       const allIds = new Set([...prev, ...idsAAgregar]);
       return Array.from(allIds); // evita duplicados
     });
-    setSelectedAll(true);
   };
 
-  const clearList = (e) => {
+  const clearList = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     setSelectedIds((prev) =>
       prev.filter(
@@ -284,7 +311,7 @@ const CronologiasAvanzadas = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => search()}
+                  onClick={() => searchDescriptors()}
                   className="flex items-center bg-red-octopus-600 p-4 text-white rounded-lg hover:bg-red-octopus-700 focus:ring-4 focus:ring-red-octopus-300 dark:focus:ring-red-octopus-800"
                 >
                   {searchIcon}{" "}
@@ -347,7 +374,10 @@ const CronologiasAvanzadas = () => {
           <div className="text-sm flex flex-row items-center flex-wrap gap-2">
             <span className="text-black dark:text-white">Descriptor:</span>
             <div
-              onClick={() => setDescriptor(null) && setDescriptorName("")}
+              onClick={() => {
+                setDescriptor(null);
+                setDescriptorName("");
+              }}
               className="bg-white group flex gap-4 items-center justify-between hover:cursor-pointer rounded-lg p-2 font-bold m-4 border hover:border-red-500 text-xs dark:bg-gray-500"
             >
               <span>{descriptorName}</span>
@@ -415,11 +445,11 @@ const CronologiasAvanzadas = () => {
           ) : (
             <div className="flex flex-row flex-wrap gap-4">
               <div className="lg:w-auto w-full">
-                {Object.entries(resultado).map(([name, contenido]) => (
+                {Object.entries(facetas).map(([name, contenido]) => (
                   <Filtros
                     key={name}
-                    nombre={name}
-                    data={contenido}
+                    nombre={name as FiltroNombre}
+                    data={contenido as ListaData[]}
                     formData={formData}
                     setFormData={setFormData}
                   />
@@ -505,8 +535,10 @@ const CronologiasAvanzadas = () => {
                                   color="link"
                                   full={false}
                                   large={true}
-                                  content={(setShowModal) => (
-                                    <ResolucionTSJ id={item.resolution_id} />
+                                  content={() => (
+                                    <ResolucionTSJ
+                                      id={Number(item.resolution_id)}
+                                    />
                                   )}
                                 />
                               </div>
@@ -564,7 +596,6 @@ const CronologiasAvanzadas = () => {
                           pageCount={pageCount}
                           actualPage={actualPage}
                           totalCount={totalCount}
-                          lastPage={lastPage}
                         />
                       </div>
                     </>

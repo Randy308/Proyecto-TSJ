@@ -1,6 +1,5 @@
-import React from "react";
 import { useNotificationContext } from "../../context/notificationContext";
-import AuthUser from "../../auth/AuthUser";
+import {AuthUser} from "../../auth";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import UserService from "../../services/UserService";
@@ -13,8 +12,8 @@ const Notificaciones = () => {
     return null;
   }
 
-  const updateNotification = async (id) => {
-    const notification = notifications.find((n) => n.id === id);
+  const updateNotification = async (id:number) => {
+    const notification = (notifications || []).find((n) => n.id === id);
 
     if (!notification) {
       console.warn(`No se encontró notificación con ID ${id}`);
@@ -28,17 +27,17 @@ const Notificaciones = () => {
 
     // Optimistic update
     setNotifications((prevNotifications) =>
-      prevNotifications.map((n) => (n.id === id ? { ...n, estado: "read" } : n))
+      (prevNotifications || []).map((n) => (n.id === id ? { ...n, estado: "read" } : n))
     );
 
     try {
-      await UserService.markNotificationAsRead(id, getToken());
+      await UserService.markNotificationAsRead(id);
     } catch (error) {
       console.error("Error marcando notificación como leída:", error);
 
       // Revertir estado si falla la API
       setNotifications((prevNotifications) =>
-        prevNotifications.map((n) =>
+        (prevNotifications || []).map((n) =>
           n.id === id ? { ...n, estado: "unread" } : n
         )
       );

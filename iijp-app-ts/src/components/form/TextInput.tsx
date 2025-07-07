@@ -13,6 +13,7 @@ const TextInput = ({
 }: TextInputProps) => {
   useEffect(() => {
     validateInput(input);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input]); // Dependencia agregada para validar al cambiar el input
 
   const validateInput = (value: string) => {

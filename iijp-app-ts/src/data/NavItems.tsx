@@ -1,6 +1,5 @@
 import { FaHome, FaSearch } from "react-icons/fa";
-import { FaClock, FaFolderOpen, FaRegChartBar, FaRegNewspaper } from "react-icons/fa6";
-import { CgToolbox } from "react-icons/cg";
+import { FaClock, FaFolderOpen, FaRegChartBar } from "react-icons/fa6";
 import { MdOutlineSsidChart } from "react-icons/md";
 
 
@@ -38,9 +37,18 @@ export const navItemsAnalisis = [
     ),
   },
   {
-    id: 3,
+    id: 2,
     title: "Analisis Avanzado",
     path: "/analisis-avanzado",
+    cName: "nav-item",
+    icon: (
+      <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
+    ),
+  },
+  {
+    id: 3,
+    title: "Comparar Datos",
+    path: "/comparar-datos",
     cName: "nav-item",
     icon: (
       <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />

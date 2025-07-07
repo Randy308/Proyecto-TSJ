@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
 import { filterForm, filterParams, titulo } from "../../utils/filterForm";
@@ -7,12 +7,13 @@ import { IoMdSearch } from "react-icons/io";
 import ResolucionesService from "../../services/ResolucionesService";
 import PaginationData from "./PaginationData";
 import Paginate from "../../components/tables/Paginate";
-import type { DatosArray, FiltroNombre, ListaData } from "../../types";
+import { toast } from "react-toastify";
+import { DatosArray, Variable, type FiltroNombre, type ListaData } from "../../types";
 const Busqueda = () => {
   const { data } = useVariablesContext();
 
-  const [formData, setFormData] = useState<DatosArray>({} as DatosArray);
-  const [selector, setSelector] = useState(null);
+  const [formData, setFormData] = useState<DatosArray>({});
+  const [selector, setSelector] = useState<Variable>({} as Variable);
   const [resoluciones, setResoluciones] = useState([]);
   const [termino, setTermino] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -83,8 +84,8 @@ const Busqueda = () => {
   };
 
   useEffect(() => {
-    setSelector(filterParams(formData, data));
-  }, [formData]);
+    setSelector(filterParams(formData, (data as Variable) || {}));
+  }, [data, formData]);
 
   return (
     <div className="pt-20 text-black dark:text-white">
@@ -117,7 +118,7 @@ const Busqueda = () => {
         <div className="rounded-lg py-3">
           <p className="text-2xl font-bold p-2">Filtros</p>
           <div className="gird grid-cols-1 gap-4 p-2 my-2">
-            {Object.entries(data).map(
+            {Object.entries((data || {}) as Variable).map(
               ([name, contenido]) =>
                 !["materia", "tipo_jurisprudencia"].includes(name) && (
                   <Filtros
@@ -129,6 +130,7 @@ const Busqueda = () => {
                   />
                 )
             )}
+            
           </div>
         </div>
         <div className="sm:col-span-3 lg:col-span-4">
@@ -165,6 +167,7 @@ const Busqueda = () => {
                       resolutions={resoluciones}
                       setFormData={setSearchType}
                       data={data}
+                      termino={termino}
                     />
 
                     <Paginate
@@ -172,7 +175,6 @@ const Busqueda = () => {
                       pageCount={pageCount}
                       actualPage={actualPage}
                       totalCount={totalCount}
-                      lastPage={lastPage}
                     />
                   </>
                 )}

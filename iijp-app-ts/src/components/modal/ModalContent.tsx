@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { IoMdClose } from "react-icons/io";
-import { Login } from "../../auth";
+import {Login} from "../../auth";
 
 
 interface ModalProps {
