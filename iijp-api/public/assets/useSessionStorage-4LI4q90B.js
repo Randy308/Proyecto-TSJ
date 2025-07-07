@@ -1,1 +1,0 @@
-import{r as a}from"./index-BO822pXt.js";function S(t,r){const[o,s]=a.useState(()=>{try{const e=window.sessionStorage.getItem(t);return e?JSON.parse(e):r}catch(e){return console.log(e),r}});return[o,e=>{try{s(e),window.sessionStorage.setItem(t,JSON.stringify(e))}catch(n){console.log(n)}}]}export{S as u};

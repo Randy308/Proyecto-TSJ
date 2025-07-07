@@ -50,15 +50,15 @@ export const navItemsAnalisis = [
       <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
     ),
   },
-  {
-    id: 3,
-    title: "Comparar Datos",
-    path: "/comparar-datos",
-    cName: "nav-item",
-    icon: (
-      <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
-    ),
-  },
+  // {
+  //   id: 3,
+  //   title: "Comparar Datos",
+  //   path: "/comparar-datos",
+  //   cName: "nav-item",
+  //   icon: (
+  //     <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
+  //   ),
+  // },
 ];
 export const navItems = [
   {
