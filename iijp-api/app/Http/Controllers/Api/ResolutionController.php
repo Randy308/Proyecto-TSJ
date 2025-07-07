@@ -1469,7 +1469,7 @@ class ResolutionController extends Controller
 
         return response()->json([
             'total' => $total,
-            'data' => $this->ordenarArrayXY($combinations, 'termino', 'nombre'),
+            'data' => Math::completarArray($combinations, 'termino', 'nombre'),
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
             'nombre' => "nombre",
@@ -1480,6 +1480,8 @@ class ResolutionController extends Controller
 
     function getTerminosXYy(Request $request)
     {
+
+
         $validator = Validator::make($request->all(), [
             'terminosX' => 'required|array',
             'terminosX.*' => 'required|string',
@@ -1557,16 +1559,6 @@ class ResolutionController extends Controller
     function getTerminosXY(Request $request)
     {
 
-
-
-        $variable = json_decode(base64_decode($request->variable));
-        $variableY = json_decode(base64_decode($request->variableY));
-        $request->merge([
-            'variable' => $variable,
-            'variableY' => $variableY,
-            'nombre' => $request->nombre,
-            'nombreY' => $request->nombreY,
-        ]);
 
         $validator = Validator::make($request->all(), [
             'departamento' => 'nullable|array',
