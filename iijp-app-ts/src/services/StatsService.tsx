@@ -17,16 +17,16 @@ const StatsService = {
     instance.get("/obtener-terminos-avanzados", {
       params,
     }),
-  getStatsX: (params:FormData) =>
+  getStatsX: (params:object) =>
     instance.get(`obtener-estadistica-avanzada-x`, { params }),
 
-  getTimeSeries: (params:FormData) =>
+  getTimeSeries: (params:object) =>
     instance.get(`obtener-serie-temporal-x`, { params }),
   getMapa: (params:ReceivedForm) => instance.get(`obtener-mapa-x`, { params }),
 
-  getStatsXY: (params:FormData) =>
+  getStatsXY: (params:object) =>
     instance.get(`obtener-estadistica-avanzada-xy/`, { params }),
-  buscarTermino: (params:FormData) => instance.get(`buscar-terminos/`, { params }),
+  buscarTermino: (params:object) => instance.get(`buscar-terminos/`, { params }),
 };
 
 export default StatsService;

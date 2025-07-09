@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Jurisprudencias;
+use App\Models\Resolutions;
+
 return [
 
     /*
@@ -203,6 +206,70 @@ return [
             //         'query_by' => 'name'
             //     ],
             // ],
+
+            Jurisprudencias::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        ['name' => 'id', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'resolution_id', 'type' => 'int32'],
+                        ['name' => 'materia', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'descriptor_id', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'tipo_jurisprudencia', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'periodo', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'tipo_resolucion', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'sala', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'departamento', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'magistrado', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'forma_resolucion', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'descriptor_facet', 'type' => 'string', 'facet' => true],
+                        ['name' => 'nro_resolucion', 'type' => 'string'],
+                        ['name' => 'nro_expediente', 'type' => 'string'],
+                        ['name' => 'descriptor', 'type' => 'string'],
+                        ['name' => 'ratio', 'type' => 'string'],
+                        ['name' => 'restrictor', 'type' => 'string'],
+                        ['name' => 'precedente', 'type' => 'string'],
+                        ['name' => 'proceso', 'type' => 'string'],
+                        ['name' => 'maxima', 'type' => 'string'],
+                        ['name' => 'sintesis', 'type' => 'string'],
+                    ],
+                    'default_sorting_field' => 'periodo',
+                    'token_separators' => ['-', '_'],
+                    'enable_nested_fields' => true,
+                    'distinct' => 'resolution_id',
+                ],
+                "search-parameters" => [
+                    "query_by" => "descriptor, ratio, restrictor, precedente, proceso, maxima, sintesis",
+                ],
+            ],
+            Resolutions::class => [
+                'collection-schema' => [
+                    'fields' => [
+                        ['name' => 'id', 'type' => 'string'],
+                        ['name' => 'sala', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'magistrado', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'tipo_resolucion', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'forma_resolucion', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'departamento', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'periodo', 'type' => 'int32', 'facet' => true],
+                        ['name' => 'tiene_jurisprudencias', 'type' => 'bool', 'facet' => true],
+                        ['name' => 'contenido', 'type' => 'string'],
+                        ['name' => 'demandante', 'type' => 'string'],
+                        ['name' => 'demandado', 'type' => 'string'],
+                        ['name' => 'nro_resolucion', 'type' => 'string'],
+                        ['name' => 'nro_expediente', 'type' => 'string'],
+                        ['name' => 'sintesis', 'type' => 'string'],
+                        ['name' => 'precedente', 'type' => 'string'],
+                        ['name' => 'proceso', 'type' => 'string'],
+                        ['name' => 'maxima', 'type' => 'string'],
+                    ],
+                    'default_sorting_field' => 'periodo',
+                    'token_separators' => ['-', '_'],
+                    'enable_nested_fields' => true,
+                ],
+                "search-parameters" => [
+                    "query_by" => "contenido, demandante, demandado, nro_resolucion, nro_expediente, sintesis, precedente, proceso, maxima",
+                ],
+            ]
         ],
     ],
 

@@ -293,35 +293,33 @@ class JurisprudenciasController extends Controller
 
 
         $query = $request->input('busqueda', '');
-        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) {
-            $options['facets'] = ['descriptor_facet'];
-            return $meilisearch->search($query, $options);
-        });
-
-        if ($request->has('materia')) {
-            $materia = $request->input('materia');
-            $search->where('materia', $materia);
-        }
+        $highlight = 'ratio,descriptor,restrictor'; // o lo que necesites
+        $strategy = 'all'; // o 'last'
 
 
+        $options = [
+            'query_by' => $highlight,
+            'matching_strategy' => $strategy,
+            'facet_by' => 'descriptor_facet',
+            'include_fields' => 'descriptor_facet',
+        ];
+        
+
+
+
+        $search = Jurisprudencias::search($query)->options($options);
         $search = $search->raw();
+        $facets = $search['facet_counts'][0]['counts'] ?? [];
 
 
-        $facets = $search['facetDistribution']['descriptor_facet'] ?? [];
-
-
-        $facets = collect($facets)->map(function ($count, $facet) {
-            $parts = explode('||', $facet);
+        $facets = collect($facets)->map(function ($facet) {
+            $parts = explode('||', $facet['value']);
             return [
                 'root_id' => $parts[0],
                 'descriptor_id' => $parts[1],
                 'descriptor' => $parts[2],
-                'cantidad' => $count,
+                'cantidad' => $facet['count'],
             ];
-        })->values()->toArray();
-
-        usort($facets, function ($a, $b) {
-            return $a['cantidad'] < $b['cantidad'];
         });
 
         return response()->json($facets);

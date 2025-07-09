@@ -12,6 +12,7 @@ use App\Models\Resolutions;
 use App\Models\Sala;
 use App\Models\Tema;
 use App\Models\TipoResolucions;
+use App\Utils\Busqueda;
 use App\Utils\Listas;
 use Carbon\Carbon;
 use Dotenv\Validator;
@@ -98,29 +99,38 @@ class TemaController extends Controller
         $highlight = ['contenido', 'sintesis', 'precedente', 'maxima', 'proceso'];
         $highlight = ['descriptor', 'ratio', 'restrictor'];
         //$highlight = ['descriptor'];
-        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo','materia','magistrado', 'forma_resolucion'];
+        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'materia', 'magistrado', 'forma_resolucion'];
+        $strategy = 'all';
 
-        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
-            $options['attributesToHighlight'] = $highlight;
-            $options['attributesToCrop'] = $highlight;
-            $options['cropLength'] = 50;
-            $options['highlightPreTag'] = '<b class="highlight">';
-            $options['highlightPostTag'] = '</b>';
-            $options['limit'] = $perPage;
-            $options['offset'] = $offset;
-            $options['attributesToSearchOn'] = $highlight;
-            $options['facets'] = $facetas;
-          $options['attributesToRetrieve'] = [
-                'id',
-                'resolution_id',
-                'tipo_resolucion',
-                'nro_resolucion',
-                'periodo',
-                '_formatted',
-            ];
+        $extraFields = [
+            'id',
+            'resolution_id',
+            'tipo_resolucion',
+            'nro_resolucion',
+            'periodo',
+        ];
 
-            return $meilisearch->search($query, $options);
-        });
+        // unir ambos arrays sin duplicados
+        $allFields = array_unique(array_merge($highlight, $extraFields));
+
+
+        $options = [
+            'query_by' => implode(',', $highlight),
+            'highlight_full_fields' => implode(',', $highlight),
+            'highlight_start_tag' => '<b class="highlight">',
+            'highlight_end_tag' => '</b>',
+            'highlight_affix_num_tokens' => 9,
+            'snippet_threshold' => 100,
+            'matching_strategy' => $strategy,
+            'facet_by' => implode(',', $facetas),
+            'limit' => $perPage,
+            'offset' => $offset,
+            'include_fields' => implode(',', $allFields),
+        ];
+
+        $search = Jurisprudencias::search($query)->options($options);
+
+
         if ($request->has('materia')) {
             $materia = $request->input('materia');
             $search->where('materia', $materia[0]);
@@ -152,45 +162,24 @@ class TemaController extends Controller
 
         $search = $search->raw();
 
-        // Solo los _formatted
-        $formattedResults = collect($search['hits'])->map(function ($hit) {
-            return $hit['_formatted'] ?? [];
-        });
 
 
+        $hits = Busqueda::generarResultado($search);
 
-        $facets = $search['facetDistribution'] ?? [];
+        $facetas = $search['facet_counts'] ?? [];
 
-
-
-        $filtros = [];
-
-        foreach ($facetas as $value) {
-            if (!isset($facets[$value])) {
-                continue;
-            }
-
-            $numericalKeys = array_map('intval', array_keys($facets[$value]));
-
-            $filtered = array_filter($numericalKeys, function ($item) {
-                return $item !== 0;
-            });
-
-            $filtros[$value] = array_values($filtered); // Reindexa
-        }
+        $facets = Busqueda::obtenerFacetas($facetas);
 
 
         return response()->json([
-            'data' => $formattedResults,
-            'facets' => $filtros,
+            'data' => $hits,
+            'facets' => $facets,
             'current_page' => $page,
             'per_page' => $perPage,
-            'total' => $search['estimatedTotalHits'] ?? 0,
-            'last_page' => ceil(($search['estimatedTotalHits'] ?? 0) / $perPage),
+            'total' => $search['found'] ?? 0,
+            'last_page' => ceil(($search['found'] ?? 0) / $perPage),
 
         ]);
-
-        return response()->json($resultados);
     }
 
     public function obtenerParametrosCronologia(Request $request)
@@ -389,7 +378,7 @@ class TemaController extends Controller
             ]
         ]);
 
-        return $pdf->Output('document.pdf', 'I');
+        return $pdf->Output();
         //$pdf = LaravelMpdf::loadView('test');
         //return $pdf->stream('document.pdf');
     }
@@ -399,12 +388,16 @@ class TemaController extends Controller
     public function obtenerCronologias(Request $request)
     {
 
+        $request->validate([
+            'tema_id' => 'required|integer',
+            'descriptor' => 'nullable|string|max:100',
+            'cantidad' => 'nullable|integer|min:1|max:100',
+            'seccion' => 'nullable|boolean',
+        ]);
+
         $tema_id = $request['tema_id'];
-        $descriptor = $request['descriptor'];
         $cantidad = $request["cantidad"];
 
-
-        $excluirNodos = filter_var($request["recorrer"], FILTER_VALIDATE_BOOLEAN);
         $seccion = filter_var($request["seccion"], FILTER_VALIDATE_BOOLEAN);
 
 
@@ -429,40 +422,11 @@ class TemaController extends Controller
             $query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
         }
 
-        if ($excluirNodos === true) {
-            // Busca términos que empiecen con el descriptor
-            $query->where('j.descriptor', 'like',  $descriptor);
-        } else {
-            // Busca coincidencias parciales en cualquier posición
-            $query->where('j.descriptor', 'like',  $descriptor . '%');
-        }
-
-
-        if ($request->has('periodo')) {
-            $query->whereYear('r.fecha_emision',  $request->periodo);
-        }
-
-        if ($request->has('magistrado')) {
-            $query->whereIn("r.magistrado_id", $request->magistrado);
-        }
-        if ($request->has('forma_resolucion')) {
-            $query->whereIn("r.forma_resolucion_id", $request->forma_resolucion);
-        }
-        if ($request->has('tipo_resolucion')) {
-            $query->whereIn("r.tipo_resolucion_id", $request->tipo_resolucion);
-        }
-        if ($request->has('sala')) {
-            $query->whereIn("r.sala_id", $request->sala);
-        }
-        if ($request->has('departamento')) {
-            $query->whereIn("r.departamento_id", $request->departamento);
-        }
-
-
+        $query->where('j.descriptor_id', $tema_id);
         if ($cantidad) {
             $query->limit($cantidad);
         } else {
-            $query->limit(30);
+            $query->limit(50);
         }
         $results = $query->orderBy('j.descriptor')->get();
 
@@ -542,7 +506,7 @@ class TemaController extends Controller
         ]);
 
         //$pdf = LaravelMpdf::loadView('test');
-        return $pdf->Output('document.pdf', 'I');
+        return $pdf->Output();
         //return $pdf->stream('document.pdf');
     }
 

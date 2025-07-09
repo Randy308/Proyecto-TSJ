@@ -13,43 +13,61 @@ import TerminoClave from "./TerminoClave";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
 import { agregarTotalLista } from "../../utils/arrayUtils";
-import { OptionChart } from "../../components/OptionChart";
-import type { ListaX } from "../../types";
+import type { AnalisisData, ListaX, Variable } from "../../types";
+import type{ EChartsOption } from "echarts-for-react";
+import type { ECElementEvent } from "echarts";
+
+type AccessorKey = string;
+
+interface Column {
+  accessorKey: AccessorKey;
+  header: string;
+}
 
 const AnalisisAvanzado = () => {
-  const [limite, setLimite] = useState(2);
-
+  
+  const limite = useMemo(() => 2, []);
   const [listaX, setListaX] = useState<ListaX[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
   const { data } = useVariablesContext();
 
-  const [selected, setSelected] = useState();
-  const [contenido, setContenido] = useSessionStorage("analisis_xy", []);
-  const [option, setOption] = useState({});
-  const [nombre, setNombre] = useState("nombre");
-  const [columns, setColumns] = useState(null);
+  const [selected, setSelected] = useState<string | undefined>();
+  const [contenido, setContenido] = useSessionStorage<AnalisisData>("analisis_xy", []);
+  const [option, setOption] = useState<EChartsOption>({});
+  const [columns, setColumns] = useState<Column[]>([]);
 
-  const [serie, setSerie] = useSessionStorage("serie", []);
-  const [mapa, setMapa] = useSessionStorage("mapa", []);
+  const [, setSerie] = useSessionStorage<AnalisisData>("serie", []);
+  const [, setMapa] = useSessionStorage<AnalisisData>("mapa", []);
 
   const [actual, setActual] = useState(true);
-  const [lista, setLista] = useState([]);
   const [multiVariable, setMultiVariable] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [tableData, setTableData] = useState([]);
+  const [tableData, setTableData] = useState<AnalisisData>([]);
 
   const location = useLocation();
 
   const receivedForm = location.state?.params;
 
-  const memoizedParams = useMemo(() => {
-    const { periodo, ...rest } = data || {};
-    return rest;
+  const memoizedParams: Variable = useMemo(() => {
+    if (data) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { periodo, ...rest } = data; // Remove 'periodo' if not needed
+      return rest as Variable;
+    }
+    // Provide default empty arrays for all Variable properties
+    return {
+      departamento: [],
+      sala: [],
+      tipo_jurisprudencia: [],
+      tipo_resolucion: [],
+      forma_resolucion: [],
+      magistrado: [],
+      materia: [],
+    };
   }, [data]);
 
-  const createSeries = (length) => {
-    const series = [];
+  const createSeries = (length:number):EChartsOption['series'] => {
+    const series: EChartsOption['series'] = [];
     for (let index = 0; index < length; index++) {
       series.push({ type: "bar", seriesLayoutBy: "column" });
     }
@@ -71,24 +89,24 @@ const AnalisisAvanzado = () => {
     }
   }, [contenido]);
 
-  const handleChartTypeChange = (type) => {
+  const handleChartTypeChange = (type:string) => {
     setSelected(type);
-    setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
+    setOption((prevOption: EChartsOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
 
   const invertirAxis = () => {
     setSelected("column");
-    setOption((prevOption) => SwitchChart(prevOption, "column", true));
+    setOption((prevOption: EChartsOption) => SwitchChart(prevOption, "column", true));
     setTableData(invertirXY(tableData));
   };
 
   useEffect(() => {
     if (tableData && tableData.length > 0) {
-      let keys = tableData[0];
+      const keys = tableData[0];
       setColumns(
         keys.map((item, index) => ({
           accessorKey: index.toString(),
-          header: item
+          header: (String(item))
             .replace(/_/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
           enableSorting: true,
@@ -99,7 +117,7 @@ const AnalisisAvanzado = () => {
   }, [tableData]);
 
   ///end
-  const getDatos = () => {
+  const getDatos = async() => {
     if (listaX.length === 0) {
       return;
     }
@@ -110,9 +128,9 @@ const AnalisisAvanzado = () => {
     const params = isMultiVariable
       ? {
           nombre: listaX[0].name,
-          variable: btoa(JSON.stringify(listaX[0].ids)),
+          variable: listaX[0].ids,
           nombreY: listaX[1].name,
-          variableY: btoa(JSON.stringify(listaX[1].ids)),
+          variableY: listaX[1].ids,
         }
       : {
           nombre: listaX[0].name,
@@ -128,7 +146,6 @@ const AnalisisAvanzado = () => {
         if (data) {
           setContenido(data.data.length > 0 ? data.data : []);
           setMultiVariable(data.multiVariable);
-          setTotal(data.total);
           setTableData(
             data.data.length > 0 ? agregarTotalLista(data.data) : []
           );
@@ -174,6 +191,7 @@ const AnalisisAvanzado = () => {
   const memoTerminoClave = useMemo(() => {
     return <TerminoClave setListaX={setListaX} listaX={listaX} />;
   }, [listaX]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const memoGetDatos = useMemo(() => getDatos, [listaX]);
   const irAMapa = () => {
     if (listaX.length === 0) {
@@ -233,10 +251,11 @@ const AnalisisAvanzado = () => {
       setMapa([]);
       setSerie([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedForm]);
 
   const handleClick = useCallback(
-    (params) => {
+    (params: ECElementEvent) => {
       if (
         multiVariable &&
         params.seriesName !== "Cantidad" &&
@@ -262,6 +281,7 @@ const AnalisisAvanzado = () => {
         console.log("Clicked on series:", newItem);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [multiVariable]
   );
 
@@ -307,7 +327,6 @@ const AnalisisAvanzado = () => {
           {contenido && contenido.length > 0 && (
             <div className="px-4 mb-4">
               <div
-                htmlFor="charts"
                 className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
               >
                 Tipo de gráficos
@@ -318,7 +337,7 @@ const AnalisisAvanzado = () => {
                 onChange={(e) => handleChartTypeChange(e.target.value)}
                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               >
-                <option disabled defaultValue>
+                <option disabled defaultValue={""}>
                   Elige un tipo de gráfico
                 </option>
                 <option value="bar">Barras</option>

@@ -530,7 +530,7 @@ const CronologiasAvanzadas = () => {
                                   name={`${filterAtributte(
                                     item.tipo_resolucion,
                                     "tipo_resolucion",
-                                    data
+                                    (data as Variable) || {}
                                   )} Nº${filterTitle(item.nro_resolucion)}`}
                                   color="link"
                                   full={false}

@@ -4,12 +4,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FacetsResource;
 use App\Models\Departamentos;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
+use App\Utils\Busqueda;
 use App\Utils\NLP;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
 class DescriptorController extends Controller
@@ -88,7 +91,72 @@ class DescriptorController extends Controller
     {
 
 
-        $query = $request->input('search', '');
+        $query = $request->input('texto', '');
+        $highlight = 'ratio'; // o lo que necesites
+        $strategy = 'all'; // o 'last'
+        $perPage = $request->input('per_page', 10);
+        $offset = $request->input('offset', 0);
+
+
+
+        $highlightArray = [
+            'ratio',
+        ];
+
+        $extraFields = [
+            'id',
+            'sala',
+            'nro_expediente',
+            'nro_resolucion',
+            'magistrado',
+            'tipo_resolucion',
+            'forma_resolucion',
+            'periodo',
+            "_highlight",
+        ];
+
+        // unir ambos arrays sin duplicados
+        $allFields = array_unique(array_merge($highlightArray, $extraFields));
+
+
+        $options = [
+
+            'query_by' => $highlight,
+            'highlight_full_fields' => $highlight, // más preciso que attributesToHighlight
+            'highlight_start_tag' => '<b class="highlight">',
+            'highlight_end_tag' => '</b>',
+            'highlight_affix_num_tokens' => 9,
+            'snippet_threshold' => 100,
+            'matching_strategy' => $strategy,
+            'facet_by' => 'materia,periodo,sala,departamento,tipo_jurisprudencia',
+            'limit' => $perPage,
+            'offset' => $offset,
+            'include_fields' => implode(',', $allFields),
+        ];
+
+
+
+        $result = Jurisprudencias::search($query)->options($options);
+
+        $result->whereIn('materia', ['19', '321']); // Filtrar por sala, si es necesario
+        $result = $result->raw();
+        $hits = Busqueda::generarResultado($result);
+
+        $facetas = $result['facet_counts'] ?? [];
+
+        $facets = Busqueda::obtenerFacetas($facetas);
+
+
+        return response()->json([
+            'message' => 'Búsqueda exitosa',
+            'query' => $query,
+            'facets' => $facets,
+            'results' => $hits ?? [],
+            'total' => $result['found'] ?? 0,
+        ], 200);
+
+
+
 
         $highlight[] = $request->input('highlight', 'contenido');
 
@@ -98,7 +166,7 @@ class DescriptorController extends Controller
         $offset = ($page - 1) * $perPage;
         $strategy = $request->input('strategy', 'last');
 
-        if($strategy != 'all' || $strategy != 'last') {
+        if ($strategy != 'all' || $strategy != 'last') {
             $strategy = 'last';
         }
         $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $strategy) {

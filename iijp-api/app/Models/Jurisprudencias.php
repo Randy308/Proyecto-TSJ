@@ -51,29 +51,30 @@ class Jurisprudencias extends Model
         $this->loadMissing('resolution'); // importante para evitar N+1
 
         return [
-            'materia' => $this->root_id,
-            'restrictor' => $this->restrictor,
-            'descriptor_id' => $this->descriptor_id,
-            'descriptor' => $this->descriptor,
-            'descriptor_facet' => "{$this->root_id}||{$this->descriptor_id}||" . ($this->descriptor ? $this->descriptor : 'Desconocido'),
-            'tipo_jurisprudencia' => $this->tipo_jurisprudencia_id,
-            'ratio' => $this->ratio,
-            'id' => $this->id,
+            'id' => (string)$this->id,
             'resolution_id' => $this->resolution->id ?? null,
             'periodo' => $this->resolution && $this->resolution->fecha_emision
-                ? \Carbon\Carbon::parse($this->resolution->fecha_emision)->format('Y')
+                ?  (int) \Carbon\Carbon::parse($this->resolution->fecha_emision)->format('Y')
                 : null,
-            'nro_resolucion' => $this->resolution->nro_resolucion ?? null,
+            'materia' => $this->root_id,
+            'descriptor_id' => $this->descriptor_id,
+            'tipo_jurisprudencia' => $this->tipo_jurisprudencia_id,
             'tipo_resolucion' => $this->resolution->tipo_resolucion_id ?? null,
+            'magistrado' => $this->resolution->magistrado_id ?? null,
+            'forma_resolucion' => $this->resolution->forma_resolucion_id ?? null,
             'sala' => $this->resolution->sala_id ?? null,
             'departamento' => $this->resolution->departamento_id ?? null,
-            'precedente' => $this->resolution->precedente?? null,
-            'proceso' => $this->resolution->proceso?? null,
-            'maxima' => $this->resolution->maxima?? null,
-            'sintesis' => $this->resolution->sintesis?? null,
-            'nro_expediente' => $this->resolution->nro_expediente?? null,
-            'magistrado' => $this->resolution->magistrado_id?? null,
-            'forma_resolucion' => $this->resolution->forma_resolucion_id?? null,
+
+            'restrictor' => (string)$this->restrictor,
+            'descriptor' => (string)$this->descriptor,
+            'descriptor_facet' => "{$this->root_id}||{$this->descriptor_id}||" . ($this->descriptor ? $this->descriptor : 'Desconocido'),
+            'ratio' => (string)$this->ratio,
+            'nro_resolucion' => (string)$this->resolution->nro_resolucion ?? null,
+            'precedente' => (string)$this->resolution->precedente ?? null,
+            'proceso' => (string)$this->resolution->proceso ?? null,
+            'maxima' => (string)$this->resolution->maxima ?? null,
+            'sintesis' => (string)$this->resolution->sintesis ?? null,
+            'nro_expediente' => (string)$this->resolution->nro_expediente ?? null,
         ];
     }
 }

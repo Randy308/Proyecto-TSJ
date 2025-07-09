@@ -7,6 +7,15 @@ import { invertirXY, obtenerEstadisticas } from "../../utils/math";
 import StatsService from "../../services/StatsService";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
+import type { AnalisisData } from "../../types";
+import type { EChartsOption } from "echarts-for-react";
+import type { ECElementEvent } from "echarts";
+type AccessorKey = string;
+
+interface Column {
+  accessorKey: AccessorKey;
+  header: string;
+}
 
 const SerieTemporal = () => {
   const location = useLocation();
@@ -14,16 +23,19 @@ const SerieTemporal = () => {
 
   const receivedForm = location.state?.params;
   const [selectedPeriodo, setSelectedPeriodo] = useState("");
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<AnalisisData>([] as AnalisisData);
 
-  const [tableData, setTableData] = useState([]);
-  const [originalData, setOriginalData] = useSessionStorage("serie", []);
+  const [tableData, setTableData] = useState<AnalisisData>([]);
+  const [originalData, setOriginalData] = useSessionStorage<AnalisisData>(
+    "serie",
+    [] as AnalisisData
+  );
   const [total, setTotal] = useSessionStorage("total-serie", 0);
-  const [series, setSeries] = useState([]);
+  const [series, setSeries] = useState<EChartsOption["series"]>([]);
   const [show, setShow] = useState(true);
 
-  const [columns, setColumns] = useState(null);
-  const option = {
+  const [columns, setColumns] = useState<Column[]>([]);
+  const option: EChartsOption = {
     legend: {},
     tooltip: {
       trigger: "axis",
@@ -61,6 +73,11 @@ const SerieTemporal = () => {
     setTableData(invertirXY(tableData));
   };
 
+  const handleClick = (event: ECElementEvent) => {
+    if(event.componentSubType !== "line") return;
+    setSelectedPeriodo(event.name);
+  };
+
   const irAMapa = () => {
     if (receivedForm.nombre === "departamento") {
       toast.warning(
@@ -90,6 +107,7 @@ const SerieTemporal = () => {
     } else {
       generarSerie();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedForm]);
 
   const generarSerie = () => {
@@ -119,6 +137,7 @@ const SerieTemporal = () => {
     setTableData(
       originalData.length > 0 ? agregarTotalLista(originalData) : []
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [originalData]);
 
   useEffect(() => {
@@ -138,11 +157,11 @@ const SerieTemporal = () => {
 
   useEffect(() => {
     if (tableData && tableData.length > 0) {
-      let keys = tableData[0];
+      const keys = tableData[0];
       setColumns(
         keys.map((item, index) => ({
           accessorKey: index.toString(),
-          header: item
+          header: (String(item) as string)
             .replace(/_/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
           enableSorting: true,
@@ -150,14 +169,12 @@ const SerieTemporal = () => {
       );
     }
   }, [tableData]);
-  const { mean, min, max, stdDev, variance } = useMemo(() => {
+
+  const { mean, stdDev } = useMemo(() => {
     const stats = obtenerEstadisticas(tableData);
     return {
       mean: stats.mean || 0,
-      min: stats.min || 0,
-      max: stats.max || 0,
       stdDev: stats.stdDev || 0,
-      variance: stats.variance || 0,
     };
   }, [tableData]);
   return (
@@ -181,21 +198,6 @@ const SerieTemporal = () => {
         </div>
       </div>
 
-      <div>
-        {originalData.length > 0 ? (
-          originalData.map((item, index) => (
-            <div key={index}>
-              <h4 className="font-semibold text-gray-800 dark:text-gray-200">
-                {item.name}
-              </h4>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-600 dark:text-gray-400">
-            No hay datos disponibles
-          </p>
-        )}
-      </div>
       <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
         <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
           Estadísticas Generales
@@ -246,8 +248,9 @@ const SerieTemporal = () => {
 
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
         <p className="text-blue-800 dark:text-blue-300 text-sm">
-          💡 <strong>Instrucciones:</strong> Haga clic en cualquier periodo
-          de la serie de tiempo para ver su distribución detallada en el gráfico circular.
+          💡 <strong>Instrucciones:</strong> Haga clic en cualquier periodo de
+          la serie de tiempo para ver su distribución detallada en el gráfico
+          circular.
           {selectedPeriodo && (
             <span className="block mt-1">
               Mostrando datos de: <strong>{selectedPeriodo}</strong>
@@ -275,7 +278,7 @@ const SerieTemporal = () => {
         </div>
         <div className="sm:col-span-3 md:col-span-4">
           {show ? (
-            <AnalisisChart option={option} />
+            <AnalisisChart option={option} handleClick={handleClick} />
           ) : (
             <TablaX data={tableData.slice(1)} columns={columns} />
           )}

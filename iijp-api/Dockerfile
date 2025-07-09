@@ -29,6 +29,7 @@ COPY . .
 # Instala dependencias de PHP
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+
 # Establece permisos para Laravel
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www

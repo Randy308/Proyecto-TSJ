@@ -8,7 +8,6 @@ import {
   NodosContextProvider,
   NotificationContextProvider,
   PermissionContextProvider,
-  PostContextProvider,
   ResolutionContextProvider,
   RoleContextProvider,
   ThemeProvider,
@@ -52,7 +51,6 @@ const ListaRoles = lazy(() =>
 function App() {
   return (
     <ThemeProvider>
-      <PostContextProvider>
         <HistoricContextProvider>
           <NodosContextProvider>
             <VariablesContextProvider>
@@ -115,7 +113,6 @@ function App() {
             </VariablesContextProvider>
           </NodosContextProvider>
         </HistoricContextProvider>
-      </PostContextProvider>
     </ThemeProvider>
   );
 }

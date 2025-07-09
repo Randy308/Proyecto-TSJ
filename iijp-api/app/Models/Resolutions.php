@@ -84,26 +84,26 @@ class Resolutions extends Model
         $this->loadMissing(['content', 'jurisprudencias']); // evitar N+1
 
         return [
-            'id' => $this->id,
-            'nro_resolucion' => $this->nro_resolucion,
-            'nro_expediente' => $this->nro_expediente,
-            'demandante' => $this->demandante,
-            'demandado' => $this->demandado,
-            'contenido' => $this->content->contenido ?? null,
+            'id' => (string)$this->id,
+            'nro_resolucion' => (string)$this->nro_resolucion,
+            'nro_expediente' => (string)$this->nro_expediente,
+            'demandante' => (string)$this->demandante,
+            'demandado' => (string)$this->demandado,
+            'contenido' => (string)$this->content->contenido ?? null,
             'departamento' => $this->departamento_id,
             // metadatos no buscables, pero útiles en resultados
             'sala' => $this->sala_id,
             'magistrado' => $this->magistrado_id,
             'periodo' => $this->fecha_emision
-                ? \Carbon\Carbon::parse($this->fecha_emision)->format('Y')
+                ? (int) \Carbon\Carbon::parse($this->fecha_emision)->format('Y')
                 : null,
             'tipo_resolucion' => $this->tipo_resolucion_id,
             'forma_resolucion' => $this->forma_resolucion_id,
-            'sintesis' => $this->sintesis,
-            'precedente' => $this->precedente,
-            'proceso' => $this->proceso,
-            'maxima' => $this->maxima,
-            
+            'sintesis' => (string)$this->sintesis,
+            'precedente' => (string)$this->precedente,
+            'proceso' => (string)$this->proceso,
+            'maxima' => (string)$this->maxima,
+
             // nuevo campo booleano
             'tiene_jurisprudencias' => $this->jurisprudencias->isNotEmpty(),
         ];

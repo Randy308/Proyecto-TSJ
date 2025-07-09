@@ -1,14 +1,16 @@
 import ReactECharts from "echarts-for-react";
 import "../../data/dark.js";
 import { useThemeContext } from "../../context";
-
+import type { ECElementEvent } from "echarts";
 interface SimpleChartProp {
   option: object;
   border?: boolean;
+  handleClick?: (params: ECElementEvent) => void;
 }
 const SimpleChart = ({
   option,
   border = true,
+  handleClick = (params) => console.log(params),
 }: SimpleChartProp) => {
   const {isDark} = useThemeContext();
 
@@ -26,9 +28,9 @@ const SimpleChart = ({
           height: "100%",
           width: "100%",
         }}
-        // onEvents={{
-        //   click: handleClick,
-        // }}
+        onEvents={{
+          click: handleClick,
+        }}
       />
     </div>
   );

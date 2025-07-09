@@ -56,6 +56,8 @@ export const invertirXY = (matriz: AnalisisData) => {
 };
 
 export const obtenerEstadisticas = (data: AnalisisData) => {
+
+  console.log("Datos para estadísticas:", data);
   if (!data || data.length === 0) return {};
 
   const rawValues = data[data.length - 1].slice(1, -1);

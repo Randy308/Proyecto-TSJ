@@ -8,9 +8,14 @@ import type EChartsReact from "echarts-for-react";
 interface AnalisisChartProps {
   option: EChartsOption;
   border?: boolean;
+  handleClick?: (event: ECElementEvent) => void;
 }
 
-const AnalisisChart = ({ option, border = true }: AnalisisChartProps) => {
+const AnalisisChart = ({
+  option,
+  border = true,
+  handleClick = () => {},
+}: AnalisisChartProps) => {
   const { isDark } = useThemeContext();
   const chartRef = useRef<EChartsReact | null>(null);
   const handleUpdateAxisPointer = (event: ECElementEvent) => {
@@ -35,10 +40,6 @@ const AnalisisChart = ({ option, border = true }: AnalisisChartProps) => {
         },
       },
     });
-  };
-
-  const handleClick = (event: ECElementEvent) => {
-    console.log(event);
   };
 
   const onEvents = {
