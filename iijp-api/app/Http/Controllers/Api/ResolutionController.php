@@ -16,6 +16,7 @@ use App\Models\Sala;
 use App\Models\TerminosClaveUnificado;
 use App\Models\TipoJurisprudencia;
 use App\Models\TipoResolucions;
+use App\Utils\Busqueda;
 use App\Utils\Listas;
 use App\Utils\Math;
 use App\Utils\NLP;
@@ -463,34 +464,47 @@ class ResolutionController extends Controller
         if ($request->has('term')) {
             $highlight = ['contenido', 'demandante', 'demandado'];
         }
-        //$highlight = ['descriptor', 'ratio', 'restrictor'];
+
+        //$highlight = $request->input('highlight', 'contenido');
+
+        // Parámetros de paginación
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
+        $offset = ($page - 1) * $perPage;
         //$highlight = ['descriptor'];
-        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo'];
+        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo',  'magistrado', 'forma_resolucion'];
+        $strategy = 'all';
 
-        $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
-            $options['attributesToHighlight'] = $highlight;
-            $options['attributesToCrop'] = $highlight;
-            $options['cropLength'] = 50;
-            $options['highlightPreTag'] = '<b class="highlight">';
-            $options['highlightPostTag'] = '</b>';
-            $options['limit'] = $perPage;
-            $options['offset'] = $offset;
-            $options['attributesToSearchOn'] = $highlight;
-            $options['attributesToRetrieve'] = [
-                'id',
-                'sala',
-                'nro_expediente',
-                'nro_resolucion',
-                'magistrado',
-                'tipo_resolucion',
-                'forma_resolucion',
-                'periodo',
-                '_formatted',
-            ];
-            $options['facets'] = $facetas;
+        $extraFields = [
+            'id',
+            'resolution_id',
+            'tipo_resolucion',
+            'nro_resolucion',
+            'periodo',
+        ];
 
-            return $meilisearch->search($query, $options);
-        });
+        // unir ambos arrays sin duplicados
+        $allFields = array_unique(array_merge($highlight, $extraFields));
+
+
+        $options = [
+            'query_by' => implode(',', $highlight),
+            'highlight_full_fields' => implode(',', $highlight),
+            'highlight_start_tag' => '<b class="highlight">',
+            'highlight_end_tag' => '</b>',
+            'highlight_affix_num_tokens' => 9,
+            'snippet_threshold' => 100,
+            'matching_strategy' => $strategy,
+            'facet_by' => implode(',', $facetas),
+            'per_page' => $perPage,
+            'offset' => $offset,
+            'page' => $page,
+            'include_fields' => implode(',', $allFields),
+        ];
+
+
+        $search = Resolutions::search($query)->options($options);
+
         if ($request->has('materia')) {
             $materia = $request->input('materia');
             $search->where('materia', $materia[0]);
@@ -516,41 +530,20 @@ class ResolutionController extends Controller
 
         $search = $search->raw();
 
-        // Solo los _formatted
-        $formattedResults = collect($search['hits'])->map(function ($hit) {
-            return $hit['_formatted'] ?? [];
-        });
+        $hits = Busqueda::generarResultado($search);
 
+        $facetas = $search['facet_counts'] ?? [];
 
-
-        $facets = $search['facetDistribution'] ?? [];
-
-
-
-        $filtros = [];
-
-        foreach ($facetas as $value) {
-            if (!isset($facets[$value])) {
-                continue;
-            }
-
-            $numericalKeys = array_map('intval', array_keys($facets[$value]));
-
-            $filtered = array_filter($numericalKeys, function ($item) {
-                return $item !== 0;
-            });
-
-            $filtros[$value] = array_values($filtered); // Reindexa
-        }
+        $facets = Busqueda::obtenerFacetas($facetas);
 
 
         return response()->json([
-            'data' => $formattedResults,
-            'facets' => $filtros,
+            'data' => $hits,
+            'facets' => $facets,
             'current_page' => $page,
             'per_page' => $perPage,
-            'total' => $search['estimatedTotalHits'] ?? 0,
-            'last_page' => ceil(($search['estimatedTotalHits'] ?? 0) / $perPage),
+            'total' => $search['found'] ?? 0,
+            'last_page' => ceil(($search['found'] ?? 0) / $perPage),
 
         ]);
 
@@ -690,6 +683,7 @@ class ResolutionController extends Controller
 
 
         try {
+
 
             $resolution = DB::table('contents as c')
                 ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')

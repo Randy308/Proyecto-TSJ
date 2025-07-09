@@ -528,7 +528,7 @@ const CronologiasAvanzadas = () => {
                                   withIcon={false}
                                   title="Auto Supremo"
                                   name={`${filterAtributte(
-                                    item.tipo_resolucion,
+                                    String(item.tipo_resolucion),
                                     "tipo_resolucion",
                                     (data as Variable) || {}
                                   )} Nº${filterTitle(item.nro_resolucion)}`}

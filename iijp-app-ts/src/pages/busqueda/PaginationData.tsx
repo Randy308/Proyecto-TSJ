@@ -185,7 +185,7 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
                 withIcon={false}
                 full={false}
                 name={`${filterAtributte(
-                  (item.tipo_resolucion || "").toLowerCase(),
+                  (String(item.tipo_resolucion) || "").toLowerCase(),
                   "tipo_resolucion",
                   (data || {}) as Variable
                 )} Nº${filterTitle(item.nro_resolucion || "")}`}

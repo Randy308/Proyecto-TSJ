@@ -96,7 +96,11 @@ class ProcesarWebScrapping implements ShouldQueue
 
                 DB::beginTransaction();
                 $res_data = $this->prepareResolutionData($resolucion, $maps, $this->userId);
-                $res = Resolutions::create($res_data);
+                //$res = Resolutions::create($res_data);
+                $res = Resolutions::withoutSyncingToSearch(function () use ($res_data) {
+                    return Resolutions::create($res_data);
+                });
+
                 $this->storeRelatedData($res, $resolucion, $maps);
 
                 if (!empty($data['temas'])) {
@@ -150,7 +154,7 @@ class ProcesarWebScrapping implements ShouldQueue
         try {
             Contents::create(['contenido' => $this->sanitize($resolucion['contenido'] ?? null), 'resolution_id' => $res->id]);
             Mapeos::create(['external_id' => $resolucion['id'], 'resolution_id' => $res->id]);
-
+            $res->searchable();
             $this->crearJurisprudencia($res, $resolucion, $maps);
         } catch (\Exception $e) {
             Log::error("[{$this->jobId}] Error al almacenar datos relacionados para resolución {$res->id}: " . $e->getMessage());
@@ -267,7 +271,7 @@ class ProcesarWebScrapping implements ShouldQueue
         }
     }
 
-    private function obtenerDepartamentoId($model , string $field, ?string $value, array &$map): ?int
+    private function obtenerDepartamentoId($model, string $field, ?string $value, array &$map): ?int
     {
         $value = $value ? trim($value) : 'Desconocido';
 
@@ -295,7 +299,6 @@ class ProcesarWebScrapping implements ShouldQueue
             Log::error("Error creando {$model} con {$field} = {$value}: " . $e->getMessage());
             return null;
         }
-
     }
 
 

@@ -123,8 +123,9 @@ class TemaController extends Controller
             'snippet_threshold' => 100,
             'matching_strategy' => $strategy,
             'facet_by' => implode(',', $facetas),
-            'limit' => $perPage,
+            'per_page' => $perPage,
             'offset' => $offset,
+            'page' => $page,
             'include_fields' => implode(',', $allFields),
         ];
 

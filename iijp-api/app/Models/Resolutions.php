@@ -89,7 +89,7 @@ class Resolutions extends Model
             'nro_expediente' => (string)$this->nro_expediente,
             'demandante' => (string)$this->demandante,
             'demandado' => (string)$this->demandado,
-            'contenido' => (string)$this->content->contenido ?? null,
+            'contenido' => $this->content?->contenido ? (string)$this->content->contenido : "",
             'departamento' => $this->departamento_id,
             // metadatos no buscables, pero útiles en resultados
             'sala' => $this->sala_id,
