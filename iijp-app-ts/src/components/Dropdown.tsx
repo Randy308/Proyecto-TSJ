@@ -1,15 +1,13 @@
-import  { useEffect, useState } from "react";
+import { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { useVariablesContext } from "../context";
 
-interface Termino{
+interface Termino {
   id: number;
   name: string;
   detalles: string;
   value: string;
 }
-
 
 interface DropdownProps {
   item: Termino;
@@ -18,12 +16,6 @@ interface DropdownProps {
 
 const Dropdown = ({ item, removeItemById }: DropdownProps) => {
   const [visible, setVisible] = useState(false);
-
-
-
-  const { data } = useVariablesContext();
-  const [terminos, setTerminos] = useState<object>({});
-
   sessionStorage.removeItem("formData");
 
   const navigate = useNavigate();
@@ -31,38 +23,6 @@ const Dropdown = ({ item, removeItemById }: DropdownProps) => {
   const navegar = (item: Termino, ruta = "/proyeccion") => {
     navigate(ruta, { state: { parametros: item } });
   };
-
-  const transformarClave = (clave: string) => {
-    const nuevaClave = clave.replace(/_/g, " de "); // Reemplazar guiones bajos
-    return nuevaClave.charAt(0).toUpperCase() + nuevaClave.slice(1); // Capitalizar la primera letra
-  };
-
-  // Función para obtener los nombres de los parámetros
-
-  const obtenerNombresParametros = (item: Termino) => {
-    const resultado: object = {};
-
-    Object.entries(item.detalles).forEach(([clave, valor]) => {
-      if (data && data[clave]) {
-        // Buscar el elemento en la lista correspondiente
-        const encontrado = data[clave].find(
-          (item) => String(item.id) === valor
-        );
-        if (encontrado) {
-          resultado[clave] = encontrado.nombre; // Agregar solo si hay coincidencia
-        }
-      }
-    });
-
-    return resultado;
-  };
-
-  useEffect(() => {
-
-    console.log("item", item);
-    setTerminos(obtenerNombresParametros(item));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
@@ -86,9 +46,7 @@ const Dropdown = ({ item, removeItemById }: DropdownProps) => {
           <ul className="py-2" aria-labelledby="dropdownButton">
             <li>
               <a
-                onClick={() =>
-                  navegar(item, "/jurisprudencia/avanzado")
-                }
+                onClick={() => navegar(item, "/jurisprudencia/avanzado")}
                 className="hover:cursor-pointer block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
               >
                 Realizar análisis
@@ -112,13 +70,6 @@ const Dropdown = ({ item, removeItemById }: DropdownProps) => {
         <span className="text-sm text-gray-500 dark:text-gray-400">
           Termino de búsqueda
         </span>
-        <div className="text-gray-400 dark:text-gray-300 text-xs mt-2">
-          {Object.entries(terminos).map(([k, v]) => (
-            <div key={k}>
-              <span className="bold">{transformarClave(k)}</span>: {v}
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );

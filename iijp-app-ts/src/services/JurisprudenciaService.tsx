@@ -12,7 +12,7 @@ const instance = axios.create({
   withCredentials: false,
 });
 
-const JurisprudenciaService = {
+export const JurisprudenciaService = {
   searchTermino: (formData:object) =>
     instance.get("/buscar-termino-jurisprudencia", {
       params: formData,
@@ -45,5 +45,3 @@ const JurisprudenciaService = {
       params: formData,
     }),
 };
-
-export default JurisprudenciaService;

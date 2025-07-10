@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import RoleService from "../../../services/RoleService";
+import {RoleService} from "../../../services";
 import Loading from "../../../components/Loading";
 import { ImWarning } from "react-icons/im";
 import { FaUser } from "react-icons/fa6";
@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
 import { type RoleData  } from "../../../types";
-import { AuthUser } from "../../../auth";
+import { useAuthContext } from "../../../context";
 
 interface Props {
   id: number;
@@ -16,7 +16,7 @@ interface Props {
   setShowModal: (val:boolean) => void;
 }
 const EliminarRol = ({ id, setShowModal }: Props) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 

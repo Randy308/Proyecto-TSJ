@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import RoleService from "../../../services/RoleService";
+import {RoleService} from "../../../services";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
-import { AuthUser } from "../../../auth";
 import type { Permission, RoleData } from "../../../types";
 import Loading from "../../../components/Loading";
+import { useAuthContext } from "../../../context";
 
 interface CrearRolProps {
   permissions: Permission[] | undefined;
@@ -13,7 +13,7 @@ interface CrearRolProps {
   setShowModal: (val:boolean) => void;
 }
 const CrearRol = ({ permissions, setShowModal }: CrearRolProps) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import RoleService from "../../../services/RoleService";
+import {RoleService} from "../../../services";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
-import { AuthUser } from "../../../auth";
 import type { Permission, RoleData } from "../../../types";
 import Loading from "../../../components/Loading";
+import { useAuthContext } from "../../../context";
 
 interface Props {
   id: number;
@@ -15,7 +15,7 @@ interface Props {
   setShowModal: (val:boolean) => void;
 }
 const EditarRol = ({ id, permissions, setShowModal }: Props) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 

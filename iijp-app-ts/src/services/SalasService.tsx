@@ -11,7 +11,7 @@ const instance = axios.create({
   withCredentials: false,
 });
 
-const SalasService = {
+export const SalasService = {
   getAllSalas: () => instance.get(`/obtener-salas`),
 
   getDepartamentos: (id:number, params:FormData) =>
@@ -25,5 +25,3 @@ const SalasService = {
   getStatsX: (params:FormData) => instance.get(`/estadisticas-x/`, { params }),
   getStatsXY: (params:FormData) => instance.get(`/estadisticas-xy/`, { params }),
 };
-
-export default SalasService;

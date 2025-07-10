@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useIcons } from "../../components/icons/Icons";
-import StatsService from "../../services/StatsService";
+import {StatsService} from "../../services";
 import SelectDropdown from "./SelectDropdown";
 import type { FiltroNombre, ListaData, ListaX } from "../../types";
 import { variablesAnalisis } from "../../data/VariablesAnalisis";

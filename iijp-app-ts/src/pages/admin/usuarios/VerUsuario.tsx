@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../../context/userContext";
 import Loading from "../../../components/Loading";
-import { AuthUser } from "../../../auth";
 import type { CreateUser } from "../../../types";
+import { useAuthContext } from "../../../context";
 
 
 interface UsuarioProps {
   id: number;
 }
 const VerUsuario = ({ id }: UsuarioProps) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const { users } = useUserContext();
   const [formData, setFormData] = useState<CreateUser>({} as CreateUser);

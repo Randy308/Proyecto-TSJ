@@ -2,19 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { HiMoon, HiOutlineLogin, HiSun } from "react-icons/hi";
 import { FaGear } from "react-icons/fa6";
 import "../styles/main.css";
-import { useThemeContext } from "../context";
-import { AuthUser } from "../auth";
-import Config from "../auth/Config";
-
+import { useAuthContext, useThemeContext } from "../context";
 const Settings = ({ reversed = false }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { isDark, toggleTheme } = useThemeContext();
   const ajustesRef = useRef<HTMLButtonElement | null>(null);
   const listaRef = useRef<HTMLDivElement | null>(null);
-  const { getToken, getLogout } = AuthUser();
 
-  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const { hasAccess, logout } = useAuthContext();
+
+  const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(
+    null
+  );
 
   const restartTimer = () => {
     if (timer) {
@@ -88,11 +88,7 @@ const Settings = ({ reversed = false }) => {
 
   const logoutUser = async () => {
     try {
-      const { data } = await Config.getLogout();
-      if (data.success) {
-        console.log(data);
-        getLogout();
-      }
+      logout();
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error("An error occurred:", error.message);
@@ -103,7 +99,7 @@ const Settings = ({ reversed = false }) => {
   };
 
   const renderLinks = () => {
-    if (getToken()) {
+    if (hasAccess()) {
       return (
         <>
           <ul className="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
@@ -140,7 +136,7 @@ const Settings = ({ reversed = false }) => {
             <HiMoon className="w-7 h-7" />
           )}
         </button>
-        {getToken() && (
+        {hasAccess() && (
           <button
             onClick={logoutUser}
             className={`dark:text-gray-400 dark:hover:text-white ${

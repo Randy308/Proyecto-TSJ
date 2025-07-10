@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import UserService from "../services/UserService";
+import {UserService} from "../services";
 import { useLocation } from "react-router-dom";
 import type { ContextProviderProps } from "../types";
-import { AuthUser } from "../auth";
-import { ResolutionContext } from "../context";
+import { ResolutionContext, useAuthContext } from "../context";
 
 interface Resolution {
   periodo: string;
@@ -26,9 +25,8 @@ interface ValueContextType {
 export const ResolutionContextProvider = ({
   children,
 }: ContextProviderProps) => {
-  const { getToken, hasAnyPermission } = AuthUser();
-  const token = getToken();
-
+  const { hasAccess, hasAnyPermission } = useAuthContext();
+  
   const [resolutions, setResolutions] = useState<Resolution[] | undefined>(
     undefined
   );
@@ -41,7 +39,7 @@ export const ResolutionContextProvider = ({
   const [pageCount, setPageCount] = useState(1);
 
   useEffect(() => {
-    if (!token) return;
+    if (!hasAccess()) return;
 
     if (
       location.pathname === "/admin/resoluciones" &&
@@ -55,7 +53,7 @@ export const ResolutionContextProvider = ({
       obtenerResolutions();
       setHasFetched(true);
     }
-  }, [location.pathname, hasFetched, token, hasAnyPermission]);
+  }, [location.pathname, hasFetched, hasAccess, hasAnyPermission]);
 
   const obtenerResolutions = async (page = 1) => {
     try {

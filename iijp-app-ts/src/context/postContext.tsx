@@ -5,17 +5,17 @@ interface Post {
   user: number;
 }
 
-export interface ValueContextType {
+export interface PostContextType {
   posts: Post[] | undefined;
   setPosts: React.Dispatch<React.SetStateAction<Post[] | undefined>>;
   obtenerPosts: () => Promise<void>;
 }
 
-export const PostContext = createContext<ValueContextType | undefined>(
+export const PostContext = createContext<PostContextType | undefined>(
   undefined
 );
 
-export function usePostContext(): ValueContextType {
+export function usePostContext(): PostContextType {
   const context = useContext(PostContext);
   if (!context) {
     throw new Error("usePostContext must be used within a PostProvider");

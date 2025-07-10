@@ -10,7 +10,7 @@ const instance = axios.create({
   },
 });
 
-const PostService = {
+export const PostService = {
   getAllPosts: (token:string) =>
     instance.get("/admin/post", {
       headers: { Authorization: `Bearer ${token}` },
@@ -43,5 +43,3 @@ const PostService = {
     }),
   obtenerPublicaciones: () => instance.get("/publicaciones-activas"),
 };
-
-export default PostService;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import JurisprudenciaService from "../services/JurisprudenciaService";
+import {JurisprudenciaService} from "../services";
 import { useLocation } from "react-router-dom";
 import type { ContextProviderProps, Nodos } from "../types";
 import { NodosContext, type NodosContextType } from "../context";

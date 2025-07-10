@@ -5,14 +5,16 @@ import Notificaciones from "../notificaciones/Notificaciones";
 import { useHistoricContext } from "../../context/historicContext";
 import Loading from "../../components/Loading";
 import SimpleChart from "../../components/charts/SimpleChart";
-import { AuthUser } from "../../auth";
 import type { FiltroNombre, ListaData } from "../../types";
+import type { ECElementEvent } from "echarts";
+import { useAuthContext } from "../../context";
+
 interface HistoricData {
   periodo: string;
   cantidad: number;
 }
 const PanelAdmin = () => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const { data } = useVariablesContext();
   const { historic } = useHistoricContext();
   const [resoluciones, setResoluciones] = useState<HistoricData[]>([]);
@@ -172,7 +174,7 @@ const PanelAdmin = () => {
       console.error("El objeto 'historic' no contiene los datos necesarios");
     }
   }, [historic]);
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (e: ECElementEvent) => {
     e.preventDefault();
   };
   return (

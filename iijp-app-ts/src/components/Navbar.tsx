@@ -6,12 +6,12 @@ import LogoUmss from "../images/Logo_umss.png";
 import Settings from "./Settings";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { navItems } from "../data/NavItems";
-import { AuthUser } from "../auth";
+import { useAuthContext } from "../context";
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState<boolean | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState<number | null>(null);
-  const { getToken } = AuthUser();
+  const { hasAccess } = useAuthContext();
 
   const actualizarBoton = () => {
     setMenuOpen((prevState) => !prevState);
@@ -34,7 +34,7 @@ const Navbar = () => {
   };
 
   const navLinks = () => {
-    if (getToken()) {
+    if (hasAccess()) {
       return (
         <>
           <li>

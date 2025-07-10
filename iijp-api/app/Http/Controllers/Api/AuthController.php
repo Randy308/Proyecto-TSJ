@@ -14,6 +14,23 @@ use Spatie\Permission\Models\Role;
 class AuthController extends Controller
 {
 
+    public function Authuser(Request $request)
+    {
+        $user = Auth::user();
+        if ($user) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuario autenticado correctamente.',
+                'user' => new UserResource($user),
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se ha encontrado el usuario autenticado.',
+            ], 401);
+        }
+    }
+
     public function login(Request $request)
     {
 

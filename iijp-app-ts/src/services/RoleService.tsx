@@ -33,7 +33,7 @@ instance.interceptors.request.use(async (config) => {
   return config;
 });
 
-const RoleService = {
+export const RoleService = {
   getAllRoles: (params = {}) =>
     instance.get(`${API_PATH}/roles`, { params }),
 
@@ -49,5 +49,3 @@ const RoleService = {
   getPermissions: (params = {}) =>
     instance.get(`${API_PATH}/permisos`, { params }),
 };
-
-export default RoleService;

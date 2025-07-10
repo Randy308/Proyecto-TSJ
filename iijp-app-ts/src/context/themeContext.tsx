@@ -1,17 +1,17 @@
 import { createContext, useContext } from "react";
 
 
-export interface ValueContextType {
+interface ThemeContextType {
   isDark: boolean;
   toggleTheme: () => void;
 }
 
-export const ThemeContext = createContext<ValueContextType | undefined>(
+export const ThemeContext = createContext<ThemeContextType | undefined>(
   undefined
 );
 
 
-export function useThemeContext(): ValueContextType {
+export function useThemeContext(): ThemeContextType {
   const context = useContext(ThemeContext);
   if (!context) {
     throw new Error("useThemeContext must be used within a ThemeProvider");

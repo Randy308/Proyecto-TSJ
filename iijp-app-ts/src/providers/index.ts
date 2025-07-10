@@ -6,6 +6,7 @@ export * from "./permissionContextProvider";
 export * from "./postContextProvider";
 export * from "./resolutionContextProvider";
 export * from "./roleContextProvider";
-export * from "./ThemeContextProvider";
+export * from "./themeContextProvider";
 export * from "./userContextProvider";
 export * from "./variablesContextProvider";
+export * from "./authContextProvider";

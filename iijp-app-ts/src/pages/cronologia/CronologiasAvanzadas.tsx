@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaCheckCircle, FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
-import JurisprudenciaService from "../../services/JurisprudenciaService";
+import {JurisprudenciaService} from "../../services";
 import {
   filterAtributte,
   filterForm,
@@ -23,7 +23,7 @@ import { useIcons } from "../../components/icons/Icons";
 import type {
   DatosArray,
   DatosArrayForm,
-  FiltroNombre,
+  FiltroBusqueda,
   ListaData,
   Variable,
 } from "../../types";
@@ -448,7 +448,7 @@ const CronologiasAvanzadas = () => {
                 {Object.entries(facetas).map(([name, contenido]) => (
                   <Filtros
                     key={name}
-                    nombre={name as FiltroNombre}
+                    nombre={name as FiltroBusqueda}
                     data={contenido as ListaData[]}
                     formData={formData}
                     setFormData={setFormData}

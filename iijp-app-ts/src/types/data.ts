@@ -17,6 +17,16 @@ export type FiltroNombre =
   | "restrictor"
   | "descriptor";
   
+export type FiltroBusqueda =
+  | "tipo_resolucion"
+  | "sala"
+  | "magistrado"
+  | "departamento"
+  | "forma_resolucion"
+  | "tipo_jurisprudencia"
+  | "materia"
+  | "periodo"
+
 type AllOrNumber = number | "all";
 
 export interface Datos {
@@ -81,3 +91,8 @@ export interface ReceivedForm {
   nombre: string;
   variable: string[];
 }
+
+
+export type SingleChartType = "bar" | "line" | "pie" | "scatter" | "area"| "donut" | "column";
+export type DualChartType = "stackedBar" | "stackedColumn" | "groupedColumn" | "multiLine" | "stackedArea" | "polar" | "radar" | "donut";
+export type ChartType = SingleChartType | DualChartType;

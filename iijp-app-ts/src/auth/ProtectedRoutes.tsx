@@ -1,11 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { AuthUser } from "./AuthUser";
+import { useAuthContext } from "../context";
 
 export const ProtectedRoutes = () => {
-  const { getToken } = AuthUser();
-  if (!getToken()) {
+  const { hasAccess } = useAuthContext();
+  if (!hasAccess()) {
     return <Navigate to={"/"} />;
   }
   return <Outlet />;
 };
-

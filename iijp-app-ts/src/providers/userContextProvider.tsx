@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import UserService from "../services/UserService";
+import {UserService} from "../services";
 import { useLocation } from "react-router-dom";
 import type { ContextProviderProps, User } from "../types";
-import { AuthUser } from "../auth";
-import { UserContext } from "../context";
+import { useAuthContext, UserContext } from "../context";
 
 interface ValueContextType {
   users: User[] | undefined;
@@ -15,8 +14,7 @@ interface ValueContextType {
 
 
 export const UserContextProvider = ({ children }: ContextProviderProps) => {
-  const { getToken, hasAnyPermission } = AuthUser();
-  const token = getToken();
+  const { hasAccess, hasAnyPermission } = useAuthContext();
 
   const [users, setUsers] = useState<User[] | undefined>(undefined);
   const location = useLocation();
@@ -28,7 +26,7 @@ export const UserContextProvider = ({ children }: ContextProviderProps) => {
   const [pageCount, setPageCount] = useState(1);
 
   useEffect(() => {
-    if (!token) return;
+    if (!hasAccess()) return;
 
     if (
       location.pathname === "/admin/usuarios" &&
@@ -46,7 +44,7 @@ export const UserContextProvider = ({ children }: ContextProviderProps) => {
       obtenerUsers();
       setHasFetched(true);
     }
-  }, [location.pathname, hasFetched, token, hasAnyPermission]);
+  }, [location.pathname, hasFetched, hasAccess, hasAnyPermission]);
 
   const obtenerUsers = async (page:number = 1) => {
     try {

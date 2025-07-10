@@ -3,7 +3,7 @@ import Dropdown from "../../components/Dropdown";
 import SimpleChart from "../../components/charts/SimpleChart";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
-import ResolucionesService from "../../services/ResolucionesService";
+import {ResolucionesService} from "../../services";
 import { filterForm } from "../../utils/filterForm";
 
 interface Resolucion {

@@ -7,15 +7,16 @@ import { IoMdArrowRoundBack } from "react-icons/io";
 import Settings from "./Settings";
 import { FaMailBulk, FaTimes } from "react-icons/fa";
 import { useNotificationContext } from "../context/notificationContext";
-import { AuthUser } from "../auth";
+import { useAuthContext } from "../context";
 const Sidebar = () => {
   const [show, setShow] = React.useState(false);
 
+  const { hasAccess, can } = useAuthContext();
+
   const { notifications } = useNotificationContext();
-  const { getToken, can } = AuthUser();
 
   const navLinks = () => {
-    if (getToken()) {
+    if (hasAccess()) {
       return (
         <>
           <li>

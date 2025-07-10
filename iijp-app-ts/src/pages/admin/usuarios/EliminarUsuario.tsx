@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUser } from "react-icons/fa";
-import UserService from "../../../services/UserService";
+import {UserService} from "../../../services";
 import { ImWarning } from "react-icons/im";
 import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useUserContext } from "../../../context/userContext";
-import { AuthUser } from "../../../auth";
 import type { CreateUser } from "../../../types";
+import { useAuthContext } from "../../../context";
 
 interface UsuarioProps {
   setShowModal: (val: boolean) => void;
@@ -16,7 +16,7 @@ interface UsuarioProps {
 }
 
 const EliminarUsuario = ({ id, setShowModal }: UsuarioProps) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const { users, obtenerUsers } = useUserContext();
   const [formData, setFormData] = useState<CreateUser>({} as CreateUser);

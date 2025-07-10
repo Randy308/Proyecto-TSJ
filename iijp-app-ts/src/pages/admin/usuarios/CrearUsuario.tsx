@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import UserService from "../../../services/UserService";
+import {UserService} from "../../../services";
 import PasswordInput from "../../../components/form/PasswordInput";
 
 import { useUserContext } from "../../../context/userContext";
@@ -9,14 +9,14 @@ import { useRoleContext } from "../../../context/roleContext";
 import NameInput from "../../../components/form/NameInput";
 import EmailInput from "../../../components/form/EmailInput";
 import { validateErrors } from "../../../utils/filterForm";
-import { AuthUser } from "../../../auth";
 import axios from "axios";
+import { useAuthContext } from "../../../context";
 
 interface CrearUsuarioProps {
   setShowModal: (val: boolean) => void;
 }
 const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
 
   const { obtenerUsers } = useUserContext();

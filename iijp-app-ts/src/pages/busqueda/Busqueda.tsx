@@ -4,11 +4,11 @@ import Filtros from "../../components/Filtros";
 import { filterForm, filterParams, titulo } from "../../utils/filterForm";
 import { IoMdClose } from "react-icons/io";
 import { IoMdSearch } from "react-icons/io";
-import ResolucionesService from "../../services/ResolucionesService";
+import {ResolucionesService} from "../../services";
 import PaginationData from "./PaginationData";
 import Paginate from "../../components/tables/Paginate";
 import { toast } from "react-toastify";
-import{ type DatosArray, type Variable,  type FiltroNombre,  type ListaData, type Resolucion } from "../../types";
+import{ type DatosArray, type Variable,  type ListaData, type Resolucion, type FiltroBusqueda } from "../../types";
 const Busqueda = () => {
   const { data } = useVariablesContext();
 
@@ -124,7 +124,7 @@ const Busqueda = () => {
                 !["materia", "tipo_jurisprudencia"].includes(name) && (
                   <Filtros
                     key={name}
-                    nombre={name as FiltroNombre}
+                    nombre={name as FiltroBusqueda}
                     data={contenido as ListaData[]}
                     formData={formData}
                     setFormData={setFormData}

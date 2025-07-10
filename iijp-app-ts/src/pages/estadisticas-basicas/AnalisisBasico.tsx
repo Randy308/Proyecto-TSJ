@@ -1,18 +1,20 @@
 import Loading from "../../components/Loading";
 import SimpleChart from "../../components/charts/SimpleChart";
 import TablaX from "../../components/tables/TablaX";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { SwitchChart } from "../../components/charts/SwitchChart";
 import Select from "../../components/Select";
 import AsyncButton from "../../components/AsyncButton";
 import { invertirXY } from "../../utils/math";
 import { LuArrowLeftRight } from "react-icons/lu";
-import ResolucionesService from "../../services/ResolucionesService";
+import { ResolucionesService } from "../../services";
 import { useVariablesContext } from "../../context/variablesContext";
 import { filterParams } from "../../utils/filterForm";
 import { agregarTotalLista } from "../../utils/arrayUtils";
-import type { Variable, AnalisisData, ListaX } from "../../types";
+import type { ECElementEvent } from "echarts";
+import type { Variable, AnalisisData, ListaX, ChartType } from "../../types";
+import { OptionChart } from "../../components/OptionChart";
 interface Columns {
   accessorKey: string;
   header: string;
@@ -111,7 +113,6 @@ const AnalisisBasico = () => {
         }))
       );
     }
-    console.log(tableData);
   }, [tableData]);
 
   useEffect(() => {
@@ -157,6 +158,31 @@ const AnalisisBasico = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedForm]);
+
+  const handleClick = useCallback(
+    (params: ECElementEvent) => {
+     
+      if (multiVariable) {
+        const newItem = {
+          nameX: listaX[0].name,
+          valueX: params.seriesName,
+          nameY: columna,
+          valueY: params.name,
+        };
+
+        console.log("Clicked on series:", newItem);
+      } else {
+        const newItem = {
+          nameX: columna,
+          valueX: params.name != "Cantidad" ? params.name : params.seriesName,
+        };
+
+        console.log("Clicked on series:", newItem);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [multiVariable]
+  );
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-1 p-2 m-2 lg:grid-cols-5">
@@ -267,8 +293,9 @@ const AnalisisBasico = () => {
         <div className="lg:col-span-4 md:col-span-3">
           {!actual ? (
             <TablaX data={tableData.slice(1)} columns={columns} />
+            // <OptionChart dataset={datos} chartType={selected as ChartType} isMultiVariable={multiVariable} />
           ) : (
-            <SimpleChart option={option} />
+            <SimpleChart option={option} handleClick={handleClick} />
           )}
         </div>
       ) : (

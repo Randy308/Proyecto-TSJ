@@ -1,12 +1,12 @@
 import { createContext, useContext } from "react";
 import type { Variable } from "../types";
 
-export interface ValueContextType {
+export interface VariableContextType {
   data: Variable | undefined;
   setData: React.Dispatch<React.SetStateAction<Variable| undefined>>;
 }
 
-export const VariablesContext = createContext<ValueContextType | undefined>(
+export const VariablesContext = createContext<VariableContextType | undefined>(
   undefined
 );
 

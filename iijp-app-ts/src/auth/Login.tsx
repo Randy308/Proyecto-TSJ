@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import Config from "./Config";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "../components/form/PasswordInput";
 import EmailInput from "../components/form/EmailInput";
 import { CgSpinner } from "react-icons/cg";
-import { AuthUser } from "./AuthUser";
+import { useAuthContext } from "../context";
 
-export function Login () {
-  const { getToken, saveToken } = AuthUser();
+export function Login() {
+  const { hasAccess, login } = useAuthContext();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("admin@example.com");
@@ -17,15 +16,17 @@ export function Login () {
   const [passwordError, setPasswordError] = useState<string>("");
 
   useEffect(() => {
-    if (getToken()) {
+    if (hasAccess()) {
       navigate("/");
     }
-  }, [getToken, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const checkFields = (): boolean => {
-
-    return (emailError !== "" || passwordError !== "") && (
-      email.trim() !== "" && password.trim() !== "" 
+    return (
+      (emailError !== "" || passwordError !== "") &&
+      email.trim() !== "" &&
+      password.trim() !== ""
     );
   };
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -34,10 +35,10 @@ export function Login () {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const { data } = await Config.getLogin({ email, password });
+      const { success } = await login(email, password);
 
-      if (data.success) {
-        saveToken(data.user, data.login, data.rol[0]);
+      if (success) {
+        navigate("/dashboard");
       } else {
         setPasswordError("Email o contraseña incorrectos");
       }
@@ -48,8 +49,8 @@ export function Login () {
     }
   };
   return (
-    <div className="bg-gray-300 dark:bg-gray-900 bg-cover bg-center bg-no-repeat bg-fixed flex flex-col justify-center items-center h-screen w-screen sm:p-10 md:p-20 lg:p-40">
-      <div className="grid md:grid-cols-3 sm:grid-cols-1">
+    <div className="bg-gray-300 dark:bg-gray-900 bg-cover bg-center bg-no-repeat bg-fixed flex flex-col justify-center items-center h-screen w-screen sm:p-5 md:p-10 lg:p-30">
+      <div className="grid md:grid-cols-3 sm:grid-cols-1 shadow-lg rounded-lg">
         <div className="md:col-span-2 col-span-1">
           <img
             src="https://www.umss.edu.bo/wp-content/uploads/2019/09/1010069.jpg"
@@ -96,4 +97,4 @@ export function Login () {
       </div>
     </div>
   );
-};
+}

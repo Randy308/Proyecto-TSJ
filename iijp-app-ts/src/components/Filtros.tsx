@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { titulo } from "../utils/filterForm";
-import type { DatosArray, FiltroNombre, ListaData } from "../types";
+import type { DatosArray, FiltroBusqueda, ListaData } from "../types";
 
 
 interface FiltrosProps {
-  nombre: FiltroNombre;
+  nombre: FiltroBusqueda;
   formData: DatosArray;
   data: ListaData[];
   setFormData: React.Dispatch<React.SetStateAction<DatosArray>>;

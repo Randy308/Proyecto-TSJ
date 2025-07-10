@@ -44,7 +44,7 @@ instance.interceptors.response.use(
   }
 );
 
-const UserService = {
+export const UserService = {
   // Usuarios
   getAllUsers: (page:number) => instance.get("/admin/user", { params: { page } }),
   getAllResolutions: (page:number) => instance.get("/admin/resolutions", { params: { page } }),
@@ -78,5 +78,3 @@ const UserService = {
       },
     }),
 };
-
-export default UserService;

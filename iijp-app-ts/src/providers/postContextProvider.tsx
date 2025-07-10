@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PostService from "../services/PostService";
+import {PostService} from "../services";
 import type { ContextProviderProps } from "../types";
 import { PostContext } from "../context";
 interface Post {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import ResolucionesService from "../services/ResolucionesService";
+import {ResolucionesService} from "../services";
 import type { ContextProviderProps, Variable } from "../types";
 import { VariablesContext } from "../context";
 
@@ -22,7 +22,6 @@ export const VariablesContextProvider = ({
       const { data } = await ResolucionesService.obtenerVariables();
       if (data) {
         setData(data);
-        console.log("Data obtenida:", typeof data);
       } else {
         setData({} as Variable);
       }

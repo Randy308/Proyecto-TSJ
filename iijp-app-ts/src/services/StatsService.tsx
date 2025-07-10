@@ -12,7 +12,7 @@ const instance = axios.create({
   withCredentials: false,
 });
 
-const StatsService = {
+export const StatsService = {
   obtenerTerminos: (params:object) =>
     instance.get("/obtener-terminos-avanzados", {
       params,
@@ -29,4 +29,3 @@ const StatsService = {
   buscarTermino: (params:object) => instance.get(`buscar-terminos/`, { params }),
 };
 
-export default StatsService;

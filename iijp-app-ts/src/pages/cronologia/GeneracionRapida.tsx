@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
-import JurisprudenciaService from "../../services/JurisprudenciaService";
+import {JurisprudenciaService} from "../../services";
 import { filterForm } from "../../utils/filterForm";
 import AsyncButton from "../../components/AsyncButton";
 import { IoMdClose } from "react-icons/io";

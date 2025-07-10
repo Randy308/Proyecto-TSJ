@@ -3,16 +3,18 @@ import { useVariablesContext } from "../../context/variablesContext";
 import MultiBtnDropdown from "../../components/MultiBtnDropdown";
 import { BsCheck2All } from "react-icons/bs";
 import { MdOutlineRemoveCircle } from "react-icons/md";
-import { IoIosArrowForward } from "react-icons/io";
-import ResolucionesService from "../../services/ResolucionesService";
+import { ResolucionesService } from "../../services";
 import { filterForm } from "../../utils/filterForm";
 import { useNavigate } from "react-router-dom";
 import { departamentos } from "../../data/Mapa";
 import type { FormListaX, ListaX, MagistradoItem } from "../../types";
 import { toast } from "react-toastify";
+import AsyncButton from "../../components/AsyncButton";
 
 const EstadisticasBasicas = () => {
   const { data } = useVariablesContext();
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selector, setSelector] = useState<ListaX[]>([] as ListaX[]);
   const limite = useMemo(() => 1, []);
   const checkIcon = useMemo(() => <BsCheck2All className="w-5 h-5" />, []);
@@ -22,12 +24,9 @@ const EstadisticasBasicas = () => {
     ),
     []
   );
-  const arrowIcon = useMemo(
-    () => <IoIosArrowForward className="w-7 pr-4" />,
-    []
-  );
+
   const [periodo, setPeriodo] = useState<string>("all");
-  const [visible, setVisible] = useState<string |null>(null);
+  const [visible, setVisible] = useState<string | null>(null);
 
   const [selectedDepto, setSelectedDepto] = useState<string[]>([]);
   const [validMagistrados, setValidMagistrados] = useState<
@@ -73,11 +72,13 @@ const EstadisticasBasicas = () => {
   };
 
   const fetchData = async () => {
-
-    if(!selector || selector.length <= 0){
-      toast.warning("Debe de seleccionar una variable primero")
-      return 
+    if (!selector || selector.length <= 0) {
+      toast.warning("Debe de seleccionar una variable primero");
+      return;
     }
+    if (isLoading) return;
+    setIsLoading(true);
+
     const validatedData = filterForm({
       variable: selector[0].ids,
       nombre: selector[0].name,
@@ -95,12 +96,15 @@ const EstadisticasBasicas = () => {
       })
       .catch((err) => {
         console.log("Existe un error " + err);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   useEffect(() => {
     updateMagistrados("all");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return (
@@ -111,10 +115,10 @@ const EstadisticasBasicas = () => {
           <span>Seleccioné un gestión</span>
           <div className="py-4 my-4">
             <ul>
-              <li className="px-2 grid grid-cols-1 gap-2 sm:grid-cols-2 sm:text-xs pb-4">
+              <li className="px-2 flex flex-row text-sm flex-wrap gap-4 pb-4">
                 <a
                   onClick={() => togglePeriodo("all")}
-                  className={`inline-flex text-center p-1 sm:p-4  border-2 border-gray-200 rounded-lg cursor-pointer  ${
+                  className={`flex-1 inline-flex text-center p-1 sm:p-4  border-2 border-gray-200 rounded-lg cursor-pointer  ${
                     periodo == "all"
                       ? "text-white bg-red-octopus-500"
                       : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"
@@ -125,13 +129,13 @@ const EstadisticasBasicas = () => {
                 </a>
                 <a
                   onClick={() => clearList()}
-                  className="dark:bg-gray-800 dark:border-gray-700 flex border hover:cursor-pointer border-gray-200 items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                  className="flex-1 dark:bg-gray-800 dark:border-gray-700 flex border hover:cursor-pointer border-gray-200 items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
                 >
                   {removeIcon}
                   <span className="ms-3">Quitar Selección</span>
                 </a>
               </li>
-              <ul className="grid grid-cols-3 gap-4">
+              <ul className="grid grid-cols-3 gap-2">
                 {data &&
                   data.periodo &&
                   Array.isArray(data.periodo) &&
@@ -148,7 +152,7 @@ const EstadisticasBasicas = () => {
                       />
                       <label
                         htmlFor={item.nombre}
-                        className={`inline-flex text-center p-1 sm:p-4  border-2 border-gray-200 rounded-lg cursor-pointer  ${
+                        className={`inline-flex text-center p-1 sm:p-3 w-full lg:w-auto border-2 border-gray-200 rounded-lg cursor-pointer  ${
                           periodo == item.nombre
                             ? "text-white bg-red-octopus-500"
                             : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"
@@ -165,16 +169,14 @@ const EstadisticasBasicas = () => {
 
         <div className="sm:p-4 p-2 m-2 sm:m-4 bg-white dark:bg-gray-600 dark:text-white shadow-md rounded-lg lg:col-span-2 ">
           <div className="text-lg font-bold">Paso 2</div>
-          <div className="flex flex-row flex-wrap justify-between items-center">
+          <div className="flex flex-row flex-wrap pb-4 justify-between items-center">
             <span>Seleccioné un variable</span>
-            <button
-              type="button"
-              onClick={() => fetchData()}
-              className="inline-flex items-center text-white bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600 font-medium rounded-lg text-xs px-5 py-3 text-center"
-            >
-              {arrowIcon}
-              <span className="text-xs">Analizar</span>
-            </button>
+            <AsyncButton
+              asyncFunction={fetchData}
+              name="Analizar"
+              isLoading={isLoading}
+              full={false}
+            />
           </div>
 
           <div className="sm:p-4 sm:m-4">
@@ -224,7 +226,7 @@ const EstadisticasBasicas = () => {
             <span>Seleccionar departamentos en el mapa</span>
           </div>
 
-          <div className="lg:col-span-2 h-[700px] bg-white pt-4 dark:bg-gray-600 dark:text-white shadow-md rounded-lg flex items-center justify-center">
+          <div className="lg:col-span-2 h-[700px] bg-white pt-4 dark:bg-gray-600 dark:text-white flex items-center justify-center">
             <svg
               viewBox="0 0 1000 1000" // Ajusta según tu SVG real
               className="w-full h-full p-8"

@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import RoleService from "../services/RoleService";
+import {RoleService} from "../services";
 import { useLocation } from "react-router-dom";
 import type { ContextProviderProps } from "../types";
-import { AuthUser } from "../auth";
-import { RoleContext } from "../context";
+import { RoleContext, useAuthContext } from "../context";
 
 
 interface Role {
@@ -18,13 +17,12 @@ interface ValueContextType {
 
 
 export const RoleContextProvider = ({ children }:ContextProviderProps) => {
-  const { getToken, hasAnyPermission } = AuthUser();
+  const { hasAccess, hasAnyPermission } = useAuthContext();
   const [roles, setRoles] = useState<Role[] | undefined>(undefined);
 
   const location = useLocation();
   const [hasFetched, setHasFetched] = useState(false);
 
-  const token = getToken();
   //const user = getUser();
   useEffect(() => {
     if (
@@ -40,7 +38,7 @@ export const RoleContextProvider = ({ children }:ContextProviderProps) => {
     ) {
       console.log("User has permissions to view roles");
     }
-    if (!token) return;
+    if (!hasAccess()) return;
 
     if (
       (location.pathname === "/admin/usuarios" ||
@@ -59,7 +57,7 @@ export const RoleContextProvider = ({ children }:ContextProviderProps) => {
       obtenerRoles();
       setHasFetched(true);
     }
-  }, [location.pathname, hasFetched, token, hasAnyPermission]);
+  }, [location.pathname, hasFetched, hasAccess, hasAnyPermission]);
 
   const obtenerRoles = async () => {
     try {

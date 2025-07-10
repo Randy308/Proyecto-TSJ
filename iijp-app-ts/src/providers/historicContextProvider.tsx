@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import ResolucionesService from "../services/ResolucionesService";
+import {ResolucionesService} from "../services";
 import type { ContextProviderProps, Historic } from "../types";
-import { HistoricContext, type ValueContextType } from "../context/historicContext";
+import { HistoricContext, type HistoricContextType } from "../context/historicContext";
 
 
 export const HistoricContextProvider = ({ children }: ContextProviderProps) => {
@@ -22,7 +22,7 @@ export const HistoricContextProvider = ({ children }: ContextProviderProps) => {
     }
   };
 
-  const valor: ValueContextType = { historic, setHistoric };
+  const valor: HistoricContextType = { historic, setHistoric };
 
   return (
     <HistoricContext.Provider value={valor}>

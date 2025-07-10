@@ -1,16 +1,16 @@
 import { createContext, useContext } from "react";
 import type { Permission } from "../types";
 
-export interface ValueContextType {
+export interface PermissionContextType {
   permisos: Permission[] | undefined;
   setPermisos: React.Dispatch<React.SetStateAction<Permission[] | undefined>>;
 }
 
-export const PermissionContext = createContext<ValueContextType | undefined>(
+export const PermissionContext = createContext<PermissionContextType | undefined>(
   undefined
 );
 
-export function usePermissionContext(): ValueContextType {
+export function usePermissionContext(): PermissionContextType {
   const context = useContext(PermissionContext);
   if (!context) {
     throw new Error(

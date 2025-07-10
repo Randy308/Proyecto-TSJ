@@ -9,10 +9,10 @@ import {
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaCheckCircle, FaRegCircle } from "react-icons/fa";
 import { useIcons } from "../../components/icons/Icons";
-import ResolucionesService from "../../services/ResolucionesService";
+import {ResolucionesService} from "../../services";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
@@ -110,10 +110,6 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
         setIsLoading(false);
       });
   };
-
-  useEffect(() => {
-    console.log("Selected IDs:", selectedIds);
-  }, [selectedIds]);
 
   if (isLoading) {
     return <Loading />;

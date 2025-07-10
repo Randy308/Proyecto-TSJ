@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { usePapaParse } from "react-papaparse";
-import { AuthUser } from "../../auth";
 import AsyncButton from "../../components/AsyncButton";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import UserService from "../../services/UserService";
+import {UserService} from "../../services";
 import Loading from "../../components/Loading";
+import { useAuthContext } from "../../context";
 
 type nameCol = keyof Jurisprudencia;
 interface Cols {
@@ -26,7 +26,7 @@ interface Jurisprudencia {
 }
 
 const TablaJurisprudenciaCSV = () => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const cabeceras = [

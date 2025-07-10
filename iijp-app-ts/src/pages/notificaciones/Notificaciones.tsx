@@ -1,14 +1,14 @@
 import { useNotificationContext } from "../../context/notificationContext";
-import {AuthUser} from "../../auth";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import UserService from "../../services/UserService";
+import {UserService} from "../../services";
+import { useAuthContext } from "../../context";
 
 const Notificaciones = () => {
   const { notifications, setNotifications } = useNotificationContext();
 
-  const { getToken } = AuthUser();
-  if (!getToken()) {
+  const { hasAccess } = useAuthContext();
+  if (!hasAccess()) {
     return null;
   }
 

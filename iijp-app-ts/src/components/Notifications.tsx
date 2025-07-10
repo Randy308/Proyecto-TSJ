@@ -1,16 +1,16 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useEffect, useRef, useState } from "react";
-import { useNotificationContext } from "../context";
+import { useAuthContext, useNotificationContext } from "../context";
 import { FaBell } from "react-icons/fa6";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import UserService from "../services/UserService";
+import { UserService } from "../services";
 import Loading from "./Loading";
-import { AuthUser } from "../auth";
 
 const Notifications = () => {
-  const { getToken } = AuthUser();
-  if (!getToken()) {
+  const { hasAccess } = useAuthContext();
+
+  if (!hasAccess()) {
     return;
   }
 

@@ -7,10 +7,10 @@ import Paginate from "../../components/tables/Paginate";
 import PortalButton from "../../components/modal/PortalButton";
 import { MdOutlineZoomInMap } from "react-icons/md";
 import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
-import { AuthUser } from "../../auth";
+import { useAuthContext } from "../../context";
 
 const SubirDatos = () => {
-  const { can, hasAnyPermission } = AuthUser();
+  const { can, hasAnyPermission } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const {

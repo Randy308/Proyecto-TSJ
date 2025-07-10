@@ -1,24 +1,22 @@
 import { useState, useEffect } from "react";
-import RoleService from "../services/RoleService";
+import {RoleService} from "../services";
 import { useLocation } from "react-router-dom";
 import type { ContextProviderProps, Permission } from "../types";
-import { AuthUser } from "../auth";
-import { PermissionContext, type ValueContextType } from "../context/permissionContext";
+import { PermissionContext, type PermissionContextType } from "../context/permissionContext";
+import { useAuthContext } from "../context";
 
 
 export const PermissionContextProvider = ({
   children,
 }: ContextProviderProps) => {
-  const { getToken, hasAnyPermission } = AuthUser();
+  const { hasAccess, hasAnyPermission } = useAuthContext();
   const [permisos, setPermisos] = useState<Permission[] | undefined>(undefined);
-
-  const token = getToken();
 
   const location = useLocation();
   const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
-    if (!token) return;
+    if (!hasAccess()) return;
 
     if (
       location.pathname === "/admin/roles" &&
@@ -36,7 +34,7 @@ export const PermissionContextProvider = ({
       obtenerPermisos();
       setHasFetched(true);
     }
-  }, [location.pathname, hasFetched, token, hasAnyPermission]);
+  }, [location.pathname, hasFetched, hasAccess, hasAnyPermission]);
 
   const obtenerPermisos = async () => {
     try {
@@ -53,7 +51,7 @@ export const PermissionContextProvider = ({
     }
   };
 
-  const valor: ValueContextType = { permisos, setPermisos };
+  const valor: PermissionContextType = { permisos, setPermisos };
 
   return (
     <PermissionContext.Provider value={valor}>

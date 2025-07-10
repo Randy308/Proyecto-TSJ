@@ -11,11 +11,11 @@ import CrearRol from "./CrearRol";
 import { useNavigate } from "react-router-dom";
 import { useRoleContext } from "../../../context/roleContext";
 import { usePermissionContext } from "../../../context/permissionContext";
-import { AuthUser } from "../../../auth";
 import Loading from "../../../components/Loading";
+import { useAuthContext } from "../../../context";
 
 export function ListaRoles () {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 

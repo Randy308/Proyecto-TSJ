@@ -1,20 +1,20 @@
 import { createContext, useContext } from "react";
 import type { Notification } from "../types";
 
-export interface ValueContextType {
+export interface NotificationContextType {
   notifications: Notification[] | undefined;
   setNotifications: React.Dispatch<
     React.SetStateAction<Notification[] | undefined>
   >;
 }
 
-export const NotificationContext = createContext<ValueContextType | undefined>(
+export const NotificationContext = createContext<NotificationContextType | undefined>(
   undefined
 );
 
 
 
-export function useNotificationContext(): ValueContextType {
+export function useNotificationContext(): NotificationContextType {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(

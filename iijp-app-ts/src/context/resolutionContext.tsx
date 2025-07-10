@@ -9,7 +9,7 @@ interface Resolution {
   nro_resolucion: string;
 }
 
-export interface ValueContextType {
+export interface ResolutionContextType {
   resolutions: Resolution[] | undefined;
   obtenerResolutions: (page?: number) => Promise<void>;
   totalResolutions: number;
@@ -17,11 +17,11 @@ export interface ValueContextType {
   current: number;
 }
 
-export const ResolutionContext = createContext<ValueContextType | undefined>(
+export const ResolutionContext = createContext<ResolutionContextType | undefined>(
   undefined
 );
 
-export function useResolutionContext(): ValueContextType {
+export function useResolutionContext(): ResolutionContextType {
   const context = useContext(ResolutionContext);
   if (!context) {
     throw new Error(

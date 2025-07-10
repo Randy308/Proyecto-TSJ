@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ContextProviderProps } from "../types";
-import { AnalisisContext, type ValueContextType } from "../context";
+import { AnalisisContext, type AnalisisContextType } from "../context";
 
 export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   // const [analisis, setAnalisis] = useState({});
@@ -10,7 +10,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   const [total, setTotal] = useState(0);
   const [nombre, setNombre] = useState("");
 
-  const valor: ValueContextType = {
+  const valor: AnalisisContextType = {
     // analisis,
     // setAnalisis,
     // serie,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import StatsService from "../../services/StatsService";
+import {StatsService} from "../../services";
 import GeoChart from "../../components/charts/GeoChart";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import type { ReceivedForm } from "../../types";

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AsyncButton from "../../components/AsyncButton";
 import { useLocation, useNavigate } from "react-router-dom";
-import StatsService from "../../services/StatsService";
+import {StatsService} from "../../services";
 import TablaX from "../../components/tables/TablaX";
 import SimpleChart from "../../components/charts/SimpleChart";
 import Loading from "../../components/Loading";

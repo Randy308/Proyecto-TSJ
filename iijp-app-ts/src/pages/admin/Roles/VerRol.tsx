@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { useRoleContext } from "../../../context/roleContext";
-import { AuthUser } from "../../../auth";
 import { type Permission, type RoleData } from "../../../types";
+import { useAuthContext } from "../../../context";
 
 interface Props {
   id: number;
@@ -13,7 +13,7 @@ interface Props {
 }
 
 const VerRol = ({ id, permissions }: Props) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 

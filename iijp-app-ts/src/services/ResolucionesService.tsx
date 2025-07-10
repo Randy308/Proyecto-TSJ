@@ -13,7 +13,7 @@ const instance = axios.create({
   withCredentials: false,
 });
 
-const ResolucionesService = {
+export const ResolucionesService = {
   getStats: () => instance.get(`/obtener-historico`),
 
   getDataDepartamentos: (id:number, params:FormData) =>
@@ -51,5 +51,3 @@ const ResolucionesService = {
       params,
     }),
 };
-
-export default ResolucionesService;

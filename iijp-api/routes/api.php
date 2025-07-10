@@ -109,6 +109,7 @@ Route::prefix('v2')->group(function () {
     Route::group(['middleware' => 'auth:sanctum'], function () {
         //Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/auth-user', [AuthController::class, 'Authuser']);
         Route::apiResource('admin/user', UserController::class);
         Route::apiResource('admin/roles', RoleController::class);
         Route::apiResource('admin/post', PostController::class);

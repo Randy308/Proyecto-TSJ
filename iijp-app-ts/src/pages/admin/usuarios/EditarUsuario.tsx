@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import UserService from "../../../services/UserService";
+import {UserService} from "../../../services";
 import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
 import { useUserContext } from "../../../context/userContext";
 import type{ CreateUser, UserFields } from "../../../types";
-import { AuthUser } from "../../../auth";
+import { useAuthContext } from "../../../context";
 
 
 interface UsuarioProps {
@@ -16,7 +16,7 @@ interface UsuarioProps {
 }
 
 const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const { roles } = useRoleContext();
   const { users, obtenerUsers } = useUserContext();

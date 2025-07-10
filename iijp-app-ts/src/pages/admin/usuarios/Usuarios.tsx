@@ -12,10 +12,10 @@ import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../../../context/userContext";
 import Paginate from "../../../components/tables/Paginate";
 import { FaCircleUser } from "react-icons/fa6";
-import { AuthUser } from "../../../auth";
 import Loading from "../../../components/Loading";
+import { useAuthContext } from "../../../context";
 const Usuarios = () => {
-  const { can } = AuthUser();
+  const { can } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import type { User } from "../types";
 
-export interface ValueContextType {
+export interface UserContextType {
   users: User[] | undefined;
   totalUser: number;
   pageCount: number;
@@ -9,12 +9,12 @@ export interface ValueContextType {
   obtenerUsers: (page?: number) => Promise<void>;
 }
 
-export const UserContext = createContext<ValueContextType | undefined>(
+export const UserContext = createContext<UserContextType | undefined>(
   undefined
 );
 
 
-export function useUserContext(): ValueContextType {
+export function useUserContext(): UserContextType {
   const context = useContext(UserContext);
   if (!context) {
     throw new Error("useUserContext must be used within a UserProvider");

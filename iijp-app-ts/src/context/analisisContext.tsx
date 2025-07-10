@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 
-export interface ValueContextType {
+export interface AnalisisContextType {
   multiVariable: boolean;
   setMultiVariable: React.Dispatch<React.SetStateAction<boolean>>;
   total: number;
@@ -10,13 +10,12 @@ export interface ValueContextType {
 }
 
 
-
-export const AnalisisContext = createContext<ValueContextType | undefined>(
+export const AnalisisContext = createContext<AnalisisContextType | undefined>(
   undefined
 );
 
 
-export function useAnalisisContext(): ValueContextType {
+export function useAnalisisContext(): AnalisisContextType {
   const context = useContext(AnalisisContext);
   if (!context) {
     throw new Error(

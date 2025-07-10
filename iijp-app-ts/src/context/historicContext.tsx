@@ -1,17 +1,17 @@
 import { createContext, useContext } from "react";
 import type { Historic } from "../types";
 
-export interface ValueContextType {
+export interface HistoricContextType {
   historic: Historic | null;
   setHistoric: React.Dispatch<React.SetStateAction<Historic | null>>;
 }
 
-export const HistoricContext = createContext<ValueContextType | undefined>(
+export const HistoricContext = createContext<HistoricContextType | undefined>(
   undefined
 );
 
 
-export function useHistoricContext(): ValueContextType {
+export function useHistoricContext(): HistoricContextType {
   const context = useContext(HistoricContext);
   if (!context) {
     throw new Error(

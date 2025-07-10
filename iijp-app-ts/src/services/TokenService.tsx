@@ -8,10 +8,8 @@ const instance = axios.create({
   withCredentials: true,
 });
 
-const TokenService = {
+export const TokenService = {
   obtenerToken: () =>
     instance.get("/sanctum/csrf-cookie", {
     }),
 };
-
-export default TokenService;

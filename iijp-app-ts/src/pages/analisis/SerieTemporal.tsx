@@ -4,7 +4,7 @@ import { agregarTotalLista, filtrarLista } from "../../utils/arrayUtils";
 import AnalisisChart from "./AnalisisChart";
 import TablaX from "../../components/tables/TablaX";
 import { invertirXY, obtenerEstadisticas } from "../../utils/math";
-import StatsService from "../../services/StatsService";
+import {StatsService} from "../../services";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
 import type { AnalisisData } from "../../types";

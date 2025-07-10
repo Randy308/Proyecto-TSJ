@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import styles from "./ResolucionTSJ.module.css";
-import ResolucionesService from "../../services/ResolucionesService";
+import {ResolucionesService} from "../../services";
 import { titulo } from "../../utils/filterForm";
 import type { Jurisprudencia, Resolucion } from "../../types";
 
