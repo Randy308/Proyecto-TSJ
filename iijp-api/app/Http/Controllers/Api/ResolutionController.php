@@ -452,17 +452,12 @@ class ResolutionController extends Controller
 
 
         $query = $request->input('term', '');
-        $highlight = $request->input('highlight', 'contenido');
+        $highlight = $request->input('highlight', ['sintesis']);
 
         // Parámetros de paginación
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        $highlight = ['demandante', 'demandado'];
-
-        if ($request->has('term')) {
-            $highlight = ['contenido', 'demandante', 'demandado'];
-        }
         //$highlight = ['descriptor', 'ratio', 'restrictor'];
         //$highlight = ['descriptor'];
         $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo'];

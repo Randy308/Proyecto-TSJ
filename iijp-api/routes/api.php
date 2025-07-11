@@ -104,6 +104,8 @@ Route::prefix('v2')->group(function () {
         Route::post('auth/register', [AuthController::class, 'register']);
     });
 
+    Route::get('/auth-user', [AuthController::class, 'Authuser']);
+
 
 
     Route::group(['middleware' => 'auth:sanctum'], function () {
