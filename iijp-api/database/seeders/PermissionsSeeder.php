@@ -82,21 +82,21 @@ class PermissionsSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin User',
-                'password' => Hash::make('password') // You can change the password
+                'password' => Hash::make('jdVGIODZ0qIaWeN') // You can change the password
             ]
         );
         $user2 = User::firstOrCreate(
             ['email' => 'editor@example.com'],
             [
                 'name' => 'Editor User',
-                'password' => Hash::make('password') // You can change the password
+                'password' => Hash::make('jdVGIODZ0qIaWeN') // You can change the password
             ]
         );
         $user3 = User::firstOrCreate(
             ['email' => 'user@example.com'],
             [
                 'name' => 'Regular User',
-                'password' => Hash::make('password') // You can change the password
+                'password' => Hash::make('jdVGIODZ0qIaWeN') // You can change the password
             ]
         );
 
