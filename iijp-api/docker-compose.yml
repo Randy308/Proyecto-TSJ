@@ -5,6 +5,7 @@ services:
       dockerfile: Dockerfile
     image: laravel-app
     container_name: laravel-app
+    entrypoint: ["sh", "./entrypoint.sh"]
     ports:
       - "9000:9000"
     volumes:
@@ -17,7 +18,7 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: 1.5G
+          memory: 1G
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9000 || exit 1"]
       interval: 30s
@@ -62,7 +63,7 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: 1.5G
+          memory: 1G
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
       interval: 30s
