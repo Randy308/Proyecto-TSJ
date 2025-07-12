@@ -53,9 +53,10 @@ Route::prefix('v2')->group(function () {
 
     #rutas validadas
 
-    Route::get(uri: '/obtener-variables', action: [ResolutionController::class, 'obtenerVariables']);
+    Route::get('/obtener-variables',  [ResolutionController::class, 'obtenerVariables']);
 
     Route::get('/obtener-estadisticas', [ResolutionController::class, 'obtenerEstadisticas']);
+    Route::post('/estadisticas-multivariable', [ResolutionController::class, 'obtenerEstadisticasMultivariable']);
     Route::get('/obtener-estadisticas-xy', [ResolutionController::class, 'obtenerEstadisticasXY']);
     Route::get('/obtener-filtros-estadisticas', [ResolutionController::class, 'obtenerFiltros']);
 

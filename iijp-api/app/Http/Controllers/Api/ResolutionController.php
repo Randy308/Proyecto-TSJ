@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\JurisprudenciaResource;
+use App\Http\Resources\ResolutionResource;
 use App\Jobs\WebScrappingJob;
 use App\Models\Contents;
 use App\Models\Departamentos;
@@ -101,6 +103,79 @@ class ResolutionController extends Controller
         return response()->json($resolutions);
     }
 
+    public function obtenerEstadisticasMultivariable(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'filtros' => 'required|array',
+            'filtros.*.foreign_key' => 'required|string',
+            'filtros.*.valores' => 'required|array|min:1',
+            'filtros.*.valores.*' => 'required|integer|min:1',
+            'serie' => 'string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación de los filtros.',
+                'errors' => $validator->errors()
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY); // 422
+        }
+
+
+        $campos = [
+            "tipo_resolucion"     => ["tabla" => "tipo_resolucions as tr", "fk" => "r.tipo_resolucion_id",   "id" => "tr.id", "nombre" => "tr.nombre as tipo_resolucion"],
+            "departamento"        => ["tabla" => "departamentos as d",     "fk" => "r.departamento_id",      "id" => "d.id",  "nombre" => "d.nombre as departamento"],
+            "sala"                => ["tabla" => "salas as s",             "fk" => "r.sala_id",              "id" => "s.id",  "nombre" => "s.nombre as sala"],
+            "magistrado"          => ["tabla" => "magistrados as m",       "fk" => "r.magistrado_id",        "id" => "m.id",  "nombre" => "m.nombre as magistrado"],
+            "forma_resolucion"    => ["tabla" => "forma_resolucions as fr", "fk" => "r.forma_resolucion_id",  "id" => "fr.id", "nombre" => "fr.nombre as forma_resolucion"],
+            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias as tj", "fk" => "j.tipo_jurisprudencia_id", "id" => "tj.id", "nombre" => "tj.nombre as tipo_jurisprudencia"],
+            "materia"             => ["tabla" => "descriptors as dc",      "fk" => "j.root_id",              "id" => "dc.id", "nombre" => "dc.nombre as materia"],
+        ];
+
+        // Iniciar query
+        $datos = DB::table('resolutions as r')->selectRaw('COUNT(DISTINCT r.id) as cantidad');
+
+        // Si se usa algún filtro que necesita jurisprudencias
+        if (array_key_exists('tipo_jurisprudencia', $request->filtros) || array_key_exists('materia', $request->filtros)) {
+            $datos->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+        }
+
+        // Lista de campos por los que agrupar
+        $groupByCampos = [];
+
+        foreach ($request->filtros as $tabla => $config) {
+            if (!isset($campos[$tabla])) {
+                continue;
+            }
+
+            $filtro = $campos[$tabla];
+            $valores = $config['valores'];
+
+            $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id'])
+                ->addSelect(DB::raw($filtro['nombre']))
+                ->whereIn($filtro['fk'], $valores);
+
+            // Extraer el alias del campo "as xxx"
+            preg_match('/as\s+(\w+)$/i', $filtro['nombre'], $aliasMatch);
+            if (isset($aliasMatch[1])) {
+                $groupByCampos[] = $aliasMatch[1]; // ej: "departamento", "materia"
+            }
+        }
+
+        // Agregar groupBy solo si hay campos
+        if (!empty($groupByCampos)) {
+            if(request()->has('serie')) {
+                $datos->addSelect('r.fecha_emision as fecha');
+                $groupByCampos[] = 'fecha'; // Aseguramos que siempre se agrupe por fecha
+            }
+            $datos->groupBy($groupByCampos);
+        }
+
+        $resultados = $datos->get();
+
+        return response()->json($resultados);
+    }
+
     public function obtenerEstadisticas(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -137,6 +212,8 @@ class ResolutionController extends Controller
 
 
         $filtroPrincipal = $campos[$nombre];
+
+
 
         $query = DB::table('resolutions as r');
         if ($filtroPrincipal["join"]) {
@@ -378,6 +455,10 @@ class ResolutionController extends Controller
     public function obtenerVariables()
     {
 
+        $results = Resolutions::with('departamento')->from('resolutions as r')
+            ->selectRaw('r.departamento_id, COUNT(DISTINCT id) as cantidad')
+            ->groupBy("r.departamento_id")->get();
+        return $results;
 
         $departamentos = Departamentos::all('id', 'nombre');
         $salas = Sala::all('id', 'nombre');
@@ -678,55 +759,17 @@ class ResolutionController extends Controller
     {
 
 
+
+
         try {
 
 
-            $resolution = DB::table('contents as c')
-                ->join('resolutions as r', 'r.id', '=', 'c.resolution_id')
-                ->leftJoin('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
-                ->leftJoin('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-                ->leftJoin('departamentos as d', 'd.id', '=', 'r.departamento_id')
-                ->leftJoin('magistrados as m', 'm.id', '=', 'r.magistrado_id')
-                ->leftJoin('salas as s', 's.id', '=', 'r.sala_id')
-                ->select(
 
-                    'r.nro_resolucion',
-                    'r.nro_expediente',
-                    'r.fecha_emision',
-                    'tr.nombre as tipo_resolucion',
-                    'd.nombre as departamento',
-                    's.nombre as sala',
-                    'm.nombre as magistrado',
-                    'fr.nombre as forma_resolucion',
-                    'r.proceso',
-                    'r.demandante',
-                    'r.demandado',
-                    'r.maxima',
-                    'r.sintesis',
-                    'r.precedente',
-                    'r.sintesis',
-                    'c.contenido',
-                )
-                ->where('r.id', '=', $id)
-                ->first();
-            $jurisprudencias = DB::table('jurisprudencias as j')
-                ->leftJoin('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')->select(
-
-                    'j.ratio',
-                    'j.descriptor',
-                    "tj.nombre as tipo_jurisprudencia",
-                    'j.restrictor'
-
-                )->where('resolution_id', $id)->get();
-
-
-
-
-
+            $resolution = Resolutions::with('content', 'forma_resolucion', 'sala', 'departamento', 'magistrado')->findOrFail($id);
+            $jurisprudencias = Jurisprudencias::with('materia', 'tipo_descriptor')->where('resolution_id', $id)->get();
             return response()->json([
-
-                'resolucion' => $resolution,
-                'jurisprudencias' => $jurisprudencias,
+                'resolucion' => new ResolutionResource($resolution),
+                'jurisprudencias' => JurisprudenciaResource::collection($jurisprudencias),
             ], 200);
         } catch (ModelNotFoundException $e) {
 
@@ -996,7 +1039,10 @@ class ResolutionController extends Controller
         if ($filtroPrincipal["join"]) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
-        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad, EXTRACT(YEAR FROM fecha_emision) as fecha')->join($filtroPrincipal["tabla"] . ' as x', 'x.id', $filtroPrincipal["foreign_key"])->whereIn($filtroPrincipal["foreign_key"], $request->variable)->groupBy("fecha", "nombre");
+        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad, fecha_emision as fecha')
+        ->join($filtroPrincipal["tabla"] . ' as x', 'x.id', $filtroPrincipal["foreign_key"])
+        ->whereIn($filtroPrincipal["foreign_key"], $request->variable)
+        ->groupBy("fecha", "nombre");
 
 
         $data = $query->get();

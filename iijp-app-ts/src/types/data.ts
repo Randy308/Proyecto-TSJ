@@ -1,4 +1,4 @@
-export type FiltroNombre =
+export type Categorias =
   | "tipo_resolucion"
   | "sala"
   | "magistrado"
@@ -6,7 +6,8 @@ export type FiltroNombre =
   | "forma_resolucion"
   | "tipo_jurisprudencia"
   | "materia"
-  | "periodo"
+  | "periodo";
+export type TerminosClave =
   | "proceso"
   | "demandante"
   | "demandado"
@@ -16,7 +17,8 @@ export type FiltroNombre =
   | "ratio"
   | "restrictor"
   | "descriptor";
-  
+export type FiltroNombre = Categorias | TerminosClave;
+
 export type FiltroBusqueda =
   | "tipo_resolucion"
   | "sala"
@@ -25,7 +27,7 @@ export type FiltroBusqueda =
   | "forma_resolucion"
   | "tipo_jurisprudencia"
   | "materia"
-  | "periodo"
+  | "periodo";
 
 type AllOrNumber = number | "all";
 
@@ -53,7 +55,7 @@ export interface DatosArray {
 
 export interface ListaX {
   name: FiltroNombre;
-  ids: (number|string)[];
+  ids: (number | string)[];
 }
 
 export interface ListaXTerminos {
@@ -61,14 +63,12 @@ export interface ListaXTerminos {
   ids: string[];
 }
 
-export interface FormListaX  {
+export interface FormListaX {
   nombre: FiltroNombre;
   variable: number[];
   periodo: string;
   departamento: string;
 }
-
-
 
 export interface DatosArrayForm {
   tipo_resolucion?: number[];
@@ -79,20 +79,52 @@ export interface DatosArrayForm {
   tipo_jurisprudencia?: number[];
   materia?: number[];
   periodo?: number[];
-  page:number;
+  page: number;
   busqueda?: string;
   descriptor?: number;
 }
 
 export type AnalisisData = (string | number)[][];
 
-
 export interface ReceivedForm {
   nombre: string;
   variable: string[];
 }
 
-
-export type SingleChartType = "bar" | "line" | "pie" | "scatter" | "area"| "donut" | "column";
-export type DualChartType = "stackedBar" | "stackedColumn" | "column" | "bar" | "multiLine" | "stackedArea" | "polar" | "radar" | "donut";
+export type SingleChartType =
+  | "bar"
+  | "line"
+  | "pie"
+  | "scatter"
+  | "area"
+  | "donut"
+  | "column";
+export type DualChartType =
+  | "stackedBar"
+  | "stackedColumn"
+  | "column"
+  | "bar"
+  | "multiLine"
+  | "stackedArea"
+  | "polar"
+  | "radar"
+  | "donut";
 export type ChartType = SingleChartType | DualChartType;
+
+export interface FiltroAnalisis {
+  filtros: {
+    [key in Categorias]: {
+      foreign_key: string;
+      valores: number[];
+    };
+  };
+  serie: string;
+
+  // término es opcional
+  terminos?: {
+    [key in TerminosClave]: {
+      columna: string;
+      valores: string[];
+    };
+  };
+}

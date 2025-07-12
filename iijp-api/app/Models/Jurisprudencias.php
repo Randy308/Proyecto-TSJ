@@ -41,11 +41,15 @@ class Jurisprudencias extends Model
         return $this->belongsTo(TipoJurisprudencia::class, 'tipo_jurisprudencia_id');
     }
 
-    public function descriptor()
+    public function tipo_descriptor()
     {
         return $this->belongsTo(Descriptor::class, 'descriptor_id');
     }
 
+    public function materia()
+    {
+        return $this->belongsTo(Descriptor::class, 'root_id');
+    }
     public function toSearchableArray()
     {
         $this->loadMissing('resolution'); // importante para evitar N+1
