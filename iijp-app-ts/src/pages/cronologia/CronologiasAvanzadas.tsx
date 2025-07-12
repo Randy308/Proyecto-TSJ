@@ -17,7 +17,7 @@ import PortalButton from "../../components/modal/PortalButton";
 import { MdClear } from "react-icons/md";
 import Paginate from "../../components/tables/Paginate";
 import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
-import { IoMdClose, IoMdRefresh } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import AsyncButton from "../../components/AsyncButton";
 import { useIcons } from "../../components/icons/Icons";
 import type {
@@ -53,7 +53,6 @@ const CronologiasAvanzadas = () => {
 
   const searchIcon = useMemo(() => <FaSearch className="w-4 h-4 " />, []);
 
-  const refreshIcon = useMemo(() => <IoMdRefresh className="w-4 h-4" />, []);
   const [descriptor, setDescriptor] = useState<number | null>(null);
   const [descriptorName, setDescriptorName] = useState<string>("");
   const [facetas, setFacetas] = useState<Variable>({} as Variable);
@@ -77,7 +76,7 @@ const CronologiasAvanzadas = () => {
   const [resultados, setResultados] = useState<TerminoBusqueda[]>([]);
 
   const checkSearch = (valor: string) => {
-    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'’-]+$/;
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'"’-]+$/;
 
     if (regex.test(valor) || valor === "") {
       return true;
@@ -198,6 +197,7 @@ const CronologiasAvanzadas = () => {
       busqueda: busqueda,
       page: validPage,
       descriptor: descriptor,
+      strategy: false,
       ...formData,
     });
 
@@ -316,15 +316,6 @@ const CronologiasAvanzadas = () => {
                 >
                   {searchIcon}{" "}
                 </button>
-                {resoluciones.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => obtenerResoluciones()}
-                    className="flex items-center bg-red-octopus-600 p-4 text-white rounded-lg hover:bg-red-octopus-700 focus:ring-4 focus:ring-red-octopus-300 dark:focus:ring-red-octopus-800"
-                  >
-                    {refreshIcon}{" "}
-                  </button>
-                )}
               </div>
               <div className="flex flex-row flex-wrap items-center md:justify-end gap-4 mt-2 text-lg text-black dark:text-gray-300">
                 <div className="flex items-center">

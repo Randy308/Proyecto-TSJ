@@ -100,7 +100,7 @@ class TemaController extends Controller
         $highlight = ['descriptor', 'ratio', 'restrictor'];
         //$highlight = ['descriptor'];
         $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'materia', 'magistrado', 'forma_resolucion'];
-        $strategy = 'all';
+        $strategy = request()->input('strategy', false);
 
         $extraFields = [
             'id',

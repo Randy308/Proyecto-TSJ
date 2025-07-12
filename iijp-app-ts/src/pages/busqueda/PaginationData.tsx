@@ -12,7 +12,7 @@ import { es } from "date-fns/locale";
 import { useState } from "react";
 import { FaCheckCircle, FaRegCircle } from "react-icons/fa";
 import { useIcons } from "../../components/icons/Icons";
-import {ResolucionesService} from "../../services";
+import { ResolucionesService } from "../../services";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
@@ -199,6 +199,10 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
                       "contenido",
                       "demandante",
                       "demandado",
+                      "sintesis",
+                      "maxima",
+                      "precedente",
+                      "proceso",
                       "nro_resolucion",
                       "tipo_resolucion",
                     ].includes(key) && item[key as keyof Resolucion]
@@ -227,41 +231,37 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
                   </div>
                 ))}
 
-              {item.demandante && (
-                <div>
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">
-                    Demandante:
-                  </span>
+              {Object.keys(item)
+                .filter(
+                  (key) =>
+                    [
+                      "contenido",
+                      "demandante",
+                      "demandado",
+                      "sintesis",
+                      "maxima",
+                      "precedente",
+                      "proceso",
+                    ].includes(key) && item[key as keyof Resolucion]
+                )
+                .map((key) => (
                   <div
-                    className="text-gray-600 dark:text-gray-400 mt-1"
-                    dangerouslySetInnerHTML={{ __html: item.demandante }}
-                  />
-                </div>
-              )}
-
-              {item.demandado && (
-                <div>
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">
-                    Demandado:
-                  </span>
-                  <div
-                    className="text-gray-600 dark:text-gray-400 mt-1"
-                    dangerouslySetInnerHTML={{ __html: item.demandado }}
-                  />
-                </div>
-              )}
-
-              {item.contenido && (
-                <div>
-                  <span className="font-semibold text-gray-700 dark:text-gray-300">
-                    Resumen:
-                  </span>
-                  <div
-                    className="text-gray-600 dark:text-gray-400 mt-1 text-justify"
-                    dangerouslySetInnerHTML={{ __html: item.contenido }}
-                  />
-                </div>
-              )}
+                    key={key}
+                    className="flex flex-col sm:flex-row sm:items-start"
+                  >
+                    <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[140px]">
+                      {titulo(key)}:
+                    </span>
+                    <div
+                      className="text-gray-600 dark:text-gray-400 mt-1"
+                      dangerouslySetInnerHTML={{
+                        __html: (
+                          item[key as keyof Resolucion] || ""
+                        ).toString(),
+                      }}
+                    />
+                  </div>
+                ))}
             </div>
           </div>
         ))}

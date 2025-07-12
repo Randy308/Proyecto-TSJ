@@ -15,16 +15,14 @@ interface OptionChartProps {
   chartType: ChartType;
   isMultiVariable: boolean;
   border?: boolean;
-  handleClick?: () => void;
+  handleClick: (params: echarts.ECElementEvent) => void;
 }
 export const OptionChart = ({
   dataset,
   chartType,
   isMultiVariable,
   border = true,
-  handleClick = () => {
-    console.log("Click en gráfico");
-  },
+  handleClick,
 }: OptionChartProps) => {
   // Configuraciones para una variable
   function getChartOption(
@@ -69,11 +67,6 @@ export const OptionChart = ({
 
       case "line":
         return {
-          title: {
-            text: "Ventas Mensuales - Líneas",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
           legend: {},
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
@@ -93,11 +86,6 @@ export const OptionChart = ({
 
       case "pie":
         return {
-          title: {
-            text: "Distribución de Ventas",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
           legend: {},
           tooltip: {
             trigger: "item",
@@ -123,11 +111,6 @@ export const OptionChart = ({
 
       case "scatter":
         return {
-          title: {
-            text: "Ventas Mensuales - Dispersión",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
           legend: {},
           tooltip: {
             trigger: "axis",
@@ -147,11 +130,6 @@ export const OptionChart = ({
 
       case "area":
         return {
-          title: {
-            text: "Ventas Mensuales - Área",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
           legend: {},
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
@@ -236,283 +214,166 @@ export const OptionChart = ({
     type: DualChartType,
     dataset: AnalisisData
   ): echarts.EChartsOption {
+    const seriesCount = Math.max(dataset[0].length - 1, 1); // quitamos la primera columna (categoría)
+
     switch (type) {
-      case "stackedBar":
+      case "stackedColumn":
         return {
-          title: {
-            text: "Ventas por Canal - Barras Apiladas",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
+          legend: {},
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            containLabel: true,
           },
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          legend: { data: ["Ventas Online", "Ventas Tienda"], top: "10%" },
           dataset: { source: dataset },
           xAxis: { type: "value" },
           yAxis: { type: "category" },
-          series: [
-            {
-              name: "Ventas Online",
-              type: "bar",
-              stack: "total",
-              itemStyle: { color: "#667eea" },
-            },
-            {
-              name: "Ventas Tienda",
-              type: "bar",
-              stack: "total",
-              itemStyle: { color: "#764ba2" },
-            },
-          ],
+          series: Array.from({ length: seriesCount }, () => ({
+            type: "bar",
+            stack: "total",
+          })),
         };
 
-      case "stackedColumn":
+      case "stackedBar":
         return {
-          title: {
-            text: "Ventas por Canal - Columnas Apiladas",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
+          legend: {},
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          legend: { data: ["Ventas Online", "Ventas Tienda"], top: "10%" },
           dataset: { source: dataset },
           xAxis: { type: "category" },
           yAxis: { type: "value" },
-          series: [
-            {
-              name: "Ventas Online",
-              type: "bar",
-              stack: "total",
-              itemStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#667eea" },
-                  { offset: 1, color: "#667eea80" },
-                ]),
-              },
-            },
-            {
-              name: "Ventas Tienda",
-              type: "bar",
-              stack: "total",
-              itemStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#764ba2" },
-                  { offset: 1, color: "#764ba280" },
-                ]),
-              },
-            },
-          ],
+          series: Array.from({ length: seriesCount }, () => ({
+            type: "bar",
+            stack: "total",
+          })),
         };
 
-      case "groupedColumn":
+      case "column": {
+        const barSeriesCount = Math.max(dataset[0].length - 1, 1);
         return {
-          title: {
-            text: "Ventas por Canal - Columnas Agrupadas",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
+          legend: {},
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            containLabel: true,
           },
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          legend: { data: ["Ventas Online", "Ventas Tienda"], top: "10%" },
           dataset: { source: dataset },
-          xAxis: { type: "category" },
-          yAxis: { type: "value" },
-          series: [
-            {
-              name: "Ventas Online",
-              type: "bar",
-              itemStyle: { color: "#667eea" },
-            },
-            {
-              name: "Ventas Tienda",
-              type: "bar",
-              itemStyle: { color: "#764ba2" },
-            },
-          ],
+          xAxis: { type: "value" },
+          yAxis: { type: "category" },
+          series: Array.from({ length: barSeriesCount }, () => ({
+            type: "bar",
+            seriesLayoutBy: "column",
+          })),
+        };
+      }
+
+      case "bar":
+        return {
+          legend: {},
+          grid: {
+            left: "3%",
+            right: "4%",
+            bottom: "3%",
+            containLabel: true,
+          },
+          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+          dataset: { source: dataset },
+          xAxis: { type: "category", axisLabel: { rotate: 40 } },
+          yAxis: { gridIndex: 0 },
+          series: Array.from({ length: seriesCount }, () => ({
+            type: "bar",
+            seriesLayoutBy: "column",
+          })),
         };
 
       case "multiLine":
         return {
-          title: {
-            text: "Tendencias de Ventas - Líneas Múltiples",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
+          legend: {},
           tooltip: { trigger: "axis" },
-          legend: { data: ["Ventas Online", "Ventas Tienda"], top: "10%" },
           dataset: { source: dataset },
           xAxis: { type: "category" },
           yAxis: { type: "value" },
-          series: [
-            {
-              name: "Ventas Online",
-              type: "line",
-              smooth: true,
-              itemStyle: { color: "#667eea" },
-              lineStyle: { width: 3 },
-              symbol: "circle",
-              symbolSize: 8,
-            },
-            {
-              name: "Ventas Tienda",
-              type: "line",
-              smooth: true,
-              itemStyle: { color: "#764ba2" },
-              lineStyle: { width: 3 },
-              symbol: "diamond",
-              symbolSize: 8,
-            },
-          ],
+          series: Array.from({ length: seriesCount }, () => ({
+            type: "line",
+            smooth: true,
+            symbol: "circle",
+            symbolSize: 8,
+          })),
         };
 
       case "stackedArea":
         return {
-          title: {
-            text: "Ventas Acumuladas - Áreas Apiladas",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
+          legend: {},
           tooltip: { trigger: "axis" },
-          legend: { data: ["Ventas Online", "Ventas Tienda"], top: "10%" },
           dataset: { source: dataset },
           xAxis: { type: "category" },
           yAxis: { type: "value" },
-          series: [
-            {
-              name: "Ventas Online",
-              type: "line",
-              stack: "total",
-              smooth: true,
-              itemStyle: { color: "#667eea" },
-              areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#667eea80" },
-                  { offset: 1, color: "#667eea20" },
-                ]),
-              },
-            },
-            {
-              name: "Ventas Tienda",
-              type: "line",
-              stack: "total",
-              smooth: true,
-              itemStyle: { color: "#764ba2" },
-              areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: "#764ba280" },
-                  { offset: 1, color: "#764ba220" },
-                ]),
-              },
-            },
-          ],
+          series: Array.from({ length: seriesCount }, () => ({
+            type: "line",
+            stack: "total",
+            smooth: true,
+            areaStyle: {},
+          })),
         };
 
       case "polar":
         return {
-          title: {
-            text: "Ventas por Canal - Gráfico Polar",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
           tooltip: { trigger: "axis" },
-          legend: { data: ["Ventas Online", "Ventas Tienda"], top: "10%" },
+          legend: {},
           dataset: { source: dataset },
-          polar: { radius: [30, "70%"] },
-          radiusAxis: { type: "category" },
-          angleAxis: { type: "value", startAngle: 0 },
-          series: [
-            {
-              name: "Ventas Online",
-              type: "bar",
-              coordinateSystem: "polar",
-              itemStyle: { color: "#667eea" },
+          radiusAxis: {},
+          polar: {},
+          angleAxis: {
+            type: "category",
+          },
+          series: Array.from({ length: seriesCount }, () => ({
+            type: "bar",
+            coordinateSystem: "polar",
+            stack: "a",
+            emphasis: {
+              focus: "series",
             },
-            {
-              name: "Ventas Tienda",
-              type: "bar",
-              coordinateSystem: "polar",
-              itemStyle: { color: "#764ba2" },
-            },
-          ],
+          })),
         };
 
-      case "radar":
+      case "radar": {
+        const globalMax = Math.max(
+          ...dataset.slice(1).flatMap((row) => row.slice(1).map(Number))
+        );
+
+        const indicators = dataset.slice(1).map((row) => ({
+          name: String(row[0]),
+          max: globalMax, // Puedes ajustar esto según el rango de valores
+        }));
+
+        const transposed = dataset[0].map((_, colIndex) =>
+          dataset.map((row) => row[colIndex])
+        );
+
         return {
-          title: {
-            text: "Comparación de Ventas - Gráfico Radar",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
           tooltip: {},
-          legend: { data: ["Ventas Online", "Ventas Tienda"], top: "10%" },
+          legend: {},
           radar: {
-            indicator: [
-              { name: "Enero", max: 250 },
-              { name: "Febrero", max: 250 },
-              { name: "Marzo", max: 250 },
-              { name: "Abril", max: 250 },
-              { name: "Mayo", max: 250 },
-              { name: "Junio", max: 250 },
-            ],
+            indicator: indicators,
+          },
+          dataset: {
+            source: dataset,
           },
           series: [
             {
-              name: "Ventas por Canal",
+              name: "Budget vs spending",
               type: "radar",
-              data: [
-                {
-                  value: [120, 200, 150, 180, 170, 210],
-                  name: "Ventas Online",
-                  itemStyle: { color: "#667eea" },
-                  areaStyle: { color: "#667eea40" },
-                },
-                {
-                  value: [80, 120, 110, 140, 130, 160],
-                  name: "Ventas Tienda",
-                  itemStyle: { color: "#764ba2" },
-                  areaStyle: { color: "#764ba240" },
-                },
-              ],
+              data: transposed.slice(1).map((row) => ({
+                name: row[0],
+                value: row.slice(1), // Puedes ajustar esto según el rango de valores
+              })),
             },
           ],
         };
-
-      case "donut":
-        return {
-          title: {
-            text: "Distribución Total de Ventas",
-            left: "center",
-            textStyle: { fontSize: 18, fontWeight: "bold", color: "#333" },
-          },
-          tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
-          legend: { orient: "vertical", left: "left", top: "middle" },
-          series: [
-            {
-              name: "Ventas Totales",
-              type: "pie",
-              radius: ["40%", "70%"],
-              center: ["60%", "50%"],
-              data: [
-                {
-                  value: 1030,
-                  name: "Ventas Online",
-                  itemStyle: { color: "#667eea" },
-                },
-                {
-                  value: 740,
-                  name: "Ventas Tienda",
-                  itemStyle: { color: "#764ba2" },
-                },
-              ],
-              emphasis: {
-                itemStyle: {
-                  shadowBlur: 10,
-                  shadowOffsetX: 0,
-                  shadowOffsetY: 0,
-                  shadowColor: "rgba(0, 0, 0, 0.5)",
-                },
-              },
-            },
-          ],
-        };
+      }
 
       default:
         throw new Error(`Tipo de gráfico no soportado: ${type}`);
@@ -540,8 +401,7 @@ export const OptionChart = ({
   const updateChart = () => {
     const configs: echarts.EChartsOption = !isMultiVariable
       ? getChartOption(chartType as SingleChartType, dataset)
-      : getDualChartConfig("stackedColumn", dataset);
-    console.log(configs);
+      : getDualChartConfig(chartType as DualChartType, dataset);
     if (configs) {
       setOption(configs);
     }

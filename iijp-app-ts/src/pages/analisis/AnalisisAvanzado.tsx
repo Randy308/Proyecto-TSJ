@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AsyncButton from "../../components/AsyncButton";
 import { useLocation, useNavigate } from "react-router-dom";
-import {StatsService} from "../../services";
+import { StatsService } from "../../services";
 import TablaX from "../../components/tables/TablaX";
-import SimpleChart from "../../components/charts/SimpleChart";
 import Loading from "../../components/Loading";
-import { SwitchChart } from "../../components/charts/SwitchChart";
 import { useVariablesContext } from "../../context/variablesContext";
 import Select from "../../components/Select";
 import { invertirXY } from "../../utils/math";
@@ -13,9 +11,10 @@ import TerminoClave from "./TerminoClave";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
 import { agregarTotalLista } from "../../utils/arrayUtils";
-import type { AnalisisData, ListaX, Variable } from "../../types";
-import type{ EChartsOption } from "echarts-for-react";
+import type { AnalisisData, ChartType, ListaX, Variable } from "../../types";
 import type { ECElementEvent } from "echarts";
+import { OptionChart } from "../../components/OptionChart";
+import Tab from "../../components/Tab";
 
 type AccessorKey = string;
 
@@ -25,16 +24,17 @@ interface Column {
 }
 
 const AnalisisAvanzado = () => {
-  
   const limite = useMemo(() => 2, []);
   const [listaX, setListaX] = useState<ListaX[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
   const { data } = useVariablesContext();
 
-  const [selected, setSelected] = useState<string | undefined>();
-  const [contenido, setContenido] = useSessionStorage<AnalisisData>("analisis_xy", []);
-  const [option, setOption] = useState<EChartsOption>({});
+  const [selected, setSelected] = useState<string | undefined>("bar");
+  const [contenido, setContenido] = useSessionStorage<AnalisisData>(
+    "analisis_xy",
+    []
+  );
   const [columns, setColumns] = useState<Column[]>([]);
 
   const [, setSerie] = useSessionStorage<AnalisisData>("serie", []);
@@ -66,37 +66,12 @@ const AnalisisAvanzado = () => {
     };
   }, [data]);
 
-  const createSeries = (length:number):EChartsOption['series'] => {
-    const series: EChartsOption['series'] = [];
-    for (let index = 0; index < length; index++) {
-      series.push({ type: "bar", seriesLayoutBy: "column" });
-    }
-    return series;
-  };
-
-  useEffect(() => {
-    if (contenido && contenido.length > 0) {
-      setOption({
-        legend: {},
-        tooltip: { trigger: "item" },
-        grid: { containLabel: true },
-        dataset: { source: contenido },
-        toolbox: { feature: { saveAsImage: {} } },
-        xAxis: { type: "category", boundaryGap: true },
-        yAxis: {},
-        series: createSeries(contenido[0].length - 1),
-      });
-    }
-  }, [contenido]);
-
-  const handleChartTypeChange = (type:string) => {
+  const handleChartTypeChange = (type: string) => {
     setSelected(type);
-    setOption((prevOption: EChartsOption) => SwitchChart(prevOption, type.toLowerCase()));
   };
 
   const invertirAxis = () => {
     setSelected("column");
-    setOption((prevOption: EChartsOption) => SwitchChart(prevOption, "column", true));
     setTableData(invertirXY(tableData));
   };
 
@@ -106,7 +81,7 @@ const AnalisisAvanzado = () => {
       setColumns(
         keys.map((item, index) => ({
           accessorKey: index.toString(),
-          header: (String(item))
+          header: String(item)
             .replace(/_/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase()),
           enableSorting: true,
@@ -117,7 +92,7 @@ const AnalisisAvanzado = () => {
   }, [tableData]);
 
   ///end
-  const getDatos = async() => {
+  const getDatos = async () => {
     if (listaX.length === 0) {
       return;
     }
@@ -251,7 +226,7 @@ const AnalisisAvanzado = () => {
       setMapa([]);
       setSerie([]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedForm]);
 
   const handleClick = useCallback(
@@ -286,7 +261,7 @@ const AnalisisAvanzado = () => {
   );
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-0 md:p-2 lg:p-4 space-y-4">
       <div className="flex items-center justify-end gap-4 text-sm">
         <div className="flex flex-wrap items-center gap-2">
           <div className="flex flex-row flex-wrap gap-2 items-center justify-center p-4 mb-4">
@@ -323,12 +298,10 @@ const AnalisisAvanzado = () => {
         </p>
       </div>
       <div className="p-2 relative flex flex-col md:flex-row gap-4">
-        <div className="p-2 md:w-[300px] border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
+        <div style={{ zIndex:9999999999999 }} className="p-2 w-full md:w-[300px] md:max-h-[800px] absolute md:relative  md:flex flex-col border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
           {contenido && contenido.length > 0 && (
             <div className="px-4 mb-4">
-              <div
-                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              >
+              <div className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                 Tipo de gráficos
               </div>
               <select
@@ -340,17 +313,24 @@ const AnalisisAvanzado = () => {
                 <option disabled defaultValue={""}>
                   Elige un tipo de gráfico
                 </option>
-                <option value="bar">Barras</option>
-                <option value="column">Columnas</option>
-                <option value="area">Área</option>
-
                 {multiVariable ? (
                   <>
-                    <option value="stacked-bar">Barras Apiladas</option>
-                    <option value="stacked-column">Columnas Apiladas</option>
+                    <option value="bar">Barras Agrupadas</option>
+                    <option value="stackedBar">Barras Apiladas</option>
+                    <option value="stackedColumn">Columnas Apiladas</option>
+                    <option value="column">Columnas Agrupadas</option>
+                    <option value="multiLine">Lineas Multiples</option>
+                    <option value="stackedArea">Área Apilada</option>
+                    <option value="polar">Polar</option>
+                    <option value="radar">Radar</option>
                   </>
                 ) : (
                   <>
+                    <option value="bar">Barras</option>
+                    <option value="column">Columnas</option>
+                    <option value="area">Área</option>
+                    <option value="scatter">Dispersión</option>
+                    <option value="line">Lineas</option>
                     <option value="pie">Circular</option>
                     <option value="donut">Dona</option>
                   </>
@@ -359,48 +339,44 @@ const AnalisisAvanzado = () => {
             </div>
           )}
 
-          <div className={`overflow-y-auto max-h-[450px] flex-1`}>
+          <div className="overflow-y-scroll h-full flex-1">
             {memoizedParams && memoizedJSX}
             {memoTerminoClave}
           </div>
-          <div className="flex flex-wrap gap-2 mt-4 pt-4 justify-end">
+          <div className="flex flex-wrap gap-2 mt-4 pt-4 justify-start">
             <AsyncButton
-              name={"Realizar analisis"}
+              name={"Generar Análisis"}
               asyncFunction={memoGetDatos}
               isLoading={isLoadingData}
-              full={true}
+              full={false}
             />
-            <div className="max-w-sm mx-auto mt-4 grid grid-cols-2 gap-4">
-              <button
-                onClick={() => setActual((prev) => !prev)}
-                type="button"
-                className="mt-2 text-white bg-gradient-to-r  dark:bg-blue-700 dark:to-blue-800 bg-red-octopus-500 hover:bg-red-octopus-700 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-              >
-                {actual ? "Ver Tabla " : "Ver Grafico"}
-              </button>
-              <button
-                type="button"
-                onClick={() => invertirAxis()}
-                className="mt-2 text-white bg-gradient-to-r  dark:bg-blue-700 dark:to-blue-800 bg-red-octopus-500 hover:bg-red-octopus-700 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-              >
-                Invertir Axis
-              </button>
-            </div>
           </div>
         </div>
         <div className="flex-1">
           {contenido && contenido.length > 0 ? (
             <div className="col-span-3 grid grid-cols-1">
-              {!actual ? (
-                <TablaX data={tableData.slice(1)} columns={columns} />
-              ) : (
-                <SimpleChart option={option} handleClick={handleClick} />
-                // <OptionChart
-                //   dataset={data}
-                //   chartType={selected}
-                //   isMultiVariable={multiVariable}
-                // />
-              )}
+              <Tab actual={actual} setActual={setActual}>
+                {!actual ? (
+                  <TablaX data={tableData.slice(1)} columns={columns}>
+                    <div className="mt-4 flex justify-start gap-4">
+                      <button
+                        type="button"
+                        onClick={() => invertirAxis()}
+                        className="mt-2 text-white bg-gradient-to-r  dark:bg-blue-700 dark:to-blue-800 bg-red-octopus-500 hover:bg-red-octopus-700 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+                      >
+                        Invertir Axis
+                      </button>
+                    </div>
+                  </TablaX>
+                ) : (
+                  <OptionChart
+                    dataset={contenido}
+                    chartType={selected as ChartType}
+                    isMultiVariable={multiVariable}
+                    handleClick={handleClick}
+                  />
+                )}
+              </Tab>
             </div>
           ) : (
             <div className="h-full flex border-2 rounded-lg bg-white items-center">

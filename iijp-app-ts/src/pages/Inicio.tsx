@@ -149,7 +149,7 @@ const Inicio = () => {
         </div>
         <div className="w-full top-1/2 transform -translate-y-1/2 z-30 absolute">
           <p className="mb-4 uppercase text-xl text-center font-extrabold leading-none tracking-tight text-white md:text-3xl lg:text-4xl">
-            Sistemas Gestión y Análisis de Métricas de la Justicia Ordinaria
+            Sistemas Administración de Métricas Estadísticas Dinámicas Judiciales
           </p>
         </div>
       </div>

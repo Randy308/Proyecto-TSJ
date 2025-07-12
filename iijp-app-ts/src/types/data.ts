@@ -94,5 +94,5 @@ export interface ReceivedForm {
 
 
 export type SingleChartType = "bar" | "line" | "pie" | "scatter" | "area"| "donut" | "column";
-export type DualChartType = "stackedBar" | "stackedColumn" | "groupedColumn" | "multiLine" | "stackedArea" | "polar" | "radar" | "donut";
+export type DualChartType = "stackedBar" | "stackedColumn" | "column" | "bar" | "multiLine" | "stackedArea" | "polar" | "radar" | "donut";
 export type ChartType = SingleChartType | DualChartType;

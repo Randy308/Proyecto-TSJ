@@ -1,9 +1,7 @@
 import Loading from "../../components/Loading";
-import SimpleChart from "../../components/charts/SimpleChart";
 import TablaX from "../../components/tables/TablaX";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { SwitchChart } from "../../components/charts/SwitchChart";
 import Select from "../../components/Select";
 import AsyncButton from "../../components/AsyncButton";
 import { invertirXY } from "../../utils/math";
@@ -12,48 +10,47 @@ import { ResolucionesService } from "../../services";
 import { useVariablesContext } from "../../context/variablesContext";
 import { filterParams } from "../../utils/filterForm";
 import { agregarTotalLista } from "../../utils/arrayUtils";
-import type { ECElementEvent } from "echarts";
-import type { Variable, AnalisisData, ListaX, ChartType } from "../../types";
+import type {
+  Variable,
+  AnalisisData,
+  ListaX,
+  ChartType,
+  FiltroNombre,
+} from "../../types";
 import { OptionChart } from "../../components/OptionChart";
+import Tab from "../../components/Tab";
 interface Columns {
   accessorKey: string;
   header: string;
 }
+
+// interface SearchParams {
+//   nameX: FiltroNombre;
+//   valueX: string | undefined;
+//   nameY?: FiltroNombre;
+//   valueY?: string | undefined;
+// }
 const AnalisisBasico = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const receivedData = location.state?.data;
   const receivedForm = location.state?.validatedData;
   const [datos, setDatos] = useState<AnalisisData>([]);
-  const [columna, setColumna] = useState(null);
-  const [option, setOption] = useState({});
+  const [columna, setColumna] = useState<FiltroNombre | null>(null);
   const [params, setParams] = useState<Variable>({} as Variable);
   const [columns, setColumns] = useState<Columns[]>([]);
-  const [selected, setSelected] = useState<string>("");
+  const [selected, setSelected] = useState<string>("bar");
   const [actual, setActual] = useState(true);
   const [multiVariable, setMultiVariable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { data } = useVariablesContext();
-
+  // const [searchParams, setSearchParams] = useState<SearchParams>();
   const [tableData, setTableData] = useState<AnalisisData>([]);
 
   const memoizedParams = useMemo(() => params, [params]);
   const limite = useMemo(() => 1, []);
   const [listaX, setListaX] = useState<ListaX[]>([]);
   const [checkedX, setCheckedX] = useState(false);
-
-  const createSeries = (length: number) => {
-    const series = [];
-    for (let index = 0; index < length; index++) {
-      series.push({ type: "bar", seriesLayoutBy: "column" });
-    }
-    return series;
-  };
-
-  const handleChartTypeChange = (type: string) => {
-    setSelected(type);
-    setOption((prevOption) => SwitchChart(prevOption, type.toLowerCase()));
-  };
 
   const updateCheck = () => {
     setCheckedX((change) => !change);
@@ -97,7 +94,6 @@ const AnalisisBasico = () => {
 
   const invertirAxis = () => {
     setSelected("column");
-    setOption((prevOption) => SwitchChart(prevOption, "column", true));
     setTableData(invertirXY(tableData));
   };
 
@@ -116,22 +112,7 @@ const AnalisisBasico = () => {
   }, [tableData]);
 
   useEffect(() => {
-    if (datos && datos.length > 0) {
-      setOption({
-        legend: {},
-        tooltip: { trigger: "item" },
-        grid: { containLabel: true },
-        dataset: { source: datos },
-        toolbox: { feature: { saveAsImage: {} } },
-        xAxis: { type: "category", boundaryGap: true },
-        yAxis: {},
-        series: createSeries(datos[0].length - 1),
-      });
-    }
-  }, [datos]);
-
-  useEffect(() => {
-    if (receivedData === null || !Array.isArray(receivedData.data)) {
+    if (!receivedData || !Array.isArray(receivedData.data)) {
       navigate("/estadisticas-basicas");
     } else {
       const values = receivedData.data.length > 0 ? receivedData.data : [];
@@ -160,8 +141,11 @@ const AnalisisBasico = () => {
   }, [receivedForm]);
 
   const handleClick = useCallback(
-    (params: ECElementEvent) => {
-     
+    (params: echarts.ECElementEvent) => {
+      if (!columna) {
+        return;
+      }
+
       if (multiVariable) {
         const newItem = {
           nameX: listaX[0].name,
@@ -170,19 +154,29 @@ const AnalisisBasico = () => {
           valueY: params.name,
         };
 
-        console.log("Clicked on series:", newItem);
+        console.log(newItem);
       } else {
         const newItem = {
           nameX: columna,
           valueX: params.name != "Cantidad" ? params.name : params.seriesName,
         };
-
-        console.log("Clicked on series:", newItem);
+        console.log(newItem);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [multiVariable]
   );
+
+  // const search = () => {
+  //   console.log("Search Params:", searchParams);
+  // };
+
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newSelection = e.target.value;
+    if (selected != newSelection) {
+      setSelected(newSelection);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-1 p-2 m-2 lg:grid-cols-5">
@@ -194,6 +188,11 @@ const AnalisisBasico = () => {
           </p>
         )}
         <div>
+          {/* <div>
+            <button type="button" onClick={search}>
+              Obtener resoluciones
+            </button>
+          </div> */}
           <div>
             <label
               htmlFor="charts"
@@ -204,23 +203,31 @@ const AnalisisBasico = () => {
             <select
               id="charts"
               value={selected}
-              onChange={(e) => handleChartTypeChange(e.target.value)}
+              onChange={(e) => handleSelect(e)}
               className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             >
               <option disabled defaultValue={""}>
                 Elige un tipo de gráfico
               </option>
-              <option value="bar">Barras</option>
-              <option value="column">Columnas</option>
-              <option value="area">Área</option>
 
               {multiVariable ? (
                 <>
-                  <option value="stacked-bar">Barras Apiladas</option>
-                  <option value="stacked-column">Columnas Apiladas</option>
+                  <option value="bar">Barras Agrupadas</option>
+                  <option value="stackedBar">Barras Apiladas</option>
+                  <option value="stackedColumn">Columnas Apiladas</option>
+                  <option value="column">Columnas Agrupadas</option>
+                  <option value="multiLine">Lineas Multiples</option>
+                  <option value="stackedArea">Área Apilada</option>
+                  <option value="polar">Polar</option>
+                  <option value="radar">Radar</option>
                 </>
               ) : (
                 <>
+                  <option value="bar">Barras</option>
+                  <option value="column">Columnas</option>
+                  <option value="area">Área</option>
+                  <option value="scatter">Dispersión</option>
+                  <option value="line">Lineas</option>
                   <option value="pie">Circular</option>
                   <option value="donut">Dona</option>
                 </>
@@ -273,31 +280,22 @@ const AnalisisBasico = () => {
             </div>
           </div>
         </div>
-
-        {datos && datos.length > 0 ? (
-          <div className="max-w-sm mx-auto mt-4">
-            <button
-              onClick={() => setActual((prev) => !prev)}
-              type="button"
-              className="w-full mt-2 text-white bg-red-octopus-600 dark:bg-blue-600 hover:bg-red-octopus-800 hover:dark:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-            >
-              {actual ? "Mostrar Tabla " : "Mostrar Grafico"}
-            </button>
-          </div>
-        ) : (
-          ""
-        )}
       </div>
 
       {datos && datos.length > 0 ? (
-        <div className="lg:col-span-4 md:col-span-3">
+        <Tab actual={actual} setActual={setActual}>
           {!actual ? (
             <TablaX data={tableData.slice(1)} columns={columns} />
-            // <OptionChart dataset={datos} chartType={selected as ChartType} isMultiVariable={multiVariable} />
           ) : (
-            <SimpleChart option={option} handleClick={handleClick} />
+            <OptionChart
+              dataset={datos}
+              chartType={selected as ChartType}
+              isMultiVariable={multiVariable}
+              handleClick={handleClick}
+            />
+            //<SimpleChart option={option} handleClick={handleClick} />
           )}
-        </div>
+        </Tab>
       ) : (
         <div>
           <Loading />

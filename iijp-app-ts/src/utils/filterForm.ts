@@ -35,6 +35,8 @@ export const validateErrors = (lista: string[]) => {
   }
   return true;
 };
+
+
 export const filterParams = (
   resultado: DatosArray,
   data: Variable

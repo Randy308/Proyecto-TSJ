@@ -99,8 +99,7 @@ const SerieTemporal = () => {
 
   useEffect(() => {
     if (
-      receivedForm === null ||
-      receivedForm === undefined ||
+      !receivedForm ||
       !Array.isArray(receivedForm.variable)
     ) {
       navigate("/analisis-avanzado");

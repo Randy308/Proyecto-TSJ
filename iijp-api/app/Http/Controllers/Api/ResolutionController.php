@@ -440,6 +440,8 @@ class ResolutionController extends Controller
             'tipo_resolucion.*' => 'required|integer',
             'periodo' => 'nullable|array',
             'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'highlight' => 'nullable|array',
+            'highlight.*' => 'string|in:contenido,demandante,demandado,sintesis,maxima,precedente,proceso',
         ]);
 
 
@@ -453,18 +455,12 @@ class ResolutionController extends Controller
 
 
         $query = $request->input('term', '');
-        $highlight = $request->input('highlight', 'contenido');
-
+        $highlight = $request->input('highlight', ['contenido']);
+        $strategy = $request->input('strategy', false);
         // Parámetros de paginación
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        $highlight = ['demandante', 'demandado'];
-
-        if ($request->has('term')) {
-            $highlight = ['contenido', 'demandante', 'demandado'];
-        }
-
         //$highlight = $request->input('highlight', 'contenido');
 
         // Parámetros de paginación
@@ -706,6 +702,8 @@ class ResolutionController extends Controller
                     'r.demandante',
                     'r.demandado',
                     'r.maxima',
+                    'r.sintesis',
+                    'r.precedente',
                     'r.sintesis',
                     'c.contenido',
                 )

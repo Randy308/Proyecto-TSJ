@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import {StatsService} from "../../services";
+import { StatsService } from "../../services";
 import GeoChart from "../../components/charts/GeoChart";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import type { ReceivedForm } from "../../types";
-
 
 const Mapa = () => {
   const location = useLocation();
@@ -16,14 +15,18 @@ const Mapa = () => {
   const [isLoadingData, setIsLoadingData] = useState(false);
 
   useEffect(() => {
-    if (receivedForm === null || receivedForm === undefined || !Array.isArray(receivedForm.variable) || receivedForm.nombre === "Departamento") {
+    if (
+      !receivedForm ||
+      !Array.isArray(receivedForm.variable) ||
+      receivedForm.nombre === "Departamento"
+    ) {
       console.log("No hay datos para mostrar o el nombre es Departamento");
-      navigate("/analisis/avanzado");
+      navigate("/analisis-avanzado");
     } else {
       console.log("Received Form:", receivedForm);
       obtenerDatos(receivedForm);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedForm]);
 
   const obtenerDatos = (receivedForm: ReceivedForm) => {
@@ -55,7 +58,10 @@ const Mapa = () => {
   return (
     <div>
       <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px] mb-8">
-        <GeoChart contenido={datos} receivedForm={(receivedForm || {}) as ReceivedForm}></GeoChart>
+        <GeoChart
+          contenido={datos}
+          receivedForm={(receivedForm || {}) as ReceivedForm}
+        ></GeoChart>
       </div>
     </div>
   );
