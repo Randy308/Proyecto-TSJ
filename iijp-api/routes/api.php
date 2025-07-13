@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\MagistradosController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ResolutionController;
 use App\Http\Controllers\Api\SalaController;
+use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TemaController;
 use App\Http\Controllers\Api\User\TimeSeriesController;
 use App\Http\Controllers\Api\WebScrappingController;
@@ -34,10 +35,14 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v2')->group(function () {
 
 
+    #rutas de busqueda
+    Route::get('/test', [SearchController::class, 'test']);
+    Route::post('/obtener-resoluciones-ids', [SearchController::class, 'obtenerResolucionesIds']);
+    Route::get('/filtrar-autos-supremos', [SearchController::class, 'filtrarResolucionesContenido']);
+    Route::get('/buscar-termino-jurisprudencia', [SearchController::class, 'busquedaTerminos']);
+    Route::get('/obtener-resoluciones-cronologia', [SearchController::class, 'obtenerResolucionesCronologia']);
 
     //rutas de cronología
-    Route::post('/obtener-resoluciones-ids', [JurisprudenciasController::class, 'obtenerResolucionesIds']);
-    Route::get('/buscar-termino-jurisprudencia', [JurisprudenciasController::class, 'busquedaTerminos']);
     Route::get('/obtener-serie-terminos', [JurisprudenciasController::class, 'buscarSerieTemporal']);
     Route::get('/obtener-descriptor/{id}', [JurisprudenciasController::class, 'buscarDescriptorById']);
     Route::get('/buscar-descriptor', [JurisprudenciasController::class, 'buscarDescriptor']);
@@ -45,11 +50,7 @@ Route::prefix('v2')->group(function () {
     Route::get('/actualizar-nodo', [JurisprudenciasController::class, 'actualizarNodo']);
     Route::post('/obtener-cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
     Route::post('/obtener-cronologias-ids', [TemaController::class, 'obtenerCronologiasbyIds']);
-
-    Route::get('/obtener-parametros-cronologia', [TemaController::class, 'obtenerParametrosCronologia']);
     Route::get('/obtener-nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
-    Route::get('/obtener-resoluciones-cronologia', [TemaController::class, 'obtenerResolucionesCronologia']);
-
 
     #rutas validadas
 
@@ -82,7 +83,6 @@ Route::prefix('v2')->group(function () {
 
     //rutas búsqueda
     Route::get('/obtener-parametros-busqueda', [CompareController::class, 'getParams'])->name('get-params');
-    Route::get('/filtrar-autos-supremos', [ResolutionController::class, 'filtrarResolucionesContenido']);
     Route::get('/resolucion/{id}', [ResolutionController::class, 'show']);
     //predicción
     Route::get('/realizar-prediction', [ArimaController::class, 'realizarPrediction']);
@@ -150,7 +150,6 @@ Route::prefix('v2')->group(function () {
 
     #rutas de prueba
     Route::get('/obtener-filtros-resoluciones', [ResolutionController::class, 'obtenerOpciones']);
-    ROute::get('/test', [DescriptorController::class, 'test']);
 
 
 
