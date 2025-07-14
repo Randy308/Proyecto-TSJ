@@ -45,8 +45,7 @@ class SearchController extends Controller
 
         // ->whereRaw("MATCH('@ratio {$secondQuery} | @descriptor {$query}')")
         $resultados = Jurisprudencias::search('', function (Builder $builder) use ($secondQuery, $perPage, $offset) {
-            return $builder // Aquí defines que se busque solo en el campo "titulo"
-                ->whereRaw("MATCH('@(proceso,restrictor) {$secondQuery}')")
+            $builder->whereRaw("MATCH('@(proceso,restrictor) {$secondQuery}')")
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
                 ->whereIn('tipo_resolucion', [1])
                 ->facet('sala')->groupBy('resolution_id')
@@ -56,6 +55,8 @@ class SearchController extends Controller
                 ->facet('magistrado')
                 ->facet('forma_resolucion')->take($perPage)
                 ->offset($offset);
+
+            return $builder;
         })->raw();
 
         return response()->json($resultados, 200);
@@ -248,7 +249,7 @@ class SearchController extends Controller
         return $pdf->Output('document.pdf', 'I');
     }
 
-    public function filtrarResolucionesContenido(Request $request)
+    public function filtrarAutosSupremos(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -267,7 +268,7 @@ class SearchController extends Controller
             'tipo_resolucion' => 'nullable|array',
             'tipo_resolucion.*' => 'required|integer',
             'periodo' => 'nullable|array',
-            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
@@ -283,167 +284,68 @@ class SearchController extends Controller
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
+        $select = ['resolution_id as id', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
 
-        $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
-            $options['attributesToHighlight'] = $highlight;
-            $options['attributesToCrop'] = $highlight;
-            $options['cropLength'] = 50;
-            $options['highlightPreTag'] = '<b class="highlight">';
-            $options['highlightPostTag'] = '</b>';
-            $options['limit'] = $perPage;
-            $options['offset'] = $offset;
-            $options['attributesToSearchOn'] = $highlight;
-            $options['attributesToRetrieve'] = [
-                'id',
-                'sala',
-                'nro_expediente',
-                'nro_resolucion',
-                'departamento',
-                'magistrado',
-                'tipo_resolucion',
-                'forma_resolucion',
-                'periodo',
-                '_formatted',
-            ];
-            $options['facets'] = $facetas;
 
-            return $meilisearch->search($query, $options);
-        });
 
-        if ($request->has('periodo')) {
-            $search->where('periodo', $request->periodo[0]);
-        }
+        $search = Resolutions::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $highlight, $select) {
 
-        if ($request->has('tipo_resolucion')) {
-            $search->whereIn('tipo_resolucion', $request->tipo_resolucion);
-        }
-        if ($request->has('sala')) {
-            $search->whereIn('sala', $request->sala);
-        }
-        if ($request->has('departamento')) {
-            $search->whereIn('departamento', $request->departamento);
-        }
 
-        if ($request->has('magistrado')) {
-            $search->whereIn('magistrado', $request->magistrado);
-        }
-        if ($request->has('forma_resolucion')) {
-            $search->whereIn('forma_resolucion', $request->forma_resolucion);
-        }
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@(proceso,sintesis) $query')")
+                ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
+                ->facet('sala')->groupBy('resolution_id')
+                ->facet('departamento')
+                ->facet('tipo_resolucion')
+                ->facet('periodo')->facet('mes')
+                ->facet('magistrado')
+                ->facet('forma_resolucion')->take($perPage)
+                ->offset($offset);
 
-        $search = $search->raw();
-
-        // Solo los _formatted
-        $formattedResults = collect($search['hits'])->map(function ($hit) {
-            return $hit['_formatted'] ?? [];
-        });
-
-        $facets = $search['facetDistribution'] ?? [];
-
-        return response()->json($facets);
-
-        $filtros = [];
-
-        foreach ($facetas as $value) {
-            if (! isset($facets[$value])) {
-                continue;
+            if ($request->has('periodo')) {
+                $list = implode(',', $request->periodo);
+                $builder->whereRaw("periodo IN ($list)");
             }
 
-            $numericalKeys = array_map('intval', array_keys($facets[$value]));
+            if ($request->has('tipo_resolucion')) {
+                $list = implode(',', $request->tipo_resolucion);
+                $builder->whereRaw("tipo_resolucion IN ($list)");
+            }
+            if ($request->has('sala')) {
+                $list = implode(',', $request->sala);
+                $builder->whereRaw("sala IN ($list)");
+            }
+            if ($request->has('departamento')) {
+                $list = implode(',', $request->departamento);
+                $builder->whereRaw("departamento IN ($list)");
+            }
 
-            $filtered = array_filter($numericalKeys, function ($item) {
-                return $item !== 0;
-            });
+            if ($request->has('magistrado')) {
+                $list = implode(',', $request->magistrado);
+                $builder->whereRaw("magistrado IN ($list)");
+            }
+            if ($request->has('forma_resolucion')) {
+                $list = implode(',', $request->forma_resolucion);
+                $builder->whereRaw("forma_resolucion IN ($list)");
+            }
+            return $builder;
+        })->raw();
 
-            $filtros[$value] = array_values($filtered); // Reindexa
+        $facetas = $search['facets'] ?? [];
+
+        foreach ($facetas as $nombre => $facetGroup) {
+            $facetas[$nombre] = array_column($facetGroup, 'key');
         }
 
+        //return response()->json($search, 200);
         return response()->json([
-            'data' => $formattedResults,
-            'facets' => $filtros,
+            'data' => $search['hits'] ?? [],
+            'facets' => $facetas,
             'current_page' => $page,
             'per_page' => $perPage,
-            'total' => $search['estimatedTotalHits'] ?? 0,
-            'last_page' => ceil(($search['estimatedTotalHits'] ?? 0) / $perPage),
+            'total' => $search['meta']['total_found'] ?? 0,
+            'last_page' => ceil(($search['meta']['total_found'] ?? 0) / $perPage),
 
         ]);
-
-        return response()->json($resultados);
-
-        $variable = $request['variable'];
-        $orden = $request['orden'];
-
-        $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
-        $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
-        $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
-
-        $query = DB::table('resolutions as r')
-            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
-            ->join('salas as s', 's.id', '=', 'r.sala_id')
-            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
-            ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
-
-        if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
-            $tipoJurisprudencia = $request->tipo_jurisprudencia;
-            $materia = $request->materia;
-
-            $subquery = DB::table('jurisprudencias')
-                ->select('resolution_id');
-
-            if ($request->has('tipo_jurisprudencia')) {
-                $subquery->whereIn('tipo_jurisprudencia_id', $tipoJurisprudencia);
-            }
-
-            if ($request->has('materia')) {
-                $subquery->whereIn('root_id', $materia);
-            }
-
-            $query->joinSub($subquery, 'j', function ($join) {
-                $join->on('j.resolution_id', '=', 'r.id');
-            });
-        }
-
-        if ($request->has('periodo')) {
-            $query->whereYear('r.fecha_emision', $request->periodo);
-        }
-
-        if ($request->has('magistrado')) {
-            $query->whereIn('r.magistrado_id', $request->magistrado);
-        }
-        if ($request->has('forma_resolucion')) {
-            $query->whereIn('r.forma_resolucion_id', $request->forma_resolucion);
-        }
-        if ($request->has('tipo_resolucion')) {
-            $query->whereIn('r.tipo_resolucion_id', $request->tipo_resolucion);
-        }
-        if ($request->has('sala')) {
-            $query->whereIn('r.sala_id', $request->sala);
-        }
-        if ($request->has('departamento')) {
-            $query->whereIn('r.departamento_id', $request->departamento);
-        }
-
-        $search = $request->input('term');
-        $search = preg_replace('/\s+/', ' ', $search);
-        $search = trim($search);
-        $search = strtolower($search);
-        $stopwords = NLP::getStopWords();
-
-        if ($request->has('term') && in_array($search, $stopwords) === false) {
-
-            $searchSanitized = addslashes($search);
-
-            $query->join('contents as c', 'c.resolution_id', '=', 'r.id')
-                ->addSelect(DB::raw("
-                    resolution_id,
-                    ts_headline('spanish', contenido, plainto_tsquery('spanish', '{$searchSanitized}')) as contexto
-                "))->whereRaw('searchtext @@ plainto_tsquery(\'spanish\', ?)', [$search]);
-        }
-
-        $results = $query->orderBy($variable, $orden)->paginate(20);
-
-        return response()->json($results);
     }
 
     public function busquedaTerminos(Request $request)

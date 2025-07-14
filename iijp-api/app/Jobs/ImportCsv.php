@@ -34,7 +34,7 @@ class ImportCsv implements ShouldQueue
         SimpleExcelReader::create($fullPath)
             ->useDelimiter(',')
             ->getRows()
-            ->chunk(5000)
+            ->chunk(1000)
             ->each(
                 fn($chunk) => ImportResolutionChunk::dispatch($chunk, $this->userId)
             );

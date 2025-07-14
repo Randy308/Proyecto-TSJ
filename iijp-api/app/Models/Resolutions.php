@@ -98,17 +98,17 @@ class Resolutions extends Model
                 'nro_resolucion' => ['type' => 'text'],
 
                 // Campos de categorización y filtrado
-                'periodo' => ['type' => 'int'],
-                'mes' => ['type' => 'int'],
-                'materia' => ['type' => 'int'],
-                'fecha_emision' => ['type' => 'int'],
-                'tipo_resolucion' => ['type' => 'int'],
-                'magistrado' => ['type' => 'int'],
-                'forma_resolucion' => ['type' => 'int'],
-                'sala' => ['type' => 'int'],
-                'departamento' => ['type' => 'int'],
-                'categoria_resolucion' => ['type' => 'int'],
-                'tiene_jurisprudencias' => ['type' => 'int'],
+                'periodo' => ['type' => 'uint'],
+                'mes' => ['type' => 'uint'],
+                'materia' => ['type' => 'uint'],
+                'fecha_emision' => ['type' => 'uint'],
+                'tipo_resolucion' => ['type' => 'uint'],
+                'magistrado' => ['type' => 'uint'],
+                'forma_resolucion' => ['type' => 'uint'],
+                'sala' => ['type' => 'uint'],
+                'departamento' => ['type' => 'uint'],
+                'categoria_resolucion' => ['type' => 'uint'],
+                'tiene_jurisprudencias' => ['type' => 'uint'],
 
                 // Campos de texto completo para búsqueda
                 'contenido' => ['type' => 'text'],

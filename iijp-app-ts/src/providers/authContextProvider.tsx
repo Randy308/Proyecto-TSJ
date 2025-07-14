@@ -3,9 +3,15 @@ import type { ContextProviderProps } from "../types";
 import { AuthContext, type AuthUser, type AuthContextType } from "../context";
 import { AuthService } from "../services";
 import { useNavigate } from "react-router-dom";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import { toast } from "react-toastify";
 
 export const AuthContextProvider = ({ children }: ContextProviderProps) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useLocalStorage<boolean>(
+    "isAuthenticated",
+    false
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate(); // Assuming you want to use the current location for navigation
   // Check if user is authenticated on app load
@@ -15,10 +21,19 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
   }, []);
 
   const checkAuth = async () => {
+    if (!isAuthenticated) {
+      setLoading(false);
+      setAuthUser(null);
+      return;
+    }
     try {
       const response = await AuthService.getAuthUser();
-      setAuthUser(response.data);
-      navigate("/dashboard"); // Redirect to dashboard on successful auth
+      if (!response.data.success) {
+        setAuthUser(null);
+        return;
+      }
+      setAuthUser(response.data.user);
+      navigate("/dashboard");
     } catch (error: unknown) {
       setAuthUser(null);
       console.error("Error checking authentication:", error);
@@ -31,6 +46,7 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
     try {
       const response = await AuthService.getLogin({ email, password });
       setAuthUser(response.data.user);
+      setIsAuthenticated(true);
       return { success: true, user: response.data.user };
     } catch (error: unknown) {
       console.error("Login error:", error);
@@ -42,11 +58,14 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
   const logout = async () => {
     try {
       await AuthService.getLogout();
+      toast.success("Sesión cerrada correctamente");
       setAuthUser(null);
+      setIsAuthenticated(false);
       return { success: true };
     } catch (error: unknown) {
       // Even if logout fails, clear user state
       setAuthUser(null);
+      setIsAuthenticated(false);
       console.error("Logout error:", error);
       return { success: false, message: "Error al cerrar sesión" };
     }

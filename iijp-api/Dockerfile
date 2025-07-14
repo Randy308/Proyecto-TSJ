@@ -4,7 +4,7 @@ FROM php:8.3-fpm
 RUN apt-get update && apt-get install -y \
     build-essential libpng-dev libjpeg-dev libonig-dev libxml2-dev \
     zip unzip git curl supervisor libpq-dev libzip-dev \
-    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip
+    && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
 
 # Instala Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer

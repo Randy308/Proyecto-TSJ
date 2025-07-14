@@ -70,7 +70,7 @@ const Slider = () => {
                     <img
                       src={`${slide.image}`}
                       alt="slide"
-                      className="image rounded-lg"
+                      className="image rounded-lg" loading="lazy"
                     />
                   </figure>
                 </div>

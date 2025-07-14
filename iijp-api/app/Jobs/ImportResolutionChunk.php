@@ -97,7 +97,7 @@ class ImportResolutionChunk implements ShouldBeUnique, ShouldQueue
                     'resolution_id' => $resolution->id,
                 ]);
 
-                //$resolution->searchable();
+                $resolution->searchable();
             } catch (\Exception $e) {
                 Log::error('Error al procesar fila', [
                     'error' => substr($e->getMessage(), 0, 800),

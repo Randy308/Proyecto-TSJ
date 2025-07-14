@@ -53,7 +53,7 @@ export function Login() {
       <div className="grid md:grid-cols-3 sm:grid-cols-1 shadow-lg rounded-lg">
         <div className="md:col-span-2 col-span-1">
           <img
-            src="https://www.umss.edu.bo/wp-content/uploads/2019/09/1010069.jpg"
+            src="derechoo.webp"
             className="object-contain w-full h-full"
             alt="Logo UMSS"
           ></img>

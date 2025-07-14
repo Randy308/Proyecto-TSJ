@@ -36,7 +36,7 @@ Route::prefix('v2')->group(function () {
     // rutas de busqueda
     Route::get('/test', [SearchController::class, 'test']);
     Route::post('/obtener-resoluciones-ids', [SearchController::class, 'obtenerResolucionesIds']);
-    Route::get('/filtrar-autos-supremos', [SearchController::class, 'filtrarResolucionesContenido']);
+    Route::get('/filtrar-autos-supremos', [SearchController::class, 'filtrarAutosSupremos']);
     Route::get('/buscar-termino-jurisprudencia', [SearchController::class, 'busquedaTerminos']);
     Route::get('/obtener-resoluciones-cronologia', [SearchController::class, 'obtenerResolucionesCronologia']);
 

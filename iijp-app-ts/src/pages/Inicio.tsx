@@ -3,7 +3,6 @@ import "../styles/inicio.css";
 import SimpleChart from "../components/charts/SimpleChart";
 import Loading from "../components/Loading";
 import { useHistoricContext } from "../context/historicContext";
-import edificioIIJP from "../images/derechoo.png"; // Importa la imagen del edificio IIJP
 import Novedades from "./Novedades";
 import type { EChartsOption } from "echarts-for-react";
 // "baseUrl": ".",
@@ -143,7 +142,7 @@ const Inicio = () => {
       <div className="mb-4 relative">
         <div className="overflow-hidden bg-gradient-to-b from-red-octopus-50  to-red-octopus-100 dark:from-blue-50 dark:to-blue-500 [clip-path:ellipse(100%_70%_at_50%_20%)]">
           <img
-            src={edificioIIJP}
+            src="derechoo.webp"
             className="h-[300px] sm:h-[600px] w-full object-cover object-bottom mix-blend-multiply [clip-path:ellipse(100%_70%_at_50%_20%)]"
           />
         </div>
