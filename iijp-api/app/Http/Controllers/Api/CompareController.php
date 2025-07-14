@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Departamentos;
 use App\Models\FormaResolucions;
-use App\Models\Jurisprudencias;
 use App\Models\Magistrados;
 use App\Models\Sala;
 use App\Models\Tema;
 use App\Models\TipoJurisprudencia;
 use App\Models\TipoResolucions;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -43,8 +41,8 @@ class CompareController extends Controller
         $numero_busqueda = $request->input('numero_busqueda');
 
         $validIntervals = ['month', 'quarter', 'year'];
-        if (!in_array($intervalo, $validIntervals)) {
-            throw new InvalidArgumentException("Invalid interval specified.");
+        if (! in_array($intervalo, $validIntervals)) {
+            throw new InvalidArgumentException('Invalid interval specified.');
         }
 
         // Construcción de la consulta principal
@@ -54,7 +52,7 @@ class CompareController extends Controller
             $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 2005');
         }
 
-        //$query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) BETWEEN 2000 AND 2024');
+        // $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) BETWEEN 2000 AND 2024');
 
         if ($request->has('magistrado')) {
             $query->where('r.magistrado_id', $request->magistrado);
@@ -88,24 +86,22 @@ class CompareController extends Controller
             });
         }
 
-
-
         // Clonar la consulta para la agrupación por departamento
-        //$agrupar_departamentos = clone $query;
+        // $agrupar_departamentos = clone $query;
 
         // Aplicar agrupación por periodo
-        
+
         $query->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo")
-                    ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
-                    ->orderBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"));
+            ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
+            ->orderBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"));
         $resolutions = $query->get();
 
         // Modificar la consulta de agrupación por departamentos
         $agrupar_departamentos = DB::table('resolutions AS r')
-            ->selectRaw('d.nombre as name, COUNT(r.id) AS termino_' . $numero_busqueda)
+            ->selectRaw('d.nombre as name, COUNT(r.id) AS termino_'.$numero_busqueda)
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->groupBy('d.nombre')
-            ->orderByDesc('termino_' . $numero_busqueda);
+            ->orderByDesc('termino_'.$numero_busqueda);
 
         if ($request->has('magistrado')) {
             $agrupar_departamentos->where('r.magistrado_id', $request->magistrado);
@@ -119,7 +115,6 @@ class CompareController extends Controller
         if ($request->has('sala')) {
             $agrupar_departamentos->where('r.sala_id', $request->sala);
         }
-
 
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $tipoJurisprudencia = $request->tipo_jurisprudencia;
@@ -141,38 +136,34 @@ class CompareController extends Controller
             });
         }
 
-
-
         $departamentos = $agrupar_departamentos->get();
         // Formatear los resultados de resoluciones
         $result = $resolutions->map(function ($item) {
             return [$item->periodo, $item->cantidad];
         })->toArray();
 
-        $request["variable"] = "fecha_emision";
-        $request["orden"] = "asc";
+        $request['variable'] = 'fecha_emision';
+        $request['orden'] = 'asc';
 
         return response()->json([
             'termino' => [
-                'name' => "termino_" . $numero_busqueda,
+                'name' => 'termino_'.$numero_busqueda,
                 'id' => $numero_busqueda,
-                'value' => "Busqueda #" . $numero_busqueda,
-                "detalles" => $request->all(),
+                'value' => 'Busqueda #'.$numero_busqueda,
+                'detalles' => $request->all(),
             ],
             'resoluciones' => [
-                'name' => "Busqueda #" . $numero_busqueda,
+                'name' => 'Busqueda #'.$numero_busqueda,
                 'type' => 'line',
                 'id' => $numero_busqueda,
-                'data' => $result
+                'data' => $result,
             ],
-            'departamentos' => $departamentos
+            'departamentos' => $departamentos,
         ]);
     }
 
-
     public function obtenerResoluciones(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'materia' => 'nullable|string',
@@ -201,12 +192,12 @@ class CompareController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        $variable = $request["variable"];
-        $orden = $request["orden"];
+        $variable = $request['variable'];
+        $orden = $request['orden'];
         $fecha_final = $request->input('fecha_final');
         $fecha_inicial = $request->input('fecha_inicial');
 
@@ -225,10 +216,10 @@ class CompareController extends Controller
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
 
             if ($request->has('tipo_jurisprudencia')) {
-                $query->where("j.tipo_jurisprudencia", $request->tipo_jurisprudencia);
+                $query->where('j.tipo_jurisprudencia', $request->tipo_jurisprudencia);
             }
             if ($request->has('materia')) {
-                $query->where("j.descriptor", 'like', $request->materia . '%');
+                $query->where('j.descriptor', 'like', $request->materia.'%');
             }
         }
         if ($fecha_inicial && $fecha_final && strtotime($fecha_inicial) && strtotime($fecha_final)) {
@@ -236,26 +227,27 @@ class CompareController extends Controller
         }
 
         if ($request->has('magistrado')) {
-            $query->where("r.magistrado_id", $request->magistrado);
+            $query->where('r.magistrado_id', $request->magistrado);
         }
         // Filter by forma_resolucion_id if provided
         if ($request->has('forma_resolucion')) {
-            $query->where("r.forma_resolucion_id", $request->forma_resolucion);
+            $query->where('r.forma_resolucion_id', $request->forma_resolucion);
         }
         // Filter by tipo_jurisprudencia if provided
         if ($request->has('tipo_resolucion')) {
-            $query->where("r.tipo_resolucion_id", $request->tipo_resolucion);
+            $query->where('r.tipo_resolucion_id', $request->tipo_resolucion);
         }
         // Filter by sala_id if provided
         if ($request->has('sala')) {
-            $query->where("r.sala_id", $request->sala); // Fixed this line to use sala_id
+            $query->where('r.sala_id', $request->sala); // Fixed this line to use sala_id
         }
 
         if ($request->has('departamento')) {
-            $query->where("r.departamento_id", $request->departamento);
+            $query->where('r.departamento_id', $request->departamento);
         }
 
         $paginatedData = $query->orderBy($variable, $orden)->paginate(20);
+
         return response()->json($paginatedData);
     }
 
@@ -269,9 +261,9 @@ class CompareController extends Controller
 
         $jurisprudencias = TipoJurisprudencia::all('nombre', 'id');
 
-        $materia = Tema::select('nombre', 'id')->whereNull("tema_id")->get();
+        $materia = Tema::select('nombre', 'id')->whereNull('tema_id')->get();
 
-        if (!$salas || !$tipo_resolucion) {
+        if (! $salas || ! $tipo_resolucion) {
             return response()->json(['error' => 'Solicitud no encontrada'], 404);
         }
 
@@ -282,12 +274,11 @@ class CompareController extends Controller
             'forma_resolucion' => $forma_res,
             'tipo_jurisprudencia' => $jurisprudencias,
             'materia' => $materia,
-            'departamento' => $departamentos
+            'departamento' => $departamentos,
         ];
 
         return response()->json($data);
     }
-
 
     public function getDates()
     {
@@ -315,7 +306,7 @@ class CompareController extends Controller
 
         $data = [
             'superior' => $max_date,
-            'inferior' => $min_date
+            'inferior' => $min_date,
         ];
 
         return response()->json($data);

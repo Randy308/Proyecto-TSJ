@@ -21,16 +21,14 @@ class Estilos extends Model
         'paddingBottom',
         'marginLeft',
         'fontSize',
-        'tipo'
+        'tipo',
     ];
 
-
-    
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
-    
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_estilos');

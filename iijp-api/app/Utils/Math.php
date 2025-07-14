@@ -1,13 +1,12 @@
 <?php
 
-namespace  App\Utils;
+namespace App\Utils;
 
 class Math
 {
-
     public static function buildTree(array $elements, $parentId = 0)
     {
-        $branch = array();
+        $branch = [];
 
         foreach ($elements as $element) {
             if ($element['descriptor_id'] == $parentId) {
@@ -34,14 +33,13 @@ class Math
             $resultado[] = [$arrayElement[$nombre], $arrayElement[$cantidad]];
         }
 
-
         return $resultado;
     }
+
     public static function completarArray($data, $columnaX = 'nombre', $columnaY = 'fecha')
     {
 
         $resultado = [];
-
 
         $filasPorNombre = [];
         $datosSet = [];
@@ -81,7 +79,6 @@ class Math
     {
 
         $resultado = [];
-
 
         $filasPorNombre = [];
         $datosSet = [];

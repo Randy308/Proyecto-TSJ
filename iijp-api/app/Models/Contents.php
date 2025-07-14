@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\DB;
 class Contents extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'contenido',
-        'resolution_id'
+        'resolution_id',
     ];
 
     protected $hidden = [
@@ -28,16 +29,17 @@ class Contents extends Model
 
     public function scopeSearch($query, $search)
     {
-        if (!$search) {
+        if (! $search) {
             return $query;
         }
+
         return $query->whereRaw('searchtext @@ plainto_tsquery(\'spanish\', ?)', [$search])
             ->orderByRaw('ts_rank(searchtext, plainto_tsquery(\'spanish\', ?)) DESC', [$search]);
     }
 
     public function scopeKeyword($query, $search)
     {
-        if (!$search) {
+        if (! $search) {
             return $query;
         }
 

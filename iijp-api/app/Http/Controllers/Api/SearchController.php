@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
+use RomanStruk\ManticoreScoutEngine\Mysql\Builder;
 
 class SearchController extends Controller
 {
@@ -18,8 +19,46 @@ class SearchController extends Controller
     {
         $request->validate([
             'search' => 'required|string|max:100',
+            'second_search' => 'required|string|max:100',
         ]);
         $query = $request->input('search', '');
+        $secondQuery = $request->input('second_search', '');
+
+        // $products = Jurisprudencias::search($query)->raw(); MATCH('@(descriptor,ratio) "Proceso"')
+        // excepto Match('@!(descriptor) "Proceso"')
+        // and & or | not -
+
+        $page = request()->get('page', 1);           // Página actual (default: 1)
+        $perPage = 30;                                // Cantidad por página
+        $offset = ($page - 1) * $perPage;
+
+        $select = [
+            'id',
+            'resolution_id',
+            'tipo_resolucion',
+            'nro_resolucion',
+            'periodo',
+            'ratio',
+            'descriptor',
+
+        ];
+
+        // ->whereRaw("MATCH('@ratio {$secondQuery} | @descriptor {$query}')")
+        $resultados = Jurisprudencias::search('', function (Builder $builder) use ($secondQuery, $perPage, $offset) {
+            return $builder // Aquí defines que se busque solo en el campo "titulo"
+                ->whereRaw("MATCH('@(proceso,restrictor) {$secondQuery}')")
+                ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
+                ->whereIn('tipo_resolucion', [1])
+                ->facet('sala')->groupBy('resolution_id')
+                ->facet('departamento')
+                ->facet('tipo_resolucion')
+                ->facet('periodo')->facet('descriptor_facet')
+                ->facet('magistrado')
+                ->facet('forma_resolucion')->take($perPage)
+                ->offset($offset);
+        })->raw();
+
+        return response()->json($resultados, 200);
 
         $highlight[] = $request->input('highlight', 'contenido');
 
@@ -70,9 +109,8 @@ class SearchController extends Controller
                 'per_page' => $perPage,
                 'total' => $search['estimatedTotalHits'] ?? 0,
                 'last_page' => ceil(($search['estimatedTotalHits'] ?? 0) / $perPage),
-            ]
+            ],
         ]);
-
 
         $request->validate([
             'search' => 'required|string|max:100',
@@ -129,7 +167,7 @@ class SearchController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -140,7 +178,7 @@ class SearchController extends Controller
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 50);
         $offset = ($page - 1) * $perPage;
-        
+
         $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset) {
             $options['attributesToHighlight'] = $highlight;
             $options['attributesToCrop'] = $highlight;
@@ -176,47 +214,42 @@ class SearchController extends Controller
             return $hit['_formatted'] ?? [];
         });
 
-
-
-
         $pdf = LaravelMpdf::loadView('resolution', ['results' => $formattedResults], [], [
-            'format'          => 'letter',
-            'margin_left'     => 25,  // 2.5 cm in mm
-            'margin_right'    => 25,  // 2.5 cm in mm
-            'margin_top'      => 25,  // 2.5 cm in mm
-            'margin_bottom'   => 25,  // 2.5 cm in mm
-            'orientation'     => 'P',
-            'title'           => 'Documento',
-            'author'          => 'IIJP',
+            'format' => 'letter',
+            'margin_left' => 25,  // 2.5 cm in mm
+            'margin_right' => 25,  // 2.5 cm in mm
+            'margin_top' => 25,  // 2.5 cm in mm
+            'margin_bottom' => 25,  // 2.5 cm in mm
+            'orientation' => 'P',
+            'title' => 'Documento',
+            'author' => 'IIJP',
             'custom_font_dir' => public_path('fonts/'),
             'custom_font_data' => [
                 'cambria' => [
-                    'R'  => 'Cambriax.ttf',
-                    'B'  => 'Cambria-Bold.ttf',
-                    'I'  => 'Cambria-Italic.ttf',
-                    'BI' => 'Cambria-Bold-Italic.ttf'
+                    'R' => 'Cambriax.ttf',
+                    'B' => 'Cambria-Bold.ttf',
+                    'I' => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
                 'trebuchet_ms' => [
-                    'R'  => 'trebuc.ttf',
-                    'B'  => 'trebucbd.ttf',
-                    'I'  => 'trebucit.ttf'
+                    'R' => 'trebuc.ttf',
+                    'B' => 'trebucbd.ttf',
+                    'I' => 'trebucit.ttf',
                 ],
                 'times_new_roman' => [
-                    'R'  => 'times-new-roman.ttf',
-                    'B'  => 'times-new-roman-bold.ttf',
-                    'I'  => 'times-new-roman-italic.ttf',
-                    'BI' => 'times-new-roman-bold-italic.ttf'
+                    'R' => 'times-new-roman.ttf',
+                    'B' => 'times-new-roman-bold.ttf',
+                    'I' => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf',
                 ],
-            ]
+            ],
         ]);
 
         return $pdf->Output('document.pdf', 'I');
     }
 
-
     public function filtrarResolucionesContenido(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'departamento' => 'nullable|array',
@@ -234,18 +267,14 @@ class SearchController extends Controller
             'tipo_resolucion' => 'nullable|array',
             'tipo_resolucion.*' => 'required|integer',
             'periodo' => 'nullable|array',
-            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
-
-
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
-
 
         $query = $request->input('term', '');
         $highlight = $request->input('highlight', ['sintesis']);
@@ -254,7 +283,7 @@ class SearchController extends Controller
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo','magistrado','forma_resolucion'];
+        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
 
         $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
             $options['attributesToHighlight'] = $highlight;
@@ -281,26 +310,26 @@ class SearchController extends Controller
 
             return $meilisearch->search($query, $options);
         });
-    
+
         if ($request->has('periodo')) {
             $search->where('periodo', $request->periodo[0]);
         }
 
         if ($request->has('tipo_resolucion')) {
-            $search->whereIn("tipo_resolucion", $request->tipo_resolucion);
+            $search->whereIn('tipo_resolucion', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $search->whereIn("sala", $request->sala);
+            $search->whereIn('sala', $request->sala);
         }
         if ($request->has('departamento')) {
-            $search->whereIn("departamento", $request->departamento);
+            $search->whereIn('departamento', $request->departamento);
         }
 
         if ($request->has('magistrado')) {
-            $search->whereIn("magistrado", $request->magistrado);
+            $search->whereIn('magistrado', $request->magistrado);
         }
         if ($request->has('forma_resolucion')) {
-            $search->whereIn("forma_resolucion", $request->forma_resolucion);
+            $search->whereIn('forma_resolucion', $request->forma_resolucion);
         }
 
         $search = $search->raw();
@@ -310,14 +339,14 @@ class SearchController extends Controller
             return $hit['_formatted'] ?? [];
         });
 
-
         $facets = $search['facetDistribution'] ?? [];
+
         return response()->json($facets);
 
         $filtros = [];
 
         foreach ($facetas as $value) {
-            if (!isset($facets[$value])) {
+            if (! isset($facets[$value])) {
                 continue;
             }
 
@@ -329,7 +358,6 @@ class SearchController extends Controller
 
             $filtros[$value] = array_values($filtered); // Reindexa
         }
-
 
         return response()->json([
             'data' => $formattedResults,
@@ -343,24 +371,18 @@ class SearchController extends Controller
 
         return response()->json($resultados);
 
-
-
-
-        $variable = $request["variable"];
-        $orden = $request["orden"];
+        $variable = $request['variable'];
+        $orden = $request['orden'];
 
         $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
         $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
         $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
-
-
 
         $query = DB::table('resolutions as r')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
-
 
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $tipoJurisprudencia = $request->tipo_jurisprudencia;
@@ -382,25 +404,24 @@ class SearchController extends Controller
             });
         }
 
-
         if ($request->has('periodo')) {
-            $query->whereYear('r.fecha_emision',  $request->periodo);
+            $query->whereYear('r.fecha_emision', $request->periodo);
         }
 
         if ($request->has('magistrado')) {
-            $query->whereIn("r.magistrado_id", $request->magistrado);
+            $query->whereIn('r.magistrado_id', $request->magistrado);
         }
         if ($request->has('forma_resolucion')) {
-            $query->whereIn("r.forma_resolucion_id", $request->forma_resolucion);
+            $query->whereIn('r.forma_resolucion_id', $request->forma_resolucion);
         }
         if ($request->has('tipo_resolucion')) {
-            $query->whereIn("r.tipo_resolucion_id", $request->tipo_resolucion);
+            $query->whereIn('r.tipo_resolucion_id', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $query->whereIn("r.sala_id", $request->sala);
+            $query->whereIn('r.sala_id', $request->sala);
         }
         if ($request->has('departamento')) {
-            $query->whereIn("r.departamento_id", $request->departamento);
+            $query->whereIn('r.departamento_id', $request->departamento);
         }
 
         $search = $request->input('term');
@@ -409,10 +430,7 @@ class SearchController extends Controller
         $search = strtolower($search);
         $stopwords = NLP::getStopWords();
 
-
         if ($request->has('term') && in_array($search, $stopwords) === false) {
-
-
 
             $searchSanitized = addslashes($search);
 
@@ -423,11 +441,11 @@ class SearchController extends Controller
                 "))->whereRaw('searchtext @@ plainto_tsquery(\'spanish\', ?)', [$search]);
         }
 
-
         $results = $query->orderBy($variable, $orden)->paginate(20);
 
         return response()->json($results);
     }
+
     public function busquedaTerminos(Request $request)
     {
         $request->validate([
@@ -435,10 +453,10 @@ class SearchController extends Controller
             'materia' => 'nullable|integer',
         ]);
 
-
         $query = $request->input('busqueda', '');
         $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) {
             $options['facets'] = ['descriptor_facet'];
+
             return $meilisearch->search($query, $options);
         });
 
@@ -447,15 +465,13 @@ class SearchController extends Controller
             $search->where('materia', $materia);
         }
 
-
         $search = $search->raw();
-
 
         $facets = $search['facetDistribution']['descriptor_facet'] ?? [];
 
-
         $facets = collect($facets)->map(function ($count, $facet) {
             $parts = explode('||', $facet);
+
             return [
                 'root_id' => $parts[0],
                 'descriptor_id' => $parts[1],
@@ -474,7 +490,6 @@ class SearchController extends Controller
     public function obtenerResolucionesCronologia(Request $request)
     {
 
-
         $request->validate([
             'busqueda' => 'nullable|string',
             'materia' => 'nullable|array',
@@ -490,7 +505,6 @@ class SearchController extends Controller
             'departamento.*' => 'required|integer',
         ]);
 
-
         $query = $request->input('busqueda', '');
         $highlight = $request->input('highlight', 'contenido');
 
@@ -500,7 +514,7 @@ class SearchController extends Controller
         $offset = ($page - 1) * $perPage;
         $highlight = ['contenido', 'sintesis', 'precedente', 'maxima', 'proceso'];
         $highlight = ['descriptor', 'ratio', 'restrictor'];
-        //$highlight = ['descriptor'];
+        // $highlight = ['descriptor'];
         $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'materia', 'magistrado', 'forma_resolucion'];
 
         $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
@@ -538,19 +552,19 @@ class SearchController extends Controller
         }
 
         if ($request->has('tipo_resolucion')) {
-            $search->whereIn("tipo_resolucion", $request->tipo_resolucion);
+            $search->whereIn('tipo_resolucion', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $search->whereIn("sala", $request->sala);
+            $search->whereIn('sala', $request->sala);
         }
         if ($request->has('departamento')) {
-            $search->whereIn("departamento", $request->departamento);
+            $search->whereIn('departamento', $request->departamento);
         }
         if ($request->has('magistrado')) {
-            $search->whereIn("magistrado", $request->magistrado);
+            $search->whereIn('magistrado', $request->magistrado);
         }
         if ($request->has('forma_resolucion')) {
-            $search->whereIn("forma_resolucion", $request->forma_resolucion);
+            $search->whereIn('forma_resolucion', $request->forma_resolucion);
         }
 
         $search = $search->raw();
@@ -560,16 +574,12 @@ class SearchController extends Controller
             return $hit['_formatted'] ?? [];
         });
 
-
-
         $facets = $search['facetDistribution'] ?? [];
-
-
 
         $filtros = [];
 
         foreach ($facetas as $value) {
-            if (!isset($facets[$value])) {
+            if (! isset($facets[$value])) {
                 continue;
             }
 
@@ -581,7 +591,6 @@ class SearchController extends Controller
 
             $filtros[$value] = array_values($filtered); // Reindexa
         }
-
 
         return response()->json([
             'data' => $formattedResults,
@@ -595,5 +604,4 @@ class SearchController extends Controller
 
         return response()->json($resultados);
     }
-
 }

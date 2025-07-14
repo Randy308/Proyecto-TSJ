@@ -12,13 +12,14 @@ class Descriptor extends Model
 
     protected $fillable = [
         'nombre',
-        'descriptor_id'
+        'descriptor_id',
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
+
     public function jurisprudencias()
     {
         return $this->hasMany(Jurisprudencias::class, 'descriptor_id');

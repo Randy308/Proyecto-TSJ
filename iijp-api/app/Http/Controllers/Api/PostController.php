@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
-
     public function index()
     {
         $posts = Post::all();
+
         return response()->json($posts, 200);
     }
 
@@ -27,14 +27,14 @@ class PostController extends Controller
         ]);
 
         $user = Auth::user();
-        $post = new Post();
-        $post->user_id = $user->id; 
+        $post = new Post;
+        $post->user_id = $user->id;
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $fileName = time().'.'.$image->getClientOriginalExtension();
             $path = $image->storeAs('public/posts', $fileName);
-            $post->ruta_imagen = str_replace('public/', 'storage/', $path); 
+            $post->ruta_imagen = str_replace('public/', 'storage/', $path);
         }
 
         $post->titulo = $request->titulo;
@@ -44,13 +44,10 @@ class PostController extends Controller
         return response()->json(['message' => 'Publicación creada con éxito', 'post' => $post], 201);
     }
 
-
-
     public function create()
     {
         //
     }
-
 
     public function show($id)
     {
@@ -58,16 +55,14 @@ class PostController extends Controller
 
         return response()->json([
             'message' => 'Publicación encontrada con éxito',
-            'post' => $post
+            'post' => $post,
         ], 200);
     }
-
 
     public function edit(Post $post)
     {
         //
     }
-
 
     public function update(Request $request, $id)
     {
@@ -85,7 +80,7 @@ class PostController extends Controller
             }
 
             $image = $request->file('image');
-            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $fileName = time().'.'.$image->getClientOriginalExtension();
             $path = $image->storeAs('public/posts', $fileName);
             $post->ruta_imagen = str_replace('public/', 'storage/', $path);
         }
@@ -103,12 +98,9 @@ class PostController extends Controller
         return response()->json(['message' => 'Publicación actualizada con éxito', 'post' => $post], 200);
     }
 
-
-
     public function destroy($id)
     {
         $post = Post::findOrFail($id);
-
 
         $post->delete();
 
@@ -117,12 +109,14 @@ class PostController extends Controller
         ], 200);
     }
 
-    public function obtenerActivos(){
+    public function obtenerActivos()
+    {
 
         $posts = Post::where('estado', 'Activo')->limit(3)->get();
         if ($posts->isEmpty()) {
             $posts = Post::orderBy('updated_at', 'desc')->limit(3)->get();
         }
+
         return response()->json($posts, 200);
     }
 }

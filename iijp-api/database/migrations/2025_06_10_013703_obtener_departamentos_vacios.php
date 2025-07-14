@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -36,7 +34,7 @@ return new class extends Migration
                             LIMIT input_param;
                         $$ 
                         LANGUAGE SQL;
-                    ");             
+                    ");
     }
 
     /**
@@ -45,6 +43,6 @@ return new class extends Migration
     public function down(): void
     {
         // Eliminar la función si es necesario
-        DB::statement("DROP FUNCTION IF EXISTS obtener_departamentos_vacios();");
+        DB::statement('DROP FUNCTION IF EXISTS obtener_departamentos_vacios();');
     }
 };

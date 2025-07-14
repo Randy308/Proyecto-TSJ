@@ -3,31 +3,25 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Departamentos;
 use App\Models\Descriptor;
 use App\Models\Estilos;
-use App\Models\FormaResolucions;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
 use App\Models\Sala;
 use App\Models\Tema;
-use App\Models\TipoResolucions;
 use App\Utils\Busqueda;
-use App\Utils\Listas;
 use Carbon\Carbon;
-use Dotenv\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
-use Meilisearch\Client;
 
 function validarModelo($modelClassName, $field, $value)
 {
     $errorMessage = null;
     $modelo = $modelClassName::where($field, $value)->first();
 
-    if (!$modelo) {
+    if (! $modelo) {
         $defaultErrorMessage = "No se encontró el modelo '$modelClassName' con '$field' igual a '$value'.";
         throw new ModelNotFoundException($errorMessage ?: $defaultErrorMessage);
     }
@@ -36,10 +30,10 @@ function validarModelo($modelClassName, $field, $value)
 }
 class TemaController extends Controller
 {
-
     public function obtenerNodos(Request $request)
     {
-        $datos = DB::select("SELECT * FROM resumen_jerarquico");
+        $datos = DB::select('SELECT * FROM resumen_jerarquico');
+
         return response()->json($datos);
         // Reorganizar los datos en un mapa por ID
         $mapa = [];
@@ -63,15 +57,15 @@ class TemaController extends Controller
         return response()->json($raices);
     }
 
-
     public function obtenerNodosPorNombre(Request $request)
     {
         $ids = $request->ids;
+
         return $ids;
     }
+
     public function obtenerResolucionesCronologia(Request $request)
     {
-
 
         $request->validate([
             'busqueda' => 'nullable|string',
@@ -88,7 +82,6 @@ class TemaController extends Controller
             'departamento.*' => 'required|integer',
         ]);
 
-
         $query = $request->input('busqueda', '');
         $highlight = $request->input('highlight', 'contenido');
 
@@ -98,7 +91,7 @@ class TemaController extends Controller
         $offset = ($page - 1) * $perPage;
         $highlight = ['contenido', 'sintesis', 'precedente', 'maxima', 'proceso'];
         $highlight = ['descriptor', 'ratio', 'restrictor'];
-        //$highlight = ['descriptor'];
+        // $highlight = ['descriptor'];
         $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'materia', 'magistrado', 'forma_resolucion'];
         $strategy = request()->input('strategy', false);
 
@@ -112,7 +105,6 @@ class TemaController extends Controller
 
         // unir ambos arrays sin duplicados
         $allFields = array_unique(array_merge($highlight, $extraFields));
-
 
         $options = [
             'query_by' => implode(',', $highlight),
@@ -131,7 +123,6 @@ class TemaController extends Controller
 
         $search = Jurisprudencias::search($query)->options($options);
 
-
         if ($request->has('materia')) {
             $materia = $request->input('materia');
             $search->where('materia', $materia[0]);
@@ -146,31 +137,28 @@ class TemaController extends Controller
         }
 
         if ($request->has('tipo_resolucion')) {
-            $search->whereIn("tipo_resolucion", $request->tipo_resolucion);
+            $search->whereIn('tipo_resolucion', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $search->whereIn("sala", $request->sala);
+            $search->whereIn('sala', $request->sala);
         }
         if ($request->has('departamento')) {
-            $search->whereIn("departamento", $request->departamento);
+            $search->whereIn('departamento', $request->departamento);
         }
         if ($request->has('magistrado')) {
-            $search->whereIn("magistrado", $request->magistrado);
+            $search->whereIn('magistrado', $request->magistrado);
         }
         if ($request->has('forma_resolucion')) {
-            $search->whereIn("forma_resolucion", $request->forma_resolucion);
+            $search->whereIn('forma_resolucion', $request->forma_resolucion);
         }
 
         $search = $search->raw();
-
-
 
         $hits = Busqueda::generarResultado($search);
 
         $facetas = $search['facet_counts'] ?? [];
 
         $facets = Busqueda::obtenerFacetas($facetas);
-
 
         return response()->json([
             'data' => $hits,
@@ -192,13 +180,12 @@ class TemaController extends Controller
             'busqueda' => 'nullable|string|max:100',
         ]);
 
-
         $lista = ['sala', 'departamento', 'tipo_resolucion', 'periodo'];
-
 
         $query = $request->input('busqueda', '');
         $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) use ($lista) {
             $options['facets'] = $lista;
+
             return $meilisearch->search($query, $options);
         });
 
@@ -207,16 +194,14 @@ class TemaController extends Controller
             $search->where('materia', $materia);
         }
 
-
         $search = $search->raw();
-
 
         $facets = $search['facetDistribution'] ?? [];
 
         $data = [];
 
         foreach ($lista as $value) {
-            if (!isset($facets[$value])) {
+            if (! isset($facets[$value])) {
                 continue;
             }
 
@@ -228,9 +213,9 @@ class TemaController extends Controller
 
             $data[$value] = array_values($filtered); // Reindexa
         }
+
         return $data;
     }
-
 
     public function obtenerCronologiasbyIds(Request $request)
     {
@@ -242,7 +227,7 @@ class TemaController extends Controller
 
         $ids = $request['ids'];
 
-        if (!is_array($ids) || empty($ids)) {
+        if (! is_array($ids) || empty($ids)) {
             return response()->json(['error' => 'IDs no válidos'], 400);
         }
 
@@ -250,10 +235,7 @@ class TemaController extends Controller
             return response()->json(['error' => 'Demasiados IDs, máximo 40 permitidos'], 400);
         }
 
-
-        $seccion = filter_var($request["seccion"], FILTER_VALIDATE_BOOLEAN);
-
-
+        $seccion = filter_var($request['seccion'], FILTER_VALIDATE_BOOLEAN);
 
         $query = DB::table('jurisprudencias as j')
             ->join('resolutions as r', 'r.id', '=', 'j.resolution_id')
@@ -265,18 +247,14 @@ class TemaController extends Controller
             ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
             ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion', 's.nombre as sala', 'r.fecha_emision', 'r.nro_resolucion', 'm.external_id');
 
-
-
         $query->whereIn('r.id', $ids);
         if ($seccion === true) {
             $query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
         }
 
-
-
         $results = $query->orderBy('j.descriptor')->get();
 
-        if (!$results) {
+        if (! $results) {
             return response()->json(['error' => 'Sala no encontrada'], 404);
         }
 
@@ -284,17 +262,16 @@ class TemaController extends Controller
             return response()->json(['error' => 'Datos no encontrados '], 404);
         }
 
-
         $current = [];
 
         foreach ($results as $element) {
-            $pieces = explode(" / ", $element->descriptor);
+            $pieces = explode(' / ', $element->descriptor);
             $indices = [];
 
-            if (!empty($current)) {
+            if (! empty($current)) {
                 $newPieces = [];
                 foreach ($pieces as $key => $piece) {
-                    if (!isset($current[$piece])) {
+                    if (! isset($current[$piece])) {
                         $current[$piece] = true;
                         $indices[] = $key;
                         $newPieces[] = $piece;
@@ -310,25 +287,24 @@ class TemaController extends Controller
             $element->indices = $indices;
         }
 
-
         $idsVistos = [];
         $referencias = [];
         foreach ($results as $item) {
-            if (!in_array($item->resolution_id, $idsVistos)) {
+            if (! in_array($item->resolution_id, $idsVistos)) {
                 $idsVistos[] = $item->resolution_id;
 
-                $fecha_formateada = "";
-                if (!empty($item->fecha_emision)) {
+                $fecha_formateada = '';
+                if (! empty($item->fecha_emision)) {
                     try {
                         $fecha_formateada = Carbon::parse($item->fecha_emision)->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
                     } catch (\Exception $e) {
                         // Puedes registrar el error si lo deseas
-                        $fecha_formateada = "";
+                        $fecha_formateada = '';
                     }
                 }
 
                 $variables = explode('/', $item->nro_resolucion, 2);
-                $referencias[] = (object)[
+                $referencias[] = (object) [
                     'id' => $item->resolution_id,
                     'external_id' => $item->external_id,
                     'nro_resolucion' => $variables[1] ?? '',
@@ -340,51 +316,48 @@ class TemaController extends Controller
             }
         }
 
-
-        //return response()->json($results);
+        // return response()->json($results);
 
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
         $estilos = Estilos::where('tipo', 'Default')->get();
 
-        //return $estilos;
-        //return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, "fechaActual" => $fechaActual, 'referencias' => $referencias], [], [
-            'format'          => 'letter',
-            'margin_left'     => 25,  // 2.5 cm in mm
-            'margin_right'    => 25,  // 2.5 cm in mm
-            'margin_top'      => 25,  // 2.5 cm in mm
-            'margin_bottom'   => 25,  // 2.5 cm in mm
-            'orientation'     => 'P',
-            'title'           => 'Documento',
-            'author'          => 'IIJP',
+        // return $estilos;
+        // return $request->estilos;
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, 'fechaActual' => $fechaActual, 'referencias' => $referencias], [], [
+            'format' => 'letter',
+            'margin_left' => 25,  // 2.5 cm in mm
+            'margin_right' => 25,  // 2.5 cm in mm
+            'margin_top' => 25,  // 2.5 cm in mm
+            'margin_bottom' => 25,  // 2.5 cm in mm
+            'orientation' => 'P',
+            'title' => 'Documento',
+            'author' => 'IIJP',
             'custom_font_dir' => public_path('fonts/'),
             'custom_font_data' => [
                 'cambria' => [
-                    'R'  => 'Cambriax.ttf',
-                    'B'  => 'Cambria-Bold.ttf',
-                    'I'  => 'Cambria-Italic.ttf',
-                    'BI' => 'Cambria-Bold-Italic.ttf'
+                    'R' => 'Cambriax.ttf',
+                    'B' => 'Cambria-Bold.ttf',
+                    'I' => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
                 'trebuchet_ms' => [
-                    'R'  => 'trebuc.ttf',
-                    'B'  => 'trebucbd.ttf',
-                    'I'  => 'trebucit.ttf'
+                    'R' => 'trebuc.ttf',
+                    'B' => 'trebucbd.ttf',
+                    'I' => 'trebucit.ttf',
                 ],
                 'times_new_roman' => [
-                    'R'  => 'times-new-roman.ttf',
-                    'B'  => 'times-new-roman-bold.ttf',
-                    'I'  => 'times-new-roman-italic.ttf',
-                    'BI' => 'times-new-roman-bold-italic.ttf'
+                    'R' => 'times-new-roman.ttf',
+                    'B' => 'times-new-roman-bold.ttf',
+                    'I' => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf',
                 ],
-            ]
+            ],
         ]);
 
         return $pdf->Output();
-        //$pdf = LaravelMpdf::loadView('test');
-        //return $pdf->stream('document.pdf');
+        // $pdf = LaravelMpdf::loadView('test');
+        // return $pdf->stream('document.pdf');
     }
-
-
 
     public function obtenerCronologias(Request $request)
     {
@@ -397,15 +370,14 @@ class TemaController extends Controller
         ]);
 
         $tema_id = $request['tema_id'];
-        $cantidad = $request["cantidad"];
+        $cantidad = $request['cantidad'];
 
-        $seccion = filter_var($request["seccion"], FILTER_VALIDATE_BOOLEAN);
-
+        $seccion = filter_var($request['seccion'], FILTER_VALIDATE_BOOLEAN);
 
         // Encuentra el tema por ID
         $tema = Descriptor::where('id', $tema_id)->first();
 
-        if (!$tema) {
+        if (! $tema) {
             return response()->json(['error' => 'Tema no encontrado'], 404);
         }
 
@@ -416,8 +388,6 @@ class TemaController extends Controller
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
             ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion');
-
-
 
         if ($seccion === true) {
             $query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
@@ -431,7 +401,7 @@ class TemaController extends Controller
         }
         $results = $query->orderBy('j.descriptor')->get();
 
-        if (!$results) {
+        if (! $results) {
             return response()->json(['error' => 'Sala no encontrada'], 404);
         }
 
@@ -442,13 +412,13 @@ class TemaController extends Controller
         $current = [];
 
         foreach ($results as $element) {
-            $pieces = explode(" / ", $element->descriptor);
+            $pieces = explode(' / ', $element->descriptor);
             $indices = [];
 
-            if (!empty($current)) {
+            if (! empty($current)) {
                 $newPieces = [];
                 foreach ($pieces as $key => $piece) {
-                    if (!isset($current[$piece])) {
+                    if (! isset($current[$piece])) {
                         $current[$piece] = true;
                         $indices[] = $key;
                         $newPieces[] = $piece;
@@ -464,54 +434,48 @@ class TemaController extends Controller
             $element->indices = $indices;
         }
 
-
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
         $estilos = Estilos::where('tipo', 'Default')->get();
 
-
-
         $referencias = [];
 
-
-        //return $estilos;
-        //return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, "fechaActual" => $fechaActual, 'referencias' => $referencias], [], [
-            'format'          => 'letter',
-            'margin_left'     => 25,  // 2.5 cm in mm
-            'margin_right'    => 25,  // 2.5 cm in mm
-            'margin_top'      => 25,  // 2.5 cm in mm
-            'margin_bottom'   => 25,  // 2.5 cm in mm
-            'orientation'     => 'P',
-            'title'           => 'Documento',
-            'author'          => 'IIJP',
+        // return $estilos;
+        // return $request->estilos;
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, 'fechaActual' => $fechaActual, 'referencias' => $referencias], [], [
+            'format' => 'letter',
+            'margin_left' => 25,  // 2.5 cm in mm
+            'margin_right' => 25,  // 2.5 cm in mm
+            'margin_top' => 25,  // 2.5 cm in mm
+            'margin_bottom' => 25,  // 2.5 cm in mm
+            'orientation' => 'P',
+            'title' => 'Documento',
+            'author' => 'IIJP',
             'custom_font_dir' => public_path('fonts/'),
             'custom_font_data' => [
                 'cambria' => [
-                    'R'  => 'Cambriax.ttf',
-                    'B'  => 'Cambria-Bold.ttf',
-                    'I'  => 'Cambria-Italic.ttf',
-                    'BI' => 'Cambria-Bold-Italic.ttf'
+                    'R' => 'Cambriax.ttf',
+                    'B' => 'Cambria-Bold.ttf',
+                    'I' => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
                 'trebuchet_ms' => [
-                    'R'  => 'trebuc.ttf',
-                    'B'  => 'trebucbd.ttf',
-                    'I'  => 'trebucit.ttf'
+                    'R' => 'trebuc.ttf',
+                    'B' => 'trebucbd.ttf',
+                    'I' => 'trebucit.ttf',
                 ],
                 'times_new_roman' => [
-                    'R'  => 'times-new-roman.ttf',
-                    'B'  => 'times-new-roman-bold.ttf',
-                    'I'  => 'times-new-roman-italic.ttf',
-                    'BI' => 'times-new-roman-bold-italic.ttf'
+                    'R' => 'times-new-roman.ttf',
+                    'B' => 'times-new-roman-bold.ttf',
+                    'I' => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf',
                 ],
-            ]
+            ],
         ]);
 
-        //$pdf = LaravelMpdf::loadView('test');
+        // $pdf = LaravelMpdf::loadView('test');
         return $pdf->Output();
-        //return $pdf->stream('document.pdf');
+        // return $pdf->stream('document.pdf');
     }
-
-
 
     public function getCronologia(Request $request)
     {
@@ -520,14 +484,11 @@ class TemaController extends Controller
         $sala = $request['nombreMateria'];
         $departamento = $request['nombreMateria'];
 
-
         $mi_sala = Sala::where('nombre', $sala)->first();
 
-        if (!$mi_sala) {
-            return response()->json(['error' => 'Sala no encontrada a' . $sala], 404);
+        if (! $mi_sala) {
+            return response()->json(['error' => 'Sala no encontrada a'.$sala], 404);
         }
-
-
 
         $data = [];
         $forma_resolucion = Resolutions::select('forma_resolucion')->distinct()->get();
@@ -548,11 +509,10 @@ class TemaController extends Controller
                 $data[] = [
                     'id' => $res->forma_resolucion,
                     'color' => 'hsl(118, 70%, 50%)',
-                    'data' => $resolutions->toArray()
+                    'data' => $resolutions->toArray(),
                 ];
             }
         }
-
 
         return $data;
     }

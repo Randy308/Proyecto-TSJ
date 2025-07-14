@@ -7,14 +7,13 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateJurisprudenciasTable extends Migration
 {
-
     public function up()
     {
         Schema::create('jurisprudencias', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('resolution_id');
             $table->unsignedBigInteger('tipo_jurisprudencia_id')->nullable();
-            $table->text('restrictor')->nullable(); 
+            $table->text('restrictor')->nullable();
             $table->text('ratio')->nullable();
             $table->text('descriptor')->nullable();
             $table->unsignedBigInteger('descriptor_id')->nullable();
@@ -44,7 +43,6 @@ class CreateJurisprudenciasTable extends Migration
         //     tsvector_update_trigger('jurisprudencia_search', 'pg_catalog.spanish', 'descriptor', 'restrictor', 'ratio')
         // ");
     }
-
 
     public function down()
     {

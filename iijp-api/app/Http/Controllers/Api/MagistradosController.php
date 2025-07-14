@@ -3,36 +3,26 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Contents;
 use App\Models\Jurisprudencias;
 use App\Models\Magistrados;
 use App\Models\Resolutions;
-use App\Models\Sala;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 
 class MagistradosController extends Controller
 {
-
-
-
-
-
-
-
     public function reemplazarPatron($array, $pattern)
     {
         $array = array_map(function ($value) use ($pattern) {
             return preg_replace($pattern, '', $value);
         }, $array);
+
         return $array;
     }
-
 
     public function update($id, Request $request)
     {
@@ -43,14 +33,13 @@ class MagistradosController extends Controller
 
         $magistrado = Magistrados::findOrFail($id);
 
-
         if ($request->hasFile('image')) {
             if ($magistrado->ruta_imagen && Storage::exists(str_replace('storage/', 'public/', $magistrado->ruta_imagen))) {
                 Storage::delete(str_replace('storage/', 'public/', $magistrado->ruta_imagen));
             }
 
             $image = $request->file('image');
-            $fileName = time() . '.' . $image->getClientOriginalExtension();
+            $fileName = time().'.'.$image->getClientOriginalExtension();
             $path = $image->storeAs('public/magistrados', $fileName);
             $magistrado->ruta_imagen = str_replace('public/', 'storage/', $path);
         }
@@ -67,12 +56,11 @@ class MagistradosController extends Controller
     public function obtenerSerieTemporal($id, Request $request)
     {
 
-
         $magistrado = Magistrados::where('id', $id)->first();
         $actual = $request['actual'];
         $fecha_inicial = $request['dato'];
         $resolutions = [];
-        if ($fecha_inicial && $actual != "year") {
+        if ($fecha_inicial && $actual != 'year') {
             switch ($actual) {
                 case 'month':
                     $timestamp = strtotime($fecha_inicial);
@@ -93,7 +81,7 @@ class MagistradosController extends Controller
                         ORDER BY
                             series::date;
                     ";
-                    $fecha_final = date('Y-m-d', strtotime("+11 months", strtotime($fecha_inicial)));
+                    $fecha_final = date('Y-m-d', strtotime('+11 months', strtotime($fecha_inicial)));
                     break;
                 case 'day':
                     $query = "
@@ -111,7 +99,7 @@ class MagistradosController extends Controller
                         ORDER BY
                             series::date;
                     ";
-                    $fecha_final = date("Y-m-t", strtotime($fecha_inicial));
+                    $fecha_final = date('Y-m-t', strtotime($fecha_inicial));
                     break;
                 default:
                     break;
@@ -130,16 +118,15 @@ class MagistradosController extends Controller
                     DB::raw('EXTRACT(YEAR FROM fecha_emision) as fecha'),
                     DB::raw('COUNT(*) as cantidad')
                 )
-                ->whereNotNull("fecha_emision")
+                ->whereNotNull('fecha_emision')
                 ->groupBy(DB::raw('EXTRACT(YEAR FROM fecha_emision)'))
                 ->orderBy('fecha')
                 ->get();
 
-
             foreach ($resolutions as &$item) {
                 $year = $item->fecha;
-                $item->fecha_final = ($year . '-12-31');
-                $item->fecha_inicio = ($year . '-01-01');
+                $item->fecha_final = ($year.'-12-31');
+                $item->fecha_inicio = ($year.'-01-01');
             }
         }
         $data = [
@@ -150,7 +137,6 @@ class MagistradosController extends Controller
 
         return response()->json($data);
     }
-
 
     public function descomponerSerie(Request $request)
     {
@@ -192,27 +178,21 @@ class MagistradosController extends Controller
         // Preparar los datos en JSON
         $data = [
             'id' => $magistrado->id,
-            'resolutions' => $resolutions
+            'resolutions' => $resolutions,
         ];
-        //return $resolutions;
+        // return $resolutions;
         // Enviar datos a Flask
         $response = Http::post('http://127.0.0.1:5000/predicciones/', [
-            'data' => json_encode($data)
+            'data' => json_encode($data),
         ]);
 
         // Opcional: Manejar la respuesta
         if ($response->successful()) {
             return $response->json();
         } else {
-            return response()->json(['error' => 'Error al enviar datos a Flask' . $response], 500);
+            return response()->json(['error' => 'Error al enviar datos a Flask'.$response], 500);
         }
     }
-
-
-
-
-
-
 
     public function obtenerModelo($name, $values)
     {
@@ -222,10 +202,10 @@ class MagistradosController extends Controller
             'sala' => 'salas',
             'magistrado' => 'magistrados',
             'forma_resolucion' => 'forma_resolucions',
-            'tipo_jurisprudencia' => 'tipo_jurisprudencias'
+            'tipo_jurisprudencia' => 'tipo_jurisprudencias',
         ];
 
-        if (!array_key_exists($name, $allowedTables)) {
+        if (! array_key_exists($name, $allowedTables)) {
             throw new ModelNotFoundException("No se encontró el modelo '$name'.");
         }
 
@@ -237,12 +217,11 @@ class MagistradosController extends Controller
             ->get();
     }
 
-
     public function generarConsulta($formaId, $salas, $tablas)
     {
         // Initial select and group by
-        $select = "COALESCE(COUNT(r.id), 0) AS cantidad, salas.nombre AS sala";
-        $group_by = "salas.nombre";
+        $select = 'COALESCE(COUNT(r.id), 0) AS cantidad, salas.nombre AS sala';
+        $group_by = 'salas.nombre';
 
         // Base query
         $query = Magistrados::selectRaw($select)
@@ -255,21 +234,21 @@ class MagistradosController extends Controller
         foreach ($tablas as $tabla) {
             $table_name = $tabla->nombre;
             $values = $tabla->ids;
-            $full_name = $table_name . "s";
+            $full_name = $table_name.'s';
             if ($table_name && $values) {
-                if ($table_name == "tipo_jurisprudencia") {
+                if ($table_name == 'tipo_jurisprudencia') {
 
-                    //$jurisprudencia_nombres  = Jurisprudencias::whereIn('jurisprudencias.id', $values)->get("tipo_jurisprudencia")->pluck("tipo_jurisprudencia");
+                    // $jurisprudencia_nombres  = Jurisprudencias::whereIn('jurisprudencias.id', $values)->get("tipo_jurisprudencia")->pluck("tipo_jurisprudencia");
                     $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id')
                         ->join('tipo_jurisprudencias as tj', 'j.tipo_jurisprudencia_id', '=', 'tj.id')
                         ->whereIn('j.tipo_jurisprudencia_id', $values);
-                    $select .= ", tj.nombre AS " . $table_name;
-                    $group_by .= ", " . $table_name;
+                    $select .= ', tj.nombre AS '.$table_name;
+                    $group_by .= ', '.$table_name;
                 } else {
-                    $query->join($full_name, $full_name . '.id', '=', 'r.' . $table_name . '_id')
-                        ->whereIn($full_name . '.id', $values);
-                    $select .= ", " . $full_name . ".nombre AS " . $table_name;
-                    $group_by .= ", " . $full_name . ".nombre";
+                    $query->join($full_name, $full_name.'.id', '=', 'r.'.$table_name.'_id')
+                        ->whereIn($full_name.'.id', $values);
+                    $select .= ', '.$full_name.'.nombre AS '.$table_name;
+                    $group_by .= ', '.$full_name.'.nombre';
                 }
             }
         }
@@ -277,8 +256,6 @@ class MagistradosController extends Controller
         // Finalize select and group by, then get the results
         return $query->selectRaw($select)->groupByRaw($group_by)->get();
     }
-
-
 
     public function ordenarArrayXY($combinations, $nombreX, $nombreY)
     {
@@ -319,21 +296,18 @@ class MagistradosController extends Controller
             $resultado[] = $row;
         }
 
-
-       
         $filtrado = array_filter($resultado, function ($item) use ($variableY) {
             foreach ($item as $key => $value) {
                 if ($key !== $variableY && $value !== 0) {
                     return true;
                 }
             }
-            return false; 
+
+            return false;
         });
-        
-        
+
         $filtrado = array_values($filtrado);
 
         return $resultado;
     }
-
 }

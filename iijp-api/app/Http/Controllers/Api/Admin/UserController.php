@@ -10,31 +10,26 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
-
     public function index()
     {
 
-
         $userId = Auth::id();
-        if (!$userId) {
-            return response()->json(['mensaje' => "El usuario no existe"], 403);
+        if (! $userId) {
+            return response()->json(['mensaje' => 'El usuario no existe'], 403);
         }
-        
+
         $users = User::whereDoesntHave('roles', function ($query) {
             $query->where('name', 'admin');
         })->paginate(20);
 
-
         $users->getCollection()->transform(function ($user) {
             $user->role = $user->getRoleNames()->first();
+
             return $user;
         });
 
         return response()->json($users, 200);
     }
-
-
-
 
     public function show($id)
     {
@@ -42,10 +37,8 @@ class UserController extends Controller
 
         $user->role = $user->getRoleNames()->first();
 
-
         return response()->json($user, 200);
     }
-
 
     public function store(Request $request)
     {
@@ -59,9 +52,8 @@ class UserController extends Controller
 
         $validatedData['password'] = bcrypt($validatedData['password']);
 
-
         $role = Role::where('name', $validatedData['role'])->first();
-        if (!$role) {
+        if (! $role) {
             return response()->json(['error' => 'Role not found'], 400);
         }
 
@@ -72,18 +64,15 @@ class UserController extends Controller
         return response()->json($user->only(['id', 'name', 'email', 'role']), 201);
     }
 
-
     public function update(Request $request, $id)
     {
 
         $validatedData = $request->validate([
             'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|unique:users,email,' . $id,
+            'email' => 'nullable|email|unique:users,email,'.$id,
             'password' => 'nullable|min:8',
             'role' => 'nullable|string|max:255|exists:roles,name',
         ]);
-
-        
 
         $user = User::findOrFail($id);
 
@@ -107,7 +96,6 @@ class UserController extends Controller
 
         return response()->json($user->only(['id', 'name', 'email', 'role']), 200);
     }
-
 
     public function destroy($id)
     {

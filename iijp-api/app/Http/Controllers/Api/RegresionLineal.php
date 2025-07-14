@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpArima\ArimaModel;
 
@@ -20,6 +19,7 @@ class RegresionLineal extends Controller
                 $lista[$key] = $value * $list_x[$key];
             }
         }
+
         return $lista;
     }
 
@@ -29,6 +29,7 @@ class RegresionLineal extends Controller
         foreach ($list as $value) {
             $sum += pow($value - $mean, 2);
         }
+
         return $sum;
     }
 
@@ -62,10 +63,10 @@ class RegresionLineal extends Controller
                 'a' => $a,
                 'b' => $b,
                 'correlation_coefficient' => $r,
-                'predicted_values' => $y_pred
+                'predicted_values' => $y_pred,
             ];
         } else {
-            throw new Exception("Denominator for calculating regression line is zero.");
+            throw new Exception('Denominator for calculating regression line is zero.');
         }
     }
 
@@ -75,9 +76,9 @@ class RegresionLineal extends Controller
         foreach ($x as $key => $value) {
             $pred[$key] = $a + $b * $value;
         }
+
         return $pred;
     }
-
 
     public function get_predicted_array_completed($x, $a, $b, $periodo)
     {
@@ -85,7 +86,7 @@ class RegresionLineal extends Controller
 
         $n = count($x);
         for ($value = 0; $value < $n; $value++) {
-            $pred[$value] = $a + $b  * ($value + 1);
+            $pred[$value] = $a + $b * ($value + 1);
         }
         // foreach ($x as $key => $value) {
         //     $pred[$key] = $a + $b * $value;
@@ -99,8 +100,6 @@ class RegresionLineal extends Controller
 
         return $pred;
     }
-
-
 
     public function test_reg()
     {
@@ -122,21 +121,19 @@ class RegresionLineal extends Controller
         ";
 
         $resolutions = DB::select($query, [
-            'fechaInicial' => "2012-01-01",
-            'fechaFinal' => "2015-09-01",
+            'fechaInicial' => '2012-01-01',
+            'fechaFinal' => '2015-09-01',
             'magistradoId' => 1,
         ]);
 
-
         $window = 4;
-        $data =  array_column($resolutions, "cantidad");
+        $data = array_column($resolutions, 'cantidad');
 
-        $order = array(2, 1, 2);
+        $order = [2, 1, 2];
 
         $cut = 4;
         $train = array_slice($data, 0, count($data) - $cut);
         $test = array_slice($data, -$cut);
-
 
         $prediction = ArimaModel::auto_arima($train, $cut);
 
@@ -162,7 +159,7 @@ class RegresionLineal extends Controller
             'test' => $test,
             'mae' => $mae,
             'mse' => $mse,
-            'rmse' => $rmse
+            'rmse' => $rmse,
         ], 200);
     }
 }

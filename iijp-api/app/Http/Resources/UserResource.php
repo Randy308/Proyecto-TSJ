@@ -16,12 +16,12 @@ class UserResource extends JsonResource
     {
         return [
 
-            "id" => $this->id,
-            "name" => $this->name,
-            "email" => $this->email,
-            "role" => $this->getRoleNames()[0],
-            "permissions" => $this->getPermissionsViaRoles()->pluck("name"),
-            "created_at" => $this->created_at,
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'role' => $this->getRoleNames()[0],
+            'permissions' => $this->getPermissionsViaRoles()->pluck('name'),
+            'created_at' => $this->created_at,
         ];
     }
 }

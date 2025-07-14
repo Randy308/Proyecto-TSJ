@@ -6,9 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Descriptor;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
+use App\Utils\NLP;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use App\Utils\NLP;
 use Illuminate\Support\Facades\Validator;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 
@@ -24,7 +24,7 @@ class JurisprudenciasController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -72,38 +72,35 @@ class JurisprudenciasController extends Controller
             return $hit['_formatted'] ?? [];
         });
 
-
-
-
         $pdf = LaravelMpdf::loadView('resolution', ['results' => $formattedResults], [], [
-            'format'          => 'letter',
-            'margin_left'     => 25,  // 2.5 cm in mm
-            'margin_right'    => 25,  // 2.5 cm in mm
-            'margin_top'      => 25,  // 2.5 cm in mm
-            'margin_bottom'   => 25,  // 2.5 cm in mm
-            'orientation'     => 'P',
-            'title'           => 'Documento',
-            'author'          => 'IIJP',
+            'format' => 'letter',
+            'margin_left' => 25,  // 2.5 cm in mm
+            'margin_right' => 25,  // 2.5 cm in mm
+            'margin_top' => 25,  // 2.5 cm in mm
+            'margin_bottom' => 25,  // 2.5 cm in mm
+            'orientation' => 'P',
+            'title' => 'Documento',
+            'author' => 'IIJP',
             'custom_font_dir' => public_path('fonts/'),
             'custom_font_data' => [
                 'cambria' => [
-                    'R'  => 'Cambriax.ttf',
-                    'B'  => 'Cambria-Bold.ttf',
-                    'I'  => 'Cambria-Italic.ttf',
-                    'BI' => 'Cambria-Bold-Italic.ttf'
+                    'R' => 'Cambriax.ttf',
+                    'B' => 'Cambria-Bold.ttf',
+                    'I' => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
                 'trebuchet_ms' => [
-                    'R'  => 'trebuc.ttf',
-                    'B'  => 'trebucbd.ttf',
-                    'I'  => 'trebucit.ttf'
+                    'R' => 'trebuc.ttf',
+                    'B' => 'trebucbd.ttf',
+                    'I' => 'trebucit.ttf',
                 ],
                 'times_new_roman' => [
-                    'R'  => 'times-new-roman.ttf',
-                    'B'  => 'times-new-roman-bold.ttf',
-                    'I'  => 'times-new-roman-italic.ttf',
-                    'BI' => 'times-new-roman-bold-italic.ttf'
+                    'R' => 'times-new-roman.ttf',
+                    'B' => 'times-new-roman-bold.ttf',
+                    'I' => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf',
                 ],
-            ]
+            ],
         ]);
 
         return $pdf->Output('document.pdf', 'I');
@@ -116,23 +113,22 @@ class JurisprudenciasController extends Controller
             'busqueda' => 'required|string',
         ]);
 
-
         $busqueda = $request->input('busqueda');
         $campo = $request->input('campo');
 
         $stopwords = NLP::getStopwords();
         if (in_array($busqueda, $stopwords)) {
-            return response()->json("Ingrese terminos de busqueda no stopwords", 422);
+            return response()->json('Ingrese terminos de busqueda no stopwords', 422);
         }
 
-        $lista = ["restrictor", "ratio"];
+        $lista = ['restrictor', 'ratio'];
 
-        if (!in_array($campo, $lista)) {
+        if (! in_array($campo, $lista)) {
             $query = Resolutions::select(
                 DB::raw("DATE_TRUNC('year', fecha_emision)::date AS periodo"),
                 DB::raw('COUNT(*) as cantidad'),
             )
-                ->where($campo, 'ilike', '%' . $busqueda . '%')
+                ->where($campo, 'ilike', '%'.$busqueda.'%')
                 ->groupBy(DB::raw("DATE_TRUNC('year', fecha_emision)::date"))
                 ->orderBy(DB::raw("DATE_TRUNC('year', fecha_emision)::date"))
                 ->get();
@@ -142,37 +138,35 @@ class JurisprudenciasController extends Controller
                     DB::raw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo"),
                     DB::raw('COUNT(DISTINCT(r.id)) as cantidad'),
                 )
-                ->where($campo, 'ilike', '%' . $busqueda . '%')
+                ->where($campo, 'ilike', '%'.$busqueda.'%')
                 ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
                 ->orderBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
                 ->get();
         }
 
-
-
         $result = $query->map(function ($item) {
             return [$item->periodo, $item->cantidad];
         })->toArray();
 
-
         return response()->json([
             'termino' => [
-                'name' => "termino_" . $busqueda,
+                'name' => 'termino_'.$busqueda,
                 'id' => $busqueda,
                 'value' => ucfirst($busqueda),
-                "detalles" => $campo,
+                'detalles' => $campo,
             ],
             'resoluciones' => [
                 'name' => ucfirst($busqueda),
                 'type' => 'line',
                 'id' => $busqueda,
-                'data' => $result
+                'data' => $result,
             ],
-            'departamentos' => $campo
+            'departamentos' => $campo,
         ]);
 
         return response()->json($result);
     }
+
     public function actualizarNodo(Request $request)
     {
         $busqueda = $request->input('busqueda');
@@ -195,7 +189,6 @@ class JurisprudenciasController extends Controller
         }
         $last = end($nodos);
 
-
         return response()->json([
             'nodos' => $nodos,
             'last' => $last['id'],
@@ -210,15 +203,13 @@ class JurisprudenciasController extends Controller
             'descriptor' => 'nullable|string',
         ]);
 
-
         $stopwords = NLP::getStopwords();
-
 
         $busqueda = $request->input('busqueda');
         $descriptor = $request->input('descriptor');
 
         if (in_array($busqueda, $stopwords)) {
-            return response()->json("Ingrese terminos de busqueda no stopwords", 422);
+            return response()->json('Ingrese terminos de busqueda no stopwords', 422);
         }
         $query = DB::table('jurisprudencias as j')
             ->select(
@@ -229,18 +220,17 @@ class JurisprudenciasController extends Controller
             )
             ->groupBy('j.descriptor');
 
-
-        if (!empty($descriptor)) {
-            $descriptor = $descriptor . ' / ';
-            $query->where('j.descriptor', 'ilike', $descriptor . '%' . $busqueda);
+        if (! empty($descriptor)) {
+            $descriptor = $descriptor.' / ';
+            $query->where('j.descriptor', 'ilike', $descriptor.'%'.$busqueda);
         } else {
 
-            $query->whereRaw("? % j.restrictor or ? % j.descriptor",  [$busqueda, $busqueda]);
+            $query->whereRaw('? % j.restrictor or ? % j.descriptor', [$busqueda, $busqueda]);
         }
         $resultados = $query->orderByDesc('cantidad')->get();
 
         if ($resultados->isEmpty()) {
-            return response()->json(['mensaje' => "No se encontraron resultados"], 404);
+            return response()->json(['mensaje' => 'No se encontraron resultados'], 404);
         }
         // foreach ($resultados as &$item) {
         //     $item->ids = array_map('intval', explode(',', trim($item->ids, '{}')));
@@ -264,11 +254,11 @@ class JurisprudenciasController extends Controller
             DB::raw('COUNT(j.resolution_id) as cantidad')
         )->groupBy('j.descriptor');
 
-        if (!empty($descriptor)) {
-            $descriptor = $descriptor . ' / ';
-            $query->where('j.descriptor', 'ilike', $descriptor . '%' . $busqueda . '%');
+        if (! empty($descriptor)) {
+            $descriptor = $descriptor.' / ';
+            $query->where('j.descriptor', 'ilike', $descriptor.'%'.$busqueda.'%');
         } else {
-            $query->where('j.descriptor', 'ilike', '%' . $busqueda . '%');
+            $query->where('j.descriptor', 'ilike', '%'.$busqueda.'%');
         }
 
         $resultados = $query
@@ -277,12 +267,11 @@ class JurisprudenciasController extends Controller
             ->get();
 
         if ($resultados->isEmpty()) {
-            return response()->json(['mensaje' => "No se encontraron resultados"], 404);
+            return response()->json(['mensaje' => 'No se encontraron resultados'], 404);
         }
 
         return response()->json($resultados);
     }
-
 
     public function busquedaTerminos(Request $request)
     {
@@ -291,11 +280,9 @@ class JurisprudenciasController extends Controller
             'materia' => 'nullable|integer',
         ]);
 
-
         $query = $request->input('busqueda', '');
         $highlight = 'ratio,descriptor,restrictor'; // o lo que necesites
         $strategy = 'all'; // o 'last'
-
 
         $options = [
             'query_by' => $highlight,
@@ -303,17 +290,14 @@ class JurisprudenciasController extends Controller
             'facet_by' => 'descriptor_facet',
             'include_fields' => 'descriptor_facet',
         ];
-        
-
-
 
         $search = Jurisprudencias::search($query)->options($options);
         $search = $search->raw();
         $facets = $search['facet_counts'][0]['counts'] ?? [];
 
-
         $facets = collect($facets)->map(function ($facet) {
             $parts = explode('||', $facet['value']);
+
             return [
                 'root_id' => $parts[0],
                 'descriptor_id' => $parts[1],

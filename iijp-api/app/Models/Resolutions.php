@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Laravel\Scout\Searchable;
 
 class Resolutions extends Model
@@ -29,6 +28,7 @@ class Resolutions extends Model
         'maxima',
         'user_id',
         'sintesis',
+        'categoria_resolucion_id',
     ];
 
     protected $hidden = [
@@ -36,11 +36,11 @@ class Resolutions extends Model
         'updated_at',
     ];
 
-
     public function sala()
     {
         return $this->belongsTo(Sala::class);
     }
+
     public function jurisprudencias()
     {
         return $this->hasMany(Jurisprudencias::class, 'resolution_id', 'id');
@@ -50,6 +50,7 @@ class Resolutions extends Model
     {
         return $this->belongsTo(Tema::class);
     }
+
     public function magistrado()
     {
         return $this->belongsTo(Magistrados::class);
@@ -64,48 +65,105 @@ class Resolutions extends Model
     {
         return $this->belongsTo(FormaResolucions::class);
     }
+
     public function departamento()
     {
         return $this->belongsTo(Departamentos::class);
     }
+
     public function tipo_resolucion()
     {
         return $this->belongsTo(TipoResolucions::class);
     }
+
     // En el modelo Resolution
     public function content()
     {
         return $this->hasOne(Contents::class, 'resolution_id', 'id');
     }
 
+    public function categoria_resolucion()
+    {
+        return $this->belongsTo(CategoriaResolucion::class, 'categoria_resolucion_id');
+    }
+
+    public function scoutIndexMigration(): array
+    {
+        return [
+            'fields' => [
+                // Campos requeridos
+                'resolution_id' => ['type' => 'bigint'],
+                // Campos de identificación
+                'nro_expediente' => ['type' => 'text'],
+                'nro_resolucion' => ['type' => 'text'],
+
+                // Campos de categorización y filtrado
+                'periodo' => ['type' => 'int'],
+                'mes' => ['type' => 'int'],
+                'materia' => ['type' => 'int'],
+                'fecha_emision' => ['type' => 'int'],
+                'tipo_resolucion' => ['type' => 'int'],
+                'magistrado' => ['type' => 'int'],
+                'forma_resolucion' => ['type' => 'int'],
+                'sala' => ['type' => 'int'],
+                'departamento' => ['type' => 'int'],
+                'categoria_resolucion' => ['type' => 'int'],
+                'tiene_jurisprudencias' => ['type' => 'int'],
+
+                // Campos de texto completo para búsqueda
+                'contenido' => ['type' => 'text'],
+                'sintesis' => ['type' => 'text'],
+                'precedente' => ['type' => 'text'],
+                'proceso' => ['type' => 'text'],
+                'maxima' => ['type' => 'text'],
+            ],
+            'settings' => [
+                'min_prefix_len' => '3',
+                'min_infix_len' => '3',
+                'prefix_fields' => 'contenido,sintesis,precedente,proceso,maxima',
+                'expand_keywords' => '1',
+                'min_word_len' => '2',
+                // 'engine' => 'columnar', // Descomenta si necesitas storage columnar
+            ],
+        ];
+    }
 
     public function toSearchableArray()
     {
-        $this->loadMissing(['content', 'jurisprudencias']); // evitar N+1
+        // Evitar N+1 cargando relaciones necesarias
+        $this->loadMissing(['content', 'jurisprudencias']);
+
+        // Fecha segura
+        $fechaEmision = $this->fecha_emision ?? null;
+        $fechaCarbon = $fechaEmision ? \Carbon\Carbon::parse($fechaEmision) : null;
 
         return [
-            'id' => (string)$this->id,
-            'nro_resolucion' => (string)$this->nro_resolucion,
-            'nro_expediente' => (string)$this->nro_expediente,
-            'demandante' => (string)$this->demandante,
-            'demandado' => (string)$this->demandado,
-            'contenido' => $this->content?->contenido ? (string)$this->content->contenido : "",
-            'departamento' => $this->departamento_id,
-            // metadatos no buscables, pero útiles en resultados
-            'sala' => $this->sala_id,
-            'magistrado' => $this->magistrado_id,
-            'periodo' => $this->fecha_emision
-                ? (int) \Carbon\Carbon::parse($this->fecha_emision)->format('Y')
-                : null,
-            'tipo_resolucion' => $this->tipo_resolucion_id,
-            'forma_resolucion' => $this->forma_resolucion_id,
-            'sintesis' => (string)$this->sintesis,
-            'precedente' => (string)$this->precedente,
-            'proceso' => (string)$this->proceso,
-            'maxima' => (string)$this->maxima,
+            'resolution_id' => $this->id,
+            'nro_resolucion' => (string) ($this->nro_resolucion ?? ''),
+            'nro_expediente' => (string) ($this->nro_expediente ?? ''),
 
-            // nuevo campo booleano
-            'tiene_jurisprudencias' => $this->jurisprudencias->isNotEmpty(),
+            'departamento' => (int) ($this->departamento_id ?? 0),
+
+            // Metadatos útiles
+            'sala' => (int) ($this->sala_id ?? 0),
+            'categoria_resolucion' => (int) ($this->categoria_resolucion_id ?? 0),
+            'magistrado' => (int) ($this->magistrado_id ?? 0),
+
+            'periodo' => $fechaCarbon?->year,
+            'mes' => $fechaCarbon?->month,
+            'fecha_emision' => $fechaCarbon?->timestamp,
+
+            'tipo_resolucion' => (int) ($this->tipo_resolucion_id ?? 0),
+            'forma_resolucion' => (int) ($this->forma_resolucion_id ?? 0),
+            'tiene_jurisprudencias' => $this->jurisprudencias->isNotEmpty() ? 1 : 0,
+
+            'sintesis' => (string) ($this->sintesis ?? ''),
+            'precedente' => (string) ($this->precedente ?? ''),
+            'proceso' => (string) ($this->proceso ?? ''),
+            'maxima' => (string) ($this->maxima ?? ''),
+
+            // Contenido limpio (evita errores de null)
+            'contenido' => (string) ($this->content->contenido ?? ''),
         ];
     }
 }

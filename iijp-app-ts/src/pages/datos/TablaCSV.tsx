@@ -58,6 +58,7 @@ const TablaCSV = () => {
     "demandado",
     "id_tema",
     "maxima",
+    "categoria",
     "sintesis",
     "contenido",
   ];

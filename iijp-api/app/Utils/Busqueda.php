@@ -1,24 +1,22 @@
 <?php
 
-namespace  App\Utils;
+namespace App\Utils;
 
 use Illuminate\Support\Str;
 
 class Busqueda
 {
-
     public static function obtenerFacetasOld(array $facetas): array
     {
         $facets = collect($facetas)->map(function ($facet) {
             return [
                 'field_name' => $facet['field_name'],
-                'values' => array_map('intval', array_column($facet['counts'], 'value'))
+                'values' => array_map('intval', array_column($facet['counts'], 'value')),
             ];
         });
 
         return $facets->toArray();
     }
-
 
     public static function obtenerFacetas(array $facetas): array
     {
@@ -38,7 +36,6 @@ class Busqueda
         return $filtros;
     }
 
-
     public static function generarResultado($result): array
     {
 
@@ -47,10 +44,10 @@ class Busqueda
 
             // Extraer y aplicar los highlights si existen
             $highlights = collect($hit['highlights'] ?? [])
-                ->mapWithKeys(fn($item) => [$item['field'] => $item['snippet'] ?? '']);
+                ->mapWithKeys(fn ($item) => [$item['field'] => $item['snippet'] ?? '']);
 
             foreach ($highlights as $field => $snippet) {
-                if (array_key_exists($field, $doc) && !empty($snippet)) {
+                if (array_key_exists($field, $doc) && ! empty($snippet)) {
                     // En caso de que el campo sea un array, lo convertimos en string limpio
                     $original = is_array($doc[$field]) ? implode(', ', $doc[$field]) : $doc[$field];
 

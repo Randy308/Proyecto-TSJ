@@ -10,13 +10,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
-use PhpArima\ArimaModel;
 use PhpArima\ArmaMath;
-use PhpArima\TimeSeries;
 
 class ArimaController extends Controller
 {
-    function calcularMediaMovil($data, $window)
+    public function calcularMediaMovil($data, $window)
     {
         $keys = array_keys($data); // Obtener las claves originales
         $ma = [];
@@ -37,7 +35,7 @@ class ArimaController extends Controller
         return $ma;
     }
 
-    function calcularMA($data, $window)
+    public function calcularMA($data, $window)
     {
         $keys = array_keys($data); // Obtener las claves originales
         $ma = [];
@@ -64,8 +62,7 @@ class ArimaController extends Controller
         return $ma;
     }
 
-
-    function modificarClaves($array, $window)
+    public function modificarClaves($array, $window)
     {
 
         $newArray = [];
@@ -82,7 +79,8 @@ class ArimaController extends Controller
 
         return $newArray;
     }
-    function mediaMovilCentralizada($data, $windowSize)
+
+    public function mediaMovilCentralizada($data, $windowSize)
     {
         $keys = array_keys($data);
         $n = count($data);
@@ -113,6 +111,7 @@ class ArimaController extends Controller
 
         return $result;
     }
+
     public function obtenerIndicesEstacionarios($data, $media_movil_centralizada, $window)
     {
         // Ensure the arrays are not empty
@@ -168,7 +167,6 @@ class ArimaController extends Controller
         return $lista_indices;
     }
 
-
     public function rellenarFaltantes($lista, $last_index, $first_index = 0, $value = 0)
     {
         $newArray = [];
@@ -179,14 +177,11 @@ class ArimaController extends Controller
                 $newArray[$i] = $value;
             }
         }
+
         return $newArray;
     }
 
-    
-
     public function obtenerSerieTemporal(Request $request)
-
-
     {
 
         $validator = Validator::make($request->all(), [
@@ -214,10 +209,9 @@ class ArimaController extends Controller
             ],
         ]);
 
-
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -225,10 +219,10 @@ class ArimaController extends Controller
         $fecha_inicial = $request->input('fecha_inicial');
         $intervalo = $request->input('intervalo');
 
-        $intervalo = "quarter";
+        $intervalo = 'quarter';
         $validIntervals = ['day', 'month', 'year', 'week', 'quarter'];
-        if (!in_array($intervalo, $validIntervals)) {
-            throw new InvalidArgumentException("Invalid interval specified.");
+        if (! in_array($intervalo, $validIntervals)) {
+            throw new InvalidArgumentException('Invalid interval specified.');
         }
 
         $query = DB::table('resolutions AS r')
@@ -263,7 +257,6 @@ class ArimaController extends Controller
                 $query->orderBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
                 break;
         }
-
 
         if ($request->has('limite')) {
             $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 2005');
@@ -342,6 +335,7 @@ class ArimaController extends Controller
         $cantidadCompleta = array_column($resultado, 'cantidad');
 
         $window = 4;
+
         return [
             'cantidad' => $cantidadCompleta,
             'periodo' => $periodoCompleto,
@@ -350,19 +344,20 @@ class ArimaController extends Controller
         ];
     }
 
-
-    public function crearMatrix($resolutions){
+    public function crearMatrix($resolutions)
+    {
         $result = $resolutions->map(function ($item) {
             return [$item->periodo, $item->cantidad];
         })->toArray();
+
         return $result;
     }
 
     public function realizarPrediction(Request $request)
     {
 
-        $serie_temporal =  $this->obtenerSerieTemporal($request);
-        //return $serie_temporal;
+        $serie_temporal = $this->obtenerSerieTemporal($request);
+        // return $serie_temporal;
         $data = array_map('intval', $serie_temporal['cantidad']);
         $periodos = $serie_temporal['periodo'];
         $window = $serie_temporal['window'];
@@ -377,7 +372,6 @@ class ArimaController extends Controller
 
         $indices = ArimaController::obtenerIndicesEstacionarios($data, $media_movil_centrada, $window);
 
-
         $regresion_lineal = new RegresionLineal;
         $regresion = $regresion_lineal->regresion_lineal($data);
 
@@ -386,12 +380,11 @@ class ArimaController extends Controller
 
         $y_pred = $regresion_lineal->get_predicted_array_completed($data, $a, $b, $cantidad_predecir);
 
-
         $lastDate = new DateTime(end($periodos));
 
         $missingPeriods = count($y_pred) - count($periodos);
 
-        if (!empty($periodos)) {
+        if (! empty($periodos)) {
             // Calcular la variación entre los periodos
             foreach ($periodos as $key => $value) {
                 if (isset($periodos[$key + 1])) {
@@ -417,7 +410,7 @@ class ArimaController extends Controller
                     $periodos[] = $lastDate->format('Y-m-d');
                 }
             } else {
-                throw new Exception("Los intervalos entre periodos no son consistentes.");
+                throw new Exception('Los intervalos entre periodos no son consistentes.');
             }
         }
 
@@ -435,13 +428,12 @@ class ArimaController extends Controller
             'periodo' => $periodos,
             'prediccion' => $y_pred_multiplied,
             'Media movil centrada' => $media_movil_centrada,
-            'Indices Estacionarios' => $indices
+            'Indices Estacionarios' => $indices,
         ], 200);
     }
 
     public function test_arima()
     {
-
 
         $query = "
             SELECT
@@ -460,16 +452,15 @@ class ArimaController extends Controller
         ";
 
         $resolutions = DB::select($query, [
-            'fechaInicial' => "2012-01-01",
-            'fechaFinal' => "2015-09-01",
+            'fechaInicial' => '2012-01-01',
+            'fechaFinal' => '2015-09-01',
             'magistradoId' => 1,
         ]);
 
-
         $window = 4;
-        $data =  array_column($resolutions, "cantidad");
+        $data = array_column($resolutions, 'cantidad');
 
-        $order = array(2, 1, 2);
+        $order = [2, 1, 2];
 
         $cut = 4;
         $train = array_slice($data, 0, count($data) - $cut);
@@ -486,14 +477,12 @@ class ArimaController extends Controller
 
         $indices = ArimaController::obtenerIndicesEstacionarios($data, $media_movil_centrada, $window);
 
-
         $regresion_lineal = new RegresionLineal;
         $regresion = $regresion_lineal->regresion_lineal($data);
         $a = $regresion['a'];
         $b = $regresion['b'];
 
         $y_pred = $regresion_lineal->get_predicted_array_completed($data, $a, $b, $window);
-
 
         $y_pred_multiplied = [];
         $indices_count = count($indices);
@@ -508,31 +497,29 @@ class ArimaController extends Controller
             'serie original' => $data,
             'y_pred_multiplied' => $y_pred_multiplied,
             'Media movil centrada' => $media_movil_centrada,
-            'Indices Estacionarios' => $indices
+            'Indices Estacionarios' => $indices,
         ], 200);
         // Imprimir el resultado
 
+        $data = array_column($resolutions, 'cantidad');
 
+        $lags = (count($data)) > 300 ? round(log(count($data))) : round(sqrt(count($data)));
 
-        $data =  array_column($resolutions, "cantidad");
-
-        $lags = (count($data)) > 300 ? round(log(count($data))) :  round(sqrt(count($data)));
-
-
-        $arma_math = new ArmaMath();
+        $arma_math = new ArmaMath;
         $acf = $arma_math->autocorData($data, $lags);
         $pacf = $arma_math->parautocorData($data, $lags);
+
         return response()->json([
             'acf' => ArimaController::addXAxis($acf),
-            'pacf' => ArimaController::addXAxis($pacf)
+            'pacf' => ArimaController::addXAxis($pacf),
         ], 200);
-        //$order = array(1, 1, 1);
+        // $order = array(1, 1, 1);
     }
 
-    function addXAxis(array $lista, int $start = 0): array
+    public function addXAxis(array $lista, int $start = 0): array
     {
         return array_map(
-            fn($index, $item) => [$index + $start, $item],
+            fn ($index, $item) => [$index + $start, $item],
             array_keys($lista),
             $lista
         );

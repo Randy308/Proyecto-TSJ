@@ -14,10 +14,9 @@ class AddForeignKeyToResolutionsTable extends Migration
     public function up()
     {
 
-
         Schema::table('resolutions', function (Blueprint $table) {
 
-            if (!Schema::hasColumn('resolutions', 'user_id')) {
+            if (! Schema::hasColumn('resolutions', 'user_id')) {
                 $table->unsignedBigInteger('user_id')->nullable();
             }
 

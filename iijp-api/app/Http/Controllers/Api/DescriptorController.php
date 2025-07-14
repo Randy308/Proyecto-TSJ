@@ -1,34 +1,27 @@
 <?php
 
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\FacetsResource;
 use App\Models\Departamentos;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
 use App\Utils\Busqueda;
-use App\Utils\NLP;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
 
 class DescriptorController extends Controller
 {
-
-
     public function fixDepartamentos(Request $request)
     {
         $query = $request->input('search', '');
 
         $departamentos = Departamentos::all()->pluck('id', 'nombre')->toArray();
 
-        //return response()->json($departamentos, 200);
-        //$statement = "select * from obtener_departamentos_vacios(100);";
-        $statement = "select * from obtener_fechas_limite(100);";
-
+        // return response()->json($departamentos, 200);
+        // $statement = "select * from obtener_departamentos_vacios(100);";
+        $statement = 'select * from obtener_fechas_limite(100);';
 
         $querys = DB::select($statement);
         $data = [];
@@ -47,12 +40,13 @@ class DescriptorController extends Controller
             $query->new_departamento = $departamento; // Normalizar el nombre del departamento
 
         }
+
         return response()->json($querys, 200);
     }
 
     public function fixResoluciones(Request $request)
     {
-        $statement = "select * from obtener_fechas_limite(10);";
+        $statement = 'select * from obtener_fechas_limite(10);';
 
         $months = [
             'enero' => 'January',
@@ -69,9 +63,9 @@ class DescriptorController extends Controller
             'diciembre' => 'December',
         ];
         $querys = DB::select($statement);
-        //$data = [];
+        // $data = [];
         foreach ($querys as $query) {
-            if (!empty($query->fecha)) {
+            if (! empty($query->fecha)) {
                 $dateString = preg_replace('/[{}"]/', '', strtolower($query->fecha));
                 $dateString = strtr($dateString, $months); // traducir mes
                 $carbonDate = Carbon::createFromFormat('d \d\e F \d\e Y', $dateString);
@@ -80,13 +74,14 @@ class DescriptorController extends Controller
                 if ($resolution) {
                     $resolution->fecha_emision = $carbonDate->format('Y-m-d');
                 }
-                //$data[] = $resolution;
+                // $data[] = $resolution;
                 $resolution->save();
             }
         }
 
         return response()->json(['message' => 'Fechas actualizadas correctamente'], 200);
     }
+
     public function test(Request $request)
     {
 
@@ -96,8 +91,6 @@ class DescriptorController extends Controller
         $strategy = 'all'; // o 'last'
         $perPage = $request->input('per_page', 10);
         $offset = $request->input('offset', 0);
-
-
 
         $highlightArray = [
             'ratio',
@@ -112,12 +105,11 @@ class DescriptorController extends Controller
             'tipo_resolucion',
             'forma_resolucion',
             'periodo',
-            "_highlight",
+            '_highlight',
         ];
 
         // unir ambos arrays sin duplicados
         $allFields = array_unique(array_merge($highlightArray, $extraFields));
-
 
         $options = [
 
@@ -134,8 +126,6 @@ class DescriptorController extends Controller
             'include_fields' => implode(',', $allFields),
         ];
 
-
-
         $result = Jurisprudencias::search($query)->options($options);
 
         $result->whereIn('materia', ['19', '321']); // Filtrar por sala, si es necesario
@@ -145,7 +135,6 @@ class DescriptorController extends Controller
         $facetas = $result['facet_counts'] ?? [];
 
         $facets = Busqueda::obtenerFacetas($facetas);
-
 
         return response()->json([
             'message' => 'Búsqueda exitosa',

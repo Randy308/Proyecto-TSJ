@@ -8,6 +8,7 @@ use MeiliSearch\Client;
 class ConfigureMeiliSearch extends Command
 {
     protected $signature = 'meilisearch:configure';
+
     protected $description = 'Configura atributos filtrables en el índice de MeiliSearch';
 
     public function handle()
@@ -25,7 +26,7 @@ class ConfigureMeiliSearch extends Command
                 'forma_resolucion',
                 'departamento',
                 'periodo',
-                'tiene_jurisprudencias'
+                'tiene_jurisprudencias',
             ],
             'searchableAttributes' => [
                 'contenido',
@@ -50,10 +51,7 @@ class ConfigureMeiliSearch extends Command
             ],
         ]);
 
-
-
         $index_2 = $client->index('jurisprudencias'); // nombre del índice (usualmente el nombre de tu modelo en plural)
-
 
         $index_2->updateSettings([
             'filterableAttributes' => [
@@ -94,9 +92,6 @@ class ConfigureMeiliSearch extends Command
                 'exactness',
             ],
         ]);
-
-
-
 
         $this->info('Atributos filtrables configurados correctamente en MeiliSearch.');
     }

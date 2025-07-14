@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\User;
 use App\Http\Controllers\Controller;
 use App\Models\Magistrados;
 use App\Models\Salas;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -18,10 +17,10 @@ class TimeSeriesController extends Controller
             $sala = Salas::where('id', $id)->firstOrFail();
 
             $resultado = DB::table('salas as s') // Asegúrate que 'salas' es el nombre correcto de la tabla
-            ->join('resolutions as r', 's.id', '=', 'r.sala_id')
-            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
-            ->selectRaw("COALESCE(fr.nombre, '') as tipo, COALESCE(COUNT(DISTINCT r.id), 0) AS cantidad")
-            ->where('s.id', $sala->id)
+                ->join('resolutions as r', 's.id', '=', 'r.sala_id')
+                ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+                ->selectRaw("COALESCE(fr.nombre, '') as tipo, COALESCE(COUNT(DISTINCT r.id), 0) AS cantidad")
+                ->where('s.id', $sala->id)
                 ->groupBy('tipo')
                 ->orderBy('cantidad', 'desc')
                 ->get();
@@ -48,29 +47,31 @@ class TimeSeriesController extends Controller
                 $relativo_acum += $relativo;
                 $item->relativo_acum = round($relativo_acum, 2); // Guardar relativo acumulado
             }
+
             // Retornar los datos en una respuesta JSON
             return response()->json([
                 'nombre' => $sala->nombre,
                 'data' => $salas,
-                'total' => $total
+                'total' => $total,
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             // Sala no encontrada
             return response()->json([
-                'error' => 'Sala no encontrada'
+                'error' => 'Sala no encontrada',
             ], 404);
         } catch (\Exception $e) {
             // Manejo de otros errores
             return response()->json([
                 'error' => 'Ocurrió un error al intentar obtener las salas',
-                'details' => $e->getMessage()
+                'details' => $e->getMessage(),
             ], 500);
         }
     }
-    public function seasonalDecompose($series, $model = "additive", $windowSize = 4, $seasonalPeriods = 4)
+
+    public function seasonalDecompose($series, $model = 'additive', $windowSize = 4, $seasonalPeriods = 4)
     {
         // Validate model parameter
-        if (!in_array($model, ["additive", "multiplicative"])) {
+        if (! in_array($model, ['additive', 'multiplicative'])) {
             throw new InvalidArgumentException("Model must be either 'additive' or 'multiplicative'.");
         }
 
@@ -81,6 +82,7 @@ class TimeSeriesController extends Controller
         $trend = array_map(function ($i) use ($seriesArray, $windowSize) {
             // Get the window of values
             $window = array_slice($seriesArray, max(0, $i - floor($windowSize / 2)), min($windowSize, count($seriesArray) - $i + floor($windowSize / 2)));
+
             // Calculate the mean
             return array_sum($window) / count($window);
         }, range(0, count($seriesArray)));
@@ -96,9 +98,7 @@ class TimeSeriesController extends Controller
             $seasonal[$i] = count($filteredArray) > 0 ? array_sum($filteredArray) / count($filteredArray) : 0;
         }
 
-
-
-        if ($model == "multiplicative") {
+        if ($model == 'multiplicative') {
             // Replace 0s with null for division
             $trend = array_map(function ($value) {
                 return $value === 0 ? null : $value;
@@ -161,9 +161,6 @@ class TimeSeriesController extends Controller
             periodo;
     ";
 
-
-
-
         $resolutions = DB::select($query, [
             'fechaInicial' => $fecha_inicial,
             'fechaFinal' => $fecha_final,
@@ -176,6 +173,7 @@ class TimeSeriesController extends Controller
                 $item = 0.01;
             }
         }
+
         return TimeSeriesController::seasonalDecompose($cantidades);
     }
 }

@@ -49,7 +49,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement("DROP FUNCTION IF EXISTS actualizar_terminos_clave_unificados();");
+        DB::statement('DROP FUNCTION IF EXISTS actualizar_terminos_clave_unificados();');
         Schema::dropIfExists('terminos_clave_unificados');
     }
 };

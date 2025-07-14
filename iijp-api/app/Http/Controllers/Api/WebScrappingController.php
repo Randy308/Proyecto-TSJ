@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
-
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcesarLotes;
-use App\Jobs\WebScrappingJob;
 use App\Models\Mapeos;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\Exception\{TransportExceptionInterface, ClientExceptionInterface, ServerExceptionInterface};
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class WebScrappingController extends Controller
 {
@@ -22,14 +21,13 @@ class WebScrappingController extends Controller
 
         $user = Auth::user();
 
-        if (!$user) { // Verifica si el usuario no está autenticado
-            return response()->json(['mensaje' => "El usuario no está autenticado"], 403);
+        if (! $user) { // Verifica si el usuario no está autenticado
+            return response()->json(['mensaje' => 'El usuario no está autenticado'], 403);
         }
 
-        if (!$user->hasPermissionTo('web_scrapping')) {
-            return response()->json(['mensaje' => "El usuario no cuenta con el permiso necesario"], 403);
+        if (! $user->hasPermissionTo('web_scrapping')) {
+            return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario'], 403);
         }
-
 
         if (DB::table('jobs')->where('payload', 'like', '%WebScrappingJob%')->exists()) {
             return response()->json(['message' => 'El Web Scraping ya se está ejecutando.'], 409);
@@ -52,7 +50,7 @@ class WebScrappingController extends Controller
 
         while ($requestCount < $maxRequests) {
             if ($errorCount > $maxErrors) {
-                Log::warning("Demasiados errores consecutivos. Deteniendo proceso.");
+                Log::warning('Demasiados errores consecutivos. Deteniendo proceso.');
                 break;
             }
 
@@ -63,11 +61,11 @@ class WebScrappingController extends Controller
                 $response = $httpClient->request('GET', "https://jurisprudencia.tsj.bo/jurisprudencia/$i");
 
                 if ($response->getStatusCode() !== 200) {
-                    throw new \Exception("Error HTTP " . $response->getStatusCode());
+                    throw new \Exception('Error HTTP '.$response->getStatusCode());
                 }
 
                 $data = $response->toArray();
-                if (!empty($data['resolucion'])) {
+                if (! empty($data['resolucion'])) {
                     $counts++;
                     $ultimaRes = $i;
                     $iterations += 20;
@@ -76,12 +74,12 @@ class WebScrappingController extends Controller
                     $errorCount++;
                     $iterations += ($errorCount >= 3) ? 50 : 20;
                 }
-            } catch (TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | \Exception $e) {
-                Log::error("Error al procesar ID $i: " . $e->getMessage());
+            } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|\Exception $e) {
+                Log::error("Error al procesar ID $i: ".$e->getMessage());
                 $errorCount++;
 
                 if ($errorCount > $maxErrors) {
-                    Log::error("Se alcanzó el número máximo de errores. Proceso detenido.");
+                    Log::error('Se alcanzó el número máximo de errores. Proceso detenido.');
                     break;
                 }
             }
@@ -99,22 +97,18 @@ class WebScrappingController extends Controller
         }
     }
 
-
-
     public function obtenerResolucionesTSJ(Request $request)
     {
 
-
         $user = Auth::user();
 
-        if (!$user) { // Verifica si el usuario no está autenticado
-            return response()->json(['mensaje' => "El usuario no está autenticado"], 403);
+        if (! $user) { // Verifica si el usuario no está autenticado
+            return response()->json(['mensaje' => 'El usuario no está autenticado'], 403);
         }
 
-        if (!$user->hasPermissionTo('realizar_web_scrapping')) {
-            return response()->json(['mensaje' => "El usuario no cuenta con el permiso necesario"], 403);
+        if (! $user->hasPermissionTo('realizar_web_scrapping')) {
+            return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario'], 403);
         }
-
 
         $isRunning = DB::table('jobs')->where('payload', 'like', '%WebScrappingJob%')->exists();
 
@@ -126,7 +120,7 @@ class WebScrappingController extends Controller
         $lastId = Mapeos::max('external_id') ?: 0;
         $lastId = $lastId + 1; // Asegura que lastId sea al menos 1
         $userId = $user->id;
-        //Log::info("Búsqueda iniciada");
+        // Log::info("Búsqueda iniciada");
         ProcesarLotes::dispatch($iterations, $lastId, $userId);
 
         return response()->json(['message' => 'Web Scraping iniciado.']);

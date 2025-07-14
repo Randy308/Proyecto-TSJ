@@ -13,6 +13,7 @@ class Restrictor extends Model
     protected $fillable = [
         'nombre',
     ];
+
     public function jurisprudencias()
     {
         return $this->hasMany(Jurisprudencias::class, 'descriptor_id');

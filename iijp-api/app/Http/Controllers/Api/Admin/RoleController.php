@@ -13,7 +13,6 @@ class RoleController extends Controller
     {
         $roles = Role::where('name', '!=', 'admin')->get();
 
-
         $data = $roles->map(function ($role) {
             return [
                 'id' => $role->id,
@@ -25,7 +24,6 @@ class RoleController extends Controller
         return response()->json($data->toArray(), 200);
     }
 
-
     public function store(Request $request)
     {
 
@@ -34,12 +32,11 @@ class RoleController extends Controller
             'permissions' => 'required|array',
         ]);
 
-
         $role_name = $request->roleName;
         $role = Role::create(['name' => $role_name]);
 
         $permissions = Permission::find($request->permissions);
-        //$permissions = $request->permissions;
+        // $permissions = $request->permissions;
         $role->givePermissionTo($permissions);
 
         return response()->json([
@@ -61,15 +58,13 @@ class RoleController extends Controller
         return response()->json($responseData, 200);
     }
 
-
     public function update(Request $request, $id)
     {
 
         $request->validate([
-            'roleName' => 'required|string|max:255|unique:roles,name,' . $id,
+            'roleName' => 'required|string|max:255|unique:roles,name,'.$id,
             'permissions' => 'required|array',
         ]);
-
 
         $role = Role::findOrFail($id);
 
@@ -80,7 +75,6 @@ class RoleController extends Controller
             ], 400);
         }
 
-
         $role->name = $request->roleName;
         $role->save();
 
@@ -88,7 +82,7 @@ class RoleController extends Controller
         $role->syncPermissions($permissions);
 
         return response()->json([
-            'message' => 'Rol actualizado correctamente!'
+            'message' => 'Rol actualizado correctamente!',
         ], 200);
     }
 
@@ -96,13 +90,13 @@ class RoleController extends Controller
     {
         $role = Role::findOrFail($id);
 
-        if (!$role) {
+        if (! $role) {
             return response()->json([
                 'message' => 'Rol no encontrado.',
             ], 404);
         }
 
-        //return response()->json($role->name, 200);
+        // return response()->json($role->name, 200);
         if ($role->name === 'admin') {
 
             return response()->json([
@@ -112,7 +106,7 @@ class RoleController extends Controller
 
         Role::where('id', $role->id)->delete();
 
-        //$role->delete();
+        // $role->delete();
 
         return response()->json([
             'message' => 'Rol eliminado correctamente!',

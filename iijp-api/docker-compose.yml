@@ -88,6 +88,23 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+  manticore:
+    image: manticoresearch/manticore:latest
+    container_name: manticore
+    ports:
+      - "9306:9306"   # MySQL-compatible port
+      - "9308:9308"   # HTTP/REST API port
+    volumes:
+      - ./manticore/data:/var/lib/manticore
+      - ./manticore/config:/etc/manticore
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1500M
+    environment:
+      - MANTICORE_MEMORY_LIMIT=512M  # Limitar el uso de RAM (ajustable)
+    restart: unless-stopped
 
 volumes:
   pgdata:

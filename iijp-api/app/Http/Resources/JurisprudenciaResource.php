@@ -21,6 +21,6 @@ class JurisprudenciaResource extends JsonResource
             'ratio' => $this->ratio,
             'last' => $this->tipo_descriptor?->nombre,
             'materia' => $this->materia?->nombre,
-        ], fn($value) => !is_null($value));
+        ], fn ($value) => ! is_null($value));
     }
 }

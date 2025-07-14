@@ -16,7 +16,7 @@ class CreateMapeosTable extends Migration
         Schema::create('mapeos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('resolution_id');
-            $table->integer("external_id");
+            $table->integer('external_id');
             $table->timestamps();
         });
     }

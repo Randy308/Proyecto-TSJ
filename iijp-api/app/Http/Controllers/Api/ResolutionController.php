@@ -5,14 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\JurisprudenciaResource;
 use App\Http\Resources\ResolutionResource;
-use App\Jobs\WebScrappingJob;
-use App\Models\Contents;
 use App\Models\Departamentos;
 use App\Models\Descriptor;
 use App\Models\FormaResolucions;
 use App\Models\Jurisprudencias;
 use App\Models\Magistrados;
-use App\Models\Mapeos;
 use App\Models\Resolutions;
 use App\Models\Sala;
 use App\Models\TerminosClaveUnificado;
@@ -22,25 +19,16 @@ use App\Utils\Busqueda;
 use App\Utils\Listas;
 use App\Utils\Math;
 use App\Utils\NLP;
-use Carbon\Carbon;
-use DateInterval;
-use DateTime;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use InvalidArgumentException;
-use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
-use Illuminate\Support\Facades\Log;
-
-use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\HttpClient\Exception\{TransportExceptionInterface, ClientExceptionInterface, ServerExceptionInterface};
 
 class ResolutionController extends Controller
 {
-
     public function buscarResolucionesXY(Request $request)
     {
 
@@ -61,29 +49,28 @@ class ResolutionController extends Controller
         $valueY = $request->input('valueY');
 
         $campos = Listas::obtenerLista();
-        if (!array_key_exists($nameX, $campos)) {
+        if (! array_key_exists($nameX, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
 
-        if (!array_key_exists($nameY, $campos)) {
+        if (! array_key_exists($nameY, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
 
         $filtroX = $campos[$nameX];
         $filtroY = $campos[$nameY];
 
+        $lista = ['maxima', 'sintesis', 'restrictor', 'ratio', 'precedente', 'proceso', 'demandante', 'demandado'];
 
-        $lista = ["maxima", "sintesis", "restrictor", "ratio", "precedente", "proceso", "demandante", "demandado"];
-
-        if (!in_array($filtroX["nombre"], $lista) && !in_array($filtroY["nombre"], $lista)) {
+        if (! in_array($filtroX['nombre'], $lista) && ! in_array($filtroY['nombre'], $lista)) {
             return $this->obtenerEstadisticasXY($request);
         }
 
-        if (!in_array($filtroX["nombre"], $lista) || !in_array($filtroY["nombre"], $lista)) {
+        if (! in_array($filtroX['nombre'], $lista) || ! in_array($filtroY['nombre'], $lista)) {
             return $this->obtenerXYSimple($request);
         }
 
@@ -91,14 +78,15 @@ class ResolutionController extends Controller
 
         return response()->json(['message' => 'Búsqueda realizada con éxito']);
     }
+
     public function userResolutions(Request $request)
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $resolutions = Resolutions::select("id", "fecha_emision", "nro_expediente", "nro_resolucion")->where('user_id', $user->id)->paginate(20);
+        $resolutions = Resolutions::select('id', 'fecha_emision', 'nro_expediente', 'nro_resolucion')->where('user_id', $user->id)->paginate(20);
 
         return response()->json($resolutions);
     }
@@ -117,19 +105,18 @@ class ResolutionController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error de validación de los filtros.',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY); // 422
         }
 
-
         $campos = [
-            "tipo_resolucion"     => ["tabla" => "tipo_resolucions as tr", "fk" => "r.tipo_resolucion_id",   "id" => "tr.id", "nombre" => "tr.nombre as tipo_resolucion"],
-            "departamento"        => ["tabla" => "departamentos as d",     "fk" => "r.departamento_id",      "id" => "d.id",  "nombre" => "d.nombre as departamento"],
-            "sala"                => ["tabla" => "salas as s",             "fk" => "r.sala_id",              "id" => "s.id",  "nombre" => "s.nombre as sala"],
-            "magistrado"          => ["tabla" => "magistrados as m",       "fk" => "r.magistrado_id",        "id" => "m.id",  "nombre" => "m.nombre as magistrado"],
-            "forma_resolucion"    => ["tabla" => "forma_resolucions as fr", "fk" => "r.forma_resolucion_id",  "id" => "fr.id", "nombre" => "fr.nombre as forma_resolucion"],
-            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias as tj", "fk" => "j.tipo_jurisprudencia_id", "id" => "tj.id", "nombre" => "tj.nombre as tipo_jurisprudencia"],
-            "materia"             => ["tabla" => "descriptors as dc",      "fk" => "j.root_id",              "id" => "dc.id", "nombre" => "dc.nombre as materia"],
+            'tipo_resolucion' => ['tabla' => 'tipo_resolucions as tr', 'fk' => 'r.tipo_resolucion_id',   'id' => 'tr.id', 'nombre' => 'tr.nombre as tipo_resolucion'],
+            'departamento' => ['tabla' => 'departamentos as d',     'fk' => 'r.departamento_id',      'id' => 'd.id',  'nombre' => 'd.nombre as departamento'],
+            'sala' => ['tabla' => 'salas as s',             'fk' => 'r.sala_id',              'id' => 's.id',  'nombre' => 's.nombre as sala'],
+            'magistrado' => ['tabla' => 'magistrados as m',       'fk' => 'r.magistrado_id',        'id' => 'm.id',  'nombre' => 'm.nombre as magistrado'],
+            'forma_resolucion' => ['tabla' => 'forma_resolucions as fr', 'fk' => 'r.forma_resolucion_id',  'id' => 'fr.id', 'nombre' => 'fr.nombre as forma_resolucion'],
+            'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias as tj', 'fk' => 'j.tipo_jurisprudencia_id', 'id' => 'tj.id', 'nombre' => 'tj.nombre as tipo_jurisprudencia'],
+            'materia' => ['tabla' => 'descriptors as dc',      'fk' => 'j.root_id',              'id' => 'dc.id', 'nombre' => 'dc.nombre as materia'],
         ];
 
         // Iniciar query
@@ -144,7 +131,7 @@ class ResolutionController extends Controller
         $groupByCampos = [];
 
         foreach ($request->filtros as $tabla => $config) {
-            if (!isset($campos[$tabla])) {
+            if (! isset($campos[$tabla])) {
                 continue;
             }
 
@@ -163,7 +150,7 @@ class ResolutionController extends Controller
         }
 
         // Agregar groupBy solo si hay campos
-        if (!empty($groupByCampos)) {
+        if (! empty($groupByCampos)) {
             if (request()->has('serie')) {
                 $datos->addSelect('r.fecha_emision as fecha');
                 $groupByCampos[] = 'fecha'; // Aseguramos que siempre se agrupe por fecha
@@ -184,68 +171,63 @@ class ResolutionController extends Controller
             'variable' => 'required|array',
             'variable.*' => 'required|integer',
             'nombre' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $nombre = strtolower($request->nombre);
 
         $campos = [
-            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false],
-            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false],
-            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false],
-            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false],
-            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false],
-            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true],
-            "materia" => ["tabla" => "descriptors", "foreign_key" => "root_id", "join" => true],
+            'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false],
+            'departamento' => ['tabla' => 'departamentos', 'foreign_key' => 'departamento_id', 'join' => false],
+            'sala' => ['tabla' => 'salas', 'foreign_key' => 'sala_id', 'join' => false],
+            'magistrado' => ['tabla' => 'magistrados', 'foreign_key' => 'magistrado_id', 'join' => false],
+            'forma_resolucion' => ['tabla' => 'forma_resolucions', 'foreign_key' => 'forma_resolucion_id', 'join' => false],
+            'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true],
+            'materia' => ['tabla' => 'descriptors', 'foreign_key' => 'root_id', 'join' => true],
         ];
 
-        if (!array_key_exists($nombre, $campos)) {
+        if (! array_key_exists($nombre, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
 
-
         $filtroPrincipal = $campos[$nombre];
 
-
-
         $query = DB::table('resolutions as r');
-        if ($filtroPrincipal["join"]) {
+        if ($filtroPrincipal['join']) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
-        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad')->join($filtroPrincipal["tabla"] . ' as x', 'x.id', $filtroPrincipal["foreign_key"])->whereIn($filtroPrincipal["foreign_key"], $request->variable)->groupBy("x.nombre");
-
+        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad')->join($filtroPrincipal['tabla'].' as x', 'x.id', $filtroPrincipal['foreign_key'])->whereIn($filtroPrincipal['foreign_key'], $request->variable)->groupBy('x.nombre');
 
         if ($request->has('periodo')) {
-            $query->whereYear("fecha_emision", $request->periodo);
+            $query->whereYear('fecha_emision', $request->periodo);
         }
         if ($request->has('departamento')) {
             $departamentos = Departamentos::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
-            $query->whereIn("departamento_id", $departamentos);
+            $query->whereIn('departamento_id', $departamentos);
         }
         $data = $query->get();
         $total = array_sum($data->pluck('cantidad')->toArray());
 
         $resultado = Math::completarArray2D($data, 'nombre', 'cantidad');
+
         return response()->json([
 
             'data' => $resultado,
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
             'total' => $total,
-            'nombre' => "nombre",
+            'nombre' => 'nombre',
             'terminos' => $data->pluck('nombre'),
-            'multiVariable' => false
+            'multiVariable' => false,
         ]);
     }
-
-
 
     public function obtenerEstadisticasXY(Request $request)
     {
@@ -258,12 +240,12 @@ class ResolutionController extends Controller
             'variableY' => 'required|array',
             'variableY.*' => 'required|integer',
             'nombreY' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -271,23 +253,23 @@ class ResolutionController extends Controller
         $nombreY = strtolower($request->nombreY);
         $campos = Listas::obtenerLista();
 
-        if (!array_key_exists($nombre, $campos)) {
+        if (! array_key_exists($nombre, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
-        if (!array_key_exists($nombreY, $campos)) {
+        if (! array_key_exists($nombreY, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
 
         $filtroX = $campos[$nombre];
         $filtroY = $campos[$nombreY];
 
-        $arrayX = DB::table($filtroX["tabla"])
+        $arrayX = DB::table($filtroX['tabla'])
             ->select('nombre as x')->whereIn('id', $request->variable)->get()->pluck('x')->toArray();
-        $arrayY = DB::table($filtroY["tabla"])
+        $arrayY = DB::table($filtroY['tabla'])
             ->select('nombre as y')->whereIn('id', $request->variableY)->get()->pluck('y')->toArray();
 
         $combinations = [];
@@ -297,28 +279,27 @@ class ResolutionController extends Controller
                 $combinations[] = [
                     'x' => $sala,
                     'nombre' => $row,
-                    "cantidad" => 0,
+                    'cantidad' => 0,
                 ];
             }
         }
 
         $query = DB::table('resolutions as r');
-        if ($filtroX["join"] || $filtroY["join"]) {
+        if ($filtroX['join'] || $filtroY['join']) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
 
-        $query->join("{$filtroX['tabla']} as x", "x.id", '=', "{$filtroX['foreign_key']}")
-            ->join("{$filtroY['tabla']} as y", "y.id", '=', "{$filtroY['foreign_key']}")
+        $query->join("{$filtroX['tabla']} as x", 'x.id', '=', "{$filtroX['foreign_key']}")
+            ->join("{$filtroY['tabla']} as y", 'y.id', '=', "{$filtroY['foreign_key']}")
             ->whereIn("{$filtroX['foreign_key']}", $request->variable)
             ->whereIn("{$filtroY['foreign_key']}", $request->variableY);
 
-
         if ($request->has('periodo')) {
-            $query->whereYear("fecha_emision", $request->periodo);
+            $query->whereYear('fecha_emision', $request->periodo);
         }
         if ($request->has('departamento')) {
             $departamentos = Departamentos::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
-            $query->whereIn("departamento_id", $departamentos);
+            $query->whereIn('departamento_id', $departamentos);
         }
         // Selección y agrupamiento
         $query->selectRaw('x.nombre as x, y.nombre as nombre, COUNT(r.id) as cantidad')
@@ -328,17 +309,14 @@ class ResolutionController extends Controller
 
         $total = array_sum($data->pluck('cantidad')->toArray());
 
-
         $datoLookup = [];
         foreach ($data as $dato) {
             $datoLookup[$dato->x][$dato->nombre] = $dato->cantidad;
         }
 
-
         foreach ($combinations as &$item) {
             $item['cantidad'] = $datoLookup[$item['x']][$item['nombre']] ?? 0;
         }
-
 
         // $resultado = array_map(function ($tag) use ($filtroX, $filtroY) {
         //     return array(
@@ -348,16 +326,17 @@ class ResolutionController extends Controller
         //     );
         // }, $combinations);
 
-        //$this->ordenarArrayXY($combinations, 'x', 'nombre'),
+        // $this->ordenarArrayXY($combinations, 'x', 'nombre'),
 
         return response()->json([
             'total' => $total,
-            'data' =>  Math::completarArray($combinations, 'x', 'nombre'),
+            'data' => Math::completarArray($combinations, 'x', 'nombre'),
             'multiVariable' => true,
             'x' => $filtroX['nombre'],
             'nombre' => $filtroY['nombre'],
         ]);
     }
+
     public function obtenerFiltros(Request $request)
     {
 
@@ -367,27 +346,27 @@ class ResolutionController extends Controller
             'variable' => 'required|array',
             'variable.*' => 'required|integer',
             'nombre' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
         $campos = [
-            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false, "columna" => "id", "nombre" => "tipo_resolucion"],
-            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false, "columna" => "id", "nombre" => "departamento"],
-            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false, "columna" => "id", "nombre" => "sala"],
-            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false, "columna" => "id", "nombre" => "magistrado"],
-            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false, "columna" => "id", "nombre" => "forma_resolucion"],
-            "tipo_jurisprudencia" => ["tabla" => "jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true, "columna" => "id", "nombre" => "tipo_jurisprudencia"],
-            "materia" => ["tabla" => "jurisprudencias", "foreign_key" => "root_id", "join" => true, "columna" => "id", "nombre" => "materia"],
+            'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false, 'columna' => 'id', 'nombre' => 'tipo_resolucion'],
+            'departamento' => ['tabla' => 'departamentos', 'foreign_key' => 'departamento_id', 'join' => false, 'columna' => 'id', 'nombre' => 'departamento'],
+            'sala' => ['tabla' => 'salas', 'foreign_key' => 'sala_id', 'join' => false, 'columna' => 'id', 'nombre' => 'sala'],
+            'magistrado' => ['tabla' => 'magistrados', 'foreign_key' => 'magistrado_id', 'join' => false, 'columna' => 'id', 'nombre' => 'magistrado'],
+            'forma_resolucion' => ['tabla' => 'forma_resolucions', 'foreign_key' => 'forma_resolucion_id', 'join' => false, 'columna' => 'id', 'nombre' => 'forma_resolucion'],
+            'tipo_jurisprudencia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
+            'materia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'root_id', 'join' => true, 'columna' => 'id', 'nombre' => 'materia'],
         ];
 
         $nombre = strtolower($request->nombre);
 
-        if (!array_key_exists($nombre, $campos)) {
+        if (! array_key_exists($nombre, $campos)) {
             return response()->json(['error' => 'Filtro inválido.'], 400);
         }
 
@@ -399,32 +378,31 @@ class ResolutionController extends Controller
             unset($campos['departamento']);
         }
 
-
         $resultado = [];
 
         // Recorremos el resto de filtros normalmente
         foreach ($campos as $key => $value) {
             $query = Resolutions::query()->from('resolutions as r');
 
-            if ($value["join"] || $filtroPrincipal["join"]) {
+            if ($value['join'] || $filtroPrincipal['join']) {
                 $query->join('jurisprudencias as x', 'x.resolution_id', '=', 'r.id');
             }
 
             if ($request->has('periodo')) {
-                $query->whereYear("fecha_emision", $request->periodo);
+                $query->whereYear('fecha_emision', $request->periodo);
             }
 
             if ($request->has('departamento')) {
                 $departamentos = Departamentos::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
-                $query->whereIn("departamento_id", $departamentos);
+                $query->whereIn('departamento_id', $departamentos);
             }
 
             // Aplicamos el filtro principal como condición base a los otros
             if ($request->has('variable')) {
-                $query->whereIn($filtroPrincipal["foreign_key"], $request->variable);
+                $query->whereIn($filtroPrincipal['foreign_key'], $request->variable);
             }
 
-            $resultado[$value["nombre"]] = $query->distinct()->pluck($value["foreign_key"])->toArray();
+            $resultado[$value['nombre']] = $query->distinct()->pluck($value['foreign_key'])->toArray();
         }
 
         return response()->json($resultado);
@@ -434,13 +412,13 @@ class ResolutionController extends Controller
     {
 
         $filtros = $request->input('filtros', []);
-        $campos = ["tipo_resolucion_id", "departamento_id", "sala_id", "magistrado_id", "forma_resolucion_id"];
+        $campos = ['tipo_resolucion_id', 'departamento_id', 'sala_id', 'magistrado_id', 'forma_resolucion_id'];
         foreach ($campos as $campo) {
 
             $query = Resolutions::query();
 
             foreach ($filtros as $key => $value) {
-                if ($key !== $campo && !empty($value)) {
+                if ($key !== $campo && ! empty($value)) {
                     $query->where($key, $value);
                 }
             }
@@ -455,7 +433,6 @@ class ResolutionController extends Controller
     public function obtenerVariables()
     {
 
-
         $departamentos = Departamentos::all('id', 'nombre');
         $salas = Sala::all('id', 'nombre');
         $tipo_jurisprudencias = TipoJurisprudencia::all('id', 'nombre');
@@ -463,17 +440,16 @@ class ResolutionController extends Controller
         $forma_resolucions = FormaResolucions::all('id', 'nombre');
         $magistrados = Magistrados::all('id', 'nombre');
         $magistrados = DB::table('magistrados as m')
-            ->selectRaw("
+            ->selectRaw('
                 m.id,
                 m.nombre,
                 EXTRACT(YEAR FROM MAX(r.fecha_emision)) AS fecha_max,
                 EXTRACT(YEAR FROM MIN(r.fecha_emision)) AS fecha_min
-            ")
+            ')
             ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
             ->groupBy('m.id', 'm.nombre')
             ->orderBy('m.id')
             ->get();
-
 
         $materia = Descriptor::whereNull('descriptor_id')->get(['id', 'nombre']);
 
@@ -496,9 +472,9 @@ class ResolutionController extends Controller
 
         return response()->json($datos);
     }
+
     public function filtrarResolucionesContenidoOld(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'departamento' => 'nullable|array',
@@ -516,20 +492,16 @@ class ResolutionController extends Controller
             'tipo_resolucion' => 'nullable|array',
             'tipo_resolucion.*' => 'required|integer',
             'periodo' => 'nullable|array',
-            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
             'highlight' => 'nullable|array',
             'highlight.*' => 'string|in:contenido,demandante,demandado,sintesis,maxima,precedente,proceso',
         ]);
 
-
-
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
-
 
         $query = $request->input('term', '');
         $highlight = $request->input('highlight', ['contenido']);
@@ -538,13 +510,13 @@ class ResolutionController extends Controller
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        //$highlight = $request->input('highlight', 'contenido');
+        // $highlight = $request->input('highlight', 'contenido');
 
         // Parámetros de paginación
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        //$highlight = ['descriptor'];
+        // $highlight = ['descriptor'];
         $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo',  'magistrado', 'forma_resolucion'];
         $strategy = 'all';
 
@@ -558,7 +530,6 @@ class ResolutionController extends Controller
 
         // unir ambos arrays sin duplicados
         $allFields = array_unique(array_merge($highlight, $extraFields));
-
 
         $options = [
             'query_by' => implode(',', $highlight),
@@ -574,7 +545,6 @@ class ResolutionController extends Controller
             'page' => $page,
             'include_fields' => implode(',', $allFields),
         ];
-
 
         $search = Resolutions::search($query)->options($options);
 
@@ -592,13 +562,13 @@ class ResolutionController extends Controller
         }
 
         if ($request->has('tipo_resolucion')) {
-            $search->whereIn("tipo_resolucion", $request->tipo_resolucion);
+            $search->whereIn('tipo_resolucion', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $search->whereIn("sala", $request->sala);
+            $search->whereIn('sala', $request->sala);
         }
         if ($request->has('departamento')) {
-            $search->whereIn("departamento", $request->departamento);
+            $search->whereIn('departamento', $request->departamento);
         }
 
         $search = $search->raw();
@@ -608,7 +578,6 @@ class ResolutionController extends Controller
         $facetas = $search['facet_counts'] ?? [];
 
         $facets = Busqueda::obtenerFacetas($facetas);
-
 
         return response()->json([
             'data' => $hits,
@@ -622,24 +591,18 @@ class ResolutionController extends Controller
 
         return response()->json($resultados);
 
-
-
-
-        $variable = $request["variable"];
-        $orden = $request["orden"];
+        $variable = $request['variable'];
+        $orden = $request['orden'];
 
         $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
         $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
         $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
-
-
 
         $query = DB::table('resolutions as r')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
-
 
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $tipoJurisprudencia = $request->tipo_jurisprudencia;
@@ -661,25 +624,24 @@ class ResolutionController extends Controller
             });
         }
 
-
         if ($request->has('periodo')) {
-            $query->whereYear('r.fecha_emision',  $request->periodo);
+            $query->whereYear('r.fecha_emision', $request->periodo);
         }
 
         if ($request->has('magistrado')) {
-            $query->whereIn("r.magistrado_id", $request->magistrado);
+            $query->whereIn('r.magistrado_id', $request->magistrado);
         }
         if ($request->has('forma_resolucion')) {
-            $query->whereIn("r.forma_resolucion_id", $request->forma_resolucion);
+            $query->whereIn('r.forma_resolucion_id', $request->forma_resolucion);
         }
         if ($request->has('tipo_resolucion')) {
-            $query->whereIn("r.tipo_resolucion_id", $request->tipo_resolucion);
+            $query->whereIn('r.tipo_resolucion_id', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $query->whereIn("r.sala_id", $request->sala);
+            $query->whereIn('r.sala_id', $request->sala);
         }
         if ($request->has('departamento')) {
-            $query->whereIn("r.departamento_id", $request->departamento);
+            $query->whereIn('r.departamento_id', $request->departamento);
         }
 
         $search = $request->input('term');
@@ -688,10 +650,7 @@ class ResolutionController extends Controller
         $search = strtolower($search);
         $stopwords = NLP::getStopWords();
 
-
         if ($request->has('term') && in_array($search, $stopwords) === false) {
-
-
 
             $searchSanitized = addslashes($search);
 
@@ -702,15 +661,10 @@ class ResolutionController extends Controller
                 "))->whereRaw('searchtext @@ plainto_tsquery(\'spanish\', ?)', [$search]);
         }
 
-
         $results = $query->orderBy($variable, $orden)->paginate(20);
 
         return response()->json($results);
     }
-
-
-
-
 
     public function index()
     {
@@ -721,14 +675,12 @@ class ResolutionController extends Controller
             ->orderBy('periodo')
             ->get();
 
-
         $all_jurisprudencia = DB::table('resolutions as r')
             ->join('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
             ->selectRaw("DATE_TRUNC('year', r.fecha_emision)::date as periodo, COALESCE(COUNT(DISTINCT r.id), 0) AS cantidad")
             ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)"))
-            ->orderBy("periodo")
+            ->orderBy('periodo')
             ->get();
-
 
         $max_res = max($all_res->pluck('cantidad')->toArray() ?: [0]) ?: 0;
         $max_juris = max($all_jurisprudencia->pluck('cantidad')->toArray() ?: [0]) ?: 0;
@@ -747,22 +699,14 @@ class ResolutionController extends Controller
         ]);
     }
 
-
-
-
-
     public function show($id): JsonResponse
     {
 
-
-
-
         try {
-
-
 
             $resolution = Resolutions::with('content', 'forma_resolucion', 'sala', 'departamento', 'magistrado')->findOrFail($id);
             $jurisprudencias = Jurisprudencias::with('materia', 'tipo_descriptor')->where('resolution_id', $id)->get();
+
             return response()->json([
                 'resolucion' => new ResolutionResource($resolution),
                 'jurisprudencias' => JurisprudenciaResource::collection($jurisprudencias),
@@ -770,40 +714,38 @@ class ResolutionController extends Controller
         } catch (ModelNotFoundException $e) {
 
             return response()->json([
-                'error' => 'Resolución no encontrada'
+                'error' => 'Resolución no encontrada',
             ], 404);
         } catch (\Exception $e) {
             // Manejar otras excepciones posibles
             return response()->json([
-                'error' => 'Ocurrió un error al intentar obtener la resolución' . $e
+                'error' => 'Ocurrió un error al intentar obtener la resolución'.$e,
             ], 500);
         }
     }
-
-
 
     public function update(Request $request, $id)
     {
         //
     }
 
-
     public function destroy($id)
     {
         //
     }
+
     public function obtenerParametros()
     {
         $departamentos = Departamentos::all();
         $salas = Sala::all();
 
-        if (!$salas || !$departamentos) {
+        if (! $salas || ! $departamentos) {
             return response()->json(['error' => 'Solicitud no encontrada'], 404);
         }
 
         $data = [
             'departamentos' => $departamentos->toArray(),
-            'salas' => $salas->toArray()
+            'salas' => $salas->toArray(),
         ];
 
         return response()->json($data);
@@ -815,27 +757,27 @@ class ResolutionController extends Controller
         $departamento = $request['departamento'];
         $sala = $request['selectedSala'];
         $mi_sala = null;
-        $orden = $request["orden"];
+        $orden = $request['orden'];
         $mi_departamento = null;
-        $fecha_exacta = $request["fecha_exacta"];
-        $fecha_desde = $request["fecha_desde"];
-        $fecha_hasta = $request["fecha_hasta"];
+        $fecha_exacta = $request['fecha_exacta'];
+        $fecha_desde = $request['fecha_desde'];
+        $fecha_hasta = $request['fecha_hasta'];
 
-        if ($sala && $sala !== "todas") {
-            $mi_sala = Sala::where("nombre", $sala)->first();
-            if (!$mi_sala) {
+        if ($sala && $sala !== 'todas') {
+            $mi_sala = Sala::where('nombre', $sala)->first();
+            if (! $mi_sala) {
                 return response()->json(['error' => 'Sala no encontrada'], 404);
             }
-        } elseif (!$sala) {
+        } elseif (! $sala) {
             return response()->json(['error' => 'Campo sala no encontrado'], 404);
         }
 
-        if ($departamento && $departamento !== "todos") {
-            $mi_departamento = Departamentos::where("nombre", $departamento)->first();
-            if (!$mi_departamento) {
+        if ($departamento && $departamento !== 'todos') {
+            $mi_departamento = Departamentos::where('nombre', $departamento)->first();
+            if (! $mi_departamento) {
                 return response()->json(['error' => 'Departamento no encontrado'], 404);
             }
-        } elseif (!$departamento) {
+        } elseif (! $departamento) {
             return response()->json(['error' => 'Campo departamento no encontrado'], 404);
         }
 
@@ -844,8 +786,8 @@ class ResolutionController extends Controller
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
-            ->select('r.nro_resolucion', "r.id", "r.fecha_emision", 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', "s.nombre as sala")
-            ->where('c.contenido', 'like', '%' . $texto . '%');
+            ->select('r.nro_resolucion', 'r.id', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala')
+            ->where('c.contenido', 'like', '%'.$texto.'%');
 
         if ($mi_sala) {
             $query->where('r.sala_id', $mi_sala->id);
@@ -861,7 +803,7 @@ class ResolutionController extends Controller
         if ($fecha_desde && $fecha_hasta) {
             $query->whereBetween('r.fecha_emision', [$fecha_desde, $fecha_hasta]);
         }
-        if ($orden == "Recientes") {
+        if ($orden == 'Recientes') {
             $query->orderByDesc('r.fecha_emision');
         } else {
             $query->orderBy('r.fecha_emision');
@@ -871,12 +813,7 @@ class ResolutionController extends Controller
         return response()->json($paginatedData);
     }
 
-
-
-
     public function obtenerSerieTemporal(Request $request)
-
-
     {
 
         $validator = Validator::make($request->all(), [
@@ -904,10 +841,9 @@ class ResolutionController extends Controller
             ],
         ]);
 
-
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -915,10 +851,10 @@ class ResolutionController extends Controller
         $fecha_inicial = $request->input('fecha_inicial');
         $intervalo = $request->input('intervalo');
 
-        $intervalo = "quarter";
+        $intervalo = 'quarter';
         $validIntervals = ['day', 'month', 'year', 'week', 'quarter'];
-        if (!in_array($intervalo, $validIntervals)) {
-            throw new InvalidArgumentException("Invalid interval specified.");
+        if (! in_array($intervalo, $validIntervals)) {
+            throw new InvalidArgumentException('Invalid interval specified.');
         }
 
         $query = DB::table('resolutions AS r')
@@ -953,7 +889,6 @@ class ResolutionController extends Controller
                 $query->orderBy(DB::raw('DATE_TRUNC(\'year\', r.fecha_emision)::date'));
                 break;
         }
-
 
         if ($request->has('limite')) {
             $query->whereRaw('EXTRACT(YEAR FROM r.fecha_emision) > 2005');
@@ -993,7 +928,6 @@ class ResolutionController extends Controller
         ]);
     }
 
-
     public function obtenerSerieSimple(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -1002,62 +936,59 @@ class ResolutionController extends Controller
             'variable' => 'required|array',
             'variable.*' => 'required|integer',
             'nombre' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $nombre = strtolower($request->nombre);
 
         $campos = [
-            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false, "columna" => "id", "nombre" => "tipo_resolucion"],
-            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false, "columna" => "id", "nombre" => "departamento"],
-            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false, "columna" => "id", "nombre" => "sala"],
-            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false, "columna" => "id", "nombre" => "magistrado"],
-            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false, "columna" => "id", "nombre" => "forma_resolucion"],
-            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true, "columna" => "id", "nombre" => "tipo_jurisprudencia"],
-            "materia" => ["tabla" => "descriptors", "foreign_key" => "root_id", "join" => true, "columna" => "id", "nombre" => "materia"],
+            'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false, 'columna' => 'id', 'nombre' => 'tipo_resolucion'],
+            'departamento' => ['tabla' => 'departamentos', 'foreign_key' => 'departamento_id', 'join' => false, 'columna' => 'id', 'nombre' => 'departamento'],
+            'sala' => ['tabla' => 'salas', 'foreign_key' => 'sala_id', 'join' => false, 'columna' => 'id', 'nombre' => 'sala'],
+            'magistrado' => ['tabla' => 'magistrados', 'foreign_key' => 'magistrado_id', 'join' => false, 'columna' => 'id', 'nombre' => 'magistrado'],
+            'forma_resolucion' => ['tabla' => 'forma_resolucions', 'foreign_key' => 'forma_resolucion_id', 'join' => false, 'columna' => 'id', 'nombre' => 'forma_resolucion'],
+            'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
+            'materia' => ['tabla' => 'descriptors', 'foreign_key' => 'root_id', 'join' => true, 'columna' => 'id', 'nombre' => 'materia'],
         ];
 
-        if (!array_key_exists($nombre, $campos)) {
+        if (! array_key_exists($nombre, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
-
 
         $filtroPrincipal = $campos[$nombre];
 
         $query = DB::table('resolutions as r');
-        if ($filtroPrincipal["join"]) {
+        if ($filtroPrincipal['join']) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
         $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad, fecha_emision as fecha')
-            ->join($filtroPrincipal["tabla"] . ' as x', 'x.id', $filtroPrincipal["foreign_key"])
-            ->whereIn($filtroPrincipal["foreign_key"], $request->variable)
-            ->groupBy("fecha", "nombre");
-
+            ->join($filtroPrincipal['tabla'].' as x', 'x.id', $filtroPrincipal['foreign_key'])
+            ->whereIn($filtroPrincipal['foreign_key'], $request->variable)
+            ->groupBy('fecha', 'nombre');
 
         $data = $query->get();
         $total = array_sum($data->pluck('cantidad')->toArray());
         $resultado = Math::completarArray($data);
 
-
         return response()->json([
 
             'data' => $resultado,
             'tabla' => $request->nombre,
             'total' => $total,
             'columna' => $request->nombre,
-            'nombre' => "nombre",
-            'multiVariable' => false
+            'nombre' => 'nombre',
+            'multiVariable' => false,
         ]);
     }
 
-    function obtenerMapaSimple(Request $request)
+    public function obtenerMapaSimple(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -1067,51 +998,48 @@ class ResolutionController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
         $nombre = strtolower($request->nombre);
         $terminos = $request->variable;
 
         $campos = [
-            "tipo_resolucion" => ["tabla" => "tipo_resolucions", "foreign_key" => "tipo_resolucion_id", "join" => false, "columna" => "id", "nombre" => "tipo_resolucion"],
-            "departamento" => ["tabla" => "departamentos", "foreign_key" => "departamento_id", "join" => false, "columna" => "id", "nombre" => "departamento"],
-            "sala" => ["tabla" => "salas", "foreign_key" => "sala_id", "join" => false, "columna" => "id", "nombre" => "sala"],
-            "magistrado" => ["tabla" => "magistrados", "foreign_key" => "magistrado_id", "join" => false, "columna" => "id", "nombre" => "magistrado"],
-            "forma_resolucion" => ["tabla" => "forma_resolucions", "foreign_key" => "forma_resolucion_id", "join" => false, "columna" => "id", "nombre" => "forma_resolucion"],
-            "tipo_jurisprudencia" => ["tabla" => "tipo_jurisprudencias", "foreign_key" => "tipo_jurisprudencia_id", "join" => true, "columna" => "id", "nombre" => "tipo_jurisprudencia"],
-            "materia" => ["tabla" => "descriptors", "foreign_key" => "root_id", "join" => true, "columna" => "id", "nombre" => "materia"],
+            'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false, 'columna' => 'id', 'nombre' => 'tipo_resolucion'],
+            'departamento' => ['tabla' => 'departamentos', 'foreign_key' => 'departamento_id', 'join' => false, 'columna' => 'id', 'nombre' => 'departamento'],
+            'sala' => ['tabla' => 'salas', 'foreign_key' => 'sala_id', 'join' => false, 'columna' => 'id', 'nombre' => 'sala'],
+            'magistrado' => ['tabla' => 'magistrados', 'foreign_key' => 'magistrado_id', 'join' => false, 'columna' => 'id', 'nombre' => 'magistrado'],
+            'forma_resolucion' => ['tabla' => 'forma_resolucions', 'foreign_key' => 'forma_resolucion_id', 'join' => false, 'columna' => 'id', 'nombre' => 'forma_resolucion'],
+            'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
+            'materia' => ['tabla' => 'descriptors', 'foreign_key' => 'root_id', 'join' => true, 'columna' => 'id', 'nombre' => 'materia'],
         ];
 
-        if (!array_key_exists($nombre, $campos)) {
+        if (! array_key_exists($nombre, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
-
 
         $filtroPrincipal = $campos[$nombre];
 
         $query = DB::table('resolutions as r');
-        if ($filtroPrincipal["join"]) {
+        if ($filtroPrincipal['join']) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
 
-        if ($filtroPrincipal["tabla"] != "departamentos") {
+        if ($filtroPrincipal['tabla'] != 'departamentos') {
             $query->selectRaw(' x.nombre as name ,Count(r.id) as cantidad, d.nombre as departamento');
-            $query->join('departamentos as d', 'd.id', '=', 'r.departamento_id')->join($filtroPrincipal["tabla"] . ' as x', 'x.id', $filtroPrincipal["foreign_key"])->whereIn($filtroPrincipal["foreign_key"], $request->variable)->groupBy("x.nombre", "d.nombre");
+            $query->join('departamentos as d', 'd.id', '=', 'r.departamento_id')->join($filtroPrincipal['tabla'].' as x', 'x.id', $filtroPrincipal['foreign_key'])->whereIn($filtroPrincipal['foreign_key'], $request->variable)->groupBy('x.nombre', 'd.nombre');
         } else {
             return response()->json([
-                'error' => 'No se puede realizar un mapa de departamentos'
+                'error' => 'No se puede realizar un mapa de departamentos',
             ], 422);
         }
 
         $data = $query->get();
         $total = array_sum($data->pluck('cantidad')->toArray());
 
-
         $resultado = Math::completarArrayMapa($data, 'departamento', 'name');
-
 
         return response()->json([
 
@@ -1119,12 +1047,12 @@ class ResolutionController extends Controller
             'tabla' => $request->nombre,
             'total' => $total,
             'columna' => $request->nombre,
-            'nombre' => "nombre",
-            'multiVariable' => false
+            'nombre' => 'nombre',
+            'multiVariable' => false,
         ]);
     }
 
-    function obtenerMapaX(Request $request)
+    public function obtenerMapaX(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -1134,35 +1062,33 @@ class ResolutionController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
         $nombre = strtolower($request->nombre);
         $terminos = $request->variable;
 
-        $lista = ["maxima", "sintesis", "restrictor", "ratio", "precedente", "proceso", "demandante", "demandado"];
+        $lista = ['maxima', 'sintesis', 'restrictor', 'ratio', 'precedente', 'proceso', 'demandante', 'demandado'];
 
-        if (!in_array($nombre, $lista)) {
+        if (! in_array($nombre, $lista)) {
             return $this->obtenerMapaSimple($request);
         }
-
 
         $elemento = Listas::obtenerItem($nombre);
         if ($elemento == null) {
             return response()->json([
-                'error' => 'No existe la variable solicitada'
+                'error' => 'No existe la variable solicitada',
             ], 422);
         }
         $tabla = $elemento['tabla'];
         $columna = $elemento['nombre'];
 
-        if (!preg_match('/^[a-z0-9_]+$/', $tabla) || !preg_match('/^[a-z0-9_]+$/', $columna)) {
+        if (! preg_match('/^[a-z0-9_]+$/', $tabla) || ! preg_match('/^[a-z0-9_]+$/', $columna)) {
             return response()->json(['error' => 'Parámetros inválidos'], 400);
         }
 
-
-        $terminosSQL = implode(",", array_map(function ($t) {
-            return "'" . addslashes(strtolower($t)) . "'";
+        $terminosSQL = implode(',', array_map(function ($t) {
+            return "'".addslashes(strtolower($t))."'";
         }, $terminos));
 
         $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$terminosSQL]) AS nombre) AS t"))
@@ -1173,20 +1099,17 @@ class ResolutionController extends Controller
         if ($elemento['join']) {
             $query->join('resolutions as r', 'r.id', '=', 'x.resolution_id')->join('departamentos as d', 'd.id', '=', 'r.departamento_id');
             $query->select('t.nombre as name', DB::raw('COUNT(DISTINCT r.id) as cantidad'), 'd.nombre as departamento');
-            $query->groupBy("t.nombre", "d.nombre");
+            $query->groupBy('t.nombre', 'd.nombre');
         } else {
             $query->join('departamentos as d', 'd.id', '=', 'x.departamento_id');
             $query->select('t.nombre as name', DB::raw('COUNT(DISTINCT x.id) as cantidad'), 'd.nombre as departamento');
-            $query->groupBy("t.nombre", "d.nombre");
+            $query->groupBy('t.nombre', 'd.nombre');
         }
-
 
         $data = $query->get();
         $total = array_sum($data->pluck('cantidad')->toArray());
 
-
         $resultado = Math::completarArrayMapa($data, 'departamento', 'name');
-
 
         return response()->json([
 
@@ -1194,13 +1117,13 @@ class ResolutionController extends Controller
             'tabla' => $request->nombre,
             'total' => $total,
             'columna' => $request->nombre,
-            'nombre' => "nombre",
-            'multiVariable' => false
+            'nombre' => 'nombre',
+            'multiVariable' => false,
         ]);
     }
-    function obtenerSerieTemporalX(Request $request)
-    {
 
+    public function obtenerSerieTemporalX(Request $request)
+    {
 
         $validator = Validator::make($request->all(), [
             'variable' => 'required|array|min:1',
@@ -1209,38 +1132,35 @@ class ResolutionController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
 
         $nombre = strtolower($request->nombre);
         $terminos = $request->variable;
 
+        $lista = ['maxima', 'sintesis', 'restrictor', 'ratio', 'precedente', 'proceso', 'demandante', 'demandado'];
 
-        $lista = ["maxima", "sintesis", "restrictor", "ratio", "precedente", "proceso", "demandante", "demandado"];
-
-        if (!in_array($nombre, $lista)) {
+        if (! in_array($nombre, $lista)) {
             return $this->obtenerSerieSimple($request);
         }
 
         $elemento = Listas::obtenerItem($nombre);
         if ($elemento == null) {
             return response()->json([
-                'error' => 'No existe la variable solicitada'
+                'error' => 'No existe la variable solicitada',
             ], 422);
         }
         $tabla = $elemento['tabla'];
         $columna = $elemento['nombre'];
 
         // Validación de seguridad para tabla y columna
-        if (!preg_match('/^[a-z0-9_]+$/', $tabla) || !preg_match('/^[a-z0-9_]+$/', $columna)) {
+        if (! preg_match('/^[a-z0-9_]+$/', $tabla) || ! preg_match('/^[a-z0-9_]+$/', $columna)) {
             return response()->json(['error' => 'Parámetros inválidos'], 400);
         }
 
-
-        $terminosSQL = implode(",", array_map(function ($t) {
-            return "'" . addslashes(strtolower($t)) . "'";
+        $terminosSQL = implode(',', array_map(function ($t) {
+            return "'".addslashes(strtolower($t))."'";
         }, $terminos));
 
         $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$terminosSQL]) AS nombre) AS t"))
@@ -1251,17 +1171,15 @@ class ResolutionController extends Controller
         if ($elemento['join']) {
             $query->join('resolutions as r', 'r.id', '=', 'x.resolution_id');
             $query->select('nombre', DB::raw('COUNT(DISTINCT r.id) as cantidad'), DB::raw('EXTRACT(YEAR FROM fecha_emision) as fecha'));
-            $query->groupBy("fecha", "nombre");
+            $query->groupBy('fecha', 'nombre');
         } else {
             $query->select('nombre', DB::raw('COUNT(*) as cantidad'), DB::raw('EXTRACT(YEAR FROM fecha_emision) as fecha'));
-            $query->groupBy("fecha", "nombre");
+            $query->groupBy('fecha', 'nombre');
         }
-
 
         $data = $query->get();
         $total = array_sum($data->pluck('cantidad')->toArray());
         $resultado = Math::completarArray($data);
-
 
         return response()->json([
 
@@ -1269,17 +1187,13 @@ class ResolutionController extends Controller
             'tabla' => $request->nombre,
             'total' => $total,
             'columna' => $request->nombre,
-            'nombre' => "nombre",
-            'multiVariable' => false
+            'nombre' => 'nombre',
+            'multiVariable' => false,
         ]);
     }
 
-
-
-
-    function getTerminosX(Request $request)
+    public function getTerminosX(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'variable' => 'required|array|min:1',
@@ -1288,39 +1202,35 @@ class ResolutionController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
 
         $nombre = strtolower($request->nombre);
         $terminos = $request->variable;
 
+        $lista = ['maxima', 'sintesis', 'restrictor', 'ratio', 'precedente', 'proceso', 'demandante', 'demandado'];
 
-        $lista = ["maxima", "sintesis", "restrictor", "ratio", "precedente", "proceso", "demandante", "demandado"];
-
-        if (!in_array($nombre, $lista)) {
+        if (! in_array($nombre, $lista)) {
             return $this->obtenerEstadisticas($request);
         }
 
         $elemento = Listas::obtenerItem($nombre);
         if ($elemento == null) {
             return response()->json([
-                'error' => 'No existe la variable solicitada'
+                'error' => 'No existe la variable solicitada',
             ], 422);
         }
         $tabla = $elemento['tabla'];
         $columna = $elemento['nombre'];
 
-
         // Validación de seguridad para tabla y columna
-        if (!preg_match('/^[a-z0-9_]+$/', $tabla) || !preg_match('/^[a-z0-9_]+$/', $columna)) {
+        if (! preg_match('/^[a-z0-9_]+$/', $tabla) || ! preg_match('/^[a-z0-9_]+$/', $columna)) {
             return response()->json(['error' => 'Parámetros inválidos'], 400);
         }
 
-
-        $terminosSQL = implode(",", array_map(function ($t) {
-            return "'" . addslashes(strtolower($t)) . "'";
+        $terminosSQL = implode(',', array_map(function ($t) {
+            return "'".addslashes(strtolower($t))."'";
         }, $terminos));
 
         $resultados = [];
@@ -1343,18 +1253,19 @@ class ResolutionController extends Controller
         }
 
         $resultado = Math::completarArray2D($resultados, 'nombre', 'cantidad');
+
         return response()->json([
 
             'data' => $resultado,
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
-            'nombre' => "nombre",
+            'nombre' => 'nombre',
             'terminos' => collect($resultados)->pluck('nombre'),
-            'multiVariable' => false
+            'multiVariable' => false,
         ]);
     }
 
-    function obtenerXYSimple(Request $request)
+    public function obtenerXYSimple(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -1366,40 +1277,36 @@ class ResolutionController extends Controller
             'variableY' => 'required|array',
             'variableY.*' => 'required',
             'nombreY' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
 
         $nombre = strtolower($request->nombre);
         $nombreY = strtolower($request->nombreY);
         $campos = Listas::obtenerLista();
 
-        if (!array_key_exists($nombre, $campos)) {
+        if (! array_key_exists($nombre, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
-        if (!array_key_exists($nombreY, $campos)) {
+        if (! array_key_exists($nombreY, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
-
 
         $filtroX = $campos[$nombre];
         $filtroY = $campos[$nombreY];
         unset($campos[$nombre]);
         unset($campos[$nombreY]);
 
-
-
-        $lista = ["maxima", "sintesis", "restrictor", "ratio", "precedente", "proceso", "demandante", "demandado"];
+        $lista = ['maxima', 'sintesis', 'restrictor', 'ratio', 'precedente', 'proceso', 'demandante', 'demandado'];
 
         if (in_array($nombre, $lista)) {
             $elemento = $filtroX;
@@ -1413,11 +1320,9 @@ class ResolutionController extends Controller
             $ids = $request->variable;
         }
 
-
         $arrayX = $terminos;
 
-
-        $arrayY = DB::table($filtroY["tabla"])
+        $arrayY = DB::table($filtroY['tabla'])
             ->select('nombre as y')->whereIn('id', $ids)->get()->pluck('y')->toArray();
 
         $combinations = [];
@@ -1427,7 +1332,7 @@ class ResolutionController extends Controller
                 $combinations[] = [
                     'termino' => $sala,
                     'nombre' => $row,
-                    "cantidad" => 0,
+                    'cantidad' => 0,
                 ];
             }
         }
@@ -1436,13 +1341,12 @@ class ResolutionController extends Controller
         $columna = $elemento['nombre'];
 
         // Validación de seguridad para tabla y columna
-        if (!preg_match('/^[a-z0-9_]+$/', $tabla) || !preg_match('/^[a-z0-9_]+$/', $columna)) {
+        if (! preg_match('/^[a-z0-9_]+$/', $tabla) || ! preg_match('/^[a-z0-9_]+$/', $columna)) {
             return response()->json(['error' => 'Parámetros inválidos'], 400);
         }
 
-
-        $terminosSQL = implode(",", array_map(function ($t) {
-            return "'" . addslashes(strtolower($t)) . "'";
+        $terminosSQL = implode(',', array_map(function ($t) {
+            return "'".addslashes(strtolower($t))."'";
         }, $terminos));
 
         $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$terminosSQL]) AS termino) AS t"))
@@ -1450,71 +1354,63 @@ class ResolutionController extends Controller
                 $join->whereRaw("LOWER(x.$columna) ~* ('\\m' || t.termino || '\\M')");
             });
 
-
-        if ($elemento["join"] && $filtroY["join"]) {
-            $query->join('resolutions as r', 'r.id', '=', 'x.resolution_id')->join("{$filtroY['tabla']} as y", "y.id", '=', "x.{$filtroY['foreign_key']}")->whereIn("x.{$filtroY['foreign_key']}", $ids);
+        if ($elemento['join'] && $filtroY['join']) {
+            $query->join('resolutions as r', 'r.id', '=', 'x.resolution_id')->join("{$filtroY['tabla']} as y", 'y.id', '=', "x.{$filtroY['foreign_key']}")->whereIn("x.{$filtroY['foreign_key']}", $ids);
             $query->selectRaw('termino, y.nombre as nombre, COUNT(Distinct(x.id)) as cantidad')
                 ->groupBy('termino', 'y.nombre');
-        } elseif ($elemento["join"] || $filtroY["join"]) {
+        } elseif ($elemento['join'] || $filtroY['join']) {
 
             if ($elemento['join']) {
-                $query->join('resolutions as r', 'r.id', '=', 'x.resolution_id')->join("{$filtroY['tabla']} as y", "y.id", '=', "r.{$filtroY['foreign_key']}")->whereIn("r.{$filtroY['foreign_key']}", $ids);
+                $query->join('resolutions as r', 'r.id', '=', 'x.resolution_id')->join("{$filtroY['tabla']} as y", 'y.id', '=', "r.{$filtroY['foreign_key']}")->whereIn("r.{$filtroY['foreign_key']}", $ids);
                 $query->selectRaw('termino, y.nombre as nombre,  COUNT(Distinct(x.id)) as cantidad')
                     ->groupBy('termino', 'y.nombre');
             } else {
-                $query->join('jurisprudencias as r', 'x.id', '=', 'r.resolution_id')->join("{$filtroY['tabla']} as y", "y.id", '=', "r.{$filtroY['foreign_key']}")->whereIn("r.{$filtroY['foreign_key']}", $ids);
+                $query->join('jurisprudencias as r', 'x.id', '=', 'r.resolution_id')->join("{$filtroY['tabla']} as y", 'y.id', '=', "r.{$filtroY['foreign_key']}")->whereIn("r.{$filtroY['foreign_key']}", $ids);
                 $query->selectRaw('termino, y.nombre as nombre,  COUNT(Distinct(x.id)) as cantidad')
                     ->groupBy('termino', 'y.nombre');
             }
         } else {
 
-            $query->join("{$filtroY['tabla']} as y", "y.id", '=', "x.{$filtroY['foreign_key']}")->whereIn("x.{$filtroY['foreign_key']}", $ids);;
+            $query->join("{$filtroY['tabla']} as y", 'y.id', '=', "x.{$filtroY['foreign_key']}")->whereIn("x.{$filtroY['foreign_key']}", $ids);
             $query->selectRaw('termino, y.nombre as nombre,  COUNT(Distinct(x.id)) as cantidad')
                 ->groupBy('termino', 'y.nombre');
         }
 
-
         if ($request->has('periodo')) {
-            $query->whereYear("fecha_emision", $request->periodo);
+            $query->whereYear('fecha_emision', $request->periodo);
         }
         if ($request->has('departamento')) {
             $departamentos = Departamentos::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
-            $query->whereIn("departamento_id", $departamentos);
+            $query->whereIn('departamento_id', $departamentos);
         }
-
 
         $data = $query->orderByDesc('cantidad')
             ->get();
 
-
         $total = array_sum($data->pluck('cantidad')->toArray());
-
 
         $datoLookup = [];
         foreach ($data as $dato) {
             $datoLookup[$dato->termino][$dato->nombre] = $dato->cantidad;
         }
 
-
         foreach ($combinations as &$item) {
             $item['cantidad'] = $datoLookup[$item['termino']][$item['nombre']] ?? 0;
         }
-
 
         return response()->json([
             'total' => $total,
             'data' => Math::completarArray($combinations, 'termino', 'nombre'),
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
-            'nombre' => "nombre",
+            'nombre' => 'nombre',
             'terminos' => $arrayX,
-            'multiVariable' => true
+            'multiVariable' => true,
         ]);
     }
 
     public function filtrarResolucionesContenido(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'departamento' => 'nullable|array',
@@ -1532,18 +1428,14 @@ class ResolutionController extends Controller
             'tipo_resolucion' => 'nullable|array',
             'tipo_resolucion.*' => 'required|integer',
             'periodo' => 'nullable|array',
-            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
-
-
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
-
 
         $query = $request->input('term', '');
         $highlight = $request->input('highlight', ['sintesis']);
@@ -1552,8 +1444,8 @@ class ResolutionController extends Controller
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        //$highlight = ['descriptor', 'ratio', 'restrictor'];
-        //$highlight = ['descriptor'];
+        // $highlight = ['descriptor', 'ratio', 'restrictor'];
+        // $highlight = ['descriptor'];
         $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo'];
 
         $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
@@ -1594,13 +1486,13 @@ class ResolutionController extends Controller
         }
 
         if ($request->has('tipo_resolucion')) {
-            $search->whereIn("tipo_resolucion", $request->tipo_resolucion);
+            $search->whereIn('tipo_resolucion', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $search->whereIn("sala", $request->sala);
+            $search->whereIn('sala', $request->sala);
         }
         if ($request->has('departamento')) {
-            $search->whereIn("departamento", $request->departamento);
+            $search->whereIn('departamento', $request->departamento);
         }
 
         $search = $search->raw();
@@ -1610,16 +1502,12 @@ class ResolutionController extends Controller
             return $hit['_formatted'] ?? [];
         });
 
-
-
         $facets = $search['facetDistribution'] ?? [];
-
-
 
         $filtros = [];
 
         foreach ($facetas as $value) {
-            if (!isset($facets[$value])) {
+            if (! isset($facets[$value])) {
                 continue;
             }
 
@@ -1631,7 +1519,6 @@ class ResolutionController extends Controller
 
             $filtros[$value] = array_values($filtered); // Reindexa
         }
-
 
         return response()->json([
             'data' => $formattedResults,
@@ -1645,24 +1532,18 @@ class ResolutionController extends Controller
 
         return response()->json($resultados);
 
-
-
-
-        $variable = $request["variable"];
-        $orden = $request["orden"];
+        $variable = $request['variable'];
+        $orden = $request['orden'];
 
         $columnasPermitidas = ['nro_resolucion', 'fecha_emision', 'tipo_resolucion', 'departamento', 'sala'];
         $variable = in_array($variable, $columnasPermitidas) ? $variable : 'fecha_emision';
         $orden = in_array(strtolower($orden), ['asc', 'desc']) ? $orden : 'asc';
-
-
 
         $query = DB::table('resolutions as r')
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->select('r.id', 'r.nro_resolucion', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala');
-
 
         if ($request->has('tipo_jurisprudencia') || $request->has('materia')) {
             $tipoJurisprudencia = $request->tipo_jurisprudencia;
@@ -1684,25 +1565,24 @@ class ResolutionController extends Controller
             });
         }
 
-
         if ($request->has('periodo')) {
-            $query->whereYear('r.fecha_emision',  $request->periodo);
+            $query->whereYear('r.fecha_emision', $request->periodo);
         }
 
         if ($request->has('magistrado')) {
-            $query->whereIn("r.magistrado_id", $request->magistrado);
+            $query->whereIn('r.magistrado_id', $request->magistrado);
         }
         if ($request->has('forma_resolucion')) {
-            $query->whereIn("r.forma_resolucion_id", $request->forma_resolucion);
+            $query->whereIn('r.forma_resolucion_id', $request->forma_resolucion);
         }
         if ($request->has('tipo_resolucion')) {
-            $query->whereIn("r.tipo_resolucion_id", $request->tipo_resolucion);
+            $query->whereIn('r.tipo_resolucion_id', $request->tipo_resolucion);
         }
         if ($request->has('sala')) {
-            $query->whereIn("r.sala_id", $request->sala);
+            $query->whereIn('r.sala_id', $request->sala);
         }
         if ($request->has('departamento')) {
-            $query->whereIn("r.departamento_id", $request->departamento);
+            $query->whereIn('r.departamento_id', $request->departamento);
         }
 
         $search = $request->input('term');
@@ -1711,10 +1591,7 @@ class ResolutionController extends Controller
         $search = strtolower($search);
         $stopwords = NLP::getStopWords();
 
-
         if ($request->has('term') && in_array($search, $stopwords) === false) {
-
-
 
             $searchSanitized = addslashes($search);
 
@@ -1725,17 +1602,13 @@ class ResolutionController extends Controller
                 "))->whereRaw('searchtext @@ plainto_tsquery(\'spanish\', ?)', [$search]);
         }
 
-
         $results = $query->orderBy($variable, $orden)->paginate(20);
 
         return response()->json($results);
     }
 
-
-
-    function getTerminosXYy(Request $request)
+    public function getTerminosXYy(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'terminosX' => 'required|array',
@@ -1750,10 +1623,9 @@ class ResolutionController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
 
         $salasArray = $request['terminosX'];
         $tableArray = $request['terminosY'];
@@ -1766,54 +1638,47 @@ class ResolutionController extends Controller
                 $combinations[] = [
                     $columnaX => $sala,
                     $columnaY => $row,
-                    "cantidad" => 0,
+                    'cantidad' => 0,
                 ];
             }
         }
 
-        //return response()->json($combinations);
+        // return response()->json($combinations);
         $datos = $this->generarConsulta([
-            (object)[
-                "nombre" => $request->columnaX,
-                "tabla" => $request->tablaX,
-                "ids" => $request->terminosX,
+            (object) [
+                'nombre' => $request->columnaX,
+                'tabla' => $request->tablaX,
+                'ids' => $request->terminosX,
             ],
-            (object)[
-                "nombre" => $request->columnaY,
-                "tabla" => $request->tablaY,
-                "ids" => $request->terminosY,
-            ]
+            (object) [
+                'nombre' => $request->columnaY,
+                'tabla' => $request->tablaY,
+                'ids' => $request->terminosY,
+            ],
         ]);
-
-
 
         $datoLookup = [];
         foreach ($datos as $dato) {
             $datoLookup[$dato->$columnaX][$dato->$columnaY] = $dato->cantidad;
         }
 
-
         foreach ($combinations as &$item) {
             $item['cantidad'] = $datoLookup[$item[$columnaX]][$item[$columnaY]] ?? 0;
         }
 
-
         return response()->json([
 
-            'data' =>  Math::completarArray($combinations, $columnaX, $columnaY),
+            'data' => Math::completarArray($combinations, $columnaX, $columnaY),
             'tabla' => $request->tablaX,
             'columna' => $request->columnaX,
             'nombre' => $request->columnaY,
             'terminos' => $request->terminosX,
-            'multiVariable' => true
+            'multiVariable' => true,
         ]);
     }
 
-
-
-    function getTerminosXY(Request $request)
+    public function getTerminosXY(Request $request)
     {
-
 
         $validator = Validator::make($request->all(), [
             'departamento' => 'nullable|array',
@@ -1824,12 +1689,12 @@ class ResolutionController extends Controller
             'variableY' => 'required|array',
             'variableY.*' => 'required',
             'nombreY' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -1837,14 +1702,14 @@ class ResolutionController extends Controller
         $nombreY = strtolower($request->nombreY);
         $campos = Listas::obtenerLista();
 
-        if (!array_key_exists($nombre, $campos)) {
+        if (! array_key_exists($nombre, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
-        if (!array_key_exists($nombreY, $campos)) {
+        if (! array_key_exists($nombreY, $campos)) {
             return response()->json([
-                'No existe la variable solicitada'
+                'No existe la variable solicitada',
             ], 422);
         }
 
@@ -1853,14 +1718,13 @@ class ResolutionController extends Controller
         unset($campos[$nombre]);
         unset($campos[$nombreY]);
 
+        $lista = ['maxima', 'sintesis', 'restrictor', 'ratio', 'precedente', 'proceso', 'demandante', 'demandado'];
 
-        $lista = ["maxima", "sintesis", "restrictor", "ratio", "precedente", "proceso", "demandante", "demandado"];
-
-        if (!in_array($nombre, $lista) && !in_array($nombreY, $lista)) {
+        if (! in_array($nombre, $lista) && ! in_array($nombreY, $lista)) {
             return $this->obtenerEstadisticasXY($request);
         }
 
-        if (!in_array($nombre, $lista) || !in_array($nombreY, $lista)) {
+        if (! in_array($nombre, $lista) || ! in_array($nombreY, $lista)) {
             return $this->obtenerXYSimple($request);
         }
         $terminos = NLP::cleanArray($request->variable);
@@ -1868,37 +1732,35 @@ class ResolutionController extends Controller
 
         if (empty($terminos) || empty($terminosY)) {
             return response()->json([
-                'mensaje' => 'Las variables escogidas no pueden ser stopwords'
+                'mensaje' => 'Las variables escogidas no pueden ser stopwords',
             ], 422);
         }
-        //return $combinations;
-
+        // return $combinations;
 
         $tabla = $filtroX['tabla'];
         $columna = $filtroX['nombre'];
         $tablaY = $filtroY['tabla'];
         $columnaY = $filtroY['nombre'];
         // Validación de seguridad para tabla y columna
-        if (!preg_match('/^[a-z0-9_]+$/', $tabla) || !preg_match('/^[a-z0-9_]+$/', $columna)) {
+        if (! preg_match('/^[a-z0-9_]+$/', $tabla) || ! preg_match('/^[a-z0-9_]+$/', $columna)) {
             return response()->json(['error' => 'Parámetros inválidos'], 400);
         }
 
-        if (!preg_match('/^[a-z0-9_]+$/', $tablaY) || !preg_match('/^[a-z0-9_]+$/', $columnaY)) {
+        if (! preg_match('/^[a-z0-9_]+$/', $tablaY) || ! preg_match('/^[a-z0-9_]+$/', $columnaY)) {
             return response()->json(['error' => 'Parámetros inválidos'], 400);
         }
 
-        $sqlX = implode(",", array_map(function ($t) {
-            return "'" . addslashes(strtolower($t)) . "'";
+        $sqlX = implode(',', array_map(function ($t) {
+            return "'".addslashes(strtolower($t))."'";
         }, $terminos));
 
-        $sqlY = implode(",", array_map(function ($t) {
-            return "'" . addslashes(strtolower($t)) . "'";
+        $sqlY = implode(',', array_map(function ($t) {
+            return "'".addslashes(strtolower($t))."'";
         }, $terminosY));
 
+        if ($filtroX['join'] && $filtroY['join']) {
 
-        if ($filtroX["join"] && $filtroY["join"]) {
-
-            //ambas estan en jurisprudencia
+            // ambas estan en jurisprudencia
             $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$sqlX]) AS termino_x) AS tx"))
                 ->crossJoin(DB::raw("(SELECT unnest(ARRAY[$sqlY]) AS termino_y) AS ty"))
                 ->join(DB::raw("$tabla AS t"), function ($join) use ($columna, $columnaY) {
@@ -1910,9 +1772,9 @@ class ResolutionController extends Controller
             $data = $query->orderByDesc('cantidad')
                 ->get();
             $total = array_sum($data->pluck('cantidad')->toArray());
-        } elseif ($filtroX["join"] || $filtroY["join"]) {
+        } elseif ($filtroX['join'] || $filtroY['join']) {
 
-            //se necesita join jurisprudencias j on j.resolution_id = r.id
+            // se necesita join jurisprudencias j on j.resolution_id = r.id
             if ($filtroX['tabla'] === 'jurisprudencias') {
                 $t_columna = $filtroX['nombre'];
                 $t_sqlX = $sqlX;
@@ -1942,9 +1804,9 @@ class ResolutionController extends Controller
             ";
 
             $data = DB::select($sql);
-            $total =  array_sum(array_column($data, 'cantidad'));
+            $total = array_sum(array_column($data, 'cantidad'));
         } else {
-            //ambas estan en resolutions
+            // ambas estan en resolutions
             $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$sqlX]) AS termino_x) AS tx"))
                 ->crossJoin(DB::raw("(SELECT unnest(ARRAY[$sqlY]) AS termino_y) AS ty"))
                 ->join(DB::raw("$tabla AS t"), function ($join) use ($columna, $columnaY) {
@@ -1958,8 +1820,6 @@ class ResolutionController extends Controller
             $total = array_sum($data->pluck('cantidad')->toArray());
         }
 
-
-
         $arrayX = $terminos;
         $arrayY = $terminosY;
 
@@ -1970,38 +1830,32 @@ class ResolutionController extends Controller
                 $combinations[] = [
                     'termino_x' => $sala,
                     'nombre' => $row,
-                    "cantidad" => 0,
+                    'cantidad' => 0,
                 ];
             }
         }
-
-
-
 
         $datoLookup = [];
         foreach ($data as $dato) {
             $datoLookup[$dato->termino_x][$dato->nombre] = $dato->cantidad;
         }
 
-
         foreach ($combinations as &$dato) {
             $dato['cantidad'] = $datoLookup[$dato['termino_x']][$dato['nombre']] ?? 0;
         }
 
-
         return response()->json([
             'total' => $total,
-            'data' =>  Math::completarArray($combinations, 'termino_x', 'nombre'),
+            'data' => Math::completarArray($combinations, 'termino_x', 'nombre'),
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
-            'nombre' => "nombre",
+            'nombre' => 'nombre',
             'terminos' => $arrayX,
-            'multiVariable' => true
+            'multiVariable' => true,
         ]);
     }
 
-
-    function obtenerTerminos(Request $request)
+    public function obtenerTerminos(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string|in:maxima,sintesis,restrictor,ratio,precedente,proceso,demandante,demandado',
@@ -2009,17 +1863,16 @@ class ResolutionController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
 
         $nombre = $request->input('nombre');
 
         $elemento = Listas::obtenerItem($nombre);
         if ($elemento == null) {
             return response()->json([
-                'error' => 'No existe la variable solicitada'
+                'error' => 'No existe la variable solicitada',
             ], 422);
         }
 
@@ -2033,8 +1886,7 @@ class ResolutionController extends Controller
         return response()->json($datos);
     }
 
-
-    function buscarTerminos(Request $request)
+    public function buscarTerminos(Request $request)
     {
         // Validación de parámetros
         $validator = Validator::make($request->all(), [
@@ -2047,38 +1899,36 @@ class ResolutionController extends Controller
         // Si la validación falla, retornar un error
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-
 
         $tableName = $request->input('tabla');
         $columnName = $request->input('columna');
         $termino = $request->input('termino');
         $pagina = $request->input('pagina', 1);
 
-        $results = DB::table($tableName . ' as t')
-            ->selectRaw("count(id) as cantidad")
+        $results = DB::table($tableName.' as t')
+            ->selectRaw('count(id) as cantidad')
             ->whereRaw("LOWER(t.$columnName) ~* ?", [mb_strtolower($termino, 'UTF-8')])
             ->get()->pluck('cantidad');
 
-
         $total = array_sum($results->toArray());
+
         return response()->json([
-            'total' => $total
+            'total' => $total,
         ]);
 
         return response()->json($results);
     }
 
-
     public function generarConsulta($tablas)
     {
         // Base query
-        $query = DB::table("resolutions as r")
+        $query = DB::table('resolutions as r')
             ->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
 
-        $selects = ["COALESCE(COUNT(r.id), 0) AS cantidad"];
+        $selects = ['COALESCE(COUNT(r.id), 0) AS cantidad'];
         $group_by = [];
         $having = [];
 
@@ -2091,11 +1941,11 @@ class ResolutionController extends Controller
                 $lista = ['tipo_resolucion', 'departamento', 'sala', 'magistrado'];
 
                 if (in_array($columnName, $lista)) {
-                    $table = $columnName . 's';
-                    $column = $columnName . '_id';
+                    $table = $columnName.'s';
+                    $column = $columnName.'_id';
 
                     // Join with the related table
-                    $query->join("$table as t_$columnName", "t_$columnName.id", "=", "r.$column");
+                    $query->join("$table as t_$columnName", "t_$columnName.id", '=', "r.$column");
 
                     // Add to select and group by
                     $selects[] = "t_$columnName.nombre AS $columnName";
@@ -2107,7 +1957,8 @@ class ResolutionController extends Controller
                     // Dynamically handle CASE statements based on the table
                     $caseConditions = array_map(function ($termino) use ($columnName, $tableName) {
                         $columnTable = $tableName === 'resolutions' ? 'r' : 'j';  // Check if the table is 'resolutions' or 'jurisprudencias'
-                        return "WHEN $columnTable.$columnName ~* '^" . preg_quote($termino, '/') . "' THEN '$termino'";
+
+                        return "WHEN $columnTable.$columnName ~* '^".preg_quote($termino, '/')."' THEN '$termino'";
                     }, $values);
 
                     // Join the conditions directly in the CASE statement
@@ -2126,11 +1977,11 @@ class ResolutionController extends Controller
         }
 
         // Finalize the query with selects, group by, and having
-        $query->selectRaw(implode(", ", $selects))
-            ->groupByRaw(implode(", ", $group_by));
+        $query->selectRaw(implode(', ', $selects))
+            ->groupByRaw(implode(', ', $group_by));
 
         if (count($having) > 0) {
-            $query->havingRaw(implode(" AND ", $having));
+            $query->havingRaw(implode(' AND ', $having));
         }
 
         $query->orderByDesc('cantidad');
@@ -2138,7 +1989,6 @@ class ResolutionController extends Controller
         // Return the results
         return $query->get();
     }
-
 
     public function ordenarArrayXY($combinations, $nombreX, $nombreY)
     {
@@ -2179,14 +2029,14 @@ class ResolutionController extends Controller
             $resultado[] = $row;
         }
 
-
         // Paso 1: Filtrar filas que tienen todos los valores numéricos en 0 (excepto "nombre")
         $filteredRows = array_filter($resultado, function ($item) {
             foreach ($item as $key => $value) {
-                if ($key !== 'nombre' && (int)$value !== 0) {
+                if ($key !== 'nombre' && (int) $value !== 0) {
                     return true;
                 }
             }
+
             return false;
         });
 
@@ -2195,11 +2045,13 @@ class ResolutionController extends Controller
         $keysToRemove = [];
 
         foreach ($allKeys as $key) {
-            if ($key === 'nombre') continue; // No evaluar 'nombre'
+            if ($key === 'nombre') {
+                continue;
+            } // No evaluar 'nombre'
 
             $allZeros = true;
             foreach ($filteredRows as $row) {
-                if ((int)$row[$key] !== 0) {
+                if ((int) $row[$key] !== 0) {
                     $allZeros = false;
                     break;
                 }
@@ -2215,6 +2067,7 @@ class ResolutionController extends Controller
             foreach ($keysToRemove as $key) {
                 unset($item[$key]);
             }
+
             return $item;
         }, $filteredRows);
 

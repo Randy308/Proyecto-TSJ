@@ -8,15 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class FormaResolucions extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'nombre',
     ];
-    
-    
+
     protected $hidden = [
         'created_at',
         'updated_at',
     ];
+
     public function resolutions()
     {
         return $this->hasMany(Resolutions::class);

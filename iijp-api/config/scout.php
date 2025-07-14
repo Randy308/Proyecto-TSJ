@@ -237,8 +237,8 @@ return [
                     'enable_nested_fields' => true,
                     'distinct' => 'resolution_id',
                 ],
-                "search-parameters" => [
-                    "query_by" => "descriptor, ratio, restrictor, precedente, proceso, maxima, sintesis",
+                'search-parameters' => [
+                    'query_by' => 'descriptor, ratio, restrictor, precedente, proceso, maxima, sintesis',
                 ],
             ],
             Resolutions::class => [
@@ -266,10 +266,10 @@ return [
                     'token_separators' => ['-', '_'],
                     'enable_nested_fields' => true,
                 ],
-                "search-parameters" => [
-                    "query_by" => "contenido, demandante, demandado, nro_resolucion, nro_expediente, sintesis, precedente, proceso, maxima",
+                'search-parameters' => [
+                    'query_by' => 'contenido, demandante, demandado, nro_resolucion, nro_expediente, sintesis, precedente, proceso, maxima',
                 ],
-            ]
+            ],
         ],
     ],
 

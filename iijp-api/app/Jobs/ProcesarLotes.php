@@ -10,10 +10,12 @@ class ProcesarLotes implements ShouldQueue
 {
     use Queueable;
 
-
     protected int $iterations;
+
     protected int $lastId;
+
     protected int $userId;
+
     protected string $jobId;
 
     public function __construct(int $iterations, int $lastId, int $userId)
@@ -40,7 +42,6 @@ class ProcesarLotes implements ShouldQueue
                 'batch_size' => $batchSize,
             ];
             Log::info("Procesando $lote[start] a $lote[end] para el usuario $lote[user_id] con job_id $lote[job_id]");
-
 
             ProcesarWebScrapping::dispatch($lote);
         }

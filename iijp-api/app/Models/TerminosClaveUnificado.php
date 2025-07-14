@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class TerminosClaveUnificado extends Model
 {
     use HasFactory;
+
     protected $table = 'terminos_clave_unificados';
+
     protected $fillable = [
         'nombre',
         'cantidad',
-        'campo'
+        'campo',
     ];
 }

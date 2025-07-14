@@ -13,7 +13,6 @@ use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
-
     public function Authuser(Request $request)
     {
         $user = Auth::user();
@@ -34,10 +33,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
 
-        Log::info('CSRF Token from header: ' . $request->header('X-CSRF-TOKEN'));
-        Log::info('CSRF Token from session: ' . $request->session()->token());
+        Log::info('CSRF Token from header: '.$request->header('X-CSRF-TOKEN'));
+        Log::info('CSRF Token from session: '.$request->session()->token());
         Log::info('XSRF-TOKEN from header:', [$request->header('X-XSRF-TOKEN')]);
-
 
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
@@ -51,10 +49,10 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Credenciales incorrectas.',
             ], 401);
@@ -88,7 +86,6 @@ class AuthController extends Controller
         return response()->json($response, 200);
     }
 
-
     public function register(Request $request)
     {
         $response = ['success' => false];
@@ -111,7 +108,7 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -123,8 +120,9 @@ class AuthController extends Controller
         $user->assignRole('user');
 
         $response['success'] = true;
-        //$response['user'] =  $user;
-        //$response['token'] = $user->createToken('web token')->plainTextToken;
+
+        // $response['user'] =  $user;
+        // $response['token'] = $user->createToken('web token')->plainTextToken;
         return response()->json($response, 200);
     }
 }

@@ -29,9 +29,9 @@ return new class extends Migration
                 COALESCE(d.id, j.descriptor_id);
         ");
 
-        DB::statement("CREATE UNIQUE INDEX resumen_jerarquico_uidx ON resumen_jerarquico (id);");
+        DB::statement('CREATE UNIQUE INDEX resumen_jerarquico_uidx ON resumen_jerarquico (id);');
 
-        DB::statement("
+        DB::statement('
             CREATE OR REPLACE FUNCTION refrescar_resumen_jerarquico()
             RETURNS trigger AS $$
             BEGIN
@@ -39,7 +39,7 @@ return new class extends Migration
                 RETURN NULL;
             END;
             $$ LANGUAGE plpgsql;
-        ");
+        ');
 
         // DB::statement("
         //     CREATE TRIGGER trg_refresh_resumen_jerarquico
@@ -55,8 +55,8 @@ return new class extends Migration
     public function down(): void
     {
         // DB::statement("DROP TRIGGER IF EXISTS trg_refresh_resumen_jerarquico ON jurisprudencias;");
-        DB::statement("DROP FUNCTION IF EXISTS refrescar_resumen_jerarquico;");
-        DB::statement("DROP INDEX IF EXISTS resumen_jerarquico_uidx;");
-        DB::statement("DROP MATERIALIZED VIEW IF EXISTS resumen_jerarquico;");
+        DB::statement('DROP FUNCTION IF EXISTS refrescar_resumen_jerarquico;');
+        DB::statement('DROP INDEX IF EXISTS resumen_jerarquico_uidx;');
+        DB::statement('DROP MATERIALIZED VIEW IF EXISTS resumen_jerarquico;');
     }
 };

@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,10 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//$role = Role::create(['name'=> 'admin']);
-//$role = Role::create(['name'=> 'user']);
-
-
+// $role = Role::create(['name'=> 'admin']);
+// $role = Role::create(['name'=> 'user']);
 
 Route::get('/{any}', function () {
     return view('index');
