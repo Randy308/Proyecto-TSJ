@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react";
 import MultiBtnDropdown from "./MultiBtnDropdown";
-import type { FiltroNombre, ListaData, ListaX, Variable } from "../types";
+import type { Facetas, FiltroNombre, ListaData, ListaX } from "../types";
 
 interface SelectProps {
   limite: number;
   listaX: ListaX[];
   setListaX: React.Dispatch<React.SetStateAction<ListaX[]>>;
-  memoizedParams: Variable;
+  memoizedParams: Facetas;
 }
 
 const Select = ({ memoizedParams, limite, listaX, setListaX }: SelectProps) => {

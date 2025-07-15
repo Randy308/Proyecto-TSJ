@@ -1,9 +1,9 @@
 import { createContext, useContext } from "react";
-import type { Variable } from "../types";
+import type { Facetas } from "../types";
 
 export interface VariableContextType {
-  data: Variable | undefined;
-  setData: React.Dispatch<React.SetStateAction<Variable| undefined>>;
+  data: Facetas | undefined;
+  setData: React.Dispatch<React.SetStateAction<Facetas | undefined>>;
 }
 
 export const VariablesContext = createContext<VariableContextType | undefined>(

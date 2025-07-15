@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import {RoleService} from "../services";
+import { RoleService } from "../services";
 import { useLocation } from "react-router-dom";
 import type { ContextProviderProps } from "../types";
 import { RoleContext, useAuthContext } from "../context";
-
 
 interface Role {
   roleName: string;
@@ -15,8 +14,7 @@ interface ValueContextType {
   obtenerRoles: () => Promise<void>;
 }
 
-
-export const RoleContextProvider = ({ children }:ContextProviderProps) => {
+export const RoleContextProvider = ({ children }: ContextProviderProps) => {
   const { hasAccess, hasAnyPermission } = useAuthContext();
   const [roles, setRoles] = useState<Role[] | undefined>(undefined);
 
@@ -25,19 +23,6 @@ export const RoleContextProvider = ({ children }:ContextProviderProps) => {
 
   //const user = getUser();
   useEffect(() => {
-    if (
-      hasAnyPermission([
-        "ver_rol",
-        "crear_roles",
-        "eliminar_roles",
-        "actualizar_roles",
-        "ver_roles",
-        "asignar_permisos",
-        "quitar_permisos",
-      ])
-    ) {
-      console.log("User has permissions to view roles");
-    }
     if (!hasAccess()) return;
 
     if (
@@ -74,7 +59,7 @@ export const RoleContextProvider = ({ children }:ContextProviderProps) => {
     }
   };
 
-  const valor:ValueContextType = { roles, obtenerRoles };
+  const valor: ValueContextType = { roles, obtenerRoles };
 
   return <RoleContext.Provider value={valor}>{children}</RoleContext.Provider>;
 };

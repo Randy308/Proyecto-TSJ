@@ -35,6 +35,22 @@ const Sidebar = () => {
               <span className="ms-3">Dashboard</span>
             </NavLink>
           </li>
+          <li>
+            <NavLink
+              to="/perfil-usuario"
+              onClick={() => setShow(false)}
+              className={({ isActive }) =>
+                `flex items-center p-2  rounded-lg  group ${
+                  isActive
+                    ? "dark:text-white text-gray-900"
+                    : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`
+              }
+            >
+              <RiDashboard2Fill className="w-5 h-5  transition duration-75 " />
+              <span className="ms-3">Perfil de Usuario</span>
+            </NavLink>
+          </li>
           {can("ver_usuarios") && (
             <>
               <li>

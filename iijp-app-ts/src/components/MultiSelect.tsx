@@ -38,7 +38,7 @@ const MultiSelect = ({
   };
 
   return (
-    <div className="flex dark:bg-gray-600 relative m-2 justify-between items-center gap-2 border rounded-md py-2 w-auto lg:w-96">
+    <div className="flex dark:bg-gray-800 relative m-2 justify-between items-center gap-2 border rounded-md py-2 w-auto lg:w-96">
       <div className="ps-1">
         {selectedOptions.length > 0 ? (
           <>
@@ -84,9 +84,10 @@ const MultiSelect = ({
           }`}
         >
           <input
+          
             type="text" onChange={search} value={searchTerm}
             placeholder="Buscar..."
-            className="p-2 m-2 border rounded-lg"
+            className="p-2 m-2 dark:text-black border rounded-lg"
           />
           {filteredOptions.map(
             (option) =>

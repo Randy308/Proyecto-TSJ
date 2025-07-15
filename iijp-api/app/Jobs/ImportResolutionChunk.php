@@ -40,25 +40,32 @@ class ImportResolutionChunk implements ShouldBeUnique, ShouldQueue
     /**
      * Execute the job.
      */
+
+    public $tries = 1; // no reintentar, ya que los errores se manejan por fila
+
     public function handle(): void
     {
-
         $totalFilas = 0;
-
         $filasOmitidas = 0;
+        $filasExitosas = 0;
 
-        $this->chunk->each(function (array $row)  use (&$totalFilas, &$filasOmitidas) {
-
-
+        $this->chunk->each(function (array $row) use (&$totalFilas, &$filasOmitidas, &$filasExitosas) {
             $totalFilas++;
+
+            // Evitar duplicados
             if (Mapeos::where('external_id', $row['id'])->exists()) {
                 $filasOmitidas++;
-
                 return;
             }
 
             try {
-                // Construye el arreglo con todos los campos posibles
+                // Validación básica de campos mínimos requeridos
+                if (empty($row['nro_resolucion']) || empty($row['fecha_emision'])) {
+                    Log::warning('Fila omitida por datos mínimos faltantes.', ['row' => $row]);
+                    $filasOmitidas++;
+                    return;
+                }
+
                 $data = [
                     'departamento_id' => $row['departamento_id'] ?? null,
                     'sala_id' => $row['sala_id'] ?? null,
@@ -78,15 +85,19 @@ class ImportResolutionChunk implements ShouldBeUnique, ShouldQueue
                     'sintesis' => $row['sintesis'] ?? null,
                 ];
 
-                // Elimina claves con valores null o vacíos
                 $filteredData = Arr::where($data, fn($value) => !is_null($value) && $value !== '');
 
-                // Crear la resolución
-                $resolution = Resolutions::withoutSyncingToSearch(fn() => Resolutions::create($filteredData));
+                // Crear resolución
+                $resolution = Resolutions::withoutSyncingToSearch(function () use ($filteredData) {
+                    return Resolutions::create($filteredData);
+                });
 
                 if (!$resolution) {
+                    $filasOmitidas++;
                     return;
                 }
+
+                // Asociar contenido y mapeo
                 Contents::create([
                     'contenido' => $row['contenido'] ?? '',
                     'resolution_id' => $resolution->id,
@@ -98,22 +109,26 @@ class ImportResolutionChunk implements ShouldBeUnique, ShouldQueue
                 ]);
 
                 $resolution->searchable();
-            } catch (\Exception $e) {
-                Log::error('Error al procesar fila', [
-                    'error' => substr($e->getMessage(), 0, 800),
-                ]);
-
+                $filasExitosas++;
+            } catch (\Throwable $e) {
                 $filasOmitidas++;
+
+                Log::error('Error al procesar fila', [
+                    'mensaje' => $e->getMessage(),
+                    'row_id' => $row['id'] ?? null,
+                    'trace' => substr($e->getTraceAsString(), 0, 1000),
+                ]);
             }
         });
 
         Notification::create([
             'user_id' => $this->userId,
-            'mensaje' => $totalFilas > 0
-                ? "La tarea finalizó con éxito. {$totalFilas} resoluciones nuevas, se omitieron {$filasOmitidas}."
-                : 'El scraping finalizó sin nuevas resoluciones, se omitieron todas las filas.',
+            'mensaje' => $filasExitosas > 0
+                ? "La tarea finalizó: {$filasExitosas} resoluciones guardadas, {$filasOmitidas} filas omitidas."
+                : 'La tarea finalizó sin resoluciones guardadas. Todas las filas fueron omitidas.',
         ]);
     }
+
 
     public function uniqueId(): string
     {

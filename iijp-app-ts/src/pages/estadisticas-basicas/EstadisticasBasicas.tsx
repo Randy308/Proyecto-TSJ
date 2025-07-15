@@ -7,12 +7,13 @@ import { ResolucionesService } from "../../services";
 import { filterForm } from "../../utils/filterForm";
 import { useNavigate } from "react-router-dom";
 import { departamentos } from "../../data/Mapa";
-import type { FormListaX, ListaX, MagistradoItem } from "../../types";
+import type { FormListaX, ListaX, MagistradoItem, Variables } from "../../types";
 import { toast } from "react-toastify";
 import AsyncButton from "../../components/AsyncButton";
 
 const EstadisticasBasicas = () => {
   const { data } = useVariablesContext();
+  const variables = data as Variables;
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [selector, setSelector] = useState<ListaX[]>([] as ListaX[]);
@@ -52,10 +53,10 @@ const EstadisticasBasicas = () => {
 
   const updateMagistrados = (periodo: string) => {
     if (periodo === "all" || periodo === null) {
-      setValidMagistrados(data?.magistrado);
+      setValidMagistrados(variables?.magistrado);
     } else {
       const startDate = parseInt(periodo);
-      const filteredMagistrados = data?.magistrado.filter((item) => {
+      const filteredMagistrados = variables?.magistrado.filter((item) => {
         const fechaMin = parseInt(item.fecha_min);
         const fechaMax = parseInt(item.fecha_max);
         return fechaMax >= startDate && fechaMin <= startDate;
@@ -105,7 +106,7 @@ const EstadisticasBasicas = () => {
   useEffect(() => {
     updateMagistrados("all");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [variables]);
 
   return (
     <div>
@@ -136,10 +137,10 @@ const EstadisticasBasicas = () => {
                 </a>
               </li>
               <ul className="grid grid-cols-3 gap-2">
-                {data &&
-                  data.periodo &&
-                  Array.isArray(data.periodo) &&
-                  data.periodo.map((item) => (
+                {variables &&
+                  variables.periodo &&
+                  Array.isArray(variables.periodo) &&
+                  variables.periodo.map((item) => (
                     <li key={item.id}>
                       <input
                         type="checkbox"
@@ -180,14 +181,14 @@ const EstadisticasBasicas = () => {
           </div>
 
           <div className="sm:p-4 sm:m-4">
-            {data && data.materia && Array.isArray(data.materia) && (
+            {variables && variables.materia && Array.isArray(variables.materia) && (
               <MultiBtnDropdown
                 setVisible={setVisible}
                 name={"materia"}
                 listaX={selector}
                 limite={limite}
                 setListaX={setSelector}
-                contenido={data.materia}
+                contenido={variables.materia}
                 visible={visible}
                 size={6}
               />
@@ -206,14 +207,14 @@ const EstadisticasBasicas = () => {
               />
             )}
 
-            {data && data.sala && Array.isArray(data.sala) && (
+            {variables && variables.sala && Array.isArray(variables.sala) && (
               <MultiBtnDropdown
                 setVisible={setVisible}
                 name={"sala"}
                 listaX={selector}
                 limite={limite}
                 setListaX={setSelector}
-                contenido={data.sala}
+                contenido={variables.sala}
                 visible={visible}
                 size={6}
               />

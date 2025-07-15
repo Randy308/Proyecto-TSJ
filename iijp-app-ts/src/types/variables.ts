@@ -1,24 +1,39 @@
 import type { FiltroNombre } from "./data";
 
-export interface VariableOld{
-    nombre:FiltroNombre
-    datos:ListaData[]
+export interface VariableOld {
+  nombre: FiltroNombre;
+  datos: ListaData[];
 }
-
-
-
 
 export interface MagistradoItem extends ListaData {
   fecha_min: string;
   fecha_max: string;
 }
 
-export interface ListaData{
-    id:number;
-    nombre:string;
+export interface ListaData {
+  id: number;
+  nombre: string;
 }
 
-export interface Variable {
+export interface Faceta {
+  id: number;
+  nombre?: string;
+  cantidad?: number;
+  fecha_min?: string;
+  fecha_max?: string;
+}
+
+export interface Facetas {
+  departamento: Faceta[];
+  sala: Faceta[];
+  tipo_jurisprudencia: Faceta[];
+  tipo_resolucion: Faceta[];
+  forma_resolucion: Faceta[];
+  magistrado: Faceta[];
+  materia: Faceta[];
+  periodo?: Faceta[];
+}
+export interface Variables {
   departamento: ListaData[];
   sala: ListaData[];
   tipo_jurisprudencia: ListaData[];
@@ -26,10 +41,8 @@ export interface Variable {
   forma_resolucion: ListaData[];
   magistrado: MagistradoItem[];
   materia: ListaData[];
-  periodo?: ListaData[]; 
+  periodo?: ListaData[];
 }
-
-
 
 export interface Resolucion {
   nro_resolucion?: string;
@@ -47,7 +60,6 @@ export interface Resolucion {
   sintesis?: string;
   contenido?: string;
   id?: number;
-  
 }
 export interface Jurisprudencia {
   ratio?: string;

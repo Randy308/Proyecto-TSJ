@@ -33,19 +33,19 @@ instance.interceptors.request.use(async (config) => {
   return config;
 });
 
-// instance.interceptors.response.use(
-//   (response) => {
-//     return response;
-//   },
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       console.error(
-//         "Sesión expirada o no autorizada. Redirigiendo al login..."
-//       );
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+instance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      console.error(
+        "Sesión expirada o no autorizada. Redirigiendo al login..."
+      );
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const AuthService = {
   getRegister: (data: CreateUser) => instance.post(`/register`, data), // Correct path

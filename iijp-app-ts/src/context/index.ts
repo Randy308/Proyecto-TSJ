@@ -10,3 +10,4 @@ export * from "./themeContext";
 export * from "./userContext";
 export * from "./variablesContext";
 export * from "./authContext";
+export * from "./formContext";

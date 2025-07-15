@@ -1,20 +1,38 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PasswordInput from "../components/form/PasswordInput";
-import EmailInput from "../components/form/EmailInput";
 import { CgSpinner } from "react-icons/cg";
 import { useAuthContext } from "../context";
+import { EmailInput, PasswordInput } from "../components/form";
+import type { CreateUser, FormInput, UserFields } from "../types";
 
 export function Login() {
   const { hasAccess, login } = useAuthContext();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("admin@example.com");
-  const [password, setPassword] = useState("password");
+  const [formState, setFormState] = useState<FormInput>({
+    email: false,
+    password: false,
+  });
 
-  const [emailError, setEmailError] = useState<string>("");
-  const [passwordError, setPasswordError] = useState<string>("");
+  const [formData, setFormData] = useState<CreateUser>({
+    email: "",
+    password: "",
+  });
 
+  const setParams = (name: UserFields, value: string | number) => {
+    setFormData((prevData: CreateUser) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const actualizarInput = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setParams(event.target.name as UserFields, event.target.value);
+  };
+
+  const [error, setError] = useState("");
   useEffect(() => {
     if (hasAccess()) {
       navigate("/");
@@ -22,25 +40,19 @@ export function Login() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkFields = (): boolean => {
-    return (
-      (emailError !== "" || passwordError !== "") &&
-      email.trim() !== "" &&
-      password.trim() !== ""
-    );
-  };
   const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (checkFields()) return;
+    const isFormValid = Object.values(formState).every(Boolean);
+    if (!isFormValid) return;
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const { success } = await login(email, password);
+      const { success } = await login(formData.email ?? "", formData.password ?? "");
 
       if (success) {
         navigate("/dashboard");
       } else {
-        setPasswordError("Email o contraseña incorrectos");
+        setError("Email o contraseña incorrectos");
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
@@ -64,24 +76,23 @@ export function Login() {
               SAMED
             </div>
             <EmailInput
-              email={email}
-              setEmail={setEmail}
-              emailError={emailError}
-              setEmailError={setEmailError}
+              email={formData.email}
+              setEmail={actualizarInput}
+              setFormState={setFormState}
             />
 
             <PasswordInput
-              password={password}
-              setPassword={setPassword}
-              passwordError={passwordError}
-              setPasswordError={setPasswordError}
+              password={formData.password ?? ""}
+              setPassword={actualizarInput}
+              setFormState={setFormState}
             />
+            {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
 
             <button
               type="submit"
-              disabled={checkFields()}
+              disabled={!formState}
               className={`text-white bg-red-octopus-700 hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 ${
-                checkFields()
+                !formState
                   ? "bg-gray-300 cursor-not-allowed hover:bg-gray-300"
                   : ""
               }`}

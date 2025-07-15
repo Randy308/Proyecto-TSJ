@@ -11,6 +11,7 @@ class Descriptor extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'nombre',
         'descriptor_id',
     ];

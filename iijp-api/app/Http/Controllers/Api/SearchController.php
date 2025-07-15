@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\FacetaResource;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
 use App\Utils\NLP;
@@ -333,8 +334,10 @@ class SearchController extends Controller
         $facetas = $search['facets'] ?? [];
 
         foreach ($facetas as $nombre => $facetGroup) {
-            $facetas[$nombre] = array_column($facetGroup, 'key');
+            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
         }
+
+
 
         //return response()->json($search, 200);
         return response()->json([
@@ -355,38 +358,60 @@ class SearchController extends Controller
             'materia' => 'nullable|integer',
         ]);
 
-        $query = $request->input('busqueda', '');
-        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) {
-            $options['facets'] = ['descriptor_facet'];
 
-            return $meilisearch->search($query, $options);
-        });
+        $query = $request->input('busqueda', 'derecho');
+        $highlight = $request->input('highlight', 'contenido');
 
-        if ($request->has('materia')) {
-            $materia = $request->input('materia');
-            $search->where('materia', $materia);
+        // Parámetros de paginación
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
+        $offset = ($page - 1) * $perPage;
+        $highlight = ['contenido', 'sintesis', 'precedente', 'maxima', 'proceso'];
+        $highlight = ['descriptor', 'ratio', 'restrictor'];
+        // $highlight = ['descriptor'];
+        $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'materia', 'magistrado', 'forma_resolucion'];
+
+        $highlight = $request->input('highlight', ['sintesis']);
+
+        // Parámetros de paginación
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 5);
+        $offset = ($page - 1) * $perPage;
+        $select = ['resolution_id', 'jurisprudencia_id as id'];
+
+
+
+        $search = Jurisprudencias::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $highlight, $select) {
+
+
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@descriptor $query')")
+                ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
+                ->facet('descriptor_facet')->groupBy('resolution_id')->take($perPage)
+                ->offset($offset);
+            return $builder;
+        })->raw();
+
+        $facets = $search['facets']['descriptor_facet'] ?? [];
+        $facetas = [];
+
+        foreach ($facets as $value) {
+            $parts = explode('||', $value['key']);
+            if (count($parts) === 3) {
+                $facetas[] =  [
+                    'root_id' => intval($parts[0]),
+                    'descriptor_id' => intval($parts[1]),
+                    'descriptor' => $parts[2],
+                    'cantidad' => intval($value['count']),
+                ];
+            }
         }
-
-        $search = $search->raw();
-
-        $facets = $search['facetDistribution']['descriptor_facet'] ?? [];
-
-        $facets = collect($facets)->map(function ($count, $facet) {
-            $parts = explode('||', $facet);
-
-            return [
-                'root_id' => $parts[0],
-                'descriptor_id' => $parts[1],
-                'descriptor' => $parts[2],
-                'cantidad' => $count,
-            ];
-        })->values()->toArray();
-
-        usort($facets, function ($a, $b) {
+        
+    
+        usort($facetas, function ($a, $b) {
             return $a['cantidad'] < $b['cantidad'];
         });
 
-        return response()->json($facets);
+        return response()->json($facetas);
     }
 
     public function obtenerResolucionesCronologia(Request $request)
@@ -407,7 +432,7 @@ class SearchController extends Controller
             'departamento.*' => 'required|integer',
         ]);
 
-        $query = $request->input('busqueda', '');
+        $query = $request->input('busqueda', 'derecho');
         $highlight = $request->input('highlight', 'contenido');
 
         // Parámetros de paginación
@@ -419,91 +444,84 @@ class SearchController extends Controller
         // $highlight = ['descriptor'];
         $facetas = ['sala', 'departamento', 'tipo_resolucion', 'periodo', 'materia', 'magistrado', 'forma_resolucion'];
 
-        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset, $facetas) {
-            $options['attributesToHighlight'] = $highlight;
-            $options['attributesToCrop'] = $highlight;
-            $options['cropLength'] = 50;
-            $options['highlightPreTag'] = '<b class="highlight">';
-            $options['highlightPostTag'] = '</b>';
-            $options['limit'] = $perPage;
-            $options['offset'] = $offset;
-            $options['attributesToSearchOn'] = $highlight;
-            $options['facets'] = $facetas;
-            $options['attributesToRetrieve'] = [
-                'id',
-                'resolution_id',
-                'tipo_resolucion',
-                'nro_resolucion',
-                'periodo',
-                '_formatted',
-            ];
+        $highlight = $request->input('highlight', ['sintesis']);
 
-            return $meilisearch->search($query, $options);
-        });
-        if ($request->has('materia')) {
-            $materia = $request->input('materia');
-            $search->where('materia', $materia[0]);
-        }
+        // Parámetros de paginación
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
+        $offset = ($page - 1) * $perPage;
+        $select = ['resolution_id', 'jurisprudencia_id as id', 'nro_resolucion', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion', 'ratio', 'descriptor', 'restrictor'];
 
-        if ($request->has('descriptor')) {
-            $descriptor = $request->input('descriptor');
-            $search->where('descriptor_id', $descriptor);
-        }
-        if ($request->has('periodo')) {
-            $search->where('periodo', $request->periodo[0]);
-        }
 
-        if ($request->has('tipo_resolucion')) {
-            $search->whereIn('tipo_resolucion', $request->tipo_resolucion);
-        }
-        if ($request->has('sala')) {
-            $search->whereIn('sala', $request->sala);
-        }
-        if ($request->has('departamento')) {
-            $search->whereIn('departamento', $request->departamento);
-        }
-        if ($request->has('magistrado')) {
-            $search->whereIn('magistrado', $request->magistrado);
-        }
-        if ($request->has('forma_resolucion')) {
-            $search->whereIn('forma_resolucion', $request->forma_resolucion);
-        }
 
-        $search = $search->raw();
+        $search = Jurisprudencias::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $highlight, $select) {
 
-        // Solo los _formatted
-        $formattedResults = collect($search['hits'])->map(function ($hit) {
-            return $hit['_formatted'] ?? [];
-        });
 
-        $facets = $search['facetDistribution'] ?? [];
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@(ratio,restrictor,descriptor) $query')")
+                ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
+                ->facet('sala')->groupBy('resolution_id')
+                ->facet('departamento')
+                ->facet('tipo_resolucion')
+                ->facet('periodo')
+                ->facet('magistrado')
+                ->facet('materia')
+                ->facet('forma_resolucion')->take($perPage)
+                ->offset($offset);
 
-        $filtros = [];
-
-        foreach ($facetas as $value) {
-            if (! isset($facets[$value])) {
-                continue;
+            if ($request->has('materia')) {
+                $list = implode(',', $request->materia);
+                $builder->whereRaw("materia IN ($list)");
             }
 
-            $numericalKeys = array_map('intval', array_keys($facets[$value]));
+            if ($request->has('descriptor')) {
+                $item = intval( $request->descriptor);
+                $builder->whereRaw("descriptor_id = $item");
+            }
 
-            $filtered = array_filter($numericalKeys, function ($item) {
-                return $item !== 0;
-            });
+            if ($request->has('periodo')) {
+                $list = implode(',', $request->periodo);
+                $builder->whereRaw("periodo IN ($list)");
+            }
 
-            $filtros[$value] = array_values($filtered); // Reindexa
+            if ($request->has('tipo_resolucion')) {
+                $list = implode(',', $request->tipo_resolucion);
+                $builder->whereRaw("tipo_resolucion IN ($list)");
+            }
+            if ($request->has('sala')) {
+                $list = implode(',', $request->sala);
+                $builder->whereRaw("sala IN ($list)");
+            }
+            if ($request->has('departamento')) {
+                $list = implode(',', $request->departamento);
+                $builder->whereRaw("departamento IN ($list)");
+            }
+
+            if ($request->has('magistrado')) {
+                $list = implode(',', $request->magistrado);
+                $builder->whereRaw("magistrado IN ($list)");
+            }
+            if ($request->has('forma_resolucion')) {
+                $list = implode(',', $request->forma_resolucion);
+                $builder->whereRaw("forma_resolucion IN ($list)");
+            }
+            return $builder;
+        })->raw();
+
+        $facetas = $search['facets'] ?? [];
+
+        foreach ($facetas as $nombre => $facetGroup) {
+            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
         }
 
+        //return response()->json($search, 200);
         return response()->json([
-            'data' => $formattedResults,
-            'facets' => $filtros,
+            'data' => $search['hits'] ?? [],
+            'facets' => $facetas,
             'current_page' => $page,
             'per_page' => $perPage,
-            'total' => $search['estimatedTotalHits'] ?? 0,
-            'last_page' => ceil(($search['estimatedTotalHits'] ?? 0) / $perPage),
+            'total' => $search['meta']['total_found'] ?? 0,
+            'last_page' => ceil(($search['meta']['total_found'] ?? 0) / $perPage),
 
         ]);
-
-        return response()->json($resultados);
     }
 }

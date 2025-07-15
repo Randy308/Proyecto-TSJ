@@ -66,7 +66,7 @@ const Slider = () => {
                 className="sm:m-4 sm:p-4 grid grid-cols-1 md:grid-cols-2 gap-4"
               >
                 <div id="image-card" className="custom:p-1">
-                  <figure className="image-container w-full h-auto sm:h-[500px] overflow-hidden rounded-lg">
+                  <figure className="image-container flex items-center w-full h-auto sm:h-[500px] overflow-hidden rounded-lg">
                     <img
                       src={`${slide.image}`}
                       alt="slide"

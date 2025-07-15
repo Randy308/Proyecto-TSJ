@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import {UserService} from "../../../services";
-import PasswordInput from "../../../components/form/PasswordInput";
-
-import { useUserContext } from "../../../context/userContext";
-import { useRoleContext } from "../../../context/roleContext";
-import NameInput from "../../../components/form/NameInput";
-import EmailInput from "../../../components/form/EmailInput";
-import { validateErrors } from "../../../utils/filterForm";
+import { UserService } from "../../../services";
 import axios from "axios";
-import { useAuthContext } from "../../../context";
+import {
+  useAuthContext,
+  useRoleContext,
+  useUserContext,
+} from "../../../context";
+import { EmailInput, NameInput, PasswordInput } from "../../../components/form";
+import type { CreateUser, FormInput, UserFields } from "../../../types";
 
 interface CrearUsuarioProps {
   setShowModal: (val: boolean) => void;
@@ -21,17 +20,36 @@ const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
 
   const { obtenerUsers } = useUserContext();
   const { roles } = useRoleContext();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [selectedRol, setSelectedRol] = useState("");
-  const [password, setPassword] = useState("");
+  const [formState, setFormState] = useState<FormInput>({
+    email: false,
+    name: false,
+    password: false,
+    role: false,
+  });
 
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [nameError, setNameError] = useState("");
+  const [formData, setFormData] = useState<CreateUser>({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const setParams = (name: UserFields, value: string | number) => {
+    setFormData((prevData: CreateUser) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const actualizarInput = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setParams(event.target.name as UserFields, event.target.value);
+  };
 
   const changeRole = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedRol(event.target.value);
+    setFormState((prev) => ({ ...prev, role: true }));
   };
 
   useEffect(() => {
@@ -42,25 +60,26 @@ const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
         setSelectedRol(roles[0].roleName);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roles]);
 
-  const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
+  const submitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (
-      !validateErrors(Object.values({ emailError, nameError, passwordError }))
-    ) {
+
+    // Validar que el formulario sea válido
+    const isFormValid = Object.values(formState).every(Boolean);
+
+    if (!isFormValid) {
+      console.error("Formulario no válido");
       return;
     }
     try {
-      await UserService.createUser(
-        {
-          name: name,
-          email: email,
-          password: password,
-          role: selectedRol,
-        }
-      )
+      await UserService.createUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: selectedRol,
+      })
         .then(({ data }) => {
           if (data) {
             console.log(data);
@@ -98,22 +117,19 @@ const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
     <div className="container mx-auto pt-4 mt-4">
       <form>
         <NameInput
-          input={name}
-          setInput={setName}
-          setInputError={setNameError}
-          inputError={nameError}
+          input={formData.name ?? ""}
+          setInput={actualizarInput}
+          setFormState={setFormState}
         />
         <EmailInput
-          email={email}
-          setEmail={setEmail}
-          emailError={emailError}
-          setEmailError={setEmailError}
+          email={formData.email ?? ""}
+          setEmail={actualizarInput}
+          setFormState={setFormState}
         />
         <PasswordInput
-          password={password}
-          setPassword={setPassword}
-          passwordError={passwordError}
-          setPasswordError={setPasswordError}
+          password={formData.password ?? ""}
+          setPassword={actualizarInput}
+          setFormState={setFormState}
         />
         <div className="mb-6">
           <label
@@ -132,17 +148,18 @@ const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
             <option disabled defaultValue={""}>
               Escoge un rol
             </option>
-            {roles && roles.map((item) => (
-              <option key={item.id} value={item.roleName}>
-                {item.roleName}
-              </option>
-            ))}
+            {roles &&
+              roles.map((item) => (
+                <option key={item.id} value={item.roleName}>
+                  {item.roleName}
+                </option>
+              ))}
           </select>
         </div>
 
         <button
           type="submit"
-          onClick={() =>submitForm}
+          onClick={(e) => submitForm(e)}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Enviar

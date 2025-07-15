@@ -1,35 +1,41 @@
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
+import type { FormInput } from "../../types";
 
 interface EmailInputProps {
   email: string;
-  setEmail: React.Dispatch<React.SetStateAction<string>>;
-  emailError: string;
-  setEmailError: React.Dispatch<React.SetStateAction<string>>;
+  setEmail: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  setFormState: React.Dispatch<
+    React.SetStateAction<FormInput>
+  >;
 }
-const EmailInput = ({
-  email,
-  setEmail,
-  emailError,
-  setEmailError,
-}: EmailInputProps) => {
-  useEffect(() => {
-    validateEmail(email);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [email]);
 
-  const validateEmail = (value: string) => {
-    setEmail(value);
+const EmailInput = ({ email, setEmail, setFormState }: EmailInputProps) => {
+  const [emailError, setEmailError] = React.useState("");
 
+  const validateEmail = (value: string): string => {
     if (!value) {
-      setEmailError("El campo email es requerido");
-    } else if (
-      !value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
-    ) {
-      setEmailError("No es un email válido");
-    } else {
-      setEmailError("");
+      return "El campo email es requerido";
     }
+    if (!value.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)) {
+      return "No es un email válido";
+    }
+    return "";
   };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.trim();
+    setEmail(e); // ✅ actualizamos valor global solo en eventos
+    const error = validateEmail(value);
+    setFormState((prev) => ({ ...prev, email: !error }));
+  };
+
+  useEffect(() => {
+    const error = validateEmail(email);
+    setEmailError(error);
+    setFormState((prev) => ({ ...prev, email: !error }));
+    // No se hace setEmail aquí 👈
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar (puedes poner [email] si lo necesitas reactivo)
 
   return (
     <div className="mb-6">
@@ -44,7 +50,7 @@ const EmailInput = ({
         id="email"
         name="email"
         value={email}
-        onChange={(e) => validateEmail(e.target.value)}
+        onChange={handleChange}
         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
         placeholder="Ingrese su email"
         required

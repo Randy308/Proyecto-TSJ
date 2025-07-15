@@ -11,7 +11,7 @@ import TerminoClave from "./TerminoClave";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
 import { agregarTotalLista } from "../../utils/arrayUtils";
-import type { AnalisisData, ChartType, ListaX, Variable } from "../../types";
+import type { AnalisisData, ChartType, ListaX, Facetas } from "../../types";
 import type { ECElementEvent } from "echarts";
 import { OptionChart } from "../../components/OptionChart";
 import Tab from "../../components/Tab";
@@ -48,11 +48,11 @@ const AnalisisAvanzado = () => {
 
   const receivedForm = location.state?.params;
 
-  const memoizedParams: Variable = useMemo(() => {
+  const memoizedParams: Facetas = useMemo(() => {
     if (data) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { periodo, ...rest } = data; // Remove 'periodo' if not needed
-      return rest as Variable;
+      return rest as Facetas;
     }
     // Provide default empty arrays for all Variable properties
     return {

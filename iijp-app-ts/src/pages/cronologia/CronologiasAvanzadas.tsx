@@ -8,8 +8,8 @@ import {JurisprudenciaService} from "../../services";
 import {
   filterAtributte,
   filterForm,
-  filterParams,
   filterTitle,
+  obtenerFacetas,
 } from "../../utils/filterForm";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
@@ -24,8 +24,8 @@ import type {
   DatosArray,
   DatosArrayForm,
   FiltroBusqueda,
-  ListaData,
-  Variable,
+  Facetas,
+  Faceta,
 } from "../../types";
 
 interface Resultado {
@@ -55,7 +55,7 @@ const CronologiasAvanzadas = () => {
 
   const [descriptor, setDescriptor] = useState<number | null>(null);
   const [descriptorName, setDescriptorName] = useState<string>("");
-  const [facetas, setFacetas] = useState<Variable>({} as Variable);
+  const [facetas, setFacetas] = useState<Facetas>({} as Facetas);
   const [checked, setChecked] = useState(true);
   const [formData, setFormData] = useState<DatosArray>({});
 
@@ -210,7 +210,7 @@ const CronologiasAvanzadas = () => {
       .then((response) => {
         if (response.data.data.length > 0) {
           setResoluciones(response.data.data);
-          setFacetas(filterParams(response.data.facets, (data as Variable) || {}));
+          setFacetas(obtenerFacetas(response.data.facets, (data as Facetas) || {}));
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
           setTotalCount(response.data.total);
@@ -440,7 +440,7 @@ const CronologiasAvanzadas = () => {
                   <Filtros
                     key={name}
                     nombre={name as FiltroBusqueda}
-                    data={contenido as ListaData[]}
+                    data={contenido as Faceta[]}
                     formData={formData}
                     setFormData={setFormData}
                   />
@@ -521,7 +521,7 @@ const CronologiasAvanzadas = () => {
                                   name={`${filterAtributte(
                                     String(item.tipo_resolucion),
                                     "tipo_resolucion",
-                                    (data as Variable) || {}
+                                    (data as Facetas) || {}
                                   )} Nº${filterTitle(item.nro_resolucion)}`}
                                   color="link"
                                   full={false}

@@ -11,11 +11,12 @@ import { useVariablesContext } from "../../context/variablesContext";
 import { filterParams } from "../../utils/filterForm";
 import { agregarTotalLista } from "../../utils/arrayUtils";
 import type {
-  Variable,
+  Facetas,
   AnalisisData,
   ListaX,
   ChartType,
   FiltroNombre,
+  Variables,
 } from "../../types";
 import { OptionChart } from "../../components/OptionChart";
 import Tab from "../../components/Tab";
@@ -37,7 +38,7 @@ const AnalisisBasico = () => {
   const receivedForm = location.state?.validatedData;
   const [datos, setDatos] = useState<AnalisisData>([]);
   const [columna, setColumna] = useState<FiltroNombre | null>(null);
-  const [params, setParams] = useState<Variable>({} as Variable);
+  const [params, setParams] = useState<Facetas>({} as Facetas);
   const [columns, setColumns] = useState<Columns[]>([]);
   const [selected, setSelected] = useState<string>("bar");
   const [actual, setActual] = useState(true);
@@ -130,7 +131,7 @@ const AnalisisBasico = () => {
       ResolucionesService.obtenerFiltrosEstadisticos(receivedForm)
         .then((response) => {
           if (response.data) {
-            setParams(filterParams(response.data, (data as Variable) || {}));
+            setParams(filterParams(response.data, (data as Variables) || {}));
           }
         })
         .catch((err) => {

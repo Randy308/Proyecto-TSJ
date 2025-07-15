@@ -67,6 +67,8 @@ const ListaRoles = lazy(() =>
   }))
 );
 
+const PerfilUsuario = lazy(() => import("./pages/settings/Ajustes"));
+
 function App() {
   return (
     <AuthContextProvider>
@@ -88,6 +90,10 @@ function App() {
                                     <Route
                                       path="dashboard"
                                       element={<PanelAdmin />}
+                                    />
+                                    <Route
+                                      path="perfil-usuario"
+                                      element={<PerfilUsuario />}
                                     />
                                     <Route
                                       path="admin/resoluciones"

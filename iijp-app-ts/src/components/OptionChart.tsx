@@ -21,7 +21,7 @@ export const OptionChart = ({
   dataset,
   chartType,
   isMultiVariable,
-  border = true,
+  border = false,
   handleClick,
 }: OptionChartProps) => {
   // Configuraciones para una variable
@@ -411,7 +411,7 @@ export const OptionChart = ({
   return (
     <div
       className={`p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] h-[500px] md:h-[700px] ${
-        border ? "border shadow-lg border-gray-300 dark:border-gray-800" : ""
+        border ? "border shadow-lg border-gray-300 dark:border-0" : ""
       }`}
     >
       <ReactECharts

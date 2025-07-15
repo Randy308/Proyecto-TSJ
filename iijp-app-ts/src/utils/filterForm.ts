@@ -1,4 +1,11 @@
-import type { DatosArray,  ListaData, MagistradoItem, Variable } from "../types";
+import type {
+  DatosArray,
+  Faceta,
+  Facetas,
+  ListaData,
+  MagistradoItem,
+  Variables,
+} from "../types";
 
 export const filterForm = (formData: object) => {
   return Object.fromEntries(
@@ -36,17 +43,43 @@ export const validateErrors = (lista: string[]) => {
   return true;
 };
 
+export const obtenerFacetas = (response: Facetas, data: Facetas): Facetas => {
+   const lista = {} as Facetas;
 
+  for (const [key, value] of Object.entries(response)) {
+    // Validar que la clave existe en `data`
+    if (key in data) {
+      const tabla = key as keyof Facetas;
+      const list1 = value as Faceta[];
+      const list2 = data[tabla];
+
+      if (!Array.isArray(list2)) continue;
+
+      const map1 = Object.fromEntries(list1.map((item) => [item.id, item]));
+
+      const merged = list2
+        .filter((item) => map1[item.id])
+        .map((item) => ({
+          ...map1[item.id],
+          ...item, 
+        }));
+
+      lista[tabla] = merged as Faceta[];
+
+    }
+  }
+  return lista;
+};
 export const filterParams = (
   resultado: DatosArray,
-  data: Variable
-): Variable => {
-  const lista = {} as Variable;
+  data: Variables
+): Variables => {
+  const lista = {} as Variables;
 
   for (const [key, ids] of Object.entries(resultado)) {
     // Validar que la clave existe en `data`
     if (key in data) {
-      const tabla = key as keyof Variable;
+      const tabla = key as keyof Variables;
       const objeto = data[tabla];
 
       if (!Array.isArray(objeto)) continue;
@@ -62,8 +95,17 @@ export const filterParams = (
   return lista;
 };
 
-export const filterAtributte = (atributo: string, tabla: keyof Variable, data:Variable) => {
-  if (!atributo || atributo === "null" || atributo === "undefined" || atributo === "") {
+export const filterAtributte = (
+  atributo: string,
+  tabla: keyof Facetas,
+  data: Facetas
+) => {
+  if (
+    !atributo ||
+    atributo === "null" ||
+    atributo === "undefined" ||
+    atributo === ""
+  ) {
     return "";
   }
   const objeto = data[tabla];
@@ -80,7 +122,7 @@ export const titulo = (nombre: string) => {
   const string = nombre.replace(/_/i, " de ");
 
   // Función para poner tilde en "on" final
-  const agregarTilde = (str:string) => {
+  const agregarTilde = (str: string) => {
     // Si termina en "on" y no tiene tilde ya, reemplaza por "ón"
     return str.endsWith("on") ? str.slice(0, -2) + "ón" : str;
   };

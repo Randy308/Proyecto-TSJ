@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
-import { filterForm, filterParams, titulo } from "../../utils/filterForm";
+import { filterForm, obtenerFacetas, titulo , filterParams} from "../../utils/filterForm";
 import { IoMdClose } from "react-icons/io";
 import { IoMdSearch } from "react-icons/io";
 import { ResolucionesService } from "../../services";
@@ -10,10 +10,12 @@ import Paginate from "../../components/tables/Paginate";
 import { toast } from "react-toastify";
 import {
   type DatosArray,
-  type Variable,
+  type Facetas,
   type ListaData,
   type Resolucion,
   type FiltroBusqueda,
+  type Variables,
+  type Faceta,
 } from "../../types";
 import { FaInfo } from "react-icons/fa6";
 import MultiSelect from "../../components/MultiSelect";
@@ -22,12 +24,12 @@ const Busqueda = () => {
   const [errorBusqueda, setErrorBusqueda] = useState("");
 
   const [formData, setFormData] = useState<DatosArray>({});
-  const [selector, setSelector] = useState<Variable>({} as Variable);
+  const [selector, setSelector] = useState<Facetas>({} as Facetas);
   const [resoluciones, setResoluciones] = useState<Resolucion[]>([]);
   const [termino, setTermino] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const [facetas, setFacetas] = useState<Variable>({} as Variable);
+  const [facetas, setFacetas] = useState<Facetas>({} as Facetas);
   // const [searchType, setSearchType] = useState(null);
   const [lastPage, setLastPage] = useState(1);
   const [actualPage, setActualPage] = useState(1);
@@ -99,7 +101,7 @@ const Busqueda = () => {
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
           setFacetas(
-            filterParams(response.data.facets, (data as Variable) || {})
+            obtenerFacetas(response.data.facets, (data as Facetas) || {})
           );
           setTotalCount(response.data.total);
         } else {
@@ -116,7 +118,7 @@ const Busqueda = () => {
   };
 
   useEffect(() => {
-    setSelector(filterParams(formData, (data as Variable) || {}));
+    setSelector(filterParams(formData, (data as Variables) || {}));
   }, [data, formData]);
 
   const checkSearch = (valor: string) => {
@@ -188,13 +190,13 @@ const Busqueda = () => {
         <div className="rounded-lg py-3">
           <p className="text-2xl font-bold p-2">Filtros</p>
           <div className="gird grid-cols-1 gap-4 p-2 my-2">
-            {Object.entries((facetas || data) as Variable).map(
+            {Object.entries((facetas || data) as Facetas).map(
               ([name, contenido]) =>
                 !["materia", "tipo_jurisprudencia"].includes(name) && (
                   <Filtros
                     key={name}
                     nombre={name as FiltroBusqueda}
-                    data={contenido as ListaData[]}
+                    data={contenido as Faceta[]}
                     formData={formData}
                     setFormData={setFormData}
                   />
@@ -218,7 +220,7 @@ const Busqueda = () => {
                         key={index}
                         className="text-xs p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
                         onClick={() =>
-                          removeItem(item.id, name as keyof Variable)
+                          removeItem(item.id, name as keyof Facetas)
                         }
                       >
                         <span>{item.nombre}</span>

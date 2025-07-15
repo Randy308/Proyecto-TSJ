@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import {ResolucionesService} from "../services";
-import type { ContextProviderProps, Variable } from "../types";
+import type { ContextProviderProps, Facetas } from "../types";
 import { VariablesContext } from "../context";
 
 interface ValueContextType {
-  data: Variable | undefined;
-  setData: React.Dispatch<React.SetStateAction<Variable| undefined>>;
+  data: Facetas | undefined;
+  setData: React.Dispatch<React.SetStateAction<Facetas| undefined>>;
 }
 
 
 export const VariablesContextProvider = ({
   children,
 }: ContextProviderProps) => {
-  const [data, setData] = useState<Variable | undefined>({} as Variable);
+  const [data, setData] = useState<Facetas | undefined>({} as Facetas);
   useEffect(() => {
     obtenerVariables();
   }, []);
@@ -23,11 +23,11 @@ export const VariablesContextProvider = ({
       if (data) {
         setData(data);
       } else {
-        setData({} as Variable);
+        setData({} as Facetas);
       }
     } catch (err) {
       console.error("Existe un error:", err);
-      setData({} as Variable);
+      setData({} as Facetas);
     }
   };
 

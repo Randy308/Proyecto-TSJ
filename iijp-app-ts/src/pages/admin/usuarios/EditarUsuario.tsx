@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import {UserService} from "../../../services";
+import { UserService } from "../../../services";
 import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
 import { useUserContext } from "../../../context/userContext";
-import type{ CreateUser, UserFields } from "../../../types";
+import type { CreateUser, FormInput, UserFields } from "../../../types";
 import { useAuthContext } from "../../../context";
-
+import { EmailInput, NameInput, PasswordInput } from "../../../components/form";
 
 interface UsuarioProps {
   setShowModal: (val: boolean) => void;
@@ -21,6 +21,13 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
   const { roles } = useRoleContext();
   const { users, obtenerUsers } = useUserContext();
   const [formData, setFormData] = useState<CreateUser>({} as CreateUser);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setFormState] = useState<FormInput>({
+    email: false,
+    name: false,
+    password: false,
+    role: false,
+  });
 
   useEffect(() => {
     if (!can("actualizar_usuarios")) {
@@ -28,43 +35,53 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
     }
   }, [can, navigate]);
 
-  const setParams = (name: UserFields, value: string | number ) => {
+  const setParams = (name: UserFields, value: string | number) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const actualizarInput = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
+  const actualizarInput = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setParams(event.target.name as UserFields, event.target.value);
+  };
+
+  const changeRole = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      role: event.target.value.trim(),
+    }));
+    setFormState((prev) => ({ ...prev, role: true }));
   };
 
   useEffect(() => {
     if (users) {
-      setFormData((users as CreateUser[]).find((item) => item.id === id) || {} as CreateUser);
+      setFormData(
+        (users as CreateUser[]).find((item) => item.id === id) ||
+          ({} as CreateUser)
+      );
     }
-
   }, [id, users]);
 
-  const submitForm = async (e:React.MouseEvent<HTMLButtonElement>) => {
+  const submitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    try {
 
+    try {
       const filteredData = Object.fromEntries(
         Object.entries(formData).filter(
           ([value]) =>
-            value !== null &&
+            value && value !== null &&
             value !== undefined &&
             value !== "" &&
             value !== "all"
         )
       );
-      await UserService.updateUser(
-        id,
-        {
-          ...filteredData,
-        } as CreateUser
-      )
+
+      await UserService.updateUser(id, {
+        ...filteredData,
+      } as CreateUser)
         .then(({ data }) => {
           if (data) {
             setShowModal(false);
@@ -97,10 +114,10 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
           (error as { message: string }).message
         );
       }
-    } 
+    }
   };
 
-  if (formData === null || Object.keys(formData).length <= 0) {
+  if (!formData || !formData.email || !formData.name || !formData.role) {
     return (
       <div className="h-[400px]">
         <Loading></Loading>
@@ -110,58 +127,24 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
   return (
     <div className="container mx-auto pt-4 mt-4">
       <form>
-        <div className="mb-6">
-          <label
-            htmlFor="name"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Nombre completo
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name || ""}
-            onChange={(e) => actualizarInput(e)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="email"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email || ""}
-            onChange={(e) => actualizarInput(e)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="password"
-            className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >
-            Contraseña
-          </label>
-          <input
-            type="password"
-            value={formData.password || ""}
-            id="password"
-            name="password"
-            onChange={(e) => actualizarInput(e)}
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            placeholder="•••••••••"
-            required
-          />
-        </div>
+        <NameInput
+          input={formData.name ?? ""}
+          setInput={actualizarInput}
+          setFormState={setFormState}
+        />
+
+        <EmailInput
+          email={formData.email ?? ""}
+          setEmail={actualizarInput}
+          setFormState={setFormState}
+        />
+
+        <PasswordInput
+          password={formData.password ?? ""}
+          setPassword={actualizarInput}
+          setFormState={setFormState}
+          isEditing={true}
+        />
         <div className="mb-6">
           <label
             htmlFor="rol"
@@ -173,17 +156,18 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
             id="role"
             name="role"
             value={formData.role || ""}
-            onChange={(e) => actualizarInput(e)}
+            onChange={changeRole}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 capitalize"
           >
             <option disabled defaultValue={""} value={""}>
               Escoge un rol
             </option>
-            {roles && roles.map((item) => (
-              <option key={item.id} value={item.roleName}>
-                {item.roleName}
-              </option>
-            ))}
+            {roles &&
+              roles.map((item) => (
+                <option key={item.id} value={item.roleName}>
+                  {item.roleName}
+                </option>
+              ))}
           </select>
         </div>
         <button

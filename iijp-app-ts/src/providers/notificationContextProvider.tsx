@@ -8,7 +8,7 @@ import { useAuthContext } from "../context";
 export const NotificationContextProvider = ({
   children,
 }: ContextProviderProps) => {
-  const { hasAccess, logout } = useAuthContext();
+  const { hasAccess, logout ,authUser} = useAuthContext();
   const [notifications, setNotifications] = useState<
     Notification[] | undefined
   >(undefined);
@@ -18,7 +18,7 @@ export const NotificationContextProvider = ({
       obtenerNotificaciones();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authUser]);
 
   const obtenerNotificaciones = async () => {
     try {

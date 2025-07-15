@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { titulo } from "../utils/filterForm";
-import type { DatosArray, FiltroBusqueda, ListaData } from "../types";
-
+import type { DatosArray, Faceta, FiltroBusqueda } from "../types";
 
 interface FiltrosProps {
   nombre: FiltroBusqueda;
   formData: DatosArray;
-  data: ListaData[];
+  data: Faceta[];
   setFormData: React.Dispatch<React.SetStateAction<DatosArray>>;
 }
 const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
-  const selectedIds:number[] = formData[nombre] || [];
+  const selectedIds: number[] = formData[nombre] || [];
 
   const checkedAll = selectedIds.length === 0;
 
@@ -84,7 +83,7 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
           <div
             key={item.id}
             className={`${
-              show ? "block" : "hidden"
+              show ? "flex flex-row justify-between" : "hidden"
             } pl-4 pr-2 py-1 text-gray-700 dark:text-gray-400`}
           >
             <label className="flex items-center">
@@ -95,8 +94,13 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
                 checked={selectedIds.includes(item.id)}
                 onChange={handleCheckboxChange}
               />
-              {item.nombre}
+              <span>{item.nombre}</span>
             </label>
+            {item.cantidad && (
+              <span className="text-gray-500 text-xs dark:text-gray-300 ms-2">
+                {item.cantidad}
+              </span>
+            )}
           </div>
         ))}
       </div>

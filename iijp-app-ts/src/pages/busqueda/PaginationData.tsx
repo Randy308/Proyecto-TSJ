@@ -16,7 +16,7 @@ import { ResolucionesService } from "../../services";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
-import type { Resolucion, Variable } from "../../types";
+import type { Resolucion, Facetas } from "../../types";
 import { useVariablesContext } from "../../context";
 
 interface PaginationDataProps {
@@ -183,7 +183,7 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
                 name={`${filterAtributte(
                   (String(item.tipo_resolucion) || "").toLowerCase(),
                   "tipo_resolucion",
-                  (data || {}) as Variable
+                  (data || {}) as Facetas
                 )} Nº${filterTitle(item.nro_resolucion || "")}`}
                 large={true}
                 content={() => <ResolucionTSJ id={Number(item.id)} />}
@@ -224,8 +224,8 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
                           )
                         : filterAtributte(
                             (item[key as keyof Resolucion] || "").toString(),
-                            key as keyof Variable,
-                            (data || {}) as Variable
+                            key as keyof Facetas,
+                            (data || {}) as Facetas
                           )}
                     </span>
                   </div>
