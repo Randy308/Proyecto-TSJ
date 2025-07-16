@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FaRegCircle } from "react-icons/fa6";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
@@ -27,6 +27,7 @@ import type {
   Facetas,
   Faceta,
 } from "../../types";
+import { SkeltonTable } from "../../components/tables/SkeltonTable";
 
 interface Resultado {
   descriptor: string;
@@ -186,10 +187,6 @@ const CronologiasAvanzadas = () => {
     }
   };
 
-  useEffect(() => {
-    obtenerResoluciones();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData]);
 
   const obtenerResoluciones = async (page = 1) => {
     const validPage = page && !isNaN(page) && page > 0 ? page : 1;
@@ -448,7 +445,7 @@ const CronologiasAvanzadas = () => {
               </div>
               <div className="lg:flex-1">
                 <>
-                  {resoluciones.length > 0 && (
+                  {resoluciones.length > 0 ? (
                     <>
                       <div className="relative overflow-x-auto space-y-4">
                         {/* Selector global */}
@@ -590,7 +587,7 @@ const CronologiasAvanzadas = () => {
                         />
                       </div>
                     </>
-                  )}
+                  ):(<SkeltonTable />)}
                 </>
               </div>
             </div>

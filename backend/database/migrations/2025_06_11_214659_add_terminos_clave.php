@@ -19,6 +19,21 @@ return new class extends Migration
             $table->integer('cantidad');
         });
 
+        DB::statement('DROP TEXT SEARCH CONFIGURATION IF EXISTS spanish_custom CASCADE;');
+        DB::statement('DROP TEXT SEARCH DICTIONARY IF EXISTS spanish_custom CASCADE;');
+
+
+        DB::statement('create TEXT SEARCH DICTIONARY spanish_custom (
+            TEMPLATE = simple,
+            STOPWORDS = spanish
+        );');
+
+        DB::statement('CREATE TEXT SEARCH CONFIGURATION spanish_custom (COPY = pg_catalog.spanish);');
+
+        DB::statement('ALTER TEXT SEARCH CONFIGURATION spanish_custom
+            ALTER MAPPING FOR asciiword, asciihword, hword, hword_part, word, hword_asciipart
+            WITH spanish_custom;');
+
         $sql = <<<'SQL'
         CREATE OR REPLACE FUNCTION actualizar_terminos_clave_unificados()
         RETURNS void AS $$
@@ -26,17 +41,17 @@ return new class extends Migration
             TRUNCATE TABLE terminos_clave_unificados;
 
             INSERT INTO terminos_clave_unificados (campo, nombre, cantidad)
-            SELECT 'precedente', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_no_stem', coalesce(precedente, '')) FROM resolutions$q$) WHERE ndoc >= 200
+            SELECT 'precedente', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_custom', coalesce(precedente, '')) FROM resolutions$q$) WHERE ndoc >= 100
             UNION ALL
-            SELECT 'proceso', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_no_stem', coalesce(proceso, '')) FROM resolutions$q$) WHERE ndoc >= 200
+            SELECT 'proceso', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_custom', coalesce(proceso, '')) FROM resolutions$q$) WHERE ndoc >= 100
             UNION ALL
-            SELECT 'maxima', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_no_stem', coalesce(maxima, '')) FROM resolutions$q$) WHERE ndoc >= 200
+            SELECT 'maxima', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_custom', coalesce(maxima, '')) FROM resolutions$q$) WHERE ndoc >= 100
             UNION ALL
-            SELECT 'sintesis', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_no_stem', coalesce(sintesis, '')) FROM resolutions$q$) WHERE ndoc >= 200
+            SELECT 'sintesis', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_custom', coalesce(sintesis, '')) FROM resolutions$q$) WHERE ndoc >= 100
             UNION ALL
-            SELECT 'ratio', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_no_stem', coalesce(ratio, '')) FROM jurisprudencias$q$) WHERE ndoc >= 200
+            SELECT 'ratio', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_custom', coalesce(ratio, '')) FROM jurisprudencias$q$) WHERE ndoc >= 100
             UNION ALL
-            SELECT 'restrictor', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_no_stem', coalesce(restrictor, '')) FROM jurisprudencias$q$) WHERE ndoc >= 200;
+            SELECT 'restrictor', word, ndoc FROM ts_stat($q$SELECT to_tsvector('spanish_custom', coalesce(restrictor, '')) FROM jurisprudencias$q$) WHERE ndoc >= 100;
         END;
         $$ LANGUAGE plpgsql;
         SQL;
@@ -49,7 +64,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::statement('DROP FUNCTION IF EXISTS actualizar_terminos_clave_unificados();');
+        DB::statement('DROP FUNCTION IF EXISTS actualizar_terminos_clave_unificados() CASCADE;');
+        DB::statement('DROP TEXT SEARCH CONFIGURATION IF EXISTS spanish_custom CASCADE;');
+        DB::statement('DROP TEXT SEARCH DICTIONARY IF EXISTS spanish_custom CASCADE;');
         Schema::dropIfExists('terminos_clave_unificados');
     }
 };

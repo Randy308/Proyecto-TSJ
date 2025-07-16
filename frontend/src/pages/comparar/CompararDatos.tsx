@@ -3,8 +3,10 @@ import Dropdown from "../../components/Dropdown";
 import SimpleChart from "../../components/charts/SimpleChart";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
-import {ResolucionesService} from "../../services";
+import { ResolucionesService } from "../../services";
 import { filterForm } from "../../utils/filterForm";
+import { TablaMultivariable } from "../../components/TablaMultivariable";
+import type { BaseData } from "../../types";
 
 interface Resolucion {
   id: number;
@@ -23,6 +25,99 @@ interface FormData {
   campo: string;
   busqueda: string;
 }
+
+// --- Datos ---
+const data: BaseData[] = [
+  {
+    id: 1,
+    continente: "América",
+    pais: "México",
+    estado: "Jalisco",
+    ciudad: "Guadalajara",
+    cantidad: 1500000,
+  },
+  {
+    id: 2,
+    continente: "América",
+    pais: "México",
+    estado: "Jalisco",
+    ciudad: "Zapopan",
+    cantidad: 1400000,
+  },
+  {
+    id: 3,
+    continente: "América",
+    pais: "México",
+    estado: "Jalisco",
+    ciudad: "Tlaquepaque",
+    cantidad: 700000,
+  },
+  {
+    id: 4,
+    continente: "América",
+    pais: "México",
+    estado: "CDMX",
+    ciudad: "Ciudad de México",
+    cantidad: 9000000,
+  },
+  {
+    id: 5,
+    continente: "América",
+    pais: "México",
+    estado: "CDMX",
+    ciudad: "Tlalpan",
+    cantidad: 700000,
+  },
+  {
+    id: 6,
+    continente: "Europa",
+    pais: "España",
+    estado: "Cataluña",
+    ciudad: "Barcelona",
+    cantidad: 1600000,
+  },
+  {
+    id: 7,
+    continente: "Europa",
+    pais: "España",
+    estado: "Cataluña",
+    ciudad: "Hospitalet",
+    cantidad: 260000,
+  },
+  {
+    id: 8,
+    continente: "Europa",
+    pais: "España",
+    estado: "Madrid",
+    ciudad: "Madrid",
+    cantidad: 3200000,
+  },
+  {
+    id: 9,
+    continente: "América",
+    pais: "Argentina",
+    estado: "Buenos Aires",
+    ciudad: "Buenos Aires",
+    cantidad: 3000000,
+  },
+  {
+    id: 10,
+    continente: "América",
+    pais: "Argentina",
+    estado: "Buenos Aires",
+    ciudad: "La Plata",
+    cantidad: 700000,
+  },
+  {
+    id: 11,
+    continente: "América",
+    pais: "Argentina",
+    estado: "Córdoba",
+    ciudad: "Córdoba",
+    cantidad: 1400000,
+  },
+];
+
 const CompararDatos = () => {
   const [resoluciones, setResoluciones] = useState<Resolucion[] | null>(null);
   // const [geoData, setGeoData] = useState([]);
@@ -275,6 +370,7 @@ const CompararDatos = () => {
         </div>
       )}
 
+      <TablaMultivariable records={data} />
       {/* {geoData && geoData.length > 0 && (
         <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px] mb-8">
           <GeoChart contenido={geoData}></GeoChart>

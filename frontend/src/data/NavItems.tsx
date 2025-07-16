@@ -24,6 +24,15 @@ export const jurisprudenciaItems = [
     icon: <FaSearch className="icon-style" />,
     color: "ffc107",
   },
+  
+  {
+    id: 3,
+    title: "Busqueda",
+    path: "/busqueda",
+    cName: "nav-item",
+    lista: [],
+    icon: <FaHome className="icon-style"/>
+  },
 ];
 
 export const navItemsAnalisis = [
@@ -76,20 +85,12 @@ export const navItems = [
   },
   {
     id: 3,
-    title: "Cronojuridicas",
+    title: "Documentos",
     path: "/jurisprudencia",
     cName: "nav-item",
     lista:  jurisprudenciaItems,
     icon: (
       <FaFolderOpen className="flex-shrink-0 w-5 h-5 transition duration-75" />
     ),
-  },
-  {
-    id: 4,
-    title: "Busqueda",
-    path: "/busqueda",
-    cName: "nav-item",
-    lista: [],
-    icon: <FaHome className="icon-style"/>
-  },
+  }
 ];

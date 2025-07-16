@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\CategoriaResolucion;
 use App\Models\Contents;
 use App\Models\Departamentos;
 use App\Models\Descriptor;
@@ -74,6 +75,7 @@ class ProcesarWebScrapping implements ShouldQueue
             'formaResolucion' => [],
             'tipoJurisprudencia' => [],
             'temas' => [],
+            'categoria' => [],
         ];
 
         for ($i = $this->lastId; $i <= $this->end; $i++) {
@@ -130,8 +132,8 @@ class ProcesarWebScrapping implements ShouldQueue
                 DB::commit();
                 $exitosos++;
                 $errorCount = 0;
-            } catch (TransportExceptionInterface|ClientExceptionInterface|ServerExceptionInterface|\Exception $e) {
-                Log::error("[{$this->jobId}] Error al procesar ID $i: ".$e->getMessage());
+            } catch (TransportExceptionInterface | ClientExceptionInterface | ServerExceptionInterface | \Exception $e) {
+                Log::error("[{$this->jobId}] Error al procesar ID $i: " . $e->getMessage());
                 DB::rollBack();
                 $errorCount++;
             }
@@ -165,8 +167,9 @@ class ProcesarWebScrapping implements ShouldQueue
             'demandado' => $this->sanitize($resolucion['demandado'] ?? null),
             'maxima' => $this->sanitize($resolucion['maxima'] ?? null),
             'sintesis' => $this->sanitize($resolucion['sintesis'] ?? null),
+            'categoria_id' => $this->getCategoriaId($resolucion['nro_resolucion'] ?? null, $maps['categoria']),
             'user_id' => $id,
-        ], fn ($value) => ! is_null($value));
+        ], fn($value) => ! is_null($value));
     }
 
     private function storeRelatedData(Resolutions $res, array $resolucion, array &$maps): void
@@ -177,7 +180,7 @@ class ProcesarWebScrapping implements ShouldQueue
             $res->searchable();
             $this->crearJurisprudencia($res, $resolucion, $maps);
         } catch (\Exception $e) {
-            Log::error("[{$this->jobId}] Error al almacenar datos relacionados para resolución {$res->id}: ".$e->getMessage());
+            Log::error("[{$this->jobId}] Error al almacenar datos relacionados para resolución {$res->id}: " . $e->getMessage());
         }
     }
 
@@ -218,7 +221,7 @@ class ProcesarWebScrapping implements ShouldQueue
                 'descriptor_id' => $this->getOrCreateDescriptor($descriptor, $maps['temas']),
             ]);
         } catch (\Exception $e) {
-            Log::error("[{$this->jobId}] Error al crear jurisprudencia: ".$e->getMessage());
+            Log::error("[{$this->jobId}] Error al crear jurisprudencia: " . $e->getMessage());
         }
     }
 
@@ -258,7 +261,7 @@ class ProcesarWebScrapping implements ShouldQueue
                 $id = $instance->id;
                 $map[$piece] = $id;
             } catch (\Exception $e) {
-                Log::error("Error creando descriptor {$piece}: ".$e->getMessage());
+                Log::error("Error creando descriptor {$piece}: " . $e->getMessage());
 
                 return null;
             }
@@ -291,7 +294,7 @@ class ProcesarWebScrapping implements ShouldQueue
 
             return $map[$value];
         } catch (\Exception $e) {
-            Log::error("Error creando {$model} con {$field} = {$value}: ".$e->getMessage());
+            Log::error("Error creando {$model} con {$field} = {$value}: " . $e->getMessage());
 
             return null;
         }
@@ -324,16 +327,42 @@ class ProcesarWebScrapping implements ShouldQueue
 
             return $map[$value];
         } catch (\Exception $e) {
-            Log::error("Error creando {$model} con {$field} = {$value}: ".$e->getMessage());
+            Log::error("Error creando {$model} con {$field} = {$value}: " . $e->getMessage());
 
             return null;
         }
     }
 
-    private function getTemaId(?int $temaID, array &$map): ?int
+    private function getCategoriaId(string $value, array &$maps): ?int
     {
-        return $temaID ? ($map[$temaID] ??= optional(Tema::find($temaID))->id) : null;
+        // Normalizar valor
+        $val = is_string($value) ? trim($value) : 'S/N';
+        $val = $val === '' ? 'S/N' : $val;
+
+        // Verificar si ya está en el mapa
+        if (isset($maps[$val])) {
+            return $maps[$val];
+        }
+
+        try {
+            $instance = CategoriaResolucion::firstOrCreate(['slug' => $val]);
+
+            if (!$instance || !$instance->id) {
+                Log::error("No se pudo crear o encontrar CategoriaResolucion con slug '{$val}'");
+                return null;
+            }
+
+            // Guardar en el mapa por referencia
+            $maps[$val] = $instance->id;
+
+            return $instance->id;
+        } catch (\Exception $e) {
+            Log::error("Error al crear CategoriaResolucion con slug '{$val}': " . $e->getMessage());
+            return null;
+        }
     }
+
+
 
     private function formatDate(?string $date): ?string
     {

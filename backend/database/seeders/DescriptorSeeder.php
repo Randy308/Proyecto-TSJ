@@ -17,16 +17,37 @@ class DescriptorSeeder extends Seeder
         $fullPath = storage_path('app/descriptor.csv');
         $rows = SimpleExcelReader::create($fullPath)->getRows();
 
+        $dataToInsert = [];
+        $chunkSize = 500;
+
         foreach ($rows as $index => $row) {
             try {
-                DB::table('descriptors')->insert([
+                // Preprocesar fila
+                $dataToInsert[] = [
                     'id' => $row['id'] !== '' ? $row['id'] : null,
-                    'nombre' => $row['nombre'] !== '' ? $row['nombre'] : "Desconocido",
-                    'descriptor_id' => isset($row['descriptor_id']) && $row['descriptor_id'] !== '' ? $row['descriptor_id'] : null,
-                ]);
-            } catch (\Exception $e) {
+                    'nombre' => $row['nombre'] !== '' ? $row['nombre'] : 'Desconocido',
+                    'descriptor_id' => $row['descriptor_id'] !== '' ? $row['descriptor_id'] : null,
+                ];
+
+                // Insertar en lotes
+                if (count($dataToInsert) >= $chunkSize) {
+                    DB::table('descriptors')->insert($dataToInsert);
+                    $dataToInsert = [];
+                }
+            } catch (\Throwable $e) {
                 Log::error("Error en fila {$index}: " . $e->getMessage(), [
                     'row' => $row
+                ]);
+            }
+        }
+
+        // Insertar cualquier remanente
+        if (!empty($dataToInsert)) {
+            try {
+                DB::table('descriptors')->insert($dataToInsert);
+            } catch (\Throwable $e) {
+                Log::error("Error al insertar lote final: " . $e->getMessage(), [
+                    'rows' => $dataToInsert
                 ]);
             }
         }

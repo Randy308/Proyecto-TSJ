@@ -2,26 +2,23 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import AsyncButton from "../../components/AsyncButton";
 import { useLocation, useNavigate } from "react-router-dom";
 import { StatsService } from "../../services";
-import TablaX from "../../components/tables/TablaX";
-import Loading from "../../components/Loading";
 import { useVariablesContext } from "../../context/variablesContext";
 import Select from "../../components/Select";
-import { invertirXY } from "../../utils/math";
 import TerminoClave from "./TerminoClave";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
-import { agregarTotalLista } from "../../utils/arrayUtils";
-import type { AnalisisData, ChartType, ListaX, Facetas } from "../../types";
+import type {
+  AnalisisData,
+  ChartType,
+  ListaX,
+  Facetas,
+  BaseData,
+} from "../../types";
 import type { ECElementEvent } from "echarts";
 import { OptionChart } from "../../components/OptionChart";
 import Tab from "../../components/Tab";
-
-type AccessorKey = string;
-
-interface Column {
-  accessorKey: AccessorKey;
-  header: string;
-}
+import { TablaMultivariable } from "../../components/TablaMultivariable";
+import { SkeletonChart } from "../../components/SkeletonChart";
 
 const AnalisisAvanzado = () => {
   const limite = useMemo(() => 2, []);
@@ -35,14 +32,13 @@ const AnalisisAvanzado = () => {
     "analisis_xy",
     []
   );
-  const [columns, setColumns] = useState<Column[]>([]);
 
   const [, setSerie] = useSessionStorage<AnalisisData>("serie", []);
   const [, setMapa] = useSessionStorage<AnalisisData>("mapa", []);
 
   const [actual, setActual] = useState(true);
   const [multiVariable, setMultiVariable] = useState(false);
-  const [tableData, setTableData] = useState<AnalisisData>([]);
+  const [tableData, setTableData] = useState<BaseData[]>([]);
 
   const location = useLocation();
 
@@ -70,27 +66,6 @@ const AnalisisAvanzado = () => {
     setSelected(type);
   };
 
-  const invertirAxis = () => {
-    setSelected("column");
-    setTableData(invertirXY(tableData));
-  };
-
-  useEffect(() => {
-    if (tableData && tableData.length > 0) {
-      const keys = tableData[0];
-      setColumns(
-        keys.map((item, index) => ({
-          accessorKey: index.toString(),
-          header: String(item)
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase()),
-          enableSorting: true,
-        }))
-      );
-    }
-    console.log(tableData);
-  }, [tableData]);
-
   ///end
   const getDatos = async () => {
     if (listaX.length === 0) {
@@ -100,17 +75,35 @@ const AnalisisAvanzado = () => {
 
     const isMultiVariable = listaX.length > 1;
 
+    // const params: FiltroAnalisis = isMultiVariable
+    //   ? {
+    //       filtros: {
+    //         [listaX[0].name]: {
+    //           foreign_key: listaX[0].name,
+    //           valores: listaX[0].ids,
+    //         },
+    //         [listaX[1].name]: {
+    //           foreign_key: listaX[1].name,
+    //           valores: listaX[1].ids,
+    //         },
+    //       },
+    //     }
+    //   : {
+    //       filtros: {
+    //         [listaX[0].name]: {
+    //           foreign_key: listaX[0].name,
+    //           valores: listaX[0].ids,
+    //         },
+    //       },
+    //     };
+    // const fetchStats = StatsService.getMultivariable(params);
+
     const params = isMultiVariable
-      ? {
-          nombre: listaX[0].name,
-          variable: listaX[0].ids,
-          nombreY: listaX[1].name,
-          variableY: listaX[1].ids,
-        }
+      ? { variable: listaX[0].ids, nombre: listaX[0].name, variableY: listaX[1].ids, nombreY: listaX[1].name }
       : {
-          nombre: listaX[0].name,
-          variable: listaX[0].ids,
+          variable: listaX[0].ids, nombre: listaX[0].name,
         };
+
     const fetchStats = isMultiVariable
       ? StatsService.getStatsXY(params)
       : StatsService.getStatsX(params);
@@ -119,11 +112,9 @@ const AnalisisAvanzado = () => {
       .then(({ data }) => {
         console.log("Datos cargados desde API", data);
         if (data) {
-          setContenido(data.data.length > 0 ? data.data : []);
+          setContenido(data.chart.length > 0 ? data.chart : []);
           setMultiVariable(data.multiVariable);
-          setTableData(
-            data.data.length > 0 ? agregarTotalLista(data.data) : []
-          );
+          setTableData(data.data.length > 0 ? data.data : []);
 
           setMapa([]);
           setSerie([]);
@@ -210,9 +201,7 @@ const AnalisisAvanzado = () => {
           if (data) {
             setContenido(data.data.length > 0 ? data.data : []);
             setMultiVariable(data.multiVariable);
-            setTableData(
-              data.data.length > 0 ? agregarTotalLista(data.data) : []
-            );
+            setTableData(data.data.length > 0 ? data.data : []);
           }
         })
         .catch((error) => {
@@ -298,7 +287,10 @@ const AnalisisAvanzado = () => {
         </p>
       </div>
       <div className="p-2 relative flex flex-col md:flex-row gap-4">
-        <div style={{ zIndex:9999999999999 }} className="p-2 w-full md:w-[300px] md:max-h-[800px] absolute md:relative  md:flex flex-col border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg">
+        <div
+          style={{ zIndex: 9999999999999 }}
+          className="p-2 w-full md:w-[300px] md:max-h-[800px] absolute md:relative  md:flex flex-col border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg"
+        >
           {contenido && contenido.length > 0 && (
             <div className="px-4 mb-4">
               <div className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -357,17 +349,7 @@ const AnalisisAvanzado = () => {
             <div className="col-span-3 grid grid-cols-1">
               <Tab actual={actual} setActual={setActual}>
                 {!actual ? (
-                  <TablaX data={tableData.slice(1)} columns={columns}>
-                    <div className="mt-4 flex justify-start gap-4">
-                      <button
-                        type="button"
-                        onClick={() => invertirAxis()}
-                        className="mt-2 text-white bg-gradient-to-r  dark:bg-blue-700 dark:to-blue-800 bg-red-octopus-500 hover:bg-red-octopus-700 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
-                      >
-                        Invertir Axis
-                      </button>
-                    </div>
-                  </TablaX>
+                  <TablaMultivariable records={tableData} />
                 ) : (
                   <OptionChart
                     dataset={contenido}
@@ -379,8 +361,8 @@ const AnalisisAvanzado = () => {
               </Tab>
             </div>
           ) : (
-            <div className="h-full flex border-2 rounded-lg bg-white items-center">
-              <Loading />
+            <div className="h-full flex border-2 rounded-lg bg-white dark:bg-gray-800 items-center">
+              <SkeletonChart />
             </div>
           )}
         </div>

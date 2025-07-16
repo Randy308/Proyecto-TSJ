@@ -159,10 +159,10 @@ const TablaCSV = () => {
     UserService.subirResoluciones(formData)
       .then(({ data }) => {
         if (data.success) {
-          const { mensaje, total_filas, filas_omitidas } = data;
+          const { mensaje } = data;
 
           toast.success(
-            `${mensaje} Total filas procesadas: ${total_filas}. Filas omitidas: ${filas_omitidas}.`,
+            `${mensaje}`,
             {
               position: "top-right",
               autoClose: 5000,

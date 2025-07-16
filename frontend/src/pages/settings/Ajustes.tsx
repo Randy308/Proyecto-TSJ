@@ -55,14 +55,13 @@ const Ajustes = () => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Ajustes</h1>
+      <h1 className="text-2xl font-bold mb-4 dark:text-white">Ajustes</h1>
       <div className="flex lg:items-center flex-col lg:flex-row mb-4">
         <div className="flex items-center justify-center mb-4 lg:mb-0 lg:mr-4">
-          <FaUserCog className="w-40 h-40 mr-2" />
+          <FaUserCog className="w-40 h-40 mr-2 dark:text-white" />
         </div>
         <div className="flex-1">
-          <span className="font-semibold">Ajustes del perfil:</span>
-          <span className="ml-2">{authUser?.name}</span>
+          <span className="font-semibold dark:text-white">Información del perfil:</span>
 
           <form
             className="flex flex-col gap-4 mt-4 lg:p-10"

@@ -15,5 +15,6 @@ class VerifyCsrfToken extends Middleware
         'api/v2/obtener-cronologias-ids',
         'api/v2/obtener-cronologias',
         'api/v2/obtener-resoluciones-ids',
+        'api/v2/estadisticas-multivariable',
     ];
 }

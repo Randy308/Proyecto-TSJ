@@ -1,4 +1,4 @@
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 import type { FormInput } from "../../types";
 
 interface EmailInputProps {
@@ -26,6 +26,7 @@ const EmailInput = ({ email, setEmail, setFormState }: EmailInputProps) => {
     const value = e.target.value.trim();
     setEmail(e); // ✅ actualizamos valor global solo en eventos
     const error = validateEmail(value);
+    setEmailError(error);
     setFormState((prev) => ({ ...prev, email: !error }));
   };
 

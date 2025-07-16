@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
-import { filterForm, obtenerFacetas, titulo , filterParams} from "../../utils/filterForm";
+import {
+  filterForm,
+  obtenerFacetas,
+  titulo,
+  filterParams,
+} from "../../utils/filterForm";
 import { IoMdClose } from "react-icons/io";
 import { IoMdSearch } from "react-icons/io";
 import { ResolucionesService } from "../../services";
@@ -19,6 +24,7 @@ import {
 } from "../../types";
 import { FaInfo } from "react-icons/fa6";
 import MultiSelect from "../../components/MultiSelect";
+import { SkeltonTable } from "../../components/tables/SkeltonTable";
 const Busqueda = () => {
   const { data } = useVariablesContext();
   const [errorBusqueda, setErrorBusqueda] = useState("");
@@ -187,23 +193,25 @@ const Busqueda = () => {
         </div>
       </div>
       <div className="flex flex-col sm:grid sm:grid-cols-4 lg:grid-cols-5 gap-4 p-4 m-4">
-        <div className="rounded-lg py-3">
-          <p className="text-2xl font-bold p-2">Filtros</p>
-          <div className="gird grid-cols-1 gap-4 p-2 my-2">
-            {Object.entries((facetas || data) as Facetas).map(
-              ([name, contenido]) =>
-                !["materia", "tipo_jurisprudencia"].includes(name) && (
-                  <Filtros
-                    key={name}
-                    nombre={name as FiltroBusqueda}
-                    data={contenido as Faceta[]}
-                    formData={formData}
-                    setFormData={setFormData}
-                  />
-                )
-            )}
+        {facetas && Object.keys(facetas).length > 0 ? (
+          <div className="rounded-lg py-3">
+            <p className="text-2xl font-bold p-2">Filtros</p>
+            <div className="grid grid-cols-1 gap-4 p-2 my-2">
+              {Object.entries(facetas).map(
+                ([name, contenido]) =>
+                  !["materia", "tipo_jurisprudencia"].includes(name) && (
+                    <Filtros
+                      key={name}
+                      nombre={name as FiltroBusqueda}
+                      data={contenido as Faceta[]}
+                      formData={formData}
+                      setFormData={setFormData}
+                    />
+                  )
+              )}
+            </div>
           </div>
-        </div>
+        ):(<div className="text-xs text-gray-500"></div>)}
 
         <div className="sm:col-span-3 lg:col-span-4">
           {selector && Object.keys(selector).length > 0 && (
@@ -235,7 +243,7 @@ const Busqueda = () => {
           <div className="w-full">
             <div className="pt-4 ">
               <div className="sm:p-4 pt-4">
-                {resoluciones.length > 0 && (
+                {resoluciones.length > 0 ? (
                   <>
                     <PaginationData
                       resolutions={resoluciones}
@@ -249,6 +257,8 @@ const Busqueda = () => {
                       totalCount={totalCount}
                     />
                   </>
+                ) : (
+                  <SkeltonTable />
                 )}
               </div>
             </div>

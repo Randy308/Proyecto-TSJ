@@ -1,15 +1,11 @@
 import Loading from "../../components/Loading";
-import TablaX from "../../components/tables/TablaX";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Select from "../../components/Select";
 import AsyncButton from "../../components/AsyncButton";
-import { invertirXY } from "../../utils/math";
-import { LuArrowLeftRight } from "react-icons/lu";
 import { ResolucionesService } from "../../services";
 import { useVariablesContext } from "../../context/variablesContext";
 import { filterParams } from "../../utils/filterForm";
-import { agregarTotalLista } from "../../utils/arrayUtils";
 import type {
   Facetas,
   AnalisisData,
@@ -17,13 +13,11 @@ import type {
   ChartType,
   FiltroNombre,
   Variables,
+  BaseData,
 } from "../../types";
 import { OptionChart } from "../../components/OptionChart";
 import Tab from "../../components/Tab";
-interface Columns {
-  accessorKey: string;
-  header: string;
-}
+import { TablaMultivariable } from "../../components/TablaMultivariable";
 
 // interface SearchParams {
 //   nameX: FiltroNombre;
@@ -39,14 +33,13 @@ const AnalisisBasico = () => {
   const [datos, setDatos] = useState<AnalisisData>([]);
   const [columna, setColumna] = useState<FiltroNombre | null>(null);
   const [params, setParams] = useState<Facetas>({} as Facetas);
-  const [columns, setColumns] = useState<Columns[]>([]);
   const [selected, setSelected] = useState<string>("bar");
   const [actual, setActual] = useState(true);
   const [multiVariable, setMultiVariable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { data } = useVariablesContext();
   // const [searchParams, setSearchParams] = useState<SearchParams>();
-  const [tableData, setTableData] = useState<AnalisisData>([]);
+  const [tableData, setTableData] = useState<BaseData[]>([]);
 
   const memoizedParams = useMemo(() => params, [params]);
   const limite = useMemo(() => 1, []);
@@ -76,11 +69,9 @@ const AnalisisBasico = () => {
       .then(({ data }) => {
         console.log("Datos cargados desde API", data);
         if (data) {
-          setDatos(data.data.length > 0 ? data.data : []);
+          setDatos(data.chart.length > 0 ? data.chart : []);
           setMultiVariable(data.multiVariable);
-          setTableData(
-            data.data.length > 0 ? agregarTotalLista(data.data) : []
-          );
+          setTableData(data.data.length > 0 ? data.data : []);
           console.log("Datos de tabla:", data.data);
         }
       })
@@ -93,25 +84,6 @@ const AnalisisBasico = () => {
       });
   };
 
-  const invertirAxis = () => {
-    setSelected("column");
-    setTableData(invertirXY(tableData));
-  };
-
-  useEffect(() => {
-    if (tableData && tableData.length > 0) {
-      const keys = tableData[0];
-      setColumns(
-        keys.map((item, index) => ({
-          accessorKey: index.toString(),
-          header: String(item)
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase()),
-        }))
-      );
-    }
-  }, [tableData]);
-
   useEffect(() => {
     if (!receivedData || !Array.isArray(receivedData.data)) {
       navigate("/estadisticas-basicas");
@@ -119,7 +91,7 @@ const AnalisisBasico = () => {
       const values = receivedData.data.length > 0 ? receivedData.data : [];
       setDatos(values);
       //setTableData(values);
-      setTableData(agregarTotalLista(values));
+      setTableData(values);
       setColumna(receivedData.columna);
       setMultiVariable(receivedData.multiVariable);
     }
@@ -263,15 +235,6 @@ const AnalisisBasico = () => {
               ></Select>
             )}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 pb-2">
-              <button
-                type="button"
-                onClick={() => invertirAxis()}
-                className="inline-flex items-center text-white bg-red-octopus-700 hover:bg-red-octopus-600 dark:bg-blue-700 dark:hover:bg-blue-600  font-medium rounded-lg text-sm px-5 py-3 text-center"
-              >
-                <LuArrowLeftRight className="fill-current w-4 h-4 mr-2" />
-                <span className="text-xs">Intercambio X-Y</span>
-              </button>
-
               <AsyncButton
                 name={"Analizar"}
                 asyncFunction={realizarAnalisis}
@@ -286,7 +249,7 @@ const AnalisisBasico = () => {
       {datos && datos.length > 0 ? (
         <Tab actual={actual} setActual={setActual}>
           {!actual ? (
-            <TablaX data={tableData.slice(1)} columns={columns} />
+            <TablaMultivariable records={tableData} />
           ) : (
             <OptionChart
               dataset={datos}
@@ -294,7 +257,6 @@ const AnalisisBasico = () => {
               isMultiVariable={multiVariable}
               handleClick={handleClick}
             />
-            //<SimpleChart option={option} handleClick={handleClick} />
           )}
         </Tab>
       ) : (

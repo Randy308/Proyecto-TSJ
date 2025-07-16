@@ -6,9 +6,12 @@ let csrfFetched = false;
 const getCsrfToken = async () => {
   if (csrfFetched) return;
   try {
-    await axios.get(`${import.meta.env.VITE_REACT_APP_TOKEN}/sanctum/csrf-cookie`, {
-      withCredentials: true,
-    });
+    await axios.get(
+      `${import.meta.env.VITE_REACT_APP_TOKEN}/sanctum/csrf-cookie`,
+      {
+        withCredentials: true,
+      }
+    );
     csrfFetched = true;
   } catch (error) {
     console.error("Error obteniendo CSRF token:", error);
@@ -46,32 +49,40 @@ instance.interceptors.response.use(
 
 export const UserService = {
   // Usuarios
-  getAllUsers: (page:number) => instance.get("/admin/user", { params: { page } }),
-  getAllResolutions: (page:number) => instance.get("/admin/resolutions", { params: { page } }),
-  getUser: (id:number) => instance.get(`/admin/user/${id}`),
-  createUser: (userData:CreateUser) => instance.post("/admin/user", userData),
-  updateUser: (id:number, userData:CreateUser) => instance.put(`/admin/user/${id}`, userData),
-  deleteUser: (id:number) => instance.delete(`/admin/user/${id}`),
+  getAllUsers: (page: number) =>
+    instance.get("/admin/user", { params: { page } }),
+  getAllResolutions: (page: number) =>
+    instance.get("/admin/resolutions", { params: { page } }),
+  getUser: (id: number) => instance.get(`/admin/user/${id}`),
+  createUser: (userData: CreateUser) => instance.post("/admin/user", userData),
+  updateUser: (id: number, userData: CreateUser) =>
+    instance.put(`/admin/user/${id}`, userData),
+  deleteUser: (id: number) => instance.delete(`/admin/user/${id}`),
 
   // Notificaciones
   getUnreadNotifications: () => instance.get("/obtener-no-leidas"),
   getAllNotifications: (page = 1) =>
     instance.get("/notificaciones", { params: { page } }),
-  markNotificationAsRead: (id:number) =>
+  markNotificationAsRead: (id: number) =>
     instance.put(`/actualizar-notificacion/${id}`),
 
   // Resoluciones
-  getResoluciones: (page = 1) => instance.get("/resoluciones-usuario", { params: { page } }),
+  getResoluciones: (page = 1) =>
+    instance.get("/resoluciones-usuario", { params: { page } }),
 
-  subirJurisprudencia: (formData:FormData) =>
+  subirJurisprudencia: (formData: FormData) =>
     instance.post("/subir-jurisprudencia", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     }),
   buscarNuevasResoluciones: () => instance.post("/buscar-nuevas-resoluciones"),
-  realizarWebScrapping: () => instance.post("/obtener-resoluciones"),
-  subirResoluciones: (formData:FormData) =>
+  RealizarWebScraping: () => instance.post("/obtener-resoluciones"),
+  AjustarFechas: () => instance.post("/reparar-fechas-emision"),
+  AjustarDepartamentos: () => instance.post("/reparar-departamentos"),
+  GenerarNodos: () => instance.post("/generar-nodos"),
+  GenerarTérminosClave: () => instance.post("/generar-terminos-clave"),
+  subirResoluciones: (formData: FormData) =>
     instance.post("/subir-resoluciones", formData, {
       headers: {
         "Content-Type": "multipart/form-data",

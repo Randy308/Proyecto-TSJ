@@ -160,6 +160,16 @@ class ResolutionController extends Controller
 
         $resultados = $datos->get();
 
+        $total = $resultados->sum('cantidad');
+        //Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre'], 'cantidad')
+
+        return response()->json([
+            'total' => $total,
+            'data' => $resultados,
+            'chart' => $resultados,
+            'multiVariable' => true,
+        ]);
+
         return response()->json($resultados);
     }
 
@@ -171,7 +181,7 @@ class ResolutionController extends Controller
             'variable' => 'required|array',
             'variable.*' => 'required|integer',
             'nombre' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -203,7 +213,7 @@ class ResolutionController extends Controller
         if ($filtroPrincipal['join']) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
-        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad')->join($filtroPrincipal['tabla'].' as x', 'x.id', $filtroPrincipal['foreign_key'])->whereIn($filtroPrincipal['foreign_key'], $request->variable)->groupBy('x.nombre');
+        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad')->join($filtroPrincipal['tabla'] . ' as x', 'x.id', $filtroPrincipal['foreign_key'])->whereIn($filtroPrincipal['foreign_key'], $request->variable)->groupBy('x.nombre');
 
         if ($request->has('periodo')) {
             $query->whereYear('fecha_emision', $request->periodo);
@@ -219,10 +229,10 @@ class ResolutionController extends Controller
 
         return response()->json([
 
-            'data' => $resultado,
+            'data' => $data,
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
-            'total' => $total,
+            'chart' => $resultado,
             'nombre' => 'nombre',
             'terminos' => $data->pluck('nombre'),
             'multiVariable' => false,
@@ -240,7 +250,7 @@ class ResolutionController extends Controller
             'variableY' => 'required|array',
             'variableY.*' => 'required|integer',
             'nombreY' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
@@ -318,22 +328,19 @@ class ResolutionController extends Controller
             $item['cantidad'] = $datoLookup[$item['x']][$item['nombre']] ?? 0;
         }
 
-        // $resultado = array_map(function ($tag) use ($filtroX, $filtroY) {
-        //     return array(
-        //         $filtroX['nombre'] => $tag['x'],
-        //         $filtroY['nombre'] => $tag['nombre'],
-        //         'cantidad' => $tag['cantidad']
-        //     );
-        // }, $combinations);
-
-        // $this->ordenarArrayXY($combinations, 'x', 'nombre'),
+        $resultado = array_map(function ($tag) use ($filtroX, $filtroY) {
+            return array(
+                $filtroX['nombre'] => $tag['x'],
+                $filtroY['nombre'] => $tag['nombre'],
+                'cantidad' => $tag['cantidad']
+            );
+        }, $combinations);
 
         return response()->json([
             'total' => $total,
-            'data' => Math::completarArray($combinations, 'x', 'nombre'),
+            'data' => $resultado,
+            'chart' => Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre'], 'cantidad'),
             'multiVariable' => true,
-            'x' => $filtroX['nombre'],
-            'nombre' => $filtroY['nombre'],
         ]);
     }
 
@@ -346,7 +353,7 @@ class ResolutionController extends Controller
             'variable' => 'required|array',
             'variable.*' => 'required|integer',
             'nombre' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
@@ -492,7 +499,7 @@ class ResolutionController extends Controller
             'tipo_resolucion' => 'nullable|array',
             'tipo_resolucion.*' => 'required|integer',
             'periodo' => 'nullable|array',
-            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
             'highlight' => 'nullable|array',
             'highlight.*' => 'string|in:contenido,demandante,demandado,sintesis,maxima,precedente,proceso',
         ]);
@@ -719,7 +726,7 @@ class ResolutionController extends Controller
         } catch (\Exception $e) {
             // Manejar otras excepciones posibles
             return response()->json([
-                'error' => 'Ocurrió un error al intentar obtener la resolución'.$e,
+                'error' => 'Ocurrió un error al intentar obtener la resolución' . $e,
             ], 500);
         }
     }
@@ -787,7 +794,7 @@ class ResolutionController extends Controller
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->join('salas as s', 's.id', '=', 'r.sala_id')
             ->select('r.nro_resolucion', 'r.id', 'r.fecha_emision', 'tr.nombre as tipo_resolucion', 'd.nombre as departamento', 's.nombre as sala')
-            ->where('c.contenido', 'like', '%'.$texto.'%');
+            ->where('c.contenido', 'like', '%' . $texto . '%');
 
         if ($mi_sala) {
             $query->where('r.sala_id', $mi_sala->id);
@@ -936,7 +943,7 @@ class ResolutionController extends Controller
             'variable' => 'required|array',
             'variable.*' => 'required|integer',
             'nombre' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -969,7 +976,7 @@ class ResolutionController extends Controller
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
         $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad, fecha_emision as fecha')
-            ->join($filtroPrincipal['tabla'].' as x', 'x.id', $filtroPrincipal['foreign_key'])
+            ->join($filtroPrincipal['tabla'] . ' as x', 'x.id', $filtroPrincipal['foreign_key'])
             ->whereIn($filtroPrincipal['foreign_key'], $request->variable)
             ->groupBy('fecha', 'nombre');
 
@@ -1029,7 +1036,7 @@ class ResolutionController extends Controller
 
         if ($filtroPrincipal['tabla'] != 'departamentos') {
             $query->selectRaw(' x.nombre as name ,Count(r.id) as cantidad, d.nombre as departamento');
-            $query->join('departamentos as d', 'd.id', '=', 'r.departamento_id')->join($filtroPrincipal['tabla'].' as x', 'x.id', $filtroPrincipal['foreign_key'])->whereIn($filtroPrincipal['foreign_key'], $request->variable)->groupBy('x.nombre', 'd.nombre');
+            $query->join('departamentos as d', 'd.id', '=', 'r.departamento_id')->join($filtroPrincipal['tabla'] . ' as x', 'x.id', $filtroPrincipal['foreign_key'])->whereIn($filtroPrincipal['foreign_key'], $request->variable)->groupBy('x.nombre', 'd.nombre');
         } else {
             return response()->json([
                 'error' => 'No se puede realizar un mapa de departamentos',
@@ -1088,7 +1095,7 @@ class ResolutionController extends Controller
         }
 
         $terminosSQL = implode(',', array_map(function ($t) {
-            return "'".addslashes(strtolower($t))."'";
+            return "'" . addslashes(strtolower($t)) . "'";
         }, $terminos));
 
         $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$terminosSQL]) AS nombre) AS t"))
@@ -1160,7 +1167,7 @@ class ResolutionController extends Controller
         }
 
         $terminosSQL = implode(',', array_map(function ($t) {
-            return "'".addslashes(strtolower($t))."'";
+            return "'" . addslashes(strtolower($t)) . "'";
         }, $terminos));
 
         $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$terminosSQL]) AS nombre) AS t"))
@@ -1230,7 +1237,7 @@ class ResolutionController extends Controller
         }
 
         $terminosSQL = implode(',', array_map(function ($t) {
-            return "'".addslashes(strtolower($t))."'";
+            return "'" . addslashes(strtolower($t)) . "'";
         }, $terminos));
 
         $resultados = [];
@@ -1277,7 +1284,7 @@ class ResolutionController extends Controller
             'variableY' => 'required|array',
             'variableY.*' => 'required',
             'nombreY' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
@@ -1346,7 +1353,7 @@ class ResolutionController extends Controller
         }
 
         $terminosSQL = implode(',', array_map(function ($t) {
-            return "'".addslashes(strtolower($t))."'";
+            return "'" . addslashes(strtolower($t)) . "'";
         }, $terminos));
 
         $query = DB::table(DB::raw("(SELECT unnest(ARRAY[$terminosSQL]) AS termino) AS t"))
@@ -1398,13 +1405,18 @@ class ResolutionController extends Controller
             $item['cantidad'] = $datoLookup[$item['termino']][$item['nombre']] ?? 0;
         }
 
+        $resultado = array_map(function ($tag) use ($filtroX, $filtroY) {
+            return array(
+                $filtroX['nombre'] => $tag['termino'],
+                $filtroY['nombre'] => $tag['nombre'],
+                'cantidad' => $tag['cantidad']
+            );
+        }, $combinations);
+
         return response()->json([
             'total' => $total,
-            'data' => Math::completarArray($combinations, 'termino', 'nombre'),
-            'tabla' => $request->nombre,
-            'columna' => $request->nombre,
-            'nombre' => 'nombre',
-            'terminos' => $arrayX,
+            'data' => $resultado,
+            'chart' => Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre'], 'cantidad'),
             'multiVariable' => true,
         ]);
     }
@@ -1428,7 +1440,7 @@ class ResolutionController extends Controller
             'tipo_resolucion' => 'nullable|array',
             'tipo_resolucion.*' => 'required|integer',
             'periodo' => 'nullable|array',
-            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo.*' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
@@ -1689,7 +1701,7 @@ class ResolutionController extends Controller
             'variableY' => 'required|array',
             'variableY.*' => 'required',
             'nombreY' => 'required|string',
-            'periodo' => 'nullable|digits:4|integer|min:1900|max:'.(date('Y') + 1),
+            'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
         if ($validator->fails()) {
@@ -1751,11 +1763,11 @@ class ResolutionController extends Controller
         }
 
         $sqlX = implode(',', array_map(function ($t) {
-            return "'".addslashes(strtolower($t))."'";
+            return "'" . addslashes(strtolower($t)) . "'";
         }, $terminos));
 
         $sqlY = implode(',', array_map(function ($t) {
-            return "'".addslashes(strtolower($t))."'";
+            return "'" . addslashes(strtolower($t)) . "'";
         }, $terminosY));
 
         if ($filtroX['join'] && $filtroY['join']) {
@@ -1843,14 +1855,18 @@ class ResolutionController extends Controller
         foreach ($combinations as &$dato) {
             $dato['cantidad'] = $datoLookup[$dato['termino_x']][$dato['nombre']] ?? 0;
         }
+        $resultado = array_map(function ($tag) use ($filtroX, $filtroY) {
+            return array(
+                $filtroX['nombre'] => $tag['termino_x'],
+                $filtroY['nombre'] => $tag['nombre'],
+                'cantidad' => $tag['cantidad']
+            );
+        }, $combinations);
 
         return response()->json([
             'total' => $total,
-            'data' => Math::completarArray($combinations, 'termino_x', 'nombre'),
-            'tabla' => $request->nombre,
-            'columna' => $request->nombre,
-            'nombre' => 'nombre',
-            'terminos' => $arrayX,
+            'data' => $resultado,
+            'chart' => Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre'], 'cantidad'),
             'multiVariable' => true,
         ]);
     }
@@ -1908,7 +1924,7 @@ class ResolutionController extends Controller
         $termino = $request->input('termino');
         $pagina = $request->input('pagina', 1);
 
-        $results = DB::table($tableName.' as t')
+        $results = DB::table($tableName . ' as t')
             ->selectRaw('count(id) as cantidad')
             ->whereRaw("LOWER(t.$columnName) ~* ?", [mb_strtolower($termino, 'UTF-8')])
             ->get()->pluck('cantidad');
@@ -1941,8 +1957,8 @@ class ResolutionController extends Controller
                 $lista = ['tipo_resolucion', 'departamento', 'sala', 'magistrado'];
 
                 if (in_array($columnName, $lista)) {
-                    $table = $columnName.'s';
-                    $column = $columnName.'_id';
+                    $table = $columnName . 's';
+                    $column = $columnName . '_id';
 
                     // Join with the related table
                     $query->join("$table as t_$columnName", "t_$columnName.id", '=', "r.$column");
@@ -1958,7 +1974,7 @@ class ResolutionController extends Controller
                     $caseConditions = array_map(function ($termino) use ($columnName, $tableName) {
                         $columnTable = $tableName === 'resolutions' ? 'r' : 'j';  // Check if the table is 'resolutions' or 'jurisprudencias'
 
-                        return "WHEN $columnTable.$columnName ~* '^".preg_quote($termino, '/')."' THEN '$termino'";
+                        return "WHEN $columnTable.$columnName ~* '^" . preg_quote($termino, '/') . "' THEN '$termino'";
                     }, $values);
 
                     // Join the conditions directly in the CASE statement

@@ -45,6 +45,10 @@ class PermissionsSeeder extends Seeder
             'eliminar_roles',
             'actualizar_roles',
             'ver_roles',
+            "ajustar_fechas",
+            "ajustar_departamentos",
+            "generar_nodos",
+            "obtener_terminos_clave",
         ];
 
         // Map the permissions to the format required by the Permission model
@@ -78,31 +82,14 @@ class PermissionsSeeder extends Seeder
             'actualizar_estilo',
         ]);
 
-        $user1 = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+        $user = User::firstOrCreate(
             [
+                'email' => 'admin308@gmail.com',
                 'name' => 'Admin User',
-                'password' => Hash::make('password'), // You can change the password
+                'password' => Hash::make(env('USER_PASSWORD', 'password')), // You can change the password
             ]
         );
-        $user2 = User::firstOrCreate(
-            ['email' => 'editor@example.com'],
-            [
-                'name' => 'Editor User',
-                'password' => Hash::make('password'), // You can change the password
-            ]
-        );
-        $user3 = User::firstOrCreate(
-            ['email' => 'user@example.com'],
-            [
-                'name' => 'Regular User',
-                'password' => Hash::make('password'), // You can change the password
-            ]
-        );
-
         // Assign roles
-        $user1->assignRole('admin');
-        $user2->assignRole('editor');
-        $user3->assignRole('user');
+        $user->assignRole('admin');
     }
 }

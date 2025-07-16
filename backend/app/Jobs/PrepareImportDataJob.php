@@ -101,6 +101,7 @@ class PrepareImportDataJob implements ShouldQueue
 
             Storage::disk('local')->put($newCsvName, $csvContent);
 
+            unlink($fullPath);
             Log::info("Archivo procesado y convertido: $newCsvName");
 
             // Disparar importación final

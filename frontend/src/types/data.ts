@@ -118,7 +118,7 @@ export interface FiltroAnalisis {
       valores: number[];
     };
   };
-  serie: string;
+  serie?: string;
 
   // término es opcional
   terminos?: {
@@ -128,3 +128,10 @@ export interface FiltroAnalisis {
     };
   };
 }
+
+
+export type BaseData = Record<string, string | number>;
+export type DataRow = BaseData & {
+  id: number | string;
+  spans?: Record<string, number>;
+};

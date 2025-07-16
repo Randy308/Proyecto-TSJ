@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\ArimaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CompareController;
+use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\JurisprudenciasController;
 use App\Http\Controllers\Api\MagistradosController;
@@ -119,6 +120,10 @@ Route::prefix('v2')->group(function () {
         Route::get('/obtener-no-leidas', [NotificationController::class, 'unread']);
         Route::get('/notificaciones', [NotificationController::class, 'index']);
         Route::put('/actualizar-notificacion/{id}', [NotificationController::class, 'update']);
+        Route::post('/generar-terminos-clave', [ConfigController::class, 'generarTerminosClaveUnificados']);
+        Route::post('/reparar-departamentos', [ConfigController::class, 'repararDepartamentos']);
+        Route::post('/reparar-fechas-emision', [ConfigController::class, 'repararFechasEmision']);
+        Route::post('/generar-nodos', [ConfigController::class, 'generarResumenJerarquico']);
     });
 
     Route::middleware('auth:api')->get('/user', function (Request $request) {
@@ -135,10 +140,8 @@ Route::prefix('v2')->group(function () {
     Route::get('/obtener-filtros-resoluciones', [ResolutionController::class, 'obtenerOpciones']);
 
     // rutas no validadas
-
     Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
     Route::get('/obtener-parametros', [ResolutionController::class, 'obtenerParametros'])->name('obtener-parametros');
     Route::get('/filtrar-resoluciones', [ResolutionController::class, 'filtrarResoluciones'])->name('filtrar-resoluciones');
-    // Route::get('/obtener-datos-sala/{id}', [SalaController::class, 'show'])->name('obtener-datos-sala');
     Route::get('/buscar-resoluciones', [CompareController::class, 'obtenerResoluciones']);
 });

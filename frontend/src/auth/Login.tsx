@@ -76,7 +76,7 @@ export function Login() {
               SAMED
             </div>
             <EmailInput
-              email={formData.email}
+              email={formData.email ?? ""}
               setEmail={actualizarInput}
               setFormState={setFormState}
             />

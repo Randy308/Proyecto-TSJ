@@ -34,7 +34,7 @@ const SubirDatos = () => {
       permiso: "subir_jurisprudencia",
     },
     {
-      nombre: "Carga Automática (Web Scraping)",
+      nombre: "Ajustes avanzados",
       path: "/admin/realizar-web-scrapping",
       icon: <FaMagnifyingGlassChart className="text-white w-[50px] h-[50px]" />,
       permiso: "realizar_web_scrapping",
@@ -69,7 +69,7 @@ const SubirDatos = () => {
         Opciones para subir Resoluciones
       </h1>
 
-      <div className="flex flex-row flex-wrap gap-4 justify-center items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         {tarjetas.map((tarjeta) =>
           can(tarjeta.permiso) ? (
             <Link to={tarjeta.path} key={tarjeta.nombre}>
