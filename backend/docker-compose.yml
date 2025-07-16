@@ -51,6 +51,7 @@ services:
       retries: 3
     networks:
       - default
+      - internal_net
 
   postgres:
     image: postgres:15

@@ -6,6 +6,9 @@ RUN apt-get update && apt-get install -y \
     zip unzip git curl supervisor libpq-dev libzip-dev \
     && docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip
 
+
+COPY ./docker/php/custom-php.ini /usr/local/etc/php/conf.d/custom-php.ini
+
 # Instala Composer
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
