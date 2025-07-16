@@ -14,7 +14,7 @@ class DescriptorSeeder extends Seeder
      */
     public function run(): void
     {
-        $fullPath = storage_path('app/descriptor.csv');
+        $fullPath = public_path('descriptor.csv');
         $rows = SimpleExcelReader::create($fullPath)->getRows();
 
         $dataToInsert = [];
