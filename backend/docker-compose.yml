@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   app:
     build:
@@ -81,7 +79,6 @@ services:
   manticore:
     image: manticoresearch/manticore:latest
     container_name: manticore
-    # No se expone al exterior
     volumes:
       - ./manticore/data:/var/lib/manticore
       - ./manticore/config:/etc/manticore
