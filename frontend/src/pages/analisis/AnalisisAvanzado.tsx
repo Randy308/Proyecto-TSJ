@@ -303,7 +303,7 @@ const AnalisisAvanzado = () => {
       </div>
       <div className="p-2 relative flex flex-col md:flex-row gap-4">
         <div
-          style={{ zIndex: 9999999999999 }}
+          style={{ zIndex: 30 }}
           className="p-2 w-full md:w-[300px] md:max-h-[800px] absolute md:relative  md:flex flex-col border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg shadow-lg"
         >
           {contenido && contenido.length > 0 && (
