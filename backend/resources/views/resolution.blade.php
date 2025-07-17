@@ -458,59 +458,26 @@
         <div class="resolucion-card">
             <h2 class="resolucion-header">
                 <tocentry content="{{ $item['nro_resolucion'] }}" level="1" />
-                {!! $item['nro_resolucion'] !!}
-            </h2>
-
-            <span class="resolucion-meta">
-                <a class="resolucion-link" href="http://127.0.0.1:3000/jurisprudencia/resolucion/{{ $item['id'] }}">
+                <a class="resolucion-link" href="http://127.0.0.1:8000/resolucion/{{ $item['id'] }}">
                     {!! $item['nro_resolucion'] !!}
                 </a>
-            </span>
+            </h2>
 
-            @if (!empty($item['periodo']))
-                <span class="resolucion-meta">
-                    | {!! nl2br(str_replace('_x000D_', "\n", $item['periodo'])) !!}
-                </span>
-            @endif
+            @foreach (['nro_expediente', 'periodo', 'precedente', 'maxima', 'departamento', 'forma_resolucion', 'tipo_resolucion', 'magistrado', 'proceso', 'sala', 'demandante', 'demandado'] as $field)
+                @if (!empty($item[$field]))
+                    <span class="resolucion-meta">
+                        | {!! nl2br(str_replace('_x000D_', "\n", $item[$field])) !!}
+                    </span>
+                @endif
+            @endforeach
 
-            @if (!empty($item['precedente']))
-                <span class="resolucion-meta">
-                    | {!! nl2br(str_replace('_x000D_', "\n", $item['precedente'])) !!}
-                </span>
-            @endif
-
-            @if (!empty($item['maxima']))
-                <span class="resolucion-meta">
-                    | {!! nl2br(str_replace('_x000D_', "\n", $item['maxima'])) !!}
-                </span>
-            @endif
-
-            @if (!empty($item['proceso']))
-                <span class="resolucion-meta">
-                    | {!! nl2br(str_replace('_x000D_', "\n", $item['proceso'])) !!}
-                </span>
-            @endif
-
-            @if (!empty($item['demandante']))
-                <span class="resolucion-meta">
-                    | {!! nl2br(str_replace('_x000D_', "\n", $item['demandante'])) !!}
-                </span>
-            @endif
-
-            @if (!empty($item['demandado']))
-                <span class="resolucion-meta">
-                    | {!! nl2br(str_replace('_x000D_', "\n", $item['demandado'])) !!}
-                </span>
-            @endif
-
-            @if (!empty($item['contenido']))
+            @if (!empty($item['resumen']))
                 <p class="resolucion-resumen">
-                    <strong>Resumen:</strong> {!! nl2br(str_replace('_x000D_', '', $item['contenido'])) !!}
+                    <strong>Resumen:</strong> {!! nl2br(str_replace('_x000D_', '', $item['resumen'])) !!}
                 </p>
             @endif
         </div>
     @endforeach
-
 
     {{-- 
     @if ($referencias && count($referencias) > 0)

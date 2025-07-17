@@ -40,9 +40,10 @@ Route::prefix('v2')->group(function () {
     Route::get('/filtrar-autos-supremos', [SearchController::class, 'filtrarAutosSupremos']);
     Route::get('/buscar-termino-jurisprudencia', [SearchController::class, 'busquedaTerminos']);
     Route::get('/obtener-resoluciones-cronologia', [SearchController::class, 'obtenerResolucionesCronologia']);
+    Route::post('/buscar-resoluciones-avanzado', [SearchController::class, 'buscarResolucionesAvanzado']);
+    Route::get('/obtener-serie-terminos', [SearchController::class, 'buscarSerieTemporal']);
 
     // rutas de cronología
-    Route::get('/obtener-serie-terminos', [JurisprudenciasController::class, 'buscarSerieTemporal']);
     Route::get('/obtener-descriptor/{id}', [JurisprudenciasController::class, 'buscarDescriptorById']);
     Route::get('/buscar-descriptor', [JurisprudenciasController::class, 'buscarDescriptor']);
 
@@ -102,6 +103,7 @@ Route::prefix('v2')->group(function () {
         // Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/auth-user', [AuthController::class, 'Authuser']);
+        Route::put('/actualizar-perfil', [AuthController::class, 'updateUser']);
         Route::apiResource('admin/user', UserController::class);
         Route::apiResource('admin/roles', RoleController::class);
         Route::apiResource('admin/post', PostController::class);

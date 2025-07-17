@@ -117,7 +117,7 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
     }
   };
 
-  if (!formData || !formData.email || !formData.name || !formData.role) {
+  if (!formData || Object.keys(formData).length === 0) {
     return (
       <div className="h-[400px]">
         <Loading></Loading>

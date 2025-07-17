@@ -1,36 +1,35 @@
 import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
 import PortalButton from "../../components/modal/PortalButton";
-import {
-  filterAtributte,
-  filterForm,
-  filterTitle,
-  titulo,
-} from "../../utils/filterForm";
+import { filterAtributte, filterTitle, titulo } from "../../utils/filterForm";
 
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { useState } from "react";
 import { FaCheckCircle, FaRegCircle } from "react-icons/fa";
 import { useIcons } from "../../components/icons/Icons";
-import { ResolucionesService } from "../../services";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import Loading from "../../components/Loading";
 import type { Resolucion, Facetas } from "../../types";
 import { useVariablesContext } from "../../context";
+import { IoMdClose } from "react-icons/io";
+import AsyncButton from "../../components/AsyncButton";
 
 interface PaginationDataProps {
   resolutions: Resolucion[];
-  termino: string;
+  selectedIds: number[];
+  isLoading: boolean;
+  setSelectedIds: React.Dispatch<React.SetStateAction<number[]>>;
+  obtenerCronologia:(e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
 }
-const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+const PaginationData = ({
+  resolutions,
+  selectedIds,
+  isLoading,
+  setSelectedIds,
+  obtenerCronologia,
+}: PaginationDataProps) => {
   const limite = 40;
 
   const { data } = useVariablesContext();
   const { removeAllIcon, checkAllIcon } = useIcons();
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
   const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newID = Number(e.target.value);
 
@@ -77,45 +76,31 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
     );
   };
 
-  const obtenerCronologia = async (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-
-    if (selectedIds.length <= 0) {
-      toast.error("Debe agregar resoluciones");
-      return;
-    }
-
-    const validatedData = filterForm({
-      ids: selectedIds,
-      term: termino,
-    });
-    setIsLoading(true);
-    ResolucionesService.obtenerCronologiabyIds(validatedData)
-      .then(({ data }) => {
-        console.log(data);
-        const pdfBlob = new Blob([data], {
-          type: "application/pdf",
-        });
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        console.log("PDF URL:", pdfUrl);
-        navigate("/Jurisprudencia/Cronologias/Resultados", {
-          state: { pdfUrl: pdfUrl },
-        });
-      })
-      .catch((error) => {
-        const message = error.response?.data?.error || "Ocurrió un error";
-        console.error("Error fetching data:", message);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  if (isLoading) {
-    return <Loading />;
-  }
   return (
     <div className="relative overflow-x-auto flex flex-col gap-4 p-4">
+      {selectedIds && selectedIds.length > 0 && (
+        <div className="py-4 flex items-center justify-end gap-4 flex-wrap">
+          <div className="text-sm flex flex-row items-center flex-wrap gap-2">
+            <span className="text-black dark:text-white">
+              Resoluciones seleccionadas:
+            </span>
+            <div
+              onClick={() => setSelectedIds([])}
+              className="bg-white group flex gap-4 items-center justify-between hover:cursor-pointer rounded-lg p-2 font-bold m-4 border hover:border-red-500 text-xs dark:bg-gray-500"
+            >
+              <span>{selectedIds.length + "/" + limite} </span>
+              <IoMdClose className="group-hover:text-red-500" />
+            </div>
+          </div>
+          <AsyncButton
+            asyncFunction={obtenerCronologia}
+            name={"Obtener Resoluciones"}
+            isLoading={isLoading}
+            full={false}
+          />
+        </div>
+      )}
+
       <div className="flex items-center gap-2 px-2">
         <a
           onClick={(e) => selectAll(e)}
@@ -132,14 +117,8 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
           <span className="ms-2 text-xs">Quitar Selección</span>
         </a>
 
-        <a
-          onClick={(e) => obtenerCronologia(e)}
-          className="dark:bg-gray-800 dark:border-gray-700 inline-flex items-center border hover:cursor-pointer border-gray-200 p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-        >
-          <span className="ms-2 text-xs"> Obtener Resoluciones</span>
-        </a>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {resolutions.map((item, index) => (
           <div
             key={index}
@@ -203,6 +182,7 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
                       "maxima",
                       "precedente",
                       "proceso",
+                      "highlight",
                       "nro_resolucion",
                       "tipo_resolucion",
                     ].includes(key) && item[key as keyof Resolucion]
@@ -240,6 +220,7 @@ const PaginationData = ({ resolutions, termino }: PaginationDataProps) => {
                       "demandado",
                       "sintesis",
                       "maxima",
+                      "highlight",
                       "precedente",
                       "proceso",
                     ].includes(key) && item[key as keyof Resolucion]

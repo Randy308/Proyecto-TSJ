@@ -27,6 +27,7 @@ export type FiltroBusqueda =
   | "forma_resolucion"
   | "tipo_jurisprudencia"
   | "materia"
+  | "categoria"
   | "periodo";
 
 type AllOrNumber = number | "all";
@@ -51,6 +52,7 @@ export interface DatosArray {
   tipo_jurisprudencia?: number[];
   materia?: number[];
   periodo?: number[];
+  categoria?: number[];
 }
 
 export interface ListaX {

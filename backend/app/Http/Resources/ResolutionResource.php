@@ -15,6 +15,7 @@ class ResolutionResource extends JsonResource
     public function toArray($request)
     {
         return array_filter([
+            'id' => $this->id,
             'nro_resolucion' => $this->nro_resolucion,
             'nro_expediente' => $this->nro_expediente,
             'fecha_emision' => $this->fecha_emision,

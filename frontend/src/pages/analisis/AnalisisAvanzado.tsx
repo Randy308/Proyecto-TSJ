@@ -47,7 +47,7 @@ const AnalisisAvanzado = () => {
   const memoizedParams: Facetas = useMemo(() => {
     if (data) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { periodo, ...rest } = data; // Remove 'periodo' if not needed
+      const { periodo, departamento, ...rest } = data; // Remove 'periodo' if not needed
       return rest as Facetas;
     }
     // Provide default empty arrays for all Variable properties
@@ -99,9 +99,15 @@ const AnalisisAvanzado = () => {
     // const fetchStats = StatsService.getMultivariable(params);
 
     const params = isMultiVariable
-      ? { variable: listaX[0].ids, nombre: listaX[0].name, variableY: listaX[1].ids, nombreY: listaX[1].name }
+      ? {
+          variable: listaX[0].ids,
+          nombre: listaX[0].name,
+          variableY: listaX[1].ids,
+          nombreY: listaX[1].name,
+        }
       : {
-          variable: listaX[0].ids, nombre: listaX[0].name,
+          variable: listaX[0].ids,
+          nombre: listaX[0].name,
         };
 
     const fetchStats = isMultiVariable
@@ -131,6 +137,9 @@ const AnalisisAvanzado = () => {
 
   const generarSerie = () => {
     if (listaX.length === 0) {
+      toast.warning(
+        "Por favor, seleccione una variable para generar la serie de tiempo."
+      );
       return;
     }
     const params = {
@@ -161,6 +170,12 @@ const AnalisisAvanzado = () => {
   const memoGetDatos = useMemo(() => getDatos, [listaX]);
   const irAMapa = () => {
     if (listaX.length === 0) {
+      if (listaX.length === 0) {
+      toast.warning(
+        "Por favor, seleccione una variable primero antes de continuar ."
+      );
+      return;
+    }
       return;
     }
     const params = {
@@ -320,9 +335,9 @@ const AnalisisAvanzado = () => {
                   <>
                     <option value="bar">Barras</option>
                     <option value="column">Columnas</option>
-                    <option value="area">Área</option>
+                    {/* <option value="area">Área</option>
                     <option value="scatter">Dispersión</option>
-                    <option value="line">Lineas</option>
+                    <option value="line">Lineas</option> */}
                     <option value="pie">Circular</option>
                     <option value="donut">Dona</option>
                   </>

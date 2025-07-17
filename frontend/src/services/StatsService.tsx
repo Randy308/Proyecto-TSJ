@@ -47,7 +47,7 @@ export const StatsService = {
     instance.get(`obtener-serie-temporal-x`, { params }),
   getMapa: (params: ReceivedForm) => instance.get(`obtener-mapa-x`, { params }),
   getMultivariable: (params: FiltroAnalisis) =>
-    instance.post(`estadisticas-multivariable`, params),
+    instance.post(`estadisticas-multivariable`, params, { withCredentials: true }),
 
   getStatsXY: (params: object) =>
     instance.get(`obtener-estadistica-avanzada-xy/`, { params }),

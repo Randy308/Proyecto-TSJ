@@ -65,7 +65,8 @@ export const UserService = {
     instance.get("/notificaciones", { params: { page } }),
   markNotificationAsRead: (id: number) =>
     instance.put(`/actualizar-notificacion/${id}`),
-
+  markAllNotificationsAsRead: () =>
+    instance.put("/actualizar-todas-notificaciones"),
   // Resoluciones
   getResoluciones: (page = 1) =>
     instance.get("/resoluciones-usuario", { params: { page } }),

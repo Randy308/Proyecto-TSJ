@@ -20,9 +20,9 @@ const Navbar = () => {
     }
   };
 
-  const handleMenuClick = (id:number) => {
+  const handleMenuClick = (id: number) => {
     if (isOpen === id) {
-       setIsOpen(null);
+      setIsOpen(null);
     } else {
       setIsOpen(id);
     }
@@ -48,7 +48,6 @@ const Navbar = () => {
         </>
       );
     }
-    
 
     return null;
   };
@@ -128,7 +127,6 @@ const Navbar = () => {
                 </li>
               )
             )}
-
             {navLinks()}
           </ul>
         </div>

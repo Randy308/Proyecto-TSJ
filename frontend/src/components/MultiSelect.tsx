@@ -1,51 +1,90 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { IoIosArrowDown, IoMdClose } from "react-icons/io";
+import { toast } from "react-toastify";
 interface MultiSelectProps {
-  options: { label: string; value: string }[];
-  selectedOptions: string[];
-  setSelectedOptions: React.Dispatch<React.SetStateAction<string[]>>;
+  type?: string;
+  selectedOptions: { value: string; id: string }[];
+  setSelectedOptions: React.Dispatch<React.SetStateAction<{ value: string; id: string }[]>>;
 }
 const MultiSelect = ({
-  options,
+  type = "resoluciones",
   selectedOptions,
   setSelectedOptions,
 }: MultiSelectProps) => {
   const [show, setShow] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const [filteredOptions, setFilteredOptions] = useState(options);
+  const options = useMemo(() => {
+    const lista = [
+      { value: "ratio", label: "Ratio" },
+      { value: "descriptor", label: "Descriptor" },
+      { value: "restrictor", label: "Restrictor" },
+      { value: "contenido", label: "Contenido" },
+      { value: "proceso", label: "Proceso" },
+      { value: "sintesis", label: "Síntesis" },
+      { value: "maxima", label: "Máxima" },
+      { value: "precedente", label: "Precedente" },
+    ];
 
-  const search = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toLowerCase();
-    setSearchTerm(e.target.value);
-    if (value === "") {
-      setFilteredOptions(options);
-      return;
+    const list = [
+      { value: "contenido", label: "Contenido" },
+      { value: "proceso", label: "Proceso" },
+      { value: "sintesis", label: "Síntesis" },
+      { value: "maxima", label: "Maxima" },
+      { value: "precedente", label: "Precedente" },
+      // { value: "demandado", label: "Demandado" },
+      // { value: "demandante", label: "Demandante" },
+    ];
+
+    if (type === "jurisprudencia") {
+      return lista;
     }
-    const filtered = options.filter((f) =>
-      f.label.toLowerCase().startsWith(value)
-    );
-    setFilteredOptions(filtered);
-  };
+    return list;
+  }, [type]);
+
+  // const [searchTerm, setSearchTerm] = useState("");
+
+  // const [filteredOptions, setFilteredOptions] = useState(options);
+
+  // const search = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value.toLowerCase();
+  //   setSearchTerm(e.target.value);
+  //   if (value === "") {
+  //     setFilteredOptions(options);
+  //     return;
+  //   }
+  //   const filtered = options.filter((f) =>
+  //     f.label.toLowerCase().startsWith(value)
+  //   );
+  //   setFilteredOptions(filtered);
+  // };
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.value;
+    const id = event.target.name;
     if (newValue === "all") {
       return;
     }
+    if (selectedOptions.find((option) => option.value === newValue)) {
+      return;
+    }
+
+    if (selectedOptions.length >= 3) {
+      toast.warning("Solo puedes seleccionar hasta 3 campos");
+      return;
+    }
     setShow(false);
-    setSelectedOptions((prev) => [...prev, newValue]);
+    setSelectedOptions((prev) => [...prev, { value:newValue, id:id }]);
   };
 
   return (
-    <div className="flex dark:bg-gray-800 relative m-2 justify-between items-center gap-2 border rounded-md py-2 w-auto lg:w-96">
+    <div className="flex dark:bg-gray-800 relative m-2 justify-between items-center gap-2 border rounded-md py-2 w-auto">
       <div className="ps-1">
         {selectedOptions.length > 0 ? (
           <>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-row sm:flex-col flex-wrap gap-2">
               {selectedOptions.map((option) => (
                 <div
-                  key={option}
+                  key={option.id}
                   className="text-xs dark:bg-gray-900 capitalize p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
                   onClick={() =>
                     setSelectedOptions((prev) =>
@@ -53,14 +92,14 @@ const MultiSelect = ({
                     )
                   }
                 >
-                  <span>{option}</span>
+                  <span>{option.value}</span>
                   <IoMdClose className="group-hover:text-red-400" />
                 </div>
               ))}
             </div>
           </>
         ) : (
-          <div className="text-gray-500 text-xs ps-2">
+          <div className="text-gray-500 dark:text-gray-300 text-xs ps-2">
             Seleccione los campos donde buscar
           </div>
         )}
@@ -83,18 +122,19 @@ const MultiSelect = ({
             show ? "block" : "hidden"
           }`}
         >
-          <input
-          
-            type="text" onChange={search} value={searchTerm}
+          {/* <input
+            type="text"
+            onChange={search}
+            value={searchTerm}
             placeholder="Buscar..."
             className="p-2 m-2 dark:text-black border rounded-lg"
-          />
-          {filteredOptions.map(
-            (option) =>
-              !selectedOptions.includes(option.value) && (
+          /> */}
+          {options.map(
+            (option,index) =>
+              !selectedOptions.some((selected) => selected.value === option.value) && (
                 <label className="group w-full flex" key={option.value}>
                   <input
-                    name={option.value}
+                    name={`${index}-${option.value}`}
                     key={option.value}
                     type="checkbox"
                     className="hidden group"

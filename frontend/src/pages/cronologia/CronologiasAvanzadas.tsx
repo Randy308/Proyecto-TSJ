@@ -443,7 +443,7 @@ const CronologiasAvanzadas = () => {
                   />
                 ))}
               </div>
-              <div className="lg:flex-1">
+              <div className="md:flex-1">
                 <>
                   {resoluciones.length > 0 ? (
                     <>

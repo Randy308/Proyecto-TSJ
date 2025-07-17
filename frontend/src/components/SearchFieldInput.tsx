@@ -1,0 +1,30 @@
+import type { SearchField } from "../types/search";
+import { Etiquetas } from "./Etiquetas";
+
+export const SearchFieldInput = ({
+  field,
+  index,
+  updateField,
+}: {
+  field: SearchField;
+  index: number;
+  updateField: (index: number, updated: Partial<SearchField>) => void;
+}) => {
+  return (
+    <div className="flex flex-row items-center gap-2">
+      {index > 0 && (
+        <Etiquetas
+          selected={field.operator}
+          onChange={(op) => updateField(index, { operator: op as "AND" | "OR" | "NOT" })}
+        />
+      )}
+      <input
+        type="text"
+        placeholder={`Buscar en ${field.field}`}
+        value={field.value}
+        onChange={(e) => updateField(index, { value: e.target.value })}
+        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+      />
+    </div>
+  );
+};

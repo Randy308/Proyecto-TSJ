@@ -5,8 +5,8 @@ import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
 import { ResolucionesService } from "../../services";
 import { filterForm } from "../../utils/filterForm";
-import { TablaMultivariable } from "../../components/TablaMultivariable";
-import type { BaseData } from "../../types";
+import SimpleSelect from "../../components/SimpleSelect";
+import type { SimpleSearchFormData } from "../../types/search";
 
 interface Resolucion {
   id: number;
@@ -21,103 +21,6 @@ interface Termino {
   value: string;
 }
 
-interface FormData {
-  campo: string;
-  busqueda: string;
-}
-
-// --- Datos ---
-const data: BaseData[] = [
-  {
-    id: 1,
-    continente: "América",
-    pais: "México",
-    estado: "Jalisco",
-    ciudad: "Guadalajara",
-    cantidad: 1500000,
-  },
-  {
-    id: 2,
-    continente: "América",
-    pais: "México",
-    estado: "Jalisco",
-    ciudad: "Zapopan",
-    cantidad: 1400000,
-  },
-  {
-    id: 3,
-    continente: "América",
-    pais: "México",
-    estado: "Jalisco",
-    ciudad: "Tlaquepaque",
-    cantidad: 700000,
-  },
-  {
-    id: 4,
-    continente: "América",
-    pais: "México",
-    estado: "CDMX",
-    ciudad: "Ciudad de México",
-    cantidad: 9000000,
-  },
-  {
-    id: 5,
-    continente: "América",
-    pais: "México",
-    estado: "CDMX",
-    ciudad: "Tlalpan",
-    cantidad: 700000,
-  },
-  {
-    id: 6,
-    continente: "Europa",
-    pais: "España",
-    estado: "Cataluña",
-    ciudad: "Barcelona",
-    cantidad: 1600000,
-  },
-  {
-    id: 7,
-    continente: "Europa",
-    pais: "España",
-    estado: "Cataluña",
-    ciudad: "Hospitalet",
-    cantidad: 260000,
-  },
-  {
-    id: 8,
-    continente: "Europa",
-    pais: "España",
-    estado: "Madrid",
-    ciudad: "Madrid",
-    cantidad: 3200000,
-  },
-  {
-    id: 9,
-    continente: "América",
-    pais: "Argentina",
-    estado: "Buenos Aires",
-    ciudad: "Buenos Aires",
-    cantidad: 3000000,
-  },
-  {
-    id: 10,
-    continente: "América",
-    pais: "Argentina",
-    estado: "Buenos Aires",
-    ciudad: "La Plata",
-    cantidad: 700000,
-  },
-  {
-    id: 11,
-    continente: "América",
-    pais: "Argentina",
-    estado: "Córdoba",
-    ciudad: "Córdoba",
-    cantidad: 1400000,
-  },
-];
-
 const CompararDatos = () => {
   const [resoluciones, setResoluciones] = useState<Resolucion[] | null>(null);
   // const [geoData, setGeoData] = useState([]);
@@ -126,7 +29,7 @@ const CompararDatos = () => {
 
   const [option, setOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<SimpleSearchFormData>({
     campo: "proceso",
     busqueda: "proceso",
   });
@@ -282,7 +185,7 @@ const CompararDatos = () => {
 
   const limpiarFiltros = () => {
     setFormData({
-      campo: "all",
+      campo: "Proceso",
       busqueda: "",
     });
   };
@@ -294,6 +197,7 @@ const CompararDatos = () => {
     }));
   };
 
+ 
   return (
     <div
       className="px-1 sm:px-5 md:px-10 lg:px-40 custom:px-0"
@@ -303,23 +207,8 @@ const CompararDatos = () => {
         <div className="flex flex-col bg-white dark:bg-[#111827] rounded-lg border border-gray-200 dark:border-gray-900  shadow mt-4">
           <div className="w-full p-4 text-center bg-white border border-gray-200 rounded-lg sm:p-8 dark:bg-gray-800  dark:border-gray-900">
             <form className="w-full flex justify-center items-center flex-row gap-4">
-              <div className="max-w-sm mx-auto h-full">
-                <select
-                  id="countries"
-                  onChange={(e) => updateFormData("campo", e.target.value)}
-                  value={formData.campo}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                >
-                  <option defaultValue={"proceso"} disabled>
-                    Elija una opción
-                  </option>
-                  <option value="proceso">Buscar en Proceso</option>
-                  <option value="sintesis">Buscar en Síntesis</option>
-                  <option value="precedente">Buscar en Precedente</option>
-                  <option value="ratio">Buscar en Ratio</option>
-                  <option value="restrictor">Buscar en Restrictor</option>
-                  <option value="proceso">Buscar en Proceso</option>
-                </select>
+              <div className="max-w-sm mx-auto h-full flex flex-col md:flex-row gap-4">
+                <SimpleSelect updateFormData={updateFormData} />
               </div>
               <div className="relative flex-1">
                 <input
@@ -370,7 +259,7 @@ const CompararDatos = () => {
         </div>
       )}
 
-      <TablaMultivariable records={data} />
+      {/* <TablaMultivariable records={data} /> */}
       {/* {geoData && geoData.length > 0 && (
         <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px] mb-8">
           <GeoChart contenido={geoData}></GeoChart>

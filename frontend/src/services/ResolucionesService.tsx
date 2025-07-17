@@ -13,6 +13,32 @@ const instance = axios.create({
   withCredentials: false,
 });
 
+
+let csrfFetched = false;
+const getCsrfToken = async () => {
+  if (csrfFetched) return;
+  try {
+    await axios.get(
+      `${import.meta.env.VITE_REACT_APP_TOKEN}/sanctum/csrf-cookie`,
+      {
+        withCredentials: true,
+      }
+    );
+    csrfFetched = true;
+  } catch (error) {
+    console.error("Error obteniendo CSRF token:", error);
+  }
+};
+
+//intercepta peticiones post para agregar CSRF token
+instance.interceptors.request.use((config) => {
+  if (config.method === "post") {
+    getCsrfToken();
+  }
+  return config;
+});
+
+
 export const ResolucionesService = {
   getStats: () => instance.get(`/obtener-historico`),
 
@@ -24,7 +50,9 @@ export const ResolucionesService = {
     instance.post("/obtener-resoluciones-ids", formData, {
       responseType: "blob",
     }),
-  buscarResoluciones: (params:object) =>
+  busquedaAvanzada: (params: object) =>
+    instance.post("/buscar-resoluciones-avanzado", params, { withCredentials: true }),
+  buscarResoluciones: (params: object) =>
     instance.get("/filtrar-autos-supremos", {
       params,
     }),

@@ -975,7 +975,7 @@ class ResolutionController extends Controller
         if ($filtroPrincipal['join']) {
             $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
         }
-        $query->selectRaw(' x.nombre as nombre ,Count(r.id) as cantidad, fecha_emision as fecha')
+        $query->selectRaw(" x.nombre as nombre ,Count(r.id) as cantidad,   TO_CHAR(fecha_emision, 'YYYY-MM') AS fecha")
             ->join($filtroPrincipal['tabla'] . ' as x', 'x.id', $filtroPrincipal['foreign_key'])
             ->whereIn($filtroPrincipal['foreign_key'], $request->variable)
             ->groupBy('fecha', 'nombre');

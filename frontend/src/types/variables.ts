@@ -32,6 +32,7 @@ export interface Facetas {
   magistrado: Faceta[];
   materia: Faceta[];
   periodo?: Faceta[];
+  categoria?: Faceta[];
 }
 export interface Variables {
   departamento: ListaData[];

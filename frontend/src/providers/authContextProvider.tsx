@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { ContextProviderProps } from "../types";
 import { AuthContext, type AuthUser, type AuthContextType } from "../context";
 import { AuthService } from "../services";
-import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { toast } from "react-toastify";
 
@@ -13,7 +12,7 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
     false
   );
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Assuming you want to use the current location for navigation
+   // Assuming you want to use the current location for navigation
   // Check if user is authenticated on app load
   useEffect(() => {
     checkAuth();
@@ -33,7 +32,6 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
         return;
       }
       setAuthUser(response.data.user);
-      navigate("/dashboard");
     } catch (error: unknown) {
       setAuthUser(null);
       console.error("Error checking authentication:", error);
@@ -88,6 +86,7 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
 
   const value: AuthContextType = {
     authUser,
+    setAuthUser,
     loading,
     login,
     logout,

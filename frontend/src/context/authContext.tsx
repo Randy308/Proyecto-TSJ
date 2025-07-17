@@ -11,6 +11,7 @@ export interface AuthUser {
 
 export interface AuthContextType {
   authUser: AuthUser | null;
+  setAuthUser: React.Dispatch<React.SetStateAction<AuthUser | null>>;
   loading: boolean;
   login: (
     email: string,

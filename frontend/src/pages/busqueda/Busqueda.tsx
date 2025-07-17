@@ -7,8 +7,7 @@ import {
   titulo,
   filterParams,
 } from "../../utils/filterForm";
-import { IoMdClose } from "react-icons/io";
-import { IoMdSearch } from "react-icons/io";
+import { IoMdClose, IoMdSearch } from "react-icons/io";
 import { ResolucionesService } from "../../services";
 import PaginationData from "./PaginationData";
 import Paginate from "../../components/tables/Paginate";
@@ -22,18 +21,22 @@ import {
   type Variables,
   type Faceta,
 } from "../../types";
-import { FaInfo } from "react-icons/fa6";
-import MultiSelect from "../../components/MultiSelect";
 import { SkeltonTable } from "../../components/tables/SkeltonTable";
+import SimpleSearch from "../../components/SimpleSearch";
+import type { SearchField, SimpleSearchFormData } from "../../types/search";
+import { useNavigate } from "react-router-dom";
+import MultiSearch from "../../components/MultiSearch";
 const Busqueda = () => {
   const { data } = useVariablesContext();
-  const [errorBusqueda, setErrorBusqueda] = useState("");
 
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<DatosArray>({});
   const [selector, setSelector] = useState<Facetas>({} as Facetas);
   const [resoluciones, setResoluciones] = useState<Resolucion[]>([]);
-  const [termino, setTermino] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const [searchType, setSearchType] = useState<boolean>(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
   const [facetas, setFacetas] = useState<Facetas>({} as Facetas);
   // const [searchType, setSearchType] = useState(null);
@@ -42,17 +45,9 @@ const Busqueda = () => {
   const [pageCount, setPageCount] = useState(1);
   const [totalCount, setTotalCount] = useState(1);
 
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
-
-  const options = [
-    { value: "contenido", label: "Contenido" },
-    { value: "proceso", label: "Proceso" },
-    { value: "sintesis", label: "Síntesis" },
-    { value: "maxima", label: "Maxima" },
-    { value: "precedente", label: "Precedente" },
-    { value: "demandado", label: "Demandado" },
-    { value: "demandante", label: "Demandante" },
-  ];
+  const [selectedOptions, setSelectedOptions] = useState<SimpleSearchFormData>(
+    {} as SimpleSearchFormData
+  );
 
   const removeItem = (value: number, nombre: keyof DatosArray) => {
     setFormData((prev) => {
@@ -76,8 +71,8 @@ const Busqueda = () => {
     obtenerResoluciones(selectedPage);
   };
 
-  const obtenerResoluciones = async (page: number) => {
-    if (selectedOptions.length < 1) {
+  const obtenerResoluciones = async (page: number = 1) => {
+    if (Object.keys(selectedOptions).length < 1) {
       toast.warning("Debe seleccionar al menos un campo de búsqueda");
       return;
     }
@@ -92,8 +87,8 @@ const Busqueda = () => {
     }
 
     const validatedData = filterForm({
-      term: termino,
-      highlight: selectedOptions,
+      ...selectedOptions,
+      ...searchFields,
       ...formData,
     });
     setResoluciones([]);
@@ -123,75 +118,135 @@ const Busqueda = () => {
       });
   };
 
+  const obtenerCronologia = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+
+    if (selectedIds.length <= 0) {
+      toast.error("Debe agregar resoluciones");
+      return;
+    }
+
+    const validatedData = filterForm({
+      ids: selectedIds,
+    });
+    setIsLoading(true);
+    ResolucionesService.obtenerCronologiabyIds(validatedData)
+      .then(({ data }) => {
+        const pdfBlob = new Blob([data], {
+          type: "application/pdf",
+        });
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        console.log("PDF URL:", pdfUrl);
+        navigate("/Jurisprudencia/Cronologias/Resultados", {
+          state: { pdfUrl: pdfUrl },
+        });
+      })
+      .catch((error) => {
+        const message = error.response?.data?.error || "Ocurrió un error";
+        console.error("Error fetching data:", message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const [searchFields, setSearchFields] = useState<SearchField[]>([]);
+  const advancedSearch = async (page: number = 1) => {
+    if (Object.keys(searchFields).length < 1) {
+      toast.warning("Debe seleccionar al menos un campo de búsqueda");
+      return;
+    }
+    if (isLoading) {
+      return;
+    }
+    setIsLoading(true);
+
+    const validPage = page && !isNaN(page) && page > 0 ? page : 1;
+    if (validPage === 1) {
+      setActualPage(1);
+    }
+
+    const validatedData = filterForm(searchFields);
+    const validatedFilters = filterForm(formData);
+    setResoluciones([]);
+    ResolucionesService.busquedaAvanzada({
+      filtros: {
+        ...validatedData,
+      },
+      ...validatedFilters,
+
+      page: validPage,
+    })
+      .then((response) => {
+        if (response.data.data.length > 0) {
+          setResoluciones(response.data.data);
+          setLastPage(response.data.last_page);
+          setPageCount(response.data.last_page);
+          setFacetas(
+            obtenerFacetas(response.data.facets, (data as Facetas) || {})
+          );
+          setTotalCount(response.data.total);
+        } else {
+          toast.warning("No existen datos");
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+        setResoluciones([]);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   useEffect(() => {
     setSelector(filterParams(formData, (data as Variables) || {}));
   }, [data, formData]);
 
-  const checkSearch = (valor: string) => {
-    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'"’-]+$/;
-
-    if (regex.test(valor) || valor === "") {
-      return true;
-    } else {
-      return false;
-    }
-  };
-  const actualizarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valor = e.target.value;
-    if (checkSearch(valor)) {
-      setTermino(valor);
-      setErrorBusqueda("");
-    } else {
-      setErrorBusqueda("No se permiten caracteres especiales");
-    }
-  };
-
   return (
     <div className="pt-20 text-black dark:text-white">
-      <p className="text-4xl uppercase titulo font-bold text-center">
-        Búsqueda de Resoluciones
-      </p>
+      <div className="mx-auto container max-w-7xl p-4 border-2 rounded-lg my-4">
+        <p className="text-4xl uppercase titulo font-bold text-center">
+          Búsqueda de Resoluciones
+        </p>
 
-      <div className="flex items-center m-8 justify-center">
-        <label htmlFor="simple-search" className="sr-only">
-          Criterio de Búsqueda:
-        </label>
-        <MultiSelect
-          options={options}
-          selectedOptions={selectedOptions}
-          setSelectedOptions={setSelectedOptions}
-        />
-        <input
-          type="text"
-          id="simple-search"
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          placeholder="Ingrese termino de búsqueda"
-          value={termino}
-          onChange={(e) => actualizarInput(e)}
-        />
-        <button
-          type="button"
-          onClick={() => obtenerResoluciones(1)}
-          className="p-2.5 ms-2 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border border-red-octopus-700 hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        >
-          <IoMdSearch className="w-4 h-4" />
-          <span className="">Buscar</span>
-        </button>
-      </div>
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="w-full">
-          {errorBusqueda.length > 0 && (
-            <div
-              id="alert-2"
-              className="flex items-center p-4 mb-4 text-red-800 rounded-lg  dark:bg-gray-800 dark:text-red-400"
-              role="alert"
+        {searchType ? (
+          <MultiSearch
+            searchFields={searchFields}
+            setSearchFields={setSearchFields}
+          >
+            <button
+              type="button"
+              onClick={() => advancedSearch(1)}
+              className="p-2.5 ms-2 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border border-red-octopus-700 hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
-              <FaInfo className="shrink-0 w-4 h-4" />
-              <div className="ms-3 text-sm font-medium">{errorBusqueda}</div>
-            </div>
-          )}
+              <IoMdSearch className="w-4 h-4" />
+              <span className="">Buscar</span>
+            </button>
+          </MultiSearch>
+        ) : (
+          <SimpleSearch
+            obtenerResoluciones={obtenerResoluciones}
+            setFormData={setSelectedOptions}
+          />
+        )}
+
+        <div className="p-2 m-2">
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              value=""
+              className="sr-only peer"
+              onClick={() => setSearchType(!searchType)}
+            />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+            <span className="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+              Busqueda Avanzada
+            </span>
+          </label>
         </div>
       </div>
+
       <div className="flex flex-col sm:grid sm:grid-cols-4 lg:grid-cols-5 gap-4 p-4 m-4">
         {facetas && Object.keys(facetas).length > 0 ? (
           <div className="rounded-lg py-3">
@@ -211,7 +266,9 @@ const Busqueda = () => {
               )}
             </div>
           </div>
-        ):(<div className="text-xs text-gray-500"></div>)}
+        ) : (
+          <div className="text-xs text-gray-500"></div>
+        )}
 
         <div className="sm:col-span-3 lg:col-span-4">
           {selector && Object.keys(selector).length > 0 && (
@@ -247,7 +304,10 @@ const Busqueda = () => {
                   <>
                     <PaginationData
                       resolutions={resoluciones}
-                      termino={termino}
+                      setSelectedIds={setSelectedIds}
+                      selectedIds={selectedIds}
+                      isLoading={isLoading}
+                      obtenerCronologia={obtenerCronologia}
                     />
 
                     <Paginate

@@ -80,8 +80,8 @@ services:
     image: manticoresearch/manticore:latest
     container_name: manticore
     volumes:
-      - ./manticore/data:/var/lib/manticore
-      - ./manticore/config:/etc/manticore
+      - manticore_data:/var/lib/manticore
+      - manticore_config:/etc/manticore
     environment:
       - MANTICORE_MEMORY_LIMIT=512M
     restart: unless-stopped
@@ -95,6 +95,8 @@ services:
 
 volumes:
   pgdata:
+  manticore_data:
+  manticore_config:
 
 networks:
   internal_net:

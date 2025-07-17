@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FacetaResource;
+use App\Http\Resources\ResolutionResource;
 use App\Models\Jurisprudencias;
 use App\Models\Resolutions;
 use App\Utils\NLP;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +18,203 @@ use RomanStruk\ManticoreScoutEngine\Mysql\Builder;
 class SearchController extends Controller
 {
     //
+
+    function buscarSerieTemporal(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'busqueda' => 'required|string',
+            'campo' => 'required|string',
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación de los filtros.',
+                'errors' => $validator->errors(),
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY); // 422
+        }
+
+
+
+        $busqueda = $request->input('busqueda');
+        $campo = $request->input('campo');
+
+
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 10);
+        $offset = ($page - 1) * $perPage;
+        $select = ['resolution_id as id',];
+
+
+
+        $search = Resolutions::search('', function (Builder $builder) use ($campo, $perPage, $offset, $busqueda, $select) {
+
+
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('$campo $busqueda')")
+                ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
+                ->groupBy('resolution_id')
+                ->facet('departamento')
+                ->facet('periodo')->facet('mes')
+                ->facet('fecha_emision');
+
+            return $builder;
+        })->raw();
+
+        $facetas = $search['facets'] ?? [];
+
+        foreach ($facetas as $nombre => $facetGroup) {
+            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
+        }
+
+
+
+        //return response()->json($search, 200);
+        return response()->json([
+            'data' => $search['hits'] ?? [],
+            'facets' => $facetas,
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $search['meta']['total_found'] ?? 0,
+            'last_page' => ceil(($search['meta']['total_found'] ?? 0) / $perPage),
+
+        ]);
+    }
+    function buildManticoreMatch(array $filters): string
+    {
+        $matchParts = [];
+        $first = true;
+
+        foreach ($filters as $filter) {
+            $field = $filter['field'];
+            $value = trim($filter['value']);
+            $operator = strtoupper($filter['operator']);
+
+            // Escapar caracteres especiales si es necesario
+            $escapedValue = str_replace(['\\', '(', ')', '|', '-', '&', '!', '@'], ' ', $value);
+
+            $part = "@$field $escapedValue";
+
+            if ($operator === 'NOT') {
+                $part = "-$part";
+            }
+
+            if (!$first) {
+                if ($operator === 'AND') {
+                    $part = "& $part";
+                } elseif ($operator === 'OR') {
+                    $part = "| $part";
+                } // NOT ya incluye el `-`, no necesita operador adicional
+            }
+
+            $matchParts[] = $part;
+            $first = false;
+        }
+
+        return implode(' ', $matchParts);
+    }
+
+
+
+    public function buscarResolucionesAvanzado(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+            'filtros' => 'required|array',
+            'filtros.*.field' => 'required|string|in:contenido,descriptor,sintesis,precedente,maxima,proceso',
+            'filtros.*.value' => 'required|string',
+            'filtros.*.operator' => 'required|string|in:AND,OR,NOT',
+            'serie' => 'string',
+            'page' => 'integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación de los filtros.',
+                'errors' => $validator->errors(),
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY); // 422
+        }
+
+        $matchString = $this->buildManticoreMatch($request->input('filtros', []));
+
+
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
+        $offset = ($page - 1) * $perPage;
+        $select = ['resolution_id as id', 'sala', 'nro_resolucion', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
+
+
+
+        $search = Resolutions::search('', function (Builder $builder) use ($matchString, $perPage, $offset, $request, $select) {
+
+
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('$matchString')")
+                ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
+                ->facet('sala')->groupBy('resolution_id')
+                ->facet('departamento')
+                ->facet('tipo_resolucion')
+                ->facet('periodo')->facet('mes')
+                ->facet('magistrado')
+                ->facet('forma_resolucion')->take($perPage)
+                ->offset($offset);
+
+            if ($request->has('periodo')) {
+                $list = implode(',', $request->periodo);
+                $builder->whereRaw("periodo IN ($list)");
+            }
+
+            if ($request->has('tipo_resolucion')) {
+                $list = implode(',', $request->tipo_resolucion);
+                $builder->whereRaw("tipo_resolucion IN ($list)");
+            }
+            if ($request->has('sala')) {
+                $list = implode(',', $request->sala);
+                $builder->whereRaw("sala IN ($list)");
+            }
+            if ($request->has('departamento')) {
+                $list = implode(',', $request->departamento);
+                $builder->whereRaw("departamento IN ($list)");
+            }
+
+            if ($request->has('magistrado')) {
+                $list = implode(',', $request->magistrado);
+                $builder->whereRaw("magistrado IN ($list)");
+            }
+            if ($request->has('forma_resolucion')) {
+                $list = implode(',', $request->forma_resolucion);
+                $builder->whereRaw("forma_resolucion IN ($list)");
+            }
+            return $builder;
+        })->raw();
+
+        $facetas = $search['facets'] ?? [];
+
+        foreach ($facetas as $nombre => $facetGroup) {
+            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
+        }
+
+
+
+        //return response()->json($search, 200);
+        return response()->json([
+            'data' => $search['hits'] ?? [],
+            'facets' => $facetas,
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $search['meta']['total_found'] ?? 0,
+            'last_page' => ceil(($search['meta']['total_found'] ?? 0) / $perPage),
+
+        ]);
+
+        return response()->json([
+            'message' => 'Búsqueda avanzada realizada con éxito',
+            'match' => $matchString,
+        ]);
+
+        return response()->json(['message' => 'Búsqueda avanzada realizada con éxito']);
+    }
     public function test(Request $request)
     {
         $request->validate([
@@ -173,6 +372,59 @@ class SearchController extends Controller
             ], 422);
         }
 
+        $ids = $request['ids'];
+
+        $resolutions = Resolutions::with('tipo_resolucion', 'forma_resolucion', 'sala', 'departamento', 'magistrado')->whereIn('id', $ids)
+            ->get();
+        $resultados = ResolutionResource::collection($resolutions)->resolve(); // <- esta línea es clave
+
+        //return response()->json($resolutions, 200);
+        $pdf = LaravelMpdf::loadView('resolution', ['results' => $resultados], [], [
+            'format' => 'letter',
+            'margin_left' => 25,  // 2.5 cm in mm
+            'margin_right' => 25,  // 2.5 cm in mm
+            'margin_top' => 25,  // 2.5 cm in mm
+            'margin_bottom' => 25,  // 2.5 cm in mm
+            'orientation' => 'P',
+            'title' => 'Documento',
+            'author' => 'IIJP',
+            'custom_font_dir' => public_path('fonts/'),
+            'custom_font_data' => [
+                'cambria' => [
+                    'R' => 'Cambriax.ttf',
+                    'B' => 'Cambria-Bold.ttf',
+                    'I' => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf',
+                ],
+                'trebuchet_ms' => [
+                    'R' => 'trebuc.ttf',
+                    'B' => 'trebucbd.ttf',
+                    'I' => 'trebucit.ttf',
+                ],
+                'times_new_roman' => [
+                    'R' => 'times-new-roman.ttf',
+                    'B' => 'times-new-roman-bold.ttf',
+                    'I' => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf',
+                ],
+            ],
+        ]);
+
+        return $pdf->Output('document.pdf', 'I');
+
+        return response()->json($resolutions, 200);
+
+        $query = DB::table('resolutions as r')
+            ->join('contents as c', 'r.id', '=', 'c.resolution_id')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('mapeos as m', 'm.resolution_id', '=', 'r.id')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
+            ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion', 's.nombre as sala', 'r.fecha_emision', 'r.nro_resolucion', 'm.external_id');
+
+        $query->whereIn('r.id', $ids);
+
         $query = $request->input('term', '');
         $highlight = $request->input('highlight', ['contenido']);
 
@@ -215,39 +467,6 @@ class SearchController extends Controller
         $formattedResults = collect($search['hits'])->map(function ($hit) {
             return $hit['_formatted'] ?? [];
         });
-
-        $pdf = LaravelMpdf::loadView('resolution', ['results' => $formattedResults], [], [
-            'format' => 'letter',
-            'margin_left' => 25,  // 2.5 cm in mm
-            'margin_right' => 25,  // 2.5 cm in mm
-            'margin_top' => 25,  // 2.5 cm in mm
-            'margin_bottom' => 25,  // 2.5 cm in mm
-            'orientation' => 'P',
-            'title' => 'Documento',
-            'author' => 'IIJP',
-            'custom_font_dir' => public_path('fonts/'),
-            'custom_font_data' => [
-                'cambria' => [
-                    'R' => 'Cambriax.ttf',
-                    'B' => 'Cambria-Bold.ttf',
-                    'I' => 'Cambria-Italic.ttf',
-                    'BI' => 'Cambria-Bold-Italic.ttf',
-                ],
-                'trebuchet_ms' => [
-                    'R' => 'trebuc.ttf',
-                    'B' => 'trebucbd.ttf',
-                    'I' => 'trebucit.ttf',
-                ],
-                'times_new_roman' => [
-                    'R' => 'times-new-roman.ttf',
-                    'B' => 'times-new-roman-bold.ttf',
-                    'I' => 'times-new-roman-italic.ttf',
-                    'BI' => 'times-new-roman-bold-italic.ttf',
-                ],
-            ],
-        ]);
-
-        return $pdf->Output('document.pdf', 'I');
     }
 
     public function filtrarAutosSupremos(Request $request)
@@ -278,21 +497,21 @@ class SearchController extends Controller
             ], 422);
         }
 
-        $query = $request->input('term', '');
-        $highlight = $request->input('highlight', ['sintesis']);
+        $query = $request->input('busqueda', '');
+        $highlight = $request->input('highlight', 'contenido');
 
         // Parámetros de paginación
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        $select = ['resolution_id as id', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
+        $select = ['resolution_id as id', 'sala', 'nro_resolucion', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
 
 
 
-        $search = Resolutions::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $highlight, $select) {
+        $search = Resolutions::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $select, $highlight) {
 
 
-            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@(proceso,sintesis) $query')")
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@$highlight $query')")
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
                 ->facet('sala')->groupBy('resolution_id')
                 ->facet('departamento')
@@ -405,8 +624,8 @@ class SearchController extends Controller
                 ];
             }
         }
-        
-    
+
+
         usort($facetas, function ($a, $b) {
             return $a['cantidad'] < $b['cantidad'];
         });
@@ -474,7 +693,7 @@ class SearchController extends Controller
             }
 
             if ($request->has('descriptor')) {
-                $item = intval( $request->descriptor);
+                $item = intval($request->descriptor);
                 $builder->whereRaw("descriptor_id = $item");
             }
 

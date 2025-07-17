@@ -52,4 +52,5 @@ export const AuthService = {
   getLogin: (data: Login) => instance.post(`/login`, data), // Correct path
   getLogout: () => instance.post(`/logout`), // Correct path
   getAuthUser: () => instance.get(`/auth-user`), // Obtener usuario autenticado
+  updateProfile: (data: CreateUser) => instance.put(`/actualizar-perfil`, data), // Actualizar perfil
 };

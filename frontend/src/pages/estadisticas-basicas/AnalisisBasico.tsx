@@ -198,9 +198,9 @@ const AnalisisBasico = () => {
                 <>
                   <option value="bar">Barras</option>
                   <option value="column">Columnas</option>
-                  <option value="area">Área</option>
+                  {/* <option value="area">Área</option>
                   <option value="scatter">Dispersión</option>
-                  <option value="line">Lineas</option>
+                  <option value="line">Lineas</option> */}
                   <option value="pie">Circular</option>
                   <option value="donut">Dona</option>
                 </>

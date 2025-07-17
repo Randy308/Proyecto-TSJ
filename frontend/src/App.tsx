@@ -25,6 +25,9 @@ const TablaCSV = lazy(() => import("./pages/datos/TablaCSV"));
 const TablaJurisprudenciaCSV = lazy(
   () => import("./pages/datos/TablaJurisprudenciaCSV")
 );
+const Resolucion = lazy(
+  () => import("./pages/resoluciones/Resolucion")
+);
 const WebScrapping = lazy(() => import("./pages/datos/WebScrapping"));
 const Usuarios = lazy(() => import("./pages/admin/usuarios/Usuarios"));
 const Notificaciones = lazy(
@@ -151,6 +154,10 @@ function App() {
                                   <Route
                                     path="estadisticas-basicas/:id"
                                     element={<AnalisisBasico />}
+                                  />
+                                   <Route
+                                    path="resolucion/:id"
+                                    element={<Resolucion />}
                                   />
                                   <Route
                                     path="busqueda"

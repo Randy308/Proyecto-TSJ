@@ -30,11 +30,50 @@ class AuthController extends Controller
         }
     }
 
+    public function updateUser(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no autenticado'], 401);
+        }
+
+        $validatedData = $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:8',
+            'role' => 'nullable|string|max:255|exists:roles,name',
+        ]);
+
+
+        if ($request->has('name')) {
+            $user->name = $validatedData['name'];
+        }
+
+        if ($request->has('email')) {
+            $user->email = $validatedData['email'];
+        }
+
+        if ($request->has('password')) {
+            $user->password = bcrypt($validatedData['password']);
+        }
+
+        if ($request->has('role')) {
+            $user->syncRoles([$validatedData['role']]);
+        }
+
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Perfil actualizado correctamente.',
+            'user' => new UserResource($user),
+        ]);
+    }
     public function login(Request $request)
     {
 
-        Log::info('CSRF Token from header: '.$request->header('X-CSRF-TOKEN'));
-        Log::info('CSRF Token from session: '.$request->session()->token());
+        Log::info('CSRF Token from header: ' . $request->header('X-CSRF-TOKEN'));
+        Log::info('CSRF Token from session: ' . $request->session()->token());
         Log::info('XSRF-TOKEN from header:', [$request->header('X-XSRF-TOKEN')]);
 
         $validator = Validator::make($request->all(), [

@@ -4,12 +4,13 @@ import { useIcons } from "./icons/Icons";
 
 
 interface AsyncProps {
-  asyncFunction: (e:React.MouseEvent<HTMLButtonElement>) => Promise<void>;
+  asyncFunction: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
   isLoading: boolean;
   name: string;
   full?: boolean;
   Icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
+
 
 const AsyncButton = ({
   asyncFunction,
