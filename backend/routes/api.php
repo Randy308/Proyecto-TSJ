@@ -109,6 +109,7 @@ Route::prefix('v2')->group(function () {
         Route::apiResource('admin/post', PostController::class);
 
         Route::get('admin/permisos', [PermissionController::class, 'index']);
+        Route::put('actualizar-todas-notificaciones', [NotificationController::class, 'updateAll']);
 
         Route::get('admin/resolutions', [ResolutionController::class, 'userResolutions']);
         Route::post('admin/magistrado/{id}', [MagistradosController::class, 'update']);

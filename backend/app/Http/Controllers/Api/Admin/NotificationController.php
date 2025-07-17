@@ -7,7 +7,20 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
+
+
+
 {
+    public function updateAll()
+    {
+        $userId = Auth::id();
+        abort_if(! $userId, 403, 'El usuario no está autenticado');
+        Notification::where('user_id', $userId)
+            ->where('estado', 'unread')
+            ->update(['estado' => 'read']);
+        return response()->json(['mensaje' => 'Todas las notificaciones han sido actualizadas a leídas'], 200);
+    }
+
     public function index()
     {
         $userId = Auth::id();
