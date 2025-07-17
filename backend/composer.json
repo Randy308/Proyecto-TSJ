@@ -15,7 +15,6 @@
         "laravel/scout": "^10.15",
         "laravel/tinker": "^2.5",
         "livabefeni/php-arima": "^1.0",
-        "meilisearch/meilisearch-php": "^1.14",
         "nlp-tools/nlp-tools": "^0.1.3",
         "php-http/curl-client": "^2.3",
         "romanstruk/manticore-scout-engine": "^7.0",
