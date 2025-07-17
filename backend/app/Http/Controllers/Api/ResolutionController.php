@@ -1261,15 +1261,18 @@ class ResolutionController extends Controller
 
         $resultado = Math::completarArray2D($resultados, 'nombre', 'cantidad');
 
+
         return response()->json([
 
-            'data' => $resultado,
+            'data' => $resultados,
             'tabla' => $request->nombre,
             'columna' => $request->nombre,
+            'chart' => $resultado,
             'nombre' => 'nombre',
-            'terminos' => collect($resultados)->pluck('nombre'),
             'multiVariable' => false,
         ]);
+
+
     }
 
     public function obtenerXYSimple(Request $request)
@@ -1416,7 +1419,7 @@ class ResolutionController extends Controller
         return response()->json([
             'total' => $total,
             'data' => $resultado,
-            'chart' => Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre'], 'cantidad'),
+            'chart' => Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre']),
             'multiVariable' => true,
         ]);
     }
