@@ -12,10 +12,6 @@ class VerifyCsrfToken extends Middleware
      * @var array
      */
     protected $except = [
-        'api/v2/obtener-cronologias-ids',
-        'api/v2/obtener-cronologias',
-        'api/v2/obtener-resoluciones-ids',
-        'api/v2/estadisticas-multivariable',
-        'api/v2/buscar-resoluciones-avanzado',
+
     ];
 }

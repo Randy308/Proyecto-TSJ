@@ -34,6 +34,7 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
       setAuthUser(response.data.user);
     } catch (error: unknown) {
       setAuthUser(null);
+      setIsAuthenticated(false);
       console.error("Error checking authentication:", error);
     } finally {
       setLoading(false);

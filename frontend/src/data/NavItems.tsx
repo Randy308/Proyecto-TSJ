@@ -2,7 +2,6 @@ import { FaHome, FaSearch } from "react-icons/fa";
 import { FaClock, FaFolderOpen, FaRegChartBar } from "react-icons/fa6";
 import { MdOutlineSsidChart } from "react-icons/md";
 
-
 export const jurisprudenciaItems = [
   {
     id: 1,
@@ -24,14 +23,14 @@ export const jurisprudenciaItems = [
     icon: <FaSearch className="icon-style" />,
     color: "ffc107",
   },
-  
+
   {
     id: 3,
     title: "Busqueda",
     path: "/busqueda",
     cName: "nav-item",
     lista: [],
-    icon: <FaHome className="icon-style"/>
+    icon: <FaHome className="icon-style" />,
   },
 ];
 
@@ -47,8 +46,8 @@ export const navItemsAnalisis = [
   },
   {
     id: 2,
-    title: "Analisis Avanzado",
-    path: "/analisis-avanzado",
+    title: "Data Playground",
+    path: "/data-playground",
     cName: "nav-item",
     icon: (
       <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
@@ -88,9 +87,9 @@ export const navItems = [
     title: "Documentos",
     path: "/jurisprudencia",
     cName: "nav-item",
-    lista:  jurisprudenciaItems,
+    lista: jurisprudenciaItems,
     icon: (
       <FaFolderOpen className="flex-shrink-0 w-5 h-5 transition duration-75" />
     ),
-  }
+  },
 ];

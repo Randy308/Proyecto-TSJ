@@ -180,7 +180,7 @@ function App() {
                                     element={<CronologiasResultados />}
                                   />
                                   <Route
-                                    path="analisis-avanzado"
+                                    path="data-playground"
                                     element={<AnalisisAvanzado />}
                                   />
                                   <Route

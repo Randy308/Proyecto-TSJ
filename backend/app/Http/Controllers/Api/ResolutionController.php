@@ -95,9 +95,9 @@ class ResolutionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'filtros' => 'required|array',
-            'filtros.*.foreign_key' => 'required|string',
-            'filtros.*.valores' => 'required|array|min:1',
-            'filtros.*.valores.*' => 'required|integer|min:1',
+            'filtros.*.name' => 'required|string',
+            'filtros.*.ids' => 'required|array|min:1',
+            'filtros.*.ids.*' => 'required|integer|min:1',
             'serie' => 'string',
         ]);
 
@@ -131,12 +131,14 @@ class ResolutionController extends Controller
         $groupByCampos = [];
 
         foreach ($request->filtros as $tabla => $config) {
-            if (! isset($campos[$tabla])) {
+             $name = $config['name'];
+             if (! isset($campos[$name])) {
                 continue;
             }
+        
 
-            $filtro = $campos[$tabla];
-            $valores = $config['valores'];
+            $filtro = $campos[$name];
+            $valores = $config['ids'];
 
             $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id'])
                 ->addSelect(DB::raw($filtro['nombre']))

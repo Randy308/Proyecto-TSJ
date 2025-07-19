@@ -13,6 +13,7 @@ import type {
   ListaX,
   Facetas,
   BaseData,
+  FiltroAnalisis,
 } from "../../types";
 import type { ECElementEvent } from "echarts";
 import { OptionChart } from "../../components/OptionChart";
@@ -21,7 +22,6 @@ import { TablaMultivariable } from "../../components/TablaMultivariable";
 import { SkeletonChart } from "../../components/SkeletonChart";
 
 const AnalisisAvanzado = () => {
-  const limite = useMemo(() => 2, []);
   const [listaX, setListaX] = useState<ListaX[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
   const navigate = useNavigate();
@@ -73,46 +73,10 @@ const AnalisisAvanzado = () => {
     }
     setIsLoadingData(true); // Start loading
 
-    const isMultiVariable = listaX.length > 1;
-
-    // const params: FiltroAnalisis = isMultiVariable
-    //   ? {
-    //       filtros: {
-    //         [listaX[0].name]: {
-    //           foreign_key: listaX[0].name,
-    //           valores: listaX[0].ids,
-    //         },
-    //         [listaX[1].name]: {
-    //           foreign_key: listaX[1].name,
-    //           valores: listaX[1].ids,
-    //         },
-    //       },
-    //     }
-    //   : {
-    //       filtros: {
-    //         [listaX[0].name]: {
-    //           foreign_key: listaX[0].name,
-    //           valores: listaX[0].ids,
-    //         },
-    //       },
-    //     };
-    // const fetchStats = StatsService.getMultivariable(params);
-
-    const params = isMultiVariable
-      ? {
-          variable: listaX[0].ids,
-          nombre: listaX[0].name,
-          variableY: listaX[1].ids,
-          nombreY: listaX[1].name,
-        }
-      : {
-          variable: listaX[0].ids,
-          nombre: listaX[0].name,
-        };
-
-    const fetchStats = isMultiVariable
-      ? StatsService.getStatsXY(params)
-      : StatsService.getStatsX(params);
+    const params: FiltroAnalisis = {
+      filtros: { ...listaX },
+    };
+    const fetchStats = StatsService.getMultivariable(params);
 
     fetchStats
       .then(({ data }) => {
@@ -155,12 +119,12 @@ const AnalisisAvanzado = () => {
     () => (
       <Select
         memoizedParams={memoizedParams}
-        limite={limite}
+        limite={4}
         listaX={listaX}
         setListaX={setListaX}
       ></Select>
     ),
-    [memoizedParams, limite, listaX]
+    [memoizedParams, listaX]
   );
 
   const memoTerminoClave = useMemo(() => {
@@ -171,11 +135,11 @@ const AnalisisAvanzado = () => {
   const irAMapa = () => {
     if (listaX.length === 0) {
       if (listaX.length === 0) {
-      toast.warning(
-        "Por favor, seleccione una variable primero antes de continuar ."
-      );
-      return;
-    }
+        toast.warning(
+          "Por favor, seleccione una variable primero antes de continuar ."
+        );
+        return;
+      }
       return;
     }
     const params = {

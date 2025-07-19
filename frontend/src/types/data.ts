@@ -113,13 +113,9 @@ export type DualChartType =
   | "donut";
 export type ChartType = SingleChartType | DualChartType;
 
+
 export interface FiltroAnalisis {
-  filtros: {
-    [key in Categorias]: {
-      foreign_key: string;
-      valores: number[];
-    };
-  };
+  filtros: ListaX[];
   serie?: string;
 
   // término es opcional
