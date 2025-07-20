@@ -6,7 +6,41 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
 
-class Resolutions extends Model
+/**
+ * @property int $id
+ * @property string|null $nro_resolucion
+ * @property string|null $nro_expediente
+ * @property string|null $fecha_emision
+ * @property string|null $fecha_publicacion
+ * @property int|null $tipo_resolucion_id
+ * @property int|null $departamento_id
+ * @property int|null $sala_id
+ * @property int|null $magistrado_id
+ * @property int|null $forma_resolucion_id
+ * @property string|null $proceso
+ * @property string|null $precedente
+ * @property string|null $demandante
+ * @property string|null $demandado
+ * @property string|null $maxima
+ * @property string|null $sintesis
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int|null $user_id
+ * @property int|null $categoria_resolucion_id
+ * @property-read \App\Models\CategoriaResolucion|null $categoria_resolucion
+ * @property-read \App\Models\Content|null $content
+ * @property-read \App\Models\Departamento|null $departamento
+ * @property-read \App\Models\FormaResolucion|null $forma_resolucion
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Jurisprudencia> $jurisprudencias
+ * @property-read int|null $jurisprudencias_count
+ * @property-read \App\Models\Magistrado|null $magistrado
+ * @property-read \App\Models\Mapeo|null $mapeo
+ * @property-read \App\Models\Sala|null $sala
+ * @property-read \App\Models\Tema|null $tema
+ * @property-read \App\Models\TipoResolucion|null $tipo_resolucion
+ * @mixin \Eloquent
+ */
+class Resolution extends Model
 {
     use HasFactory;
     use Searchable;
@@ -43,7 +77,7 @@ class Resolutions extends Model
 
     public function jurisprudencias()
     {
-        return $this->hasMany(Jurisprudencias::class, 'resolution_id', 'id');
+        return $this->hasMany(Jurisprudencia::class, 'resolution_id', 'id');
     }
 
     public function tema()
@@ -53,33 +87,33 @@ class Resolutions extends Model
 
     public function magistrado()
     {
-        return $this->belongsTo(Magistrados::class);
+        return $this->belongsTo(Magistrado::class);
     }
 
     public function mapeo()
     {
-        return $this->belongsTo(Mapeos::class);
+        return $this->belongsTo(Mapeo::class);
     }
 
     public function forma_resolucion()
     {
-        return $this->belongsTo(FormaResolucions::class);
+        return $this->belongsTo(FormaResolucion::class);
     }
 
     public function departamento()
     {
-        return $this->belongsTo(Departamentos::class);
+        return $this->belongsTo(Departamento::class);
     }
 
     public function tipo_resolucion()
     {
-        return $this->belongsTo(TipoResolucions::class);
+        return $this->belongsTo(TipoResolucion::class);
     }
 
     // En el modelo Resolution
     public function content()
     {
-        return $this->hasOne(Contents::class, 'resolution_id', 'id');
+        return $this->hasOne(Content::class, 'resolution_id', 'id');
     }
 
     public function categoria_resolucion()
@@ -115,14 +149,14 @@ class Resolutions extends Model
                 'sintesis' => ['type' => 'text'],
                 'precedente' => ['type' => 'text'],
                 'proceso' => ['type' => 'text'],
-                'maxima' => ['type' => 'text'],
+                'maxima' => ['type' => 'text']
             ],
             'settings' => [
                 'min_prefix_len' => '3',
                 'min_infix_len' => '3',
                 'prefix_fields' => 'contenido,sintesis,precedente,proceso,maxima',
                 'expand_keywords' => '1',
-                'min_word_len' => '2',
+                'min_word_len' => '2'
                 // 'engine' => 'columnar', // Descomenta si necesitas storage columnar
             ],
         ];

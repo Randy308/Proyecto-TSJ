@@ -4,6 +4,24 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property number $id
+ * @property string $nro_resolucion
+ * @property string $nro_expediente
+ * @property string $fecha_emision
+ * @property string $proceso
+ * @property string $demandante
+ * @property string $demandado
+ * @property string $maxima
+ * @property string $sintesis
+ * @property string $precedente
+ * @property \App\Models\Sala|null $sala
+ * @property \App\Models\Magistrado|null $magistrado
+ * @property \App\Models\Departamento|null $departamento
+ * @property \App\Models\FormaResolucion|null $forma_resolucion
+ * @property \App\Models\Content|null $content
+ * @property \App\Models\TipoResolucion|null $tipo_resolucion
+ */
 class ResolutionResource extends JsonResource
 {
     /**

@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
-use App\Models\Contents;
-use App\Models\Mapeos;
+use App\Models\Content;
+use App\Models\Mapeo;
 use App\Models\Notification;
 use App\Models\Product;
-use App\Models\Resolutions;
+use App\Models\Resolution;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -53,7 +53,7 @@ class ImportResolutionChunk implements ShouldBeUnique, ShouldQueue
             $totalFilas++;
 
             // Evitar duplicados
-            if (Mapeos::where('external_id', $row['id'])->exists()) {
+            if (Mapeo::where('external_id', $row['id'])->exists()) {
                 $filasOmitidas++;
                 return;
             }
@@ -88,8 +88,8 @@ class ImportResolutionChunk implements ShouldBeUnique, ShouldQueue
                 $filteredData = Arr::where($data, fn($value) => !is_null($value) && $value !== '');
 
                 // Crear resolución
-                $resolution = Resolutions::withoutSyncingToSearch(function () use ($filteredData) {
-                    return Resolutions::create($filteredData);
+                $resolution = Resolution::withoutSyncingToSearch(function () use ($filteredData) {
+                    return Resolution::create($filteredData);
                 });
 
                 if (!$resolution) {
@@ -98,12 +98,12 @@ class ImportResolutionChunk implements ShouldBeUnique, ShouldQueue
                 }
 
                 // Asociar contenido y mapeo
-                Contents::create([
+                Content::create([
                     'contenido' => $row['contenido'] ?? '',
                     'resolution_id' => $resolution->id,
                 ]);
 
-                Mapeos::create([
+                Mapeo::create([
                     'external_id' => $row['id'],
                     'resolution_id' => $resolution->id,
                 ]);

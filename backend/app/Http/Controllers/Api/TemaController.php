@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Descriptor;
-use App\Models\Estilos;
-use App\Models\Jurisprudencias;
-use App\Models\Resolutions;
+use App\Models\Estilo;
+use App\Models\Jurisprudencia;
+use App\Models\Resolution;
 use App\Models\Sala;
 use App\Models\Tema;
 use App\Utils\Busqueda;
@@ -121,7 +121,7 @@ class TemaController extends Controller
             'include_fields' => implode(',', $allFields),
         ];
 
-        $search = Jurisprudencias::search($query)->options($options);
+        $search = Jurisprudencia::search($query)->options($options);
 
         if ($request->has('materia')) {
             $materia = $request->input('materia');
@@ -183,7 +183,7 @@ class TemaController extends Controller
         $lista = ['sala', 'departamento', 'tipo_resolucion', 'periodo'];
 
         $query = $request->input('busqueda', '');
-        $search = Jurisprudencias::search($query, function ($meilisearch, $query, $options) use ($lista) {
+        $search = Jurisprudencia::search($query, function ($meilisearch, $query, $options) use ($lista) {
             $options['facets'] = $lista;
 
             return $meilisearch->search($query, $options);
@@ -319,7 +319,7 @@ class TemaController extends Controller
         // return response()->json($results);
 
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
-        $estilos = Estilos::where('tipo', 'Default')->get();
+        $estilos = Estilo::where('tipo', 'Default')->get();
 
         // return $estilos;
         // return $request->estilos;
@@ -435,7 +435,7 @@ class TemaController extends Controller
         }
 
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
-        $estilos = Estilos::where('tipo', 'Default')->get();
+        $estilos = Estilo::where('tipo', 'Default')->get();
 
         $referencias = [];
 
@@ -491,10 +491,10 @@ class TemaController extends Controller
         }
 
         $data = [];
-        $forma_resolucion = Resolutions::select('forma_resolucion')->distinct()->get();
+        $forma_resolucion = Resolution::select('forma_resolucion')->distinct()->get();
 
         foreach ($forma_resolucion as $res) {
-            $resolutions = Resolutions::whereYear('fecha_emision', $year)
+            $resolutions = Resolution::whereYear('fecha_emision', $year)
                 ->where('departamento', $departamento)
                 ->where('sala_id', $mi_sala->id)
                 ->where('forma_resolucion', $res->forma_resolucion)

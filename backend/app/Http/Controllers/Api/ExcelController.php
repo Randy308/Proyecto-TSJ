@@ -6,17 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ImportCsv;
 use App\Jobs\PrepareImportDataJob;
 use App\Models\CategoriaResolucion;
-use App\Models\Contents;
-use App\Models\Departamentos;
-use App\Models\FormaResolucions;
-use App\Models\Jurisprudencias;
-use App\Models\Magistrados;
-use App\Models\Mapeos;
-use App\Models\Resolutions;
+use App\Models\Content;
+use App\Models\Departamento;
+use App\Models\FormaResolucion;
+use App\Models\Jurisprudencia;
+use App\Models\Magistrado;
+use App\Models\Mapeo;
+use App\Models\Resolution;
 use App\Models\Sala;
 use App\Models\Tema;
 use App\Models\TipoJurisprudencia;
-use App\Models\TipoResolucions;
+use App\Models\TipoResolucion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,17 +28,17 @@ class ExcelController extends Controller
 {
     public function upload_jurisprudencia(Request $request)
     {
-        if (! Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
             return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
         }
 
         $file = $request->file('excelFile');
-        if (! $file) {
+        if (!$file) {
             return response()->json(['error' => 'No se proporcionó un archivo.'], 400);
         }
 
         $extension = strtolower($file->getClientOriginalExtension());
-        if (! in_array($extension, ['csv', 'xls', 'xlsx'])) {
+        if (!in_array($extension, ['csv', 'xls', 'xlsx'])) {
             return response()->json(['error' => 'Tipo de archivo no soportado.'], 400);
         }
 
@@ -55,16 +55,16 @@ class ExcelController extends Controller
 
                 $idResolucion = $row['id_resolucion'] ?? null;
 
-                if (! $idResolucion || array_keys(array_filter($row, fn($v) => $v !== null && $v !== '')) === ['id_resolucion']) {
+                if (!$idResolucion || array_keys(array_filter($row, fn($v) => $v !== null && $v !== '')) === ['id_resolucion']) {
                     $skippedRecords++;
 
                     return;
                 }
 
                 // Obtener resolution_id desde mapeo (si aún no se tiene)
-                if (! isset($resolutionMap[$idResolucion])) {
-                    $mapeo = Mapeos::where('external_id', $idResolucion)->first();
-                    if (! $mapeo) {
+                if (!isset($resolutionMap[$idResolucion])) {
+                    $mapeo = Mapeo::where('external_id', $idResolucion)->first();
+                    if (!$mapeo) {
                         $skippedRecords++;
 
                         return;
@@ -84,7 +84,7 @@ class ExcelController extends Controller
                 $tipoJurisprudenciaId = $this->getOrCreateId(TipoJurisprudencia::class, 'nombre', $tipoNombre, $tipoJurisprudenciaMap);
 
                 // Verificar duplicados
-                $exists = Jurisprudencias::where('resolution_id', $resolutionMap[$idResolucion])
+                $exists = Jurisprudencia::where('resolution_id', $resolutionMap[$idResolucion])
                     ->where('restrictor', $restrictor)
                     ->where('descriptor', $descriptor)
                     ->where('tipo_jurisprudencia_id', $tipoJurisprudenciaId)
@@ -97,7 +97,7 @@ class ExcelController extends Controller
                     return;
                 }
 
-                Jurisprudencias::create([
+                Jurisprudencia::create([
                     'resolution_id' => $resolutionMap[$idResolucion],
                     'descriptor' => $descriptor,
                     'descriptor_id' => $descriptor_id,
@@ -180,18 +180,18 @@ class ExcelController extends Controller
     public function handleUploads(Request $request)
     {
         // Verificación de permisos
-        if (! Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
             return response()->json(['success' => false, 'mensaje' => 'El usuario no cuenta con el permiso necesario'], 403);
         }
 
         // Validación de archivo
         $file = $request->file('excelFile');
-        if (! $file) {
+        if (!$file) {
             return response()->json(['error' => 'No se proporcionó un archivo.'], 400);
         }
 
         $extension = strtolower($file->getClientOriginalExtension());
-        if (! in_array($extension, ['csv', 'xls', 'xlsx'])) {
+        if (!in_array($extension, ['csv', 'xls', 'xlsx'])) {
             return response()->json(['error' => 'Tipo de archivo no soportado.'], 400);
         }
 
@@ -205,11 +205,11 @@ class ExcelController extends Controller
             $categoriasResolucion = $rows->pluck('categoria')->unique();
 
             $maps = [
-                'departamento' => $this->addModel(Departamentos::class, $departamentos->toArray()),
+                'departamento' => $this->addModel(Departamento::class, $departamentos->toArray()),
                 'sala' => $this->addModel(Sala::class, $salas->toArray()),
-                'tipoResolucion' => $this->addModel(TipoResolucions::class, $tipoResoluciones->toArray()),
-                'magistrado' => $this->addModel(Magistrados::class, $magistrados->toArray()),
-                'formaResolucion' => $this->addModel(FormaResolucions::class, $formasResolucion->toArray()),
+                'tipoResolucion' => $this->addModel(TipoResolucion::class, $tipoResoluciones->toArray()),
+                'magistrado' => $this->addModel(Magistrado::class, $magistrados->toArray()),
+                'formaResolucion' => $this->addModel(FormaResolucion::class, $formasResolucion->toArray()),
                 'categoria_resolucion' => $this->addCategoria(CategoriaResolucion::class, $categoriasResolucion->toArray(), 'S/N'),
             ];
 
@@ -294,7 +294,7 @@ class ExcelController extends Controller
 
                 $instance = $model::firstOrCreate(["slug" => $value, 'nombre' => $val]);
 
-                if (! $instance || ! $instance->id) {
+                if (!$instance || !$instance->id) {
                     Log::error("No se pudo crear o encontrar {$model} con {$value}");
 
                     return null;
@@ -327,7 +327,7 @@ class ExcelController extends Controller
 
                 $instance = $model::firstOrCreate(["nombre" => $value]);
 
-                if (! $instance || ! $instance->id) {
+                if (!$instance || !$instance->id) {
                     Log::error("No se pudo crear o encontrar {$model} con {$value}");
 
                     return null;
@@ -344,7 +344,7 @@ class ExcelController extends Controller
         return $map;
     }
 
-     private function parseDate($value)
+    private function parseDate($value)
     {
         return $value && strtotime($value) ? date('Y-m-d', strtotime($value)) : null;
     }
@@ -359,22 +359,22 @@ class ExcelController extends Controller
 
         return $value;
     }
-    
+
     public function upload(Request $request)
     {
         // Verificación de permisos
-        if (! Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
             return response()->json(['success' => false, 'mensaje' => 'El usuario no cuenta con el permiso necesario'], 403);
         }
 
         // Validación de archivo
         $file = $request->file('excelFile');
-        if (! $file) {
+        if (!$file) {
             return response()->json(['error' => 'No se proporcionó un archivo.'], 400);
         }
 
         $extension = strtolower($file->getClientOriginalExtension());
-        if (! in_array($extension, ['csv', 'xls', 'xlsx'])) {
+        if (!in_array($extension, ['csv', 'xls', 'xlsx'])) {
             return response()->json(['error' => 'Tipo de archivo no soportado.'], 400);
         }
 
@@ -407,7 +407,7 @@ class ExcelController extends Controller
             $rows->each(function (array $row) use (&$maps, &$totalFilas, &$filasOmitidas) {
                 $totalFilas++;
 
-                if (Mapeos::where('external_id', $row['id'])->exists()) {
+                if (Mapeo::where('external_id', $row['id'])->exists()) {
                     $filasOmitidas++;
 
                     return;
@@ -415,11 +415,11 @@ class ExcelController extends Controller
 
                 try {
                     $data = [
-                        'magistrado_id' => $this->getOrCreateId(Magistrados::class, 'nombre', $row['magistrado'], $maps['magistrado']),
-                        'forma_resolucion_id' => $this->getOrCreateId(FormaResolucions::class, 'nombre', $row['forma_resolucion'], $maps['formaResolucion']),
+                        'magistrado_id' => $this->getOrCreateId(Magistrado::class, 'nombre', $row['magistrado'], $maps['magistrado']),
+                        'forma_resolucion_id' => $this->getOrCreateId(FormaResolucion::class, 'nombre', $row['forma_resolucion'], $maps['formaResolucion']),
                         'sala_id' => $this->getOrCreateId(Sala::class, 'nombre', $row['sala'], $maps['sala']),
-                        'departamento_id' => $this->getOrCreateId(Departamentos::class, 'nombre', $row['departamento'], $maps['departamento']),
-                        'tipo_resolucion_id' => $this->getOrCreateId(TipoResolucions::class, 'nombre', $row['tipo_resolucion'], $maps['tipoResolucion']),
+                        'departamento_id' => $this->getOrCreateId(Departamento::class, 'nombre', $row['departamento'], $maps['departamento']),
+                        'tipo_resolucion_id' => $this->getOrCreateId(TipoResolucion::class, 'nombre', $row['tipo_resolucion'], $maps['tipoResolucion']),
                         'fecha_emision' => $this->parseDate($row['fecha_emision'] ?? null),
                         'fecha_publicacion' => $this->parseDate($row['fecha_publicacion'] ?? null),
                         'nro_resolucion' => $this->sanitize($row['nro_resolucion'] ?? null),
@@ -432,20 +432,20 @@ class ExcelController extends Controller
                         'sintesis' => $this->sanitize($row['sintesis'] ?? null),
                     ];
 
-                    $data = array_filter($data, fn($value) => ! is_null($value));
+                    $data = array_filter($data, fn($value) => !is_null($value));
 
                     // $resolution = Resolutions::create($data);
 
-                    $resolution = Resolutions::withoutSyncingToSearch(function () use ($data) {
-                        return Resolutions::create($data);
+                    $resolution = Resolution::withoutSyncingToSearch(function () use ($data) {
+                        return Resolution::create($data);
                     });
 
-                    Contents::create([
+                    Content::create([
                         'contenido' => $row['contenido'] ?? '',
                         'resolution_id' => $resolution->id,
                     ]);
 
-                    Mapeos::create([
+                    Mapeo::create([
                         'external_id' => $row['id'],
                         'resolution_id' => $resolution->id,
                     ]);
@@ -488,7 +488,7 @@ class ExcelController extends Controller
 
             $instance = $model::firstOrCreate([$field => $value]);
 
-            if (! $instance || ! $instance->id) {
+            if (!$instance || !$instance->id) {
                 Log::error("No se pudo crear o encontrar {$model} con {$field} = {$value}");
 
                 return null;
@@ -506,7 +506,7 @@ class ExcelController extends Controller
 
     private function getTemaId($temaID, &$map)
     {
-        if (! isset($map[$temaID])) {
+        if (!isset($map[$temaID])) {
             $tema = Tema::find($temaID);
             if ($tema) {
                 $map[$temaID] = $tema->id;
@@ -516,5 +516,5 @@ class ExcelController extends Controller
         return $map[$temaID] ?? null;
     }
 
-   
+
 }

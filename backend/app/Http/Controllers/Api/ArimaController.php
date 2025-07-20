@@ -221,7 +221,7 @@ class ArimaController extends Controller
 
         $intervalo = 'quarter';
         $validIntervals = ['day', 'month', 'year', 'week', 'quarter'];
-        if (! in_array($intervalo, $validIntervals)) {
+        if (!in_array($intervalo, $validIntervals)) {
             throw new InvalidArgumentException('Invalid interval specified.');
         }
 
@@ -384,8 +384,9 @@ class ArimaController extends Controller
 
         $missingPeriods = count($y_pred) - count($periodos);
 
-        if (! empty($periodos)) {
+        if (!empty($periodos)) {
             // Calcular la variación entre los periodos
+            $variacion = [];
             foreach ($periodos as $key => $value) {
                 if (isset($periodos[$key + 1])) {
                     $fechaActual = new DateTime($value);
@@ -519,7 +520,7 @@ class ArimaController extends Controller
     public function addXAxis(array $lista, int $start = 0): array
     {
         return array_map(
-            fn ($index, $item) => [$index + $start, $item],
+            fn($index, $item) => [$index + $start, $item],
             array_keys($lista),
             $lista
         );

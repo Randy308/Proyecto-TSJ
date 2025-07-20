@@ -5,6 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $nombre
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Jurisprudencia> $jurisprudencias
+ * @property-read int|null $jurisprudencias_count
+ * @mixin \Eloquent
+ */
 class TipoJurisprudencia extends Model
 {
     use HasFactory;
@@ -17,6 +26,6 @@ class TipoJurisprudencia extends Model
 
     public function jurisprudencias()
     {
-        return $this->hasMany(Jurisprudencias::class);
+        return $this->hasMany(Jurisprudencia::class);
     }
 }

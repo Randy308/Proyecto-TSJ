@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcesarLotes;
-use App\Models\Mapeos;
+use App\Models\Mapeo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +39,7 @@ class WebScrappingController extends Controller
             'timeout' => 10,
         ]);
 
-        $lastId = Mapeos::max('external_id');
+        $lastId = Mapeo::max('external_id');
         $errorCount = 0;
         $maxErrors = 10;
         $iterations = 10;
@@ -117,7 +117,7 @@ class WebScrappingController extends Controller
         }
 
         $iterations = 200;
-        $lastId = Mapeos::max('external_id') ?: 0;
+        $lastId = Mapeo::max('external_id') ?: 0;
         $lastId = $lastId + 1; // Asegura que lastId sea al menos 1
         $userId = $user->id;
         // Log::info("Búsqueda iniciada");

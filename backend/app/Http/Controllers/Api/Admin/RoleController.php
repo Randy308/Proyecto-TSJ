@@ -62,7 +62,7 @@ class RoleController extends Controller
     {
 
         $request->validate([
-            'roleName' => 'required|string|max:255|unique:roles,name,'.$id,
+            'roleName' => 'required|string|max:255|unique:roles,name,' . $id,
             'permissions' => 'required|array',
         ]);
 
@@ -86,27 +86,16 @@ class RoleController extends Controller
         ], 200);
     }
 
-    public function destroy($id)
+    public function destroy(Role $role)
     {
-        $role = Role::findOrFail($id);
-
-        if (! $role) {
+        // Verificación más robusta
+        if (strtolower($role->name) === 'admin') {
             return response()->json([
-                'message' => 'Rol no encontrado.',
-            ], 404);
+                'message' => 'No se puede eliminar el rol de administrador.',
+            ], 422); // 422 es más apropiado para validación
         }
 
-        // return response()->json($role->name, 200);
-        if ($role->name === 'admin') {
-
-            return response()->json([
-                'message' => 'No se puede eliminar este rol.',
-            ], 400);
-        }
-
-        Role::where('id', $role->id)->delete();
-
-        // $role->delete();
+        $role->delete();
 
         return response()->json([
             'message' => 'Rol eliminado correctamente!',

@@ -7,23 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $id
- * @property string $nombre
- * @property int|null $descriptor_id
+ * @property int $resolution_id
+ * @property int $external_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Jurisprudencia> $jurisprudencias
- * @property-read int|null $jurisprudencias_count
+ * @property-read \App\Models\Resolution|null $resolution
  * @mixin \Eloquent
  */
-class Descriptor extends Model
+class Mapeo extends Model
 {
-    //
     use HasFactory;
 
     protected $fillable = [
-        'id',
-        'nombre',
-        'descriptor_id',
+        'external_id',
+        'resolution_id',
     ];
 
     protected $hidden = [
@@ -31,8 +28,8 @@ class Descriptor extends Model
         'updated_at',
     ];
 
-    public function jurisprudencias()
+    public function resolution()
     {
-        return $this->hasMany(Jurisprudencia::class, 'descriptor_id');
+        return $this->belongsTo(Resolution::class);
     }
 }

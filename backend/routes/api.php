@@ -9,10 +9,12 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\ExcelController;
+use App\Http\Controllers\Api\FormaDecisionController;
 use App\Http\Controllers\Api\JurisprudenciasController;
 use App\Http\Controllers\Api\MagistradosController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ResolutionController;
+use App\Http\Controllers\Api\ResuelveFondoController;
 use App\Http\Controllers\Api\SalaController;
 use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\TemaController;
@@ -106,7 +108,8 @@ Route::prefix('v2')->group(function () {
         Route::put('/actualizar-perfil', [AuthController::class, 'updateUser']);
         Route::apiResource('admin/user', UserController::class);
         Route::apiResource('admin/roles', RoleController::class);
-        Route::apiResource('admin/post', PostController::class);
+        Route::apiResource('admin/forma-decision', FormaDecisionController::class);
+        Route::apiResource('admin/resuelve-fondo', ResuelveFondoController::class);
 
         Route::get('admin/permisos', [PermissionController::class, 'index']);
         Route::put('actualizar-todas-notificaciones', [NotificationController::class, 'updateAll']);
@@ -135,7 +138,6 @@ Route::prefix('v2')->group(function () {
 
     // rutas de prueba
     Route::get('/test-arima', [ArimaController::class, 'test_arima']);
-    Route::get('/publicaciones-activas', [PostController::class, 'obtenerActivos']);
 
     Route::get('/obtener-serie-temporal', [ResolutionController::class, 'obtenerSerieTemporal']);
 
@@ -143,7 +145,6 @@ Route::prefix('v2')->group(function () {
     Route::get('/obtener-filtros-resoluciones', [ResolutionController::class, 'obtenerOpciones']);
 
     // rutas no validadas
-    Route::get('/obtener-serie-temporal/{id}', [TimeSeriesController::class, 'obtenerSerieTemporal']);
     Route::get('/obtener-parametros', [ResolutionController::class, 'obtenerParametros'])->name('obtener-parametros');
     Route::get('/filtrar-resoluciones', [ResolutionController::class, 'filtrarResoluciones'])->name('filtrar-resoluciones');
     Route::get('/buscar-resoluciones', [CompareController::class, 'obtenerResoluciones']);

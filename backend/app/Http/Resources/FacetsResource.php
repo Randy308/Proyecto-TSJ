@@ -4,7 +4,10 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-
+/**
+ * @property string $field_name
+ * @property array $counts
+ */
 class FacetsResource extends JsonResource
 {
     /**

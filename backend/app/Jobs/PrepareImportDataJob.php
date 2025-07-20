@@ -3,11 +3,11 @@
 namespace App\Jobs;
 
 use App\Models\CategoriaResolucion;
-use App\Models\Departamentos;
-use App\Models\FormaResolucions;
-use App\Models\Magistrados;
+use App\Models\Departamento;
+use App\Models\FormaResolucion;
+use App\Models\Magistrado;
 use App\Models\Sala;
-use App\Models\TipoResolucions;
+use App\Models\TipoResolucion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -47,11 +47,11 @@ class PrepareImportDataJob implements ShouldQueue
             $categoriasResolucion = $rows->pluck('categoria')->unique()->toArray();
 
             $maps = [
-                'departamento' => $this->addModel(Departamentos::class, $departamentos),
+                'departamento' => $this->addModel(Departamento::class, $departamentos),
                 'sala' => $this->addModel(Sala::class, $salas),
-                'tipoResolucion' => $this->addModel(TipoResolucions::class, $tipoResoluciones),
-                'magistrado' => $this->addModel(Magistrados::class, $magistrados),
-                'formaResolucion' => $this->addModel(FormaResolucions::class, $formasResolucion),
+                'tipoResolucion' => $this->addModel(TipoResolucion::class, $tipoResoluciones),
+                'magistrado' => $this->addModel(Magistrado::class, $magistrados),
+                'formaResolucion' => $this->addModel(FormaResolucion::class, $formasResolucion),
                 'categoria_resolucion' => $this->addCategoria(CategoriaResolucion::class, $categoriasResolucion, 'S/N'),
             ];
 

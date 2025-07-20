@@ -6,7 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Contents extends Model
+/**
+ * @property int $id
+ * @property string $contenido
+ * @property int $resolution_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Resolution $resolution
+ * @mixin \Eloquent
+ */
+class Content extends Model
 {
     use HasFactory;
 
@@ -24,7 +33,7 @@ class Contents extends Model
     // En el modelo Contents
     public function resolution()
     {
-        return $this->belongsTo(Resolutions::class, 'resolution_id', 'id');
+        return $this->belongsTo(Resolution::class, 'resolution_id', 'id');
     }
 
     public function scopeSearch($query, $search)
