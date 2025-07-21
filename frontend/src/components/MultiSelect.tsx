@@ -5,7 +5,9 @@ import { toast } from "react-toastify";
 interface MultiSelectProps {
   type?: string;
   selectedOptions: { value: string; id: string }[];
-  setSelectedOptions: React.Dispatch<React.SetStateAction<{ value: string; id: string }[]>>;
+  setSelectedOptions: React.Dispatch<
+    React.SetStateAction<{ value: string; id: string }[]>
+  >;
 }
 const MultiSelect = ({
   type = "resoluciones",
@@ -73,19 +75,19 @@ const MultiSelect = ({
       return;
     }
     setShow(false);
-    setSelectedOptions((prev) => [...prev, { value:newValue, id:id }]);
+    setSelectedOptions((prev) => [...prev, { value: newValue, id: id }]);
   };
 
   return (
-    <div className="flex dark:bg-gray-800 relative m-2 justify-between items-center gap-2 border rounded-md py-2 w-auto">
+    <div className="flex dark:bg-gray-700 relative m-1 justify-between items-center gap-2 border border-gray-500 rounded-md py-2 w-auto">
       <div className="ps-1">
         {selectedOptions.length > 0 ? (
           <>
-            <div className="flex flex-row sm:flex-col flex-wrap gap-2">
+            <div className="flex flex-row flex-wrap gap-1">
               {selectedOptions.map((option) => (
                 <div
                   key={option.id}
-                  className="text-xs dark:bg-gray-900 capitalize p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
+                  className="text-xs dark:bg-gray-800 capitalize p-1 rounded-md border border-gray-500 hover:cursor-pointer hover:border-red-400 flex gap-2 justify-between items-center group"
                   onClick={() =>
                     setSelectedOptions((prev) =>
                       prev.filter((item) => item !== option)
@@ -108,13 +110,16 @@ const MultiSelect = ({
       <div className="text-xs p-1 rounded-md group hover:border-red-400  border-gray-300 flex gap-2 justify-between items-center">
         {selectedOptions.length > 0 && (
           <a
-            className="hover:text-gray-400"
+            className="hover:text-gray-400 hover:cursor-pointer"
             onClick={() => setSelectedOptions([])}
           >
             <IoMdClose className="h-5 w-5" />
           </a>
         )}
-        <a className="hover:text-gray-400" onClick={() => setShow(!show)}>
+        <a
+          className="hover:text-gray-400 hover:cursor-pointer border-l-2 pl-2"
+          onClick={() => setShow(!show)}
+        >
           <IoIosArrowDown className="h-5 w-5" />
         </a>
         <div
@@ -130,8 +135,10 @@ const MultiSelect = ({
             className="p-2 m-2 dark:text-black border rounded-lg"
           /> */}
           {options.map(
-            (option,index) =>
-              !selectedOptions.some((selected) => selected.value === option.value) && (
+            (option, index) =>
+              !selectedOptions.some(
+                (selected) => selected.value === option.value
+              ) && (
                 <label className="group w-full flex" key={option.value}>
                   <input
                     name={`${index}-${option.value}`}

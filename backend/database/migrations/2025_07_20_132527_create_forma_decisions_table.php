@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('resuelve_fondo_id')->nullable();
             $table->unsignedBigInteger('forma_resolucion_id')->nullable();
-            $table->string('grupo_decision');  
+            $table->integer('grupo_decision');  
             $table->string('tipo_decision')->nullable(); 
             $table->foreign('resuelve_fondo_id')->references('id')->on('resuelve_fondos')->onDelete('set null')->onUpdate('cascade');
             $table->foreign('forma_resolucion_id')->references('id')->on('forma_resolucions')->onDelete('set null')->onUpdate('cascade');

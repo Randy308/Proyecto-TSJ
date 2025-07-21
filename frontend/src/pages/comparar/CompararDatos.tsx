@@ -3,10 +3,10 @@ import Dropdown from "../../components/Dropdown";
 import SimpleChart from "../../components/charts/SimpleChart";
 import AsyncButton from "../../components/AsyncButton";
 import { MdCleaningServices } from "react-icons/md";
-import { ResolucionesService } from "../../services";
 import { filterForm } from "../../utils/filterForm";
 import SimpleSelect from "../../components/SimpleSelect";
 import type { SimpleSearchFormData } from "../../types/search";
+import { ResolucionesService } from "../../services";
 
 interface Resolucion {
   id: number;
@@ -147,7 +147,7 @@ const CompararDatos = () => {
           alert("No existen datos");
         }
       })
-      .catch((error) => {
+      .catch((error:unknown) => {
         console.error("Error fetching data:", error);
       })
       .finally(() => {

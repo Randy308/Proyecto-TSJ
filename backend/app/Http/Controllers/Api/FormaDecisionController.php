@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FormaDecision;
 use App\Models\ResuelveFondo;
 use Exception;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -32,7 +32,7 @@ class FormaDecisionController extends Controller
 
         $validator = Validator::make($request->all(), [
             'tipo_decision' => 'nullable|string',
-            'grupo_decision' => 'required|string',
+            'grupo_decision' => 'required|integer',
             'resuelve_fondo_id' => 'required|exists:resuelve_fondos,id',
             'forma_resolucion_id' => 'required|exists:forma_resolucions,id',
         ]);

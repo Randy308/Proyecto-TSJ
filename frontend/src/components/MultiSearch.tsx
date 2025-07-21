@@ -27,7 +27,7 @@ const MultiSearch = ({
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row flex-wrap gap-4 p-2 m-2">
+      <div className="flex flex-col sm:flex-col flex-wrap gap-4 p-0 m-0 md:p-2 md:m-2">
         <MultiSelect
           selectedOptions={selectedOptions}
           setSelectedOptions={setSelectedOptions}
@@ -50,7 +50,7 @@ const MultiSearch = ({
           </div>
         )}
       </div>
-      <div className="flex justify-end p-2 m-2">
+      <div className="flex justify-end p-0 m-0 md:p-2 md:m-2">
         {searchFields.length > 0 && children}
       </div>
     </div>

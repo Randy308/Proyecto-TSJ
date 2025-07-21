@@ -4,30 +4,70 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\ResuelveFondo;
-use Exception;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request; // <-- Este es el correcto
 use Illuminate\Support\Facades\Validator;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\JsonResponse;
 
 class ResuelveFondoController extends Controller
 {
-
-
-    public function index()
+    public function index(): JsonResponse
     {
-        $resuleveFondos = ResuelveFondo::all();
-        return response()->json(['message' => 'List of ResuelveFondo', 'data' => $resuleveFondos], 200);
+        $resuelveFondos = ResuelveFondo::all();
+
+        return response()->json([
+            'message' => 'Lista de ResuelveFondo',
+            'data' => $resuelveFondos
+        ]);
     }
 
-    public function show($id)
+    public function show($id): JsonResponse
     {
+        $resuelveFondo = ResuelveFondo::find($id);
 
-        return response()->json(['message' => "Details of ResuelveFondo with ID: $id"], 200);
+        if (!$resuelveFondo) {
+            return response()->json([
+                'message' => "No se encontró el ResuelveFondo con ID: $id"
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => "Detalle del ResuelveFondo con ID: $id",
+            'data' => $resuelveFondo
+        ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string',
+            'tipo_decision' => 'required|integer',
+            'sala_id' => 'required|exists:salas,id',
+            'slug' => 'nullable|string',
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación.',
+                'errors' => $validator->errors(),
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $resuelveFondo = ResuelveFondo::create($request->only([
+            'nombre',
+            'tipo_decision',
+            'sala_id',
+            'slug'
+        ]));
+
+        return response()->json([
+            'message' => 'ResuelveFondo creado exitosamente',
+            'data' => $resuelveFondo
+        ], 201);
+    }
+
+    public function update(Request $request, $id): JsonResponse
+    {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string',
             'tipo_decision' => 'required|string',
@@ -38,70 +78,46 @@ class ResuelveFondoController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error de validación de los filtros.',
+                'message' => 'Error de validación.',
                 'errors' => $validator->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY); // 422
+            ], JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $resuelveFondo = new ResuelveFondo([
-            'tipo_decision' => $request->input('tipo_decision'),
-            'sala_id' => $request->input('sala_id'),
-            'nombre' => $request->input('nombre'),
-        ]);
-        if ($request->has('slug') && $request->input('slug') !== null) {
-            $resuelveFondo->slug = $request->input('slug');
-        }
-        $resuelveFondo->save();
+        $resuelveFondo = ResuelveFondo::find($id);
 
-        return response()->json(['message' => 'ResuelveFondo created successfully'], 201);
-    }
-
-    public function update(Request $request, $id)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'nombre' => 'required|string',
-            'tipo_decision' => 'required|string',
-            'sala_id' => 'required|exists:salas,id',
-            'slug' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
+        if (!$resuelveFondo) {
             return response()->json([
-                'success' => false,
-                'message' => 'Error de validación de los filtros.',
-                'errors' => $validator->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY); // 422
+                'message' => "No se encontró el ResuelveFondo con ID: $id"
+            ], 404);
         }
 
-        $resuelveFondo = ResuelveFondo::findOrFail($id);
+        $resuelveFondo->update($request->only([
+            'nombre',
+            'tipo_decision',
+            'sala_id',
+            'slug'
+        ]));
 
-        if ($request->has('sala_id') && $request->input('sala_id') !== null) {
-            $resuelveFondo->sala_id = $request->input('sala_id');
-        }
-
-        
-        if ($request->has('tipo_decision') && $request->input('tipo_decision') !== null) {
-            $resuelveFondo->tipo_decision = $request->input('tipo_decision');
-        }
-        
-        if ($request->has('nombre') && $request->input('nombre') !== null) {
-            $resuelveFondo->nombre = $request->input('nombre');
-        }
-        
-        if ($request->has('slug') && $request->input('slug') !== null) {
-            $resuelveFondo->slug = $request->input('slug');
-        }
-
-        $resuelveFondo->save();
-
-        return response()->json(['message' => "ResuelveFondo with ID: $id updated successfully"], 200);
+        return response()->json([
+            'message' => "ResuelveFondo con ID: $id actualizado exitosamente",
+            'data' => $resuelveFondo
+        ]);
     }
 
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
-        $resuelveFondo = ResuelveFondo::findOrFail($id);
+        $resuelveFondo = ResuelveFondo::find($id);
+
+        if (!$resuelveFondo) {
+            return response()->json([
+                'message' => "No se encontró el ResuelveFondo con ID: $id"
+            ], 404);
+        }
+
         $resuelveFondo->delete();
-        return response()->json(['message' => "ResuelveFondo with ID: $id deleted successfully"], 200);
+
+        return response()->json([
+            'message' => "ResuelveFondo con ID: $id eliminado exitosamente"
+        ]);
     }
 }

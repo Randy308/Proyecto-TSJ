@@ -11,6 +11,7 @@ use App\Models\FormaResolucion;
 use App\Models\Jurisprudencia;
 use App\Models\Magistrado;
 use App\Models\Resolution;
+use App\Models\ResuelveFondo;
 use App\Models\Sala;
 use App\Models\TerminosClaveUnificado;
 use App\Models\TipoJurisprudencia;
@@ -452,6 +453,8 @@ class ResolutionController extends Controller
         $tipo_resolucions = TipoResolucion::all('id', 'nombre');
         $forma_resolucions = FormaResolucion::all('id', 'nombre');
         $magistrados = Magistrado::all('id', 'nombre');
+        $resuelve_fondos = ResuelveFondo::all('id', 'nombre');
+
         $magistrados = DB::table('magistrados as m')
             ->selectRaw('
                 m.id,
@@ -480,6 +483,7 @@ class ResolutionController extends Controller
             'magistrado' => $magistrados->toArray(),
             'materia' => $materia->toArray(),
             'periodo' => $periodo->toArray(),
+            'resuelve_fondo' => $resuelve_fondos->toArray(),
         ];
         $datos = array_filter($datos);
 

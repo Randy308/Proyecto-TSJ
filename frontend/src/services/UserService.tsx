@@ -50,21 +50,21 @@ instance.interceptors.response.use(
 export const UserService = {
   // Usuarios
   getAllUsers: (page: number) =>
-    instance.get("/admin/user", { params: { page } }),
+    instance.get("/admin/users", { params: { page } }),
   getAllResolutions: (page: number) =>
-    instance.get("/admin/resolutions", { params: { page } }),
-  getUser: (id: number) => instance.get(`/admin/user/${id}`),
-  createUser: (userData: CreateUser) => instance.post("/admin/user", userData),
+    instance.get("/admin/resoluciones", { params: { page } }),
+  getUser: (id: number) => instance.get(`/admin/users/${id}`),
+  createUser: (userData: CreateUser) => instance.post("/admin/users", userData),
   updateUser: (id: number, userData: CreateUser) =>
-    instance.put(`/admin/user/${id}`, userData),
-  deleteUser: (id: number) => instance.delete(`/admin/user/${id}`),
+    instance.put(`/admin/users/${id}`, userData),
+  deleteUser: (id: number) => instance.delete(`/admin/users/${id}`),
 
   // Notificaciones
   getUnreadNotifications: () => instance.get("/obtener-no-leidas"),
   getAllNotifications: (page = 1) =>
     instance.get("/notificaciones", { params: { page } }),
   markNotificationAsRead: (id: number) =>
-    instance.put(`/actualizar-notificacion/${id}`),
+    instance.put(`/notificaciones/${id}`),
   markAllNotificationsAsRead: () =>
     instance.put("/actualizar-todas-notificaciones"),
   // Resoluciones

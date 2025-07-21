@@ -3,7 +3,6 @@ import type { FormListaX } from "../types";
 
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
-
 const instance = axios.create({
   baseURL: endpoint,
   headers: {
@@ -12,7 +11,6 @@ const instance = axios.create({
   },
   withCredentials: false,
 });
-
 
 let csrfFetched = false;
 const getCsrfToken = async () => {
@@ -38,44 +36,43 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
-
 export const ResolucionesService = {
-  getStats: () => instance.get(`/obtener-historico`),
+  getStats: () => instance.get(`/historicos`),
 
-  getDataDepartamentos: (id:number, params:FormData) =>
-    instance.get(`/magistrado-estadisticas-departamentos/${id}`, {
-      params,
-    }),
-  obtenerCronologiabyIds: (formData:object) =>
-    instance.post("/obtener-resoluciones-ids", formData, {
+  obtenerCronologiabyIds: (formData: object) =>
+    instance.post("/resoluciones-ids", formData, {
       responseType: "blob",
+      withCredentials: true,
     }),
   busquedaAvanzada: (params: object) =>
-    instance.post("/buscar-resoluciones-avanzado", params, { withCredentials: true }),
+    instance.post("/buscar-resoluciones", params, { withCredentials: true }),
   buscarResoluciones: (params: object) =>
     instance.get("/filtrar-autos-supremos", {
       params,
     }),
-  obtenerParametros: () => instance.get("/obtener-parametros-busqueda"),
-  obtenerVariables: () => instance.get("/obtener-variables"),
-  obtenerFechas: () => instance.get("/obtener-fechas"),
-  obtenerResolucion: (id:number) => instance.get(`/resolucion/${id}`),
-  obtenerPrediccion: (params:FormData) =>
-    instance.get("/realizar-prediction", { params }),
-  descomponerSerie: (params:FormData) => instance.get("/descomponer-serie", { params }),
+  obtenerParametros: () => instance.get("/parametros-busqueda"),
+  obtenerVariables: () => instance.get("/variables"),
+  obtenerFechas: () => instance.get("/fechas"),
+  obtenerResolucion: (id: number) => instance.get(`/resoluciones/${id}`),
+  obtenerPrediccion: (params: FormData) =>
+    instance.get("/predicciones", { params }),
+  // descomponerSerie: (params:FormData) => instance.get("/descomponer-serie", { params }),
 
-  obtenerElemento: (params:object) => instance.get("/obtener-serie-terminos", { params }),
+  // obtenerElemento: (params:object) => instance.get("/obtener-serie-terminos", { params }),
 
-  realizarAnalisis: (params:FormListaX) =>
-    instance.get("/obtener-estadisticas", {
+  realizarAnalisis: (params: FormListaX) =>
+    instance.get("/estadisticas", {
       params,
     }),
-  obtenerFiltrosEstadisticos: (params:FormData) =>
-    instance.get("/obtener-filtros-estadisticas", {
+  obtenerFiltrosEstadisticos: (params: FormData) =>
+    instance.get("/filtros-estadisticas", {
       params,
     }),
-  realizarAnalisisXY: (params:FormData) =>
-    instance.get("/obtener-estadisticas-xy", {
+  realizarAnalisisXY: (params: FormData) =>
+    instance.get("/estadisticas-xy", {
       params,
     }),
+
+  obtenerElemento: (params: object) =>
+    instance.get("/obtener-serie-terminos", { params }),
 };

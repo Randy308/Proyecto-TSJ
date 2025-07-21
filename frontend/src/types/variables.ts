@@ -33,6 +33,7 @@ export interface Facetas {
   materia: Faceta[];
   periodo?: Faceta[];
   categoria?: Faceta[];
+  resuelve_fondo?:Faceta[];
 }
 export interface Variables {
   departamento: ListaData[];
