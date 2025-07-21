@@ -24,4 +24,8 @@ class ResuelveFondo extends Model
     {
         return $this->belongsTo(Sala::class);
     }
+    public function resuelveDecisions()
+    {
+        return $this->hasMany(ResuelveDecision::class, 'resuelve_fondo_id', 'id');
+    }
 }

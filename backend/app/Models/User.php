@@ -29,6 +29,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read int|null $tokens_count
  * @mixin \Eloquent
  */
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasRoles, Notifiable;

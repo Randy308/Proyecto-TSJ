@@ -16,7 +16,17 @@ class FormaDecisionController extends Controller
 
     public function index()
     {
-        $formaDecisiones = FormaDecision::all();
+
+        $formaDecisiones = FormaDecision::with('formaResolucion', 'resuelveFondo')->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                "grupo_decision" =>  $item->grupo_decision,
+                "resuelve_fondo_id" =>  $item->resuelve_fondo_id,
+                'forma_resolucion_id' => $item->forma_resolucion_id, // aplanado
+                "resuelve_fondo" =>  $item->resuelveFondo->nombre ?? null,
+                'forma_resolucion' => $item->formaResolucion->nombre ?? null, // aplanado
+            ];
+        });
         return response()->json(['message' => 'List of ResuelveFondo', 'data' => $formaDecisiones], 200);
     }
 

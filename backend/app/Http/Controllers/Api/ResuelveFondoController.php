@@ -12,7 +12,18 @@ class ResuelveFondoController extends Controller
 {
     public function index(): JsonResponse
     {
-        $resuelveFondos = ResuelveFondo::all();
+
+        $resuelveFondos = ResuelveFondo::with('sala')->get()->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'nombre' => $item->nombre,
+                "tipo_decision" =>  $item->tipo_decision,
+                'slug' => $item->slug,
+                "sala_id" =>  $item->sala_id,
+                'sala' => $item->sala->nombre ?? null, // aplanado
+            ];
+        });
+
 
         return response()->json([
             'message' => 'Lista de ResuelveFondo',

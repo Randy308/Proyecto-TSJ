@@ -14,8 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->integer('tipo_decision');
             $table->unsignedBigInteger('sala_id')->nullable();
-            $table->string('nombre');
-            $table->string('slug')->nullable();
+            $table->string('nombre')->nullable();
+            $table->string('observaciones')->nullable();
             $table->foreign('sala_id')->references('id')->on('salas')->onDelete('set null')->onUpdate('cascade');
             $table->timestamps();
         });

@@ -116,6 +116,11 @@ class Resolution extends Model
         return $this->hasOne(Content::class, 'resolution_id', 'id');
     }
 
+    public function resuelveDecision()
+    {
+        return $this->hasOne(ResuelveDecision::class, 'resolucion_id', 'id');
+    }
+
     public function categoria_resolucion()
     {
         return $this->belongsTo(CategoriaResolucion::class, 'categoria_resolucion_id');

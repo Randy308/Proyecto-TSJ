@@ -119,7 +119,7 @@ Route::prefix('v2')->group(function () {
 
         Route::post('/subir-resoluciones', [ExcelController::class, 'handleUpload'])->name('excel.upload');
         Route::post('/subir-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
-
+        Route::post('/subir-resuelve-fondo', [ExcelController::class, 'upload_resuelve_fondo'])->name('excel.upload_resuelve_fondo');
         Route::post('/buscar-nuevas-resoluciones', [WebScrappingController::class, 'buscarResolucionesTSJ']);
         Route::post('/obtener-resoluciones', [WebScrappingController::class, 'obtenerResolucionesTSJ']);
 

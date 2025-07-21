@@ -447,13 +447,13 @@ class ResolutionController extends Controller
     public function obtenerVariables()
     {
 
-        $departamentos = Departamento::all('id', 'nombre');
-        $salas = Sala::all('id', 'nombre');
-        $tipo_jurisprudencias = TipoJurisprudencia::all('id', 'nombre');
-        $tipo_resolucions = TipoResolucion::all('id', 'nombre');
-        $forma_resolucions = FormaResolucion::all('id', 'nombre');
-        $magistrados = Magistrado::all('id', 'nombre');
-        $resuelve_fondos = ResuelveFondo::all('id', 'nombre');
+        $departamentos = Departamento::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
+        $salas = Sala::select('id', 'nombre')->orderBy('nombre', 'desc')->get();
+        $tipo_jurisprudencias = TipoJurisprudencia::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
+        $tipo_resolucions = TipoResolucion::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
+        $forma_resolucions = FormaResolucion::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
+        $magistrados = Magistrado::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
+        $resuelve_fondos = ResuelveFondo::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
 
         $magistrados = DB::table('magistrados as m')
             ->selectRaw('
@@ -464,10 +464,10 @@ class ResolutionController extends Controller
             ')
             ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
             ->groupBy('m.id', 'm.nombre')
-            ->orderBy('m.id')
+            ->orderBy('nombre', 'asc')
             ->get();
 
-        $materia = Descriptor::whereNull('descriptor_id')->get(['id', 'nombre']);
+        $materia = Descriptor::select('id', 'nombre')->whereNull('descriptor_id')->orderBy('nombre', 'asc')->get();
 
         $periodo = DB::table('resolutions')
             ->selectRaw("CAST(coalesce(EXTRACT(YEAR FROM fecha_emision) , '0') AS integer) as id,EXTRACT(YEAR FROM fecha_emision) AS nombre")
@@ -1283,8 +1283,6 @@ class ResolutionController extends Controller
             'nombre' => 'nombre',
             'multiVariable' => false,
         ]);
-
-
     }
 
     public function obtenerXYSimple(Request $request)
