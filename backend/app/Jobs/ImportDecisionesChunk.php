@@ -49,7 +49,11 @@ class ImportDecisionesChunk implements ShouldBeUnique, ShouldQueue
         $filasOmitidas = 0;
         $filasExitosas = 0;
 
-        $this->chunk->each(function (array $row) use (&$resolutionMap, &$sala, &$totalRecords, &$skippedRecords) {
+
+        $resolutionMap = [];
+        $resuelveFondoMap = [];
+
+        $this->chunk->each(function (array $row) use (&$resolutionMap, &$resuelveFondoMap, &$sala, &$totalRecords, &$skippedRecords) {
             $totalRecords++;
 
             $idResolucion = $row['id'] ?? null;
@@ -85,6 +89,9 @@ class ImportDecisionesChunk implements ShouldBeUnique, ShouldQueue
             $decision = $this->sanitizeNumber($row['decision'] ?? null);
             $observacion_tipo = $this->sanitize($row['observacion_tipo'] ?? null);
             $observacion_decision = $this->sanitize($row['observacion_decision'] ?? null);
+
+
+            $exists = ResuelveFondo::where('sala_id', $sala->id)->where("tipo_decision", $tipo)->get();
 
             // Obtener tipo_jurisprudencia_id
             $instance = ResuelveFondo::updateOrCreate(

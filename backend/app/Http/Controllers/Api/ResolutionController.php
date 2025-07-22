@@ -120,50 +120,54 @@ class ResolutionController extends Controller
             'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias as tj', 'fk' => 'j.tipo_jurisprudencia_id', 'id' => 'tj.id', 'nombre' => 'tj.nombre as tipo_jurisprudencia'],
             'materia' => ['tabla' => 'descriptors as dc', 'fk' => 'j.root_id', 'id' => 'dc.id', 'nombre' => 'dc.nombre as materia'],
         ];
-
-        // Iniciar query
-        $datos = DB::table('resolutions as r')->selectRaw('COUNT(DISTINCT r.id) as cantidad');
-
-        // Si se usa algún filtro que necesita jurisprudencias
-        if (array_key_exists('tipo_jurisprudencia', $request->filtros) || array_key_exists('materia', $request->filtros)) {
-            $datos->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
-        }
-
-        // Lista de campos por los que agrupar
+        $selects = [];
         $groupByCampos = [];
-
-        foreach ($request->filtros as $tabla => $config) {
+        $datos = DB::table('resolutions as r');
+        $flag = true;
+        foreach ($request->filtros as $config) {
             $name = $config['name'];
             if (!isset($campos[$name])) {
                 continue;
             }
 
+            if ($flag && ($name === 'materia' || $name === 'tipo_jurisprudencia')) {
+                $datos->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+                $flag = false;
+            }
 
             $filtro = $campos[$name];
             $valores = $config['ids'];
 
-            $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id'])
-                ->addSelect(DB::raw($filtro['nombre']))
-                ->whereIn($filtro['fk'], $valores);
+            $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id']);
 
-            // Extraer el alias del campo "as xxx"
+            // Extraer alias del campo "as xxx"
             preg_match('/as\s+(\w+)$/i', $filtro['nombre'], $aliasMatch);
             if (isset($aliasMatch[1])) {
-                $groupByCampos[] = $aliasMatch[1]; // ej: "departamento", "materia"
+                $alias = $aliasMatch[1];
+                $selects[] = $filtro['nombre'];
+                $groupByCampos[] = $alias;
+            } else {
+                $selects[] = $filtro['nombre'];
             }
+
+            $datos->whereIn($filtro['fk'], $valores);
         }
 
-        // Agregar groupBy solo si hay campos
+        if (request()->has('serie')) {
+            $selects[] = 'r.fecha_emision as fecha';
+            $groupByCampos[] = 'fecha';
+        }
+
+        // Asegurar que cantidad esté al final
+        $selects[] = 'COUNT(DISTINCT r.id) as cantidad';
+
+        $datos->selectRaw(implode(', ', $selects));
+
         if (!empty($groupByCampos)) {
-            if (request()->has('serie')) {
-                $datos->addSelect('r.fecha_emision as fecha');
-                $groupByCampos[] = 'fecha'; // Aseguramos que siempre se agrupe por fecha
-            }
             $datos->groupBy($groupByCampos);
         }
 
         $resultados = $datos->get();
-
         $total = $resultados->sum('cantidad');
         //Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre'], 'cantidad')
 
@@ -177,6 +181,55 @@ class ResolutionController extends Controller
 
     public function obtenerEstadisticas(Request $request)
     {
+
+
+        $validator = Validator::make($request->all(), [
+            'departamento' => 'nullable|array',
+            'departamento.*' => 'required|string',
+            'sala' => 'required|integer',
+            'periodos' => 'nullable|array',
+            'periodos,*' => 'required|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $sala = Sala::findOrFail($request->sala);
+
+
+        $query = DB::table('resolutions as r')->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id');
+
+        $query->selectRaw("s.nombre as sala , d.nombre as departamento , to_char(fecha_emision, 'YYYY') as periodo, Count(r.id) as cantidad")
+            ->where('s.id', $sala->id)->groupBy('s.nombre', 'd.nombre', 'periodo');
+
+
+        if ($request->has('periodos')) {
+            $years = $request->periodos;
+            $placeholders = implode(',', array_fill(0, count($years), '?'));
+            $query->whereRaw("EXTRACT(YEAR FROM fecha_emision) IN ($placeholders)", $years);
+        }
+
+        if ($request->has('departamento')) {
+            $departamentos = Departamento::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
+            $query->whereIn('departamento_id', $departamentos);
+        }
+        $data = $query->get();
+
+        $resultado = Math::completarArray2D($data, 'sala', 'cantidad');
+
+        return response()->json([
+
+            'data' => $data,
+            'tabla' => $sala->nombre,
+            'multiVariable' => false,
+        ]);
+
+
+
+
         $validator = Validator::make($request->all(), [
             'departamento' => 'nullable|array',
             'departamento.*' => 'required|string',
@@ -448,21 +501,21 @@ class ResolutionController extends Controller
     {
 
         $departamentos = Departamento::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
-        $salas = Sala::select('id', 'nombre')->orderBy('nombre', 'desc')->get();
+        //$salas = Sala::select('id', 'nombre')->orderBy('nombre', 'desc')->get();
         $tipo_jurisprudencias = TipoJurisprudencia::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $tipo_resolucions = TipoResolucion::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $forma_resolucions = FormaResolucion::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $magistrados = Magistrado::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $resuelve_fondos = ResuelveFondo::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
 
-        $magistrados = DB::table('magistrados as m')
+        $salas = DB::table('salas as m')
             ->selectRaw('
                 m.id,
                 m.nombre,
                 EXTRACT(YEAR FROM MAX(r.fecha_emision)) AS fecha_max,
                 EXTRACT(YEAR FROM MIN(r.fecha_emision)) AS fecha_min
             ')
-            ->join('resolutions as r', 'r.magistrado_id', '=', 'm.id')
+            ->join('resolutions as r', 'r.sala_id', '=', 'm.id')
             ->groupBy('m.id', 'm.nombre')
             ->orderBy('nombre', 'asc')
             ->get();
