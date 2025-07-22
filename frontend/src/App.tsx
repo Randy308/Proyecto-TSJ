@@ -13,6 +13,10 @@ const TablaCSV = lazy(() => import("./pages/datos/TablaCSV"));
 const TablaJurisprudenciaCSV = lazy(
   () => import("./pages/datos/TablaJurisprudenciaCSV")
 );
+
+const TablaResuelveFondo = lazy(
+  () => import("./pages/datos/TablaResuelveFondo")
+);
 const Resolucion = lazy(() => import("./pages/resoluciones/Resolucion"));
 const WebScrapping = lazy(() => import("./pages/datos/WebScrapping"));
 const Usuarios = lazy(() => import("./pages/admin/usuarios/Usuarios"));
@@ -82,6 +86,11 @@ function App() {
                   element={<TablaCSV />}
                 />
                 <Route
+                  path="admin/subir-resuelve-fondo"
+                  element={<TablaResuelveFondo />}
+                />
+
+                <Route
                   path="admin/realizar-web-scrapping"
                   element={<WebScrapping />}
                 />
@@ -101,11 +110,11 @@ function App() {
               <Route path="novedades" element={<Novedades />} />
               <Route path="jurisprudencia" element={<Jurisprudencia />} />
               <Route
-                path="estadisticas-basicas"
+                path="analisis"
                 element={<EstadisticasBasicas />}
               />
               <Route
-                path="estadisticas-basicas/:id"
+                path="sala/:id"
                 element={<AnalisisBasico />}
               />
               <Route path="resolucion/:id" element={<Resolucion />} />

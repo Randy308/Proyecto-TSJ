@@ -1,23 +1,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
-import MultiBtnDropdown from "../../components/MultiBtnDropdown";
 import { BsCheck2All } from "react-icons/bs";
 import { MdOutlineRemoveCircle } from "react-icons/md";
-import { ResolucionesService } from "../../services";
 import { filterForm } from "../../utils/filterForm";
 import { useNavigate } from "react-router-dom";
 import { departamentos } from "../../data/Mapa";
-import type { FormListaX, ListaX, MagistradoItem, Variables } from "../../types";
+import type { Variables } from "../../types";
 import { toast } from "react-toastify";
 import AsyncButton from "../../components/AsyncButton";
+
+interface ListaData {
+  id: number;
+  nombre: string;
+  fecha_min: string;
+  fecha_max: string;
+}
 
 const EstadisticasBasicas = () => {
   const { data } = useVariablesContext();
   const variables = data as Variables;
-
+  const [sala, setSala] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selector, setSelector] = useState<ListaX[]>([] as ListaX[]);
-  const limite = useMemo(() => 1, []);
   const checkIcon = useMemo(() => <BsCheck2All className="w-5 h-5" />, []);
   const removeIcon = useMemo(
     () => (
@@ -27,13 +30,15 @@ const EstadisticasBasicas = () => {
   );
 
   const [periodo, setPeriodo] = useState<string>("all");
-  const [visible, setVisible] = useState<string | null>(null);
+  const [validSalas, setValidSalas] = useState<ListaData[] | undefined>([]);
+  const navigate = useNavigate();
+
+  const clearList = () => {
+    togglePeriodo("all");
+    setSala(null);
+  };
 
   const [selectedDepto, setSelectedDepto] = useState<string[]>([]);
-  const [validMagistrados, setValidMagistrados] = useState<
-    MagistradoItem[] | undefined
-  >([]);
-  const navigate = useNavigate();
 
   const handleClick = (name: string) => {
     setSelectedDepto((prev) => {
@@ -47,64 +52,49 @@ const EstadisticasBasicas = () => {
       }
     });
   };
-  const clearList = () => {
-    togglePeriodo("all");
-  };
 
-  const updateMagistrados = (periodo: string) => {
-    if (periodo === "all" || periodo === null) {
-      setValidMagistrados(variables?.magistrado);
+  const updateSalas = (periodo: string) => {
+    const salas = variables?.sala as ListaData[];
+    if (periodo === "all" || periodo === null || salas.length <= 0) {
+      setValidSalas(salas);
     } else {
       const startDate = parseInt(periodo);
-      const filteredMagistrados = variables?.magistrado.filter((item) => {
+      const filteredData = salas.filter((item) => {
         const fechaMin = parseInt(item.fecha_min);
         const fechaMax = parseInt(item.fecha_max);
         return fechaMax >= startDate && fechaMin <= startDate;
       });
-      setValidMagistrados(filteredMagistrados);
+      setValidSalas(filteredData);
     }
   };
 
   const togglePeriodo = (nombre: string) => {
     const next = periodo === nombre ? "all" : nombre;
     setPeriodo(next);
-    setSelector([]);
-    updateMagistrados(next);
+    setSala(null);
+    updateSalas(next);
   };
 
   const fetchData = async () => {
-    if (!selector || selector.length <= 0) {
-      toast.warning("Debe de seleccionar una variable primero");
+    if (!sala) {
+      toast.warning("Seleccione una sala primero antes de continuar");
       return;
     }
     if (isLoading) return;
     setIsLoading(true);
 
     const validatedData = filterForm({
-      variable: selector[0].ids,
-      nombre: selector[0].name,
       periodo: periodo,
       departamento: selectedDepto,
     });
 
-    ResolucionesService.realizarAnalisis(validatedData as FormListaX)
-      .then(({ data }) => {
-        if (data) {
-          navigate(`/estadisticas-basicas/${selector[0].name}`, {
-            state: { data, validatedData },
-          });
-        }
-      })
-      .catch((err) => {
-        console.log("Existe un error " + err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    navigate(`/sala/${sala}`, {
+      state:  validatedData ,
+    });
   };
 
   useEffect(() => {
-    updateMagistrados("all");
+    updateSalas("all");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variables]);
 
@@ -168,10 +158,10 @@ const EstadisticasBasicas = () => {
           </div>
         </div>
 
-        <div className="sm:p-4 p-2 m-2 sm:m-4 bg-white dark:bg-gray-600 dark:text-white shadow-md rounded-lg lg:col-span-2 ">
+        <div className="p-2 m-2 bg-white dark:bg-gray-600 dark:text-white shadow-md rounded-lg lg:col-span-2 ">
           <div className="text-lg font-bold">Paso 2</div>
           <div className="flex flex-row flex-wrap pb-4 justify-between items-center">
-            <span>Seleccioné un variable</span>
+            <span>Seleccioné un Sala a Analizar</span>
             <AsyncButton
               asyncFunction={fetchData}
               name="Analizar"
@@ -180,45 +170,32 @@ const EstadisticasBasicas = () => {
             />
           </div>
 
-          <div className="sm:p-4 sm:m-4">
-            {variables && variables.materia && Array.isArray(variables.materia) && (
-              <MultiBtnDropdown
-                setVisible={setVisible}
-                name={"materia"}
-                listaX={selector}
-                limite={limite}
-                setListaX={setSelector}
-                contenido={variables.materia}
-                visible={visible}
-                size={6}
-              />
-            )}
-
-            {validMagistrados && (
-              <MultiBtnDropdown
-                setVisible={setVisible}
-                name={"magistrado"}
-                listaX={selector}
-                limite={limite}
-                setListaX={setSelector}
-                contenido={validMagistrados}
-                visible={visible}
-                size={6}
-              />
-            )}
-
-            {variables && variables.sala && Array.isArray(variables.sala) && (
-              <MultiBtnDropdown
-                setVisible={setVisible}
-                name={"sala"}
-                listaX={selector}
-                limite={limite}
-                setListaX={setSelector}
-                contenido={variables.sala}
-                visible={visible}
-                size={6}
-              />
-            )}
+          <div className="sm:p-4 sm:m-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {validSalas &&
+              Array.isArray(validSalas) &&
+              validSalas.map((item) => (
+                <div key={item.id}>
+                  <input
+                    type="checkbox"
+                    id={item.nombre}
+                    name={item.nombre}
+                    value={item.nombre}
+                    className="hidden peer"
+                    checked={sala === item.id}
+                    onChange={() => setSala(item.id)}
+                  />
+                  <label
+                    htmlFor={item.nombre}
+                    className={`inline-flex h-14 items-center justify-center text-center p-1 sm:p-3 w-full border-2 border-gray-200 rounded-lg cursor-pointer  ${
+                      sala == item.id
+                        ? "text-white bg-red-octopus-500"
+                        : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"
+                    }`}
+                  >
+                    {item.nombre}
+                  </label>
+                </div>
+              ))}
           </div>
         </div>
         <div className="p-4 m-4 bg-white dark:bg-gray-600 dark:text-white shadow-md rounded-lg lg:col-span-2">
@@ -230,7 +207,7 @@ const EstadisticasBasicas = () => {
           <div className="lg:col-span-2 h-[700px] bg-white pt-4 dark:bg-gray-600 dark:text-white flex items-center justify-center">
             <svg
               viewBox="0 0 1000 1000" // Ajusta según tu SVG real
-              className="w-full h-full p-8"
+              className="w-full h-full p-2"
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="xMidYMid meet"
             >

@@ -1,11 +1,11 @@
 import Loading from "../../components/Loading";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Select from "../../components/Select";
 import AsyncButton from "../../components/AsyncButton";
-import { ResolucionesService } from "../../services";
+import { ResolucionesService, StatsService } from "../../services";
 import { useVariablesContext } from "../../context/variablesContext";
-import { filterParams } from "../../utils/filterForm";
+import { filterForm, filterParams } from "../../utils/filterForm";
 import type {
   Facetas,
   AnalisisData,
@@ -14,22 +14,18 @@ import type {
   FiltroNombre,
   Variables,
   BaseData,
+  FiltroAnalisis,
 } from "../../types";
 import { OptionChart } from "../../components/OptionChart";
 import Tab from "../../components/Tab";
 import { TablaMultivariable } from "../../components/TablaMultivariable";
+import { toast } from "react-toastify";
 
-// interface SearchParams {
-//   nameX: FiltroNombre;
-//   valueX: string | undefined;
-//   nameY?: FiltroNombre;
-//   valueY?: string | undefined;
-// }
 const AnalisisBasico = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const receivedData = location.state?.data;
-  const receivedForm = location.state?.validatedData;
+  const { id } = useParams();
+
+  const { data } = useVariablesContext();
+
   const [datos, setDatos] = useState<AnalisisData>([]);
   const [columna, setColumna] = useState<FiltroNombre | null>(null);
   const [params, setParams] = useState<Facetas>({} as Facetas);
@@ -37,12 +33,48 @@ const AnalisisBasico = () => {
   const [actual, setActual] = useState(true);
   const [multiVariable, setMultiVariable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { data } = useVariablesContext();
   // const [searchParams, setSearchParams] = useState<SearchParams>();
   const [tableData, setTableData] = useState<BaseData[]>([]);
 
+  const [departamentos, setDepartamentos] = useState<string[]>([]);
+  const [periodos, setPeriodos] = useState<string[]>([]);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const obtenerEstadisticas = async (
+    periodo: string[],
+    departamentos: string[]
+  ) => {
+    setIsLoading(true);
+    const validatedData = filterForm({
+      sala: id,
+      departamento: departamentos,
+      periodos: periodo,
+    });
+
+    ResolucionesService.realizarAnalisisSala(validatedData)
+      .then((response) => {
+        if (response.data) {
+          const values =
+            response.data.data.length > 0 ? response.data.data : [];
+          console.log("Datos de análisis:", values);
+          setDatos(values);
+          setTableData(values);
+          obtenerParametros(periodo, departamentos);
+        }
+      })
+      .catch((err) => {
+        console.log("Existe un error " + err);
+        toast.error("Error al obtener los datos de análisis.");
+        navigate("/analisis");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   const memoizedParams = useMemo(() => params, [params]);
-  const limite = useMemo(() => 1, []);
+  const limite = useMemo(() => 3, []);
   const [listaX, setListaX] = useState<ListaX[]>([]);
   const [checkedX, setCheckedX] = useState(false);
 
@@ -53,17 +85,38 @@ const AnalisisBasico = () => {
   const realizarAnalisis = async () => {
     setIsLoading(true);
 
-    const isMultiVariable = listaX.length > 0;
+    const isMultiVariable = listaX.length > 1;
 
-    const params = isMultiVariable
-      ? { ...receivedForm, variableY: listaX[0].ids, nombreY: listaX[0].name }
-      : {
-          ...receivedForm,
-        };
+    const validatedData = filterForm({
+      sala: id,
+      departamento: departamentos,
+      periodos: periodos,
+    });
 
-    const fetchStats = isMultiVariable
-      ? ResolucionesService.realizarAnalisisXY(params)
-      : ResolucionesService.realizarAnalisis(params);
+    const params: FiltroAnalisis = {
+      filtros: { ...listaX },
+      sala: id,
+      serie:"series-temporales",
+    };
+    const fetchStats = StatsService.getMultivariableSala(params);
+
+    // const params = isMultiVariable
+    //   ? {
+    //       ...validatedData,
+    //       variable: listaX[0].ids,
+    //       nombre: listaX[0].name,
+    //       variableY: listaX[1].ids,
+    //       nombreY: listaX[1].name,
+    //     }
+    //   : {
+    //       ...validatedData,
+    //       variable: listaX[0].ids,
+    //       nombre: listaX[0].name,
+    //     };
+
+    // const fetchStats = isMultiVariable
+    //   ? ResolucionesService.realizarAnalisisXY(params)
+    //   : ResolucionesService.realizarAnalisis(params);
 
     fetchStats
       .then(({ data }) => {
@@ -84,34 +137,23 @@ const AnalisisBasico = () => {
       });
   };
 
-  useEffect(() => {
-    if (!receivedData || !Array.isArray(receivedData.data)) {
-      navigate("/estadisticas-basicas");
-    } else {
-      const values = receivedData.data.length > 0 ? receivedData.data : [];
-      setDatos(values);
-      //setTableData(values);
-      setTableData(values);
-      setColumna(receivedData.columna);
-      setMultiVariable(receivedData.multiVariable);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receivedData]);
+  const obtenerParametros = (periodos: string[], departamentos: string[]) => {
+    const validatedData = filterForm({
+      sala: id,
+      departamento: departamentos,
+      periodos: periodos,
+    });
 
-  useEffect(() => {
-    if (receivedForm) {
-      ResolucionesService.obtenerFiltrosEstadisticos(receivedForm)
-        .then((response) => {
-          if (response.data) {
-            setParams(filterParams(response.data, (data as Variables) || {}));
-          }
-        })
-        .catch((err) => {
-          console.log("Existe un error " + err);
-        });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [receivedForm]);
+    ResolucionesService.obtenerFiltrosEstadisticos(validatedData)
+      .then((response) => {
+        if (response.data) {
+          setParams(filterParams(response.data, (data as Variables) || {}));
+        }
+      })
+      .catch((err) => {
+        console.log("Existe un error " + err);
+      });
+  };
 
   const handleClick = useCallback(
     (params: echarts.ECElementEvent) => {
@@ -140,16 +182,37 @@ const AnalisisBasico = () => {
     [multiVariable]
   );
 
-  // const search = () => {
-  //   console.log("Search Params:", searchParams);
-  // };
-
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSelection = e.target.value;
     if (selected != newSelection) {
       setSelected(newSelection);
     }
   };
+
+  useEffect(() => {
+    const receivedForm = location.state;
+    const periodos = receivedForm?.periodo || [];
+    const periodoArray = Array.isArray(periodos) ? periodos : [periodos];
+    const departamentos = receivedForm?.departamento || [];
+    setDepartamentos(departamentos);
+    setPeriodos(periodoArray);
+    obtenerEstadisticas(periodoArray, departamentos);
+  }, [location.state]);
+
+  //   useEffect(() => {
+  //   if (receivedForm) {
+  //     ResolucionesService.obtenerFiltrosEstadisticos(receivedForm)
+  //       .then((response) => {
+  //         if (response.data) {
+  //           setParams(filterParams(response.data, (data as Variables) || {}));
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         console.log("Existe un error " + err);
+  //       });
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [receivedForm]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-1 p-2 m-2 lg:grid-cols-5">
@@ -248,7 +311,7 @@ const AnalisisBasico = () => {
 
       {datos && datos.length > 0 ? (
         <Tab actual={actual} setActual={setActual}>
-          {!actual ? (
+          {actual ? (
             <TablaMultivariable records={tableData} />
           ) : (
             <OptionChart

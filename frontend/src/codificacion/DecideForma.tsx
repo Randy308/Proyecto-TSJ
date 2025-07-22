@@ -60,7 +60,7 @@ export const DecidoForma = () => {
       </h2>
 
       {/* Sala y Tipo */}
-      <div className="flex flex-col md:flex-row gap-y-4 md:gap-x-6">
+      <div className="flex flex-col gap-y-4 md:gap-x-6">
         <div className="flex-1">
           <label className="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">
             Forma de Resolución
@@ -68,7 +68,6 @@ export const DecidoForma = () => {
           <SelectDropdown
             handleSelect={handleFormaResolucion}
             list={data.forma_resolucion}
-            className="w-full"
           />
         </div>
 
@@ -79,7 +78,6 @@ export const DecidoForma = () => {
           <SelectDropdown
             handleSelect={handleResuelveFondo}
             list={data.resuelve_fondo}
-            className="w-full"
           />
         </div>
 
@@ -90,7 +88,6 @@ export const DecidoForma = () => {
           <SelectDropdown
             handleSelect={handleGrupo}
             list={lista}
-            className="w-full"
           />
         </div>
       </div>

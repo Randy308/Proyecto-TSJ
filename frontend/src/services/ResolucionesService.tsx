@@ -1,5 +1,4 @@
 import axios from "axios";
-import type { FormListaX } from "../types";
 
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
@@ -60,11 +59,16 @@ export const ResolucionesService = {
 
   // obtenerElemento: (params:object) => instance.get("/obtener-serie-terminos", { params }),
 
-  realizarAnalisis: (params: FormListaX) =>
+  realizarAnalisis: (params: Record<string, string>) =>
     instance.get("/estadisticas", {
       params,
     }),
-  obtenerFiltrosEstadisticos: (params: FormData) =>
+  realizarAnalisisSala: (params: Record<string, string>) =>
+    instance.get("/estadisticas-por-sala", {
+      params,
+    }),
+
+  obtenerFiltrosEstadisticos: (params: Record<string, string | number>) =>
     instance.get("/filtros-estadisticas", {
       params,
     }),

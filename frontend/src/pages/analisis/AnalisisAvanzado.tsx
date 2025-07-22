@@ -327,7 +327,7 @@ const AnalisisAvanzado = () => {
           {contenido && contenido.length > 0 ? (
             <div className="col-span-3 grid grid-cols-1">
               <Tab actual={actual} setActual={setActual}>
-                {!actual ? (
+                {actual ? (
                   <TablaMultivariable records={tableData} />
                 ) : (
                   <OptionChart

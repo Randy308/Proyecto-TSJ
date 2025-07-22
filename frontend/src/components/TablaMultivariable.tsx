@@ -187,10 +187,11 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
     const span = row.spans?.[column];
     if (span === 0) return null;
 
-    const baseClasses = "border border-gray-300 p-3 text-left";
-    const numericClasses = isNumeric ? "text-right font-mono" : "";
+    const baseClasses =
+      "border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm md:text-base";
+    const numericClasses = isNumeric ? "text-right font-mono" : "text-left";
     const groupClasses =
-      (span || 1) > 1 ? "bg-blue-50 dark:bg-slate-900 font-semibold" : "";
+      (span || 1) > 1 ? "bg-gray-100 dark:bg-gray-800 font-semibold" : "";
 
     return (
       <td
@@ -202,22 +203,28 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
       </td>
     );
   };
+
   if (isLoading) {
     return <div className="text-center">Cargando datos...</div>;
   }
+
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">Tabla Multivariable</h1>
-      <form className="flex flex-row gap-4 flex-wrap items-center mb-6">
-        <p className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+      <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
+        Tabla Multivariable
+      </h1>
+
+      <form className="flex flex-wrap items-center gap-4 mb-6">
+        <label
+          htmlFor="order-select"
+          className="text-sm font-medium text-gray-900 dark:text-white"
+        >
           Selecciona una columna para reordenar:
-        </p>
+        </label>
         <select
-          id="countries"
-          onChange={(e) => {
-            ReorderArray(e.target.value as keyof BaseData);
-          }}
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg  block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          id="order-select"
+          onChange={(e) => ReorderArray(e.target.value as keyof BaseData)}
+          className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
         >
           {columns.map((col) =>
             col === "cantidad" ? null : (
@@ -228,57 +235,65 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
           )}
         </select>
       </form>
-      <table className="w-full border-collapse  shadow dark:bg-gray-700">
-        <thead className="bg-gray-200 dark:bg-gray-800">
-          <tr>
-            {columns.map((col) => (
-              <th key={col} className="border p-3 text-left font-semibold">
-                {col.charAt(0).toUpperCase() + col.slice(1)}
-              </th>
-            ))}
-          </tr>
-        </thead>
 
-        <tbody>
-          {processedData.map((row, index) =>
-            String(row.id).startsWith("Sub") ? (
-              <tr key={index} className="bg-gray-100 dark:bg-gray-800">
-                <td
-                  colSpan={columns.length - 1}
-                  className="border p-3 text-right border-gray-300"
+      <div className="overflow-x-auto rounded-lg shadow ring-1 ring-black ring-opacity-5">
+        <table className="min-w-full border-collapse bg-white dark:bg-gray-900">
+          <thead className="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-sm md:text-base">
+            <tr>
+              {columns.map((col) => (
+                <th
+                  key={col}
+                  className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left font-semibold"
                 >
-                  {row.id}
-                </td>
-                <td className="border p-3 text-right font-bold">
-                  {row.cantidad ? `${row.cantidad}` : "Subtotal"}
-                </td>
-              </tr>
-            ) : (
-              <tr
-                key={index}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  {col.charAt(0).toUpperCase() + col.slice(1)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {processedData.map((row, index) =>
+              String(row.id).startsWith("Sub") ? (
+                <tr
+                  key={index}
+                  className="bg-gray-50 dark:bg-gray-800 text-sm md:text-base"
+                >
+                  <td
+                    colSpan={columns.length - 1}
+                    className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-right italic"
+                  >
+                    {row.id}
+                  </td>
+                  <td className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-right font-bold">
+                    {row.cantidad ? `${row.cantidad}` : "Subtotal"}
+                  </td>
+                </tr>
+              ) : (
+                <tr
+                  key={index}
+                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  {columns.map((col) =>
+                    col === "cantidad"
+                      ? renderCell(row, col, row[col], true)
+                      : renderCell(row, col, row[col])
+                  )}
+                </tr>
+              )
+            )}
+            <tr className="bg-gray-100 dark:bg-gray-800 text-sm md:text-base font-bold">
+              <td
+                colSpan={columns.length - 1}
+                className="border border-gray-400 dark:border-gray-600 px-4 py-2 text-right"
               >
-                {columns.map((col) =>
-                  col === "cantidad"
-                    ? renderCell(row, col, row[col], true)
-                    : renderCell(row, col, row[col])
-                )}
-              </tr>
-            )
-          )}
-          <tr className="bg-gray-200 dark:bg-slate-900 border border-black font-bold">
-            <td
-              colSpan={columns.length - 1}
-              className="border p-3 text-right font-bold border-gray-300"
-            >
-              Total
-            </td>
-            <td className="border p-3 text-right font-bold">
-              {stats.cantidad || "N/A"}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                Total
+              </td>
+              <td className="border border-gray-400 dark:border-gray-600 px-4 py-2 text-right">
+                {stats.cantidad?.toLocaleString() || "N/A"}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

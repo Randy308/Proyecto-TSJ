@@ -58,9 +58,14 @@ export const AuthService = {
   getLogout: () => instance.post(`/logout`), // Correct path
   getAuthUser: () => instance.get(`/auth-user`), // Obtener usuario autenticado
   updateProfile: (data: CreateUser) => instance.put(`/actualizar-perfil`, data), // Actualizar perfil
-  saveResuelveFondo: (data: ResueleveFondo) =>
-    instance.post("resuelve-fondos", data),
-  saveDecideForma: (data: FormaDecision) => instance.post("forma-decisiones", data),
+  subirResuelveFondo: (data: FormData) =>
+    instance.post("subir-resuelve-fondo", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  saveDecideForma: (data: FormaDecision) =>
+    instance.post("forma-decisiones", data),
   editResuelveFondo: (data: ResueleveFondo, id: number) =>
     instance.put(`resuelve-fondos/${id}`, data),
   editDecideForma: (data: FormaDecision, id: number) =>
