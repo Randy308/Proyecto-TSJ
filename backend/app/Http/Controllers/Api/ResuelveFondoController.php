@@ -81,7 +81,7 @@ class ResuelveFondoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'nombre' => 'required|string',
-            'tipo_decision' => 'required|string',
+            'tipo_decision' => 'required|integer',
             'sala_id' => 'required|exists:salas,id',
             'slug' => 'nullable|string',
         ]);
@@ -96,6 +96,7 @@ class ResuelveFondoController extends Controller
 
         $resuelveFondo = ResuelveFondo::find($id);
 
+
         if (!$resuelveFondo) {
             return response()->json([
                 'message' => "No se encontró el ResuelveFondo con ID: $id"
@@ -104,8 +105,6 @@ class ResuelveFondoController extends Controller
 
         $resuelveFondo->update($request->only([
             'nombre',
-            'tipo_decision',
-            'sala_id',
             'slug'
         ]));
 

@@ -12,8 +12,10 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+
+use Illuminate\Support\Facades\Log;
+
 
 class ImportDecisionesChunk implements ShouldBeUnique, ShouldQueue
 {
@@ -45,80 +47,95 @@ class ImportDecisionesChunk implements ShouldBeUnique, ShouldQueue
 
     public function handle(): void
     {
-        $totalFilas = 0;
-        $filasOmitidas = 0;
         $filasExitosas = 0;
-
+        $filasOmitidas = 0;
 
         $resolutionMap = [];
         $resuelveFondoMap = [];
 
-        $this->chunk->each(function (array $row) use (&$resolutionMap, &$resuelveFondoMap, &$sala, &$totalRecords, &$skippedRecords) {
-            $totalRecords++;
-
+        $this->chunk->each(function (array $row) use (&$resolutionMap, &$resuelveFondoMap, &$filasExitosas, &$filasOmitidas) {
             $idResolucion = $row['id'] ?? null;
 
-            if (!$idResolucion || array_keys(array_filter($row, fn($v) => $v !== null && $v !== '')) === ['id']) {
-                $skippedRecords++;
-                return;
-            }
+            // Fila vacía o solo contiene ID
+            // if (!$idResolucion || array_keys(array_filter($row, fn($v) => $v !== null && $v !== '')) === ['id']) {
+            //     Log::warning("Fila omitida: vacía o solo contiene ID [id={$idResolucion}]");
+            //     $filasOmitidas++;
+            //     return;
+            // }
+
+            // Resolución ya procesada
             if (isset($resolutionMap[$idResolucion])) {
-                $skippedRecords++;
+                Log::warning("Fila omitida: resolución externa ya procesada [id={$idResolucion}]");
+                $filasOmitidas++;
                 return;
             }
 
+            // Buscar mapeo
             $mapeo = Mapeo::where('external_id', $idResolucion)->first();
             if (!$mapeo) {
-                $skippedRecords++;
+                Log::warning("Fila omitida: no se encontró mapeo para resolución externa [id={$idResolucion}]");
+                $filasOmitidas++;
                 return;
             }
 
+            $resolutionId = $mapeo->resolution_id;
+            $resolutionMap[$idResolucion] = $resolutionId;
 
-            $resolutionMap[$idResolucion] = $mapeo->resolution_id;
-
-            $exists = ResuelveDecision::where('resolution_id', $resolutionMap[$idResolucion])->exists();
-
-            if ($exists) {
-                $skippedRecords++;
+            // Evitar duplicados
+            if (ResuelveDecision::where('resolution_id', $resolutionId)->exists()) {
+                Log::warning("Fila omitida: resolución ya tiene una entrada en ResuelveDecision [resolution_id={$resolutionId}]");
+                $filasOmitidas++;
                 return;
             }
-
 
             // Sanitizar campos
             $tipo = $this->sanitizeNumber($row['tipo'] ?? null);
             $decision = $this->sanitizeNumber($row['decision'] ?? null);
-            $observacion_tipo = $this->sanitize($row['observacion_tipo'] ?? null);
-            $observacion_decision = $this->sanitize($row['observacion_decision'] ?? null);
+            $observacionTipo = $this->sanitize($row['observacion_tipo'] ?? null);
+            $observacionDecision = $this->sanitize($row['observacion_decision'] ?? null);
 
+            // Buscar o crear ResuelveFondo
+            $resuelveFondo = $resuelveFondoMap[$this->salaId][$tipo] ?? null;
 
-            $exists = ResuelveFondo::where('sala_id', $sala->id)->where("tipo_decision", $tipo)->get();
+            if (!$resuelveFondo) {
+                $resuelveFondo = ResuelveFondo::where('sala_id', $this->salaId)
+                    ->where('tipo_decision', $tipo)
+                    ->first();
 
-            // Obtener tipo_jurisprudencia_id
-            $instance = ResuelveFondo::updateOrCreate(
-                [
-                    'sala_id' => $sala->id,
-                    'observaciones' => $observacion_tipo,
-                    'tipo_decision' => $tipo
-                ],
-                []
-            );
-            if (!$instance || !$instance->id) {
-                Log::error("No se pudo crear o encontrar ResuelveFondo con {$row['nombre']}");
+                if (!$resuelveFondo) {
+                    $resuelveFondo = ResuelveFondo::updateOrCreate(
+                        [
+                            'sala_id' => $this->salaId,
+                            'tipo_decision' => $tipo,
+                            'observaciones' => $observacionTipo,
+                            'nombre'=>$tipo
+                        ],
+                        []
+                    );
+                }
 
-                return;
+                if (!$resuelveFondo || !$resuelveFondo->id) {
+                    Log::error("No se pudo crear o encontrar ResuelveFondo [id_externa={$idResolucion}, tipo={$tipo}]");
+                    $filasOmitidas++;
+                    return;
+                }
+
+                $resuelveFondoMap[$this->salaId][$tipo] = $resuelveFondo;
             }
 
-
+            // Crear relación
             ResuelveDecision::create([
-                'resolution_id' => $resolutionMap[$idResolucion],
-                'resuelve_fondo_id' => $instance->id,
+                'resolution_id' => $resolutionId,
+                'resuelve_fondo_id' => $resuelveFondo->id,
                 'nombre' => $decision,
-                'tipo' =>  $decision,
-                'observaciones' => $observacion_decision
+                'tipo' => $decision,
+                'observaciones' => $observacionDecision,
             ]);
+
+            $filasExitosas++;
         });
 
-
+        // Notificación
         Notification::create([
             'user_id' => $this->userId,
             'mensaje' => $filasExitosas > 0

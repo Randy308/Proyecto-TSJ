@@ -57,10 +57,10 @@ Route::prefix('v2')->group(function () {
     // rutas validadas
 
     Route::get('/variables', [ResolutionController::class, 'obtenerVariables']);
-
+    Route::get('/estadisticas-por-sala', [ResolutionController::class, 'obtenerEstadisticasPorSala']);
     Route::get('/estadisticas', [ResolutionController::class, 'obtenerEstadisticas']);
     Route::post('/estadisticas-multivariables', [ResolutionController::class, 'obtenerEstadisticasMultivariable']);
-    Route::get('/estadisticas-xy', [ResolutionController::class, 'obtenerEstadisticasXY']);
+    Route::post('/estadisticas-xy', [ResolutionController::class, 'obtenerEstadisticasMultivariableSala']);
     Route::get('/filtros-estadisticas', [ResolutionController::class, 'obtenerFiltros']);
 
     // rutas estadísticas resumen
