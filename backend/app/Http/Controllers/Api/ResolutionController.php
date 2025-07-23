@@ -122,7 +122,7 @@ class ResolutionController extends Controller
             'forma_resolucion'    => ['tabla' => 'forma_resolucions as fr',    'fk' => 'r.forma_resolucion_id',    'id' => 'fr.id',  'nombre' => 'fr.nombre as forma_resolucion'],
             'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias as tj', 'fk' => 'j.tipo_jurisprudencia_id', 'id' => 'tj.id',  'nombre' => 'tj.nombre as tipo_jurisprudencia'],
             'materia'             => ['tabla' => 'descriptors as dc',          'fk' => 'j.root_id',                'id' => 'dc.id',  'nombre' => 'dc.nombre as materia'],
-            'decision'            => ['tabla' => 'resuelve_decisiones as rd',  'fk' => 'rd.resolution_id',         'id' => 'r.id',   'nombre' => 'rd.nombre as resuelve_decision'],
+            'decision'            => ['tabla' => 'resuelve_decisiones as rd',  'fk' => 'rd.resolution_id',         'id' => 'r.id',   'nombre' => 'rd.nombre as decision'],
             'resuelve_fondo'      => ['tabla' => 'resuelve_fondos as rf',      'fk' => 'rd.resuelve_fondo_id',     'id' => 'rf.id',  'nombre' => 'rf.nombre as resuelve_fondo'],
         ];
 
@@ -135,12 +135,14 @@ class ResolutionController extends Controller
             'resuelve_decisiones' => false,
             'resuelve_fondos' => false,
         ];
-
+        $lista_nombres = [];
         foreach ($request->filtros as $config) {
             $name = $config['name'];
             if (!isset($campos[$name])) {
                 continue;
             }
+
+            $lista_nombres[] = $name;
 
             $filtro = $campos[$name];
             $valores = $config['ids'];
@@ -187,6 +189,7 @@ class ResolutionController extends Controller
 
         // Serie temporal
         if ($request->filled('serie')) {
+            $lista_nombres[] = 'fecha';
             $selects[] = DB::raw("EXTRACT(YEAR FROM r.fecha_emision) as fecha");
             $groupByCampos[] = 'fecha';
         }
@@ -203,11 +206,23 @@ class ResolutionController extends Controller
         $resultados = $datos->get();
         $total = $resultados->sum('cantidad');
 
+        $chart = $resultados;
+        $multiVariable = true;
+        if (count($lista_nombres) === 1) {
+
+            $chart = Math::completarArray2D($resultados, $lista_nombres[0], 'cantidad');
+            $multiVariable = false;
+        } else if (count($lista_nombres) === 2) {
+
+            $chart = Math::completarArray($resultados, $lista_nombres[0], $lista_nombres[1], 'cantidad');
+        }
+
         return response()->json([
             'total' => $total,
             'data' => $resultados,
-            'chart' => $resultados,
-            'multiVariable' => true,
+            'chart' => $chart,
+            'names' => $lista_nombres,
+            'multiVariable' => $multiVariable,
         ]);
     }
 
@@ -219,7 +234,7 @@ class ResolutionController extends Controller
             'filtros.*.name' => 'required|string',
             'filtros.*.ids' => 'required|array|min:1',
             'filtros.*.ids.*' => 'required|integer|min:1',
-            'serie' => 'string',
+            'serie' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -227,41 +242,67 @@ class ResolutionController extends Controller
                 'success' => false,
                 'message' => 'Error de validación de los filtros.',
                 'errors' => $validator->errors(),
-            ], Response::HTTP_UNPROCESSABLE_ENTITY); // 422
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $campos = [
-            'tipo_resolucion' => ['tabla' => 'tipo_resolucions as tr', 'fk' => 'r.tipo_resolucion_id', 'id' => 'tr.id', 'nombre' => 'tr.nombre as tipo_resolucion'],
-            'departamento' => ['tabla' => 'departamentos as d', 'fk' => 'r.departamento_id', 'id' => 'd.id', 'nombre' => 'd.nombre as departamento'],
-            'sala' => ['tabla' => 'salas as s', 'fk' => 'r.sala_id', 'id' => 's.id', 'nombre' => 's.nombre as sala'],
-            'magistrado' => ['tabla' => 'magistrados as m', 'fk' => 'r.magistrado_id', 'id' => 'm.id', 'nombre' => 'm.nombre as magistrado'],
-            'forma_resolucion' => ['tabla' => 'forma_resolucions as fr', 'fk' => 'r.forma_resolucion_id', 'id' => 'fr.id', 'nombre' => 'fr.nombre as forma_resolucion'],
-            'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias as tj', 'fk' => 'j.tipo_jurisprudencia_id', 'id' => 'tj.id', 'nombre' => 'tj.nombre as tipo_jurisprudencia'],
-            'materia' => ['tabla' => 'descriptors as dc', 'fk' => 'j.root_id', 'id' => 'dc.id', 'nombre' => 'dc.nombre as materia'],
+            'tipo_resolucion'     => ['tabla' => 'tipo_resolucions as tr',     'fk' => 'r.tipo_resolucion_id',     'id' => 'tr.id',  'nombre' => 'tr.nombre as tipo_resolucion'],
+            'departamento'        => ['tabla' => 'departamentos as d',         'fk' => 'r.departamento_id',        'id' => 'd.id',   'nombre' => 'd.nombre as departamento'],
+            'sala'                => ['tabla' => 'salas as s',                 'fk' => 'r.sala_id',                'id' => 's.id',   'nombre' => 's.nombre as sala'],
+            'magistrado'          => ['tabla' => 'magistrados as m',           'fk' => 'r.magistrado_id',          'id' => 'm.id',   'nombre' => 'm.nombre as magistrado'],
+            'forma_resolucion'    => ['tabla' => 'forma_resolucions as fr',    'fk' => 'r.forma_resolucion_id',    'id' => 'fr.id',  'nombre' => 'fr.nombre as forma_resolucion'],
+            'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias as tj', 'fk' => 'j.tipo_jurisprudencia_id', 'id' => 'tj.id',  'nombre' => 'tj.nombre as tipo_jurisprudencia'],
+            'materia'             => ['tabla' => 'descriptors as dc',          'fk' => 'j.root_id',                'id' => 'dc.id',  'nombre' => 'dc.nombre as materia'],
+            'decision'            => ['tabla' => 'resuelve_decisiones as rd',  'fk' => 'rd.resolution_id',         'id' => 'r.id',   'nombre' => 'rd.nombre as decision'],
+            'resuelve_fondo'      => ['tabla' => 'resuelve_fondos as rf',      'fk' => 'rd.resuelve_fondo_id',     'id' => 'rf.id',  'nombre' => 'rf.nombre as resuelve_fondo'],
         ];
+
         $selects = [];
         $groupByCampos = [];
         $datos = DB::table('resolutions as r');
-        $flag = true;
+
+        $yaSeUnio = [
+            'jurisprudencias' => false,
+            'resuelve_decisiones' => false,
+            'resuelve_fondos' => false,
+        ];
+        $lista_nombres = [];
         foreach ($request->filtros as $config) {
             $name = $config['name'];
             if (!isset($campos[$name])) {
                 continue;
             }
 
-            if ($flag && ($name === 'materia' || $name === 'tipo_jurisprudencia')) {
-                $datos->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
-                $flag = false;
-            }
+            $lista_nombres[] = $name;
 
             $filtro = $campos[$name];
             $valores = $config['ids'];
 
-            $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id']);
+            // Jurisprudencias
+            if (in_array($name, ['materia', 'tipo_jurisprudencia']) && !$yaSeUnio['jurisprudencias']) {
+                $datos->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+                $yaSeUnio['jurisprudencias'] = true;
+            }
 
-            // Extraer alias del campo "as xxx"
-            preg_match('/as\s+(\w+)$/i', $filtro['nombre'], $aliasMatch);
-            if (isset($aliasMatch[1])) {
+            // resuelve_decisiones
+            if (in_array($name, ['decision', 'resuelve_fondo']) && !$yaSeUnio['resuelve_decisiones']) {
+                $datos->join('resuelve_decisiones as rd', 'rd.resolution_id', '=', 'r.id');
+                $yaSeUnio['resuelve_decisiones'] = true;
+            }
+
+            // resuelve_fondos (solo si se usa el filtro)
+            if ($name === 'resuelve_fondo' && !$yaSeUnio['resuelve_fondos']) {
+                $datos->join('resuelve_fondos as rf', 'rd.resuelve_fondo_id', '=', 'rf.id');
+                $yaSeUnio['resuelve_fondos'] = true;
+            }
+
+            // Evita volver a unir tablas ya manejadas
+            if (!in_array($name, ['decision', 'resuelve_fondo'])) {
+                $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id']);
+            }
+
+            // Alias y group by
+            if (preg_match('/as\s+(\w+)$/i', $filtro['nombre'], $aliasMatch)) {
                 $alias = $aliasMatch[1];
                 $selects[] = $filtro['nombre'];
                 $groupByCampos[] = $alias;
@@ -269,18 +310,24 @@ class ResolutionController extends Controller
                 $selects[] = $filtro['nombre'];
             }
 
-            $datos->whereIn($filtro['fk'], $valores);
+            // Filtro especial para decision
+            if ($name === 'decision') {
+                $datos->whereIn('rd.tipo', $valores);
+            } else {
+                $datos->whereIn($filtro['fk'], $valores);
+            }
         }
 
-        if (request()->has('serie')) {
-            $selects[] = 'r.fecha_emision as fecha';
+        // Serie temporal
+        if ($request->filled('serie')) {
+            $lista_nombres[] = 'fecha';
+            $selects[] = DB::raw("EXTRACT(YEAR FROM r.fecha_emision) as fecha");
             $groupByCampos[] = 'fecha';
         }
 
-        // Asegurar que cantidad esté al final
-        $selects[] = 'COUNT(DISTINCT r.id) as cantidad';
+        $selects[] = DB::raw('COUNT(DISTINCT r.id) as cantidad');
 
-        $datos->selectRaw(implode(', ', $selects));
+        $datos->select($selects);
 
         if (!empty($groupByCampos)) {
             $datos->groupBy($groupByCampos);
@@ -288,13 +335,23 @@ class ResolutionController extends Controller
 
         $resultados = $datos->get();
         $total = $resultados->sum('cantidad');
-        //Math::completarArray($resultado, $filtroX['nombre'], $filtroY['nombre'], 'cantidad')
 
+        $chart = $resultados;
+        $multiVariable = true;
+        if (count($lista_nombres) === 1) {
+
+            $chart = Math::completarArray2D($resultados, $lista_nombres[0], 'cantidad');
+            $multiVariable = false;
+        } else if (count($lista_nombres) === 2) {
+
+            $chart = Math::completarArray($resultados, $lista_nombres[0], $lista_nombres[1], 'cantidad');
+        }
         return response()->json([
             'total' => $total,
             'data' => $resultados,
-            'chart' => $resultados,
-            'multiVariable' => true,
+            'chart' => $chart,
+            'names' => $lista_nombres,
+            'multiVariable' => $multiVariable,
         ]);
     }
 
@@ -321,8 +378,8 @@ class ResolutionController extends Controller
         $query = DB::table('resolutions as r')->join('salas as s', 's.id', '=', 'r.sala_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id');
 
-        $query->selectRaw("s.nombre as sala , d.nombre as departamento , to_char(fecha_emision, 'YYYY') as periodo, Count(r.id) as cantidad")
-            ->where('s.id', $sala->id)->groupBy('s.nombre', 'd.nombre', 'periodo');
+        $query->selectRaw("s.nombre as sala , Count(r.id) as cantidad")
+            ->where('s.id', $sala->id)->groupBy('s.nombre');
 
 
         if ($request->has('periodos')) {
@@ -337,11 +394,15 @@ class ResolutionController extends Controller
         }
         $data = $query->get();
 
+
+
         $resultado = Math::completarArray2D($data, 'sala', 'cantidad');
+
 
         return response()->json([
 
             'data' => $data,
+            'chart' => $resultado,
             'tabla' => $sala->nombre,
             'multiVariable' => false,
         ]);

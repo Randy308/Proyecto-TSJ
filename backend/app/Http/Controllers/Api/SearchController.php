@@ -48,7 +48,7 @@ class SearchController extends Controller
         $search = Resolution::search('', function (Builder $builder) use ($campo, $busqueda, $select) {
 
 
-            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('$campo $busqueda')")
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@$campo $busqueda')")
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
                 ->groupBy('resolution_id')
                 ->facet('departamento')
