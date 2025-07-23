@@ -47,6 +47,14 @@ export const DecidoForma = () => {
         grupo_decision: grupo,
         resuelve_fondo_id: resuelveFondo,
       });
+      if (response.status === 200) {
+        console.log("Forma de decisión guardada exitosamente");
+        setFormaResolucion(null);
+        setResuelveFondo(null);
+        setGrupo(null);
+      } else {
+        console.error("Error al guardar la forma de decisión");
+      }
     }
   };
   if (!data || !data.forma_resolucion || !data.resuelve_fondo) {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { BaseData, DataRow } from "../types";
+import { titulo } from "../utils/filterForm";
 
 // --- Tipos ---
 
@@ -19,7 +20,6 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
       setStats(getStats(records, cols));
       setIsLoading(false);
     }
-    console.log("TablaMultivariable records:", records);
   }, [records]);
 
   const getColumns = (data: BaseData[]) => {
@@ -74,7 +74,6 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
             );
       return [groupName, sortedRows] as [string, BaseData[]];
     });
-    console.log("Ordered groups:", orderedGroups);
     const result: DataRow[] = [];
 
     orderedGroups.forEach(([groupKey, groupRows]) => {
@@ -156,7 +155,6 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
       }
     });
 
-    console.log("Processed data:", result);
     return result;
   };
   const getStats = (data: BaseData[], columns: string[]) => {
@@ -229,7 +227,7 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
           {columns.map((col) =>
             col === "cantidad" ? null : (
               <option key={col} value={col}>
-                {col.charAt(0).toUpperCase() + col.slice(1)}
+                 {titulo(col)}
               </option>
             )
           )}
@@ -245,7 +243,7 @@ export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
                   key={col}
                   className="border border-gray-300 dark:border-gray-700 px-4 py-2 text-left font-semibold"
                 >
-                  {col.charAt(0).toUpperCase() + col.slice(1)}
+                  {titulo(col)}
                 </th>
               ))}
             </tr>

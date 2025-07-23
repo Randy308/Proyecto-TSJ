@@ -13,9 +13,8 @@ interface MultiBtnDropdownProps {
   setListaX: React.Dispatch<React.SetStateAction<ListaX[]>>;
   contenido: ListaData[];
   size?: number;
-  isCategorical?:boolean;
+  isCategorical?: boolean;
 }
-
 
 const MultiBtnDropdown = ({
   setVisible,
@@ -26,7 +25,7 @@ const MultiBtnDropdown = ({
   setListaX,
   contenido,
   size = 8,
-  isCategorical = true
+  isCategorical = true,
 }: MultiBtnDropdownProps) => {
   const [activo, setActivo] = useState<boolean>(false);
 
@@ -34,7 +33,9 @@ const MultiBtnDropdown = ({
     useIcons();
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const itemId = isCategorical ? parseInt(event.target.value, 10) : parseInt(event.target.name, 10);
+    const itemId = isCategorical
+      ? parseInt(event.target.value, 10)
+      : parseInt(event.target.name, 10);
     setListaX((prev) => {
       const existingItem = (prev ?? []).find((item) => item.name === name);
 
@@ -121,7 +122,7 @@ const MultiBtnDropdown = ({
     if (visible != name) {
       setActivo(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   return (
@@ -156,26 +157,26 @@ const MultiBtnDropdown = ({
       </div>
 
       <ul
-        className={`gap-1 mb-4 max-h-[600px] overflow-x-auto  ${
+        className={`gap-1 mb-4 max-h-[600px] shadow-sm p-1 overflow-x-auto  ${
           activo ? "" : "hidden"
         }`}
       >
-        <div className="grid grid-cols-2 gap-4 sm:text-xs">
+        <div className="grid grid-cols-2 sm:text-xs">
           <a
             onClick={() => selectAll()}
-            className="dark:bg-gray-800 dark:border-gray-700 inline-flex items-center justify-between border hover:cursor-pointer border-gray-200 p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="dark:bg-gray-800 dark:border-gray-700 inline-flex items-center justify-between border hover:cursor-pointer border-gray-200 p-2 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             {checkAllIcon}
-            <span className="ms-2 text-xs">
+            <span className="ps-1 text-[9px]">
               {size === 9 ? "Seleccionar todos" : "Seleccionar varios"}
             </span>
           </a>
           <a
             onClick={() => clearList()}
-            className="dark:bg-gray-800 dark:border-gray-700 inline-flex items-center border hover:cursor-pointer border-gray-200 p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            className="dark:bg-gray-800 dark:border-gray-700 inline-flex items-center border hover:cursor-pointer border-gray-200 p-2 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
           >
             {removeAllIcon}
-            <span className="ms-2 text-xs">Quitar Selección</span>
+            <span className="ps-1 text-[9px]">Quitar Selección</span>
           </a>
         </div>
 

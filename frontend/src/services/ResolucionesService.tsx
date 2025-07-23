@@ -63,12 +63,12 @@ export const ResolucionesService = {
     instance.get("/estadisticas", {
       params,
     }),
-  realizarAnalisisSala: (params: Record<string, string>) =>
+  realizarAnalisisSala: (params: unknown) =>
     instance.get("/estadisticas-por-sala", {
       params,
     }),
 
-  obtenerFiltrosEstadisticos: (params: Record<string, string | number>) =>
+  obtenerFiltrosEstadisticos: (params: unknown) =>
     instance.get("/filtros-estadisticas", {
       params,
     }),

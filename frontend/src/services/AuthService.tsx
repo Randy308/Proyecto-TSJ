@@ -64,6 +64,8 @@ export const AuthService = {
         "Content-Type": "multipart/form-data",
       },
     }),
+  saveResuelveFondo: (data: ResueleveFondo) =>
+    instance.post("subir-reactiveresume", data),
   saveDecideForma: (data: FormaDecision) =>
     instance.post("forma-decisiones", data),
   editResuelveFondo: (data: ResueleveFondo, id: number) =>

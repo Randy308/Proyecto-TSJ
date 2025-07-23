@@ -41,6 +41,15 @@ export const ResuelveFondo = () => {
         sala_id: selected,
         tipo_decision: tipo,
       });
+      if (response.status === 200) {
+        console.log("Fondo de decisión guardado exitosamente");
+        setTitulo("");
+        setSelected(null);
+        setTipo(null);
+        setClave("");
+      } else {
+        console.error("Error al guardar el fondo de decisión");
+      }
     }
   };
 

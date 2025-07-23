@@ -2,7 +2,7 @@ import { useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type { ECElementEvent, ECharts, EChartsOption } from "echarts";
 import "../../data/dark.js";
-import { useThemeContext } from "../../context";
+import { useThemeContext } from "../../context/index.js";
 import type EChartsReact from "echarts-for-react";
 
 interface AnalisisChartProps {

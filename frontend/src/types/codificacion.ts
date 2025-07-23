@@ -1,5 +1,5 @@
 export interface ResueleveFondo{
-    id:number;
+    id?:number;
     nombre:string;
     slug?:string;
     sala_id:number;

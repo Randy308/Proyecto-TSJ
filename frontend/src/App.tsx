@@ -27,10 +27,10 @@ const Inicio = lazy(() => import("./pages/Inicio"));
 const Novedades = lazy(() => import("./pages/Novedades"));
 const Jurisprudencia = lazy(() => import("./pages/Jurisprudencia"));
 const EstadisticasBasicas = lazy(
-  () => import("./pages/estadisticas-basicas/EstadisticasBasicas")
+  () => import("./analisis/salas/EstadisticasBasicas")
 );
 const AnalisisBasico = lazy(
-  () => import("./pages/estadisticas-basicas/AnalisisBasico")
+  () => import("./analisis/salas/AnalisisBasico")
 );
 const Busqueda = lazy(() => import("./pages/busqueda/Busqueda"));
 const GeneracionRapida = lazy(
@@ -44,10 +44,10 @@ const CronologiasResultados = lazy(
   () => import("./pages/cronologia/CronologiasResultados")
 );
 const AnalisisAvanzado = lazy(
-  () => import("./pages/analisis/AnalisisAvanzado")
+  () => import("./analisis/playground/AnalisisAvanzado")
 );
-const SerieTemporal = lazy(() => import("./pages/analisis/SerieTemporal"));
-const Mapa = lazy(() => import("./pages/analisis/Mapa"));
+const SerieTemporal = lazy(() => import("./analisis/playground/SerieTemporal"));
+const Mapa = lazy(() => import("./analisis/playground/Mapa"));
 
 const Login = lazy(() =>
   import("./auth/Login").then((module) => ({ default: module.Login }))
@@ -59,7 +59,7 @@ const ListaRoles = lazy(() =>
   }))
 );
 
-const PerfilUsuario = lazy(() => import("./pages/settings/Ajustes"));
+const PerfilUsuario = lazy(() => import("./pages/profile/Ajustes"));
 
 const Codificacion = lazy(() => import("./codificacion/Codificacion"));
 function App() {

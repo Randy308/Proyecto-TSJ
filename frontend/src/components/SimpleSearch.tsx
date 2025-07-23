@@ -29,7 +29,12 @@ const SimpleSearch = ({
     const valor = e.target.value;
     if (checkSearch(valor)) {
       setTermino(valor);
-      updateFormData("busqueda", valor);
+      setFormData((prevData) => ({
+        ...prevData,
+        "busqueda": valor,
+      }));
+
+      //updateFormData("busqueda", valor);
       setErrorBusqueda("");
     } else {
       setErrorBusqueda("No se permiten caracteres especiales");

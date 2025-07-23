@@ -294,11 +294,10 @@ export const OptionChart = ({
           legend: {},
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
-          xAxis: { type: "category" },
+          xAxis: { type: "category", boundaryGap: false },
           yAxis: { type: "value" },
           series: Array.from({ length: seriesCount }, () => ({
             type: "line",
-            smooth: true,
             symbol: "circle",
             symbolSize: 8,
           })),
@@ -309,7 +308,7 @@ export const OptionChart = ({
           legend: {},
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
-          xAxis: { type: "category" },
+          xAxis: { type: "category", boundaryGap: false },
           yAxis: { type: "value" },
           series: Array.from({ length: seriesCount }, () => ({
             type: "line",
@@ -383,7 +382,6 @@ export const OptionChart = ({
   const [option, setOption] = useState<echarts.EChartsOption>({});
   // Actualizar gráfico cuando cambian las configuraciones
   useEffect(() => {
-    console.log("Actualizando gráfico con dataset:", chartType);
     if (dataset.length === 0) {
       console.warn("Dataset vacío, no se puede actualizar el gráfico.");
       return;
