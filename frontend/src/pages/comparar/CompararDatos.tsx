@@ -7,6 +7,7 @@ import { filterForm } from "../../utils/filterForm";
 import SimpleSelect from "../../components/SimpleSelect";
 import type { SimpleSearchFormData } from "../../types/search";
 import { ResolucionesService } from "../../services";
+import MapComponent from "../../analisis/components/MapComponent";
 
 interface Resolucion {
   id: number;
@@ -21,11 +22,28 @@ interface Termino {
   value: string;
 }
 
+type RegionValue = {
+  nombre: string;
+  cantidad: number;
+};
+
 const CompararDatos = () => {
   const [resoluciones, setResoluciones] = useState<Resolucion[] | null>(null);
   // const [geoData, setGeoData] = useState([]);
 
   const [terminos, setTerminos] = useState<Termino[]>([]);
+
+  const [departamentos, setDepartamentos] = useState<RegionValue[]>([
+    { nombre: "Cochabamba", cantidad: 1 },
+    { nombre: "La Paz", cantidad: 2 },
+    { nombre: "Santa Cruz", cantidad: 1 },
+    { nombre: "Potosí", cantidad: 5 },
+    { nombre: "Oruro", cantidad: 6 },
+    { nombre: "El Beni", cantidad: 7 },
+    { nombre: "Chuquisaca", cantidad: 8 },
+    { nombre: "Tarija", cantidad: 9 },
+    { nombre: "Pando", cantidad: 10 },
+  ]);
 
   const [option, setOption] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -36,43 +54,55 @@ const CompararDatos = () => {
 
   useEffect(() => {
     if (resoluciones) {
+      const fechas = resoluciones.map((r) => r.periodo);
+      const valores = resoluciones.map((r) => r.cantidad);
+
       setOption({
-        title: {
-          text: "Cantidad de resoluciones a lo largo del tiempo",
-          padding: [20, 20, 10, 20],
-        },
         tooltip: {
           trigger: "axis",
         },
-        legend: {
-          data: resoluciones.map((item) => item.name),
-          padding: [20, 20, 10, 20],
+        title: {
+          left: "center",
+          text: "Large Area Chart",
         },
-        // grid: {
-        //   left: "3%",
-        //   right: "4%",
-        //   bottom: "3%",
-        //   containLabel: true,
-        // },
         toolbox: {
           feature: {
+            dataZoom: {
+              yAxisIndex: "none",
+            },
+            restore: {},
             saveAsImage: {},
           },
         },
         xAxis: {
-          type: "time",
+          type: "category",
           boundaryGap: false,
+          data: fechas, // solo las fechas
         },
         yAxis: {
           type: "value",
+          boundaryGap: [0, "100%"],
         },
-        series: resoluciones.map((item) => item),
-        grid: {
-          top: "10%",
-          bottom: "10%",
-          left: "10%",
-          right: "10%",
-        },
+        dataZoom: [
+          {
+            type: "inside",
+            start: 0,
+            end: 10,
+          },
+          {
+            start: 0,
+            end: 10,
+          },
+        ],
+        series: [
+          {
+            name: "Resoluciones",
+            type: "line",
+            itemStyle: {},
+            areaStyle: {},
+            data: valores, // solo los valores
+          },
+        ],
       });
     }
   }, [resoluciones]);
@@ -89,65 +119,89 @@ const CompararDatos = () => {
       ...validatedForm,
     })
       .then((response) => {
-        if (response.data.resoluciones.data.length > 0) {
-          setResoluciones((prev) =>
-            prev
-              ? [...prev, response.data.resoluciones]
-              : [response.data.resoluciones]
+        if (response.data) {
+          console.log("Response:", response.data.departamentos);
+
+          const res = response.data.departamentos;
+
+          const total = res.reduce(
+            (acc: number, item: RegionValue) => acc + item.cantidad,
+            0
           );
 
-          setTerminos((prev) =>
-            prev.length > 0
-              ? [...prev, response.data.termino]
-              : [response.data.termino]
+          const periodosTotal = response.data.periodos.reduce(
+            (acc: number, item) => acc + item.cantidad,
+            0
           );
-
-          // setGeoData((prevGeoData) => {
-          //   if (prevGeoData.length === 0) {
-          //     return response.data.departamentos.map((d) => ({
-          //       name: d.name,
-          //       results: {
-          //         [`termino_${numeroBusqueda}`]: d[`termino_${numeroBusqueda}`],
-          //       },
-          //     }));
-          //   }
-
-          //   const geoDataMap = new Map(
-          //     prevGeoData.map((d) => [d.name, { ...d }])
-          //   );
-
-          //   response.data.departamentos.forEach((nuevoDepartamento) => {
-          //     const nombre = nuevoDepartamento.name;
-          //     const nuevoIndice = `termino_${numeroBusqueda}`;
-          //     const nuevoValor = nuevoDepartamento[nuevoIndice];
-
-          //     if (geoDataMap.has(nombre)) {
-          //       const existente = geoDataMap.get(nombre);
-
-          //       if (!existente.results) {
-          //         existente.results = {};
-          //       }
-
-          //       existente.results[nuevoIndice] = nuevoValor;
-          //     } else {
-          //       geoDataMap.set(nombre, {
-          //         name: nombre,
-          //         results: {
-          //           [nuevoIndice]: nuevoValor,
-          //         },
-          //       });
-          //     }
-          //   });
-
-          //   return Array.from(geoDataMap.values());
-          // });
-
-          limpiarFiltros();
-        } else {
-          alert("No existen datos");
+          console.log("Total periodos:", periodosTotal);
+          console.log("Total departamentos:", total);
+          setResoluciones(response.data.periodos);
+          setDepartamentos(
+            response.data.departamentos.map((item: RegionValue) => ({
+              nombre: item.nombre,
+              cantidad: Math.round(100 * (item.cantidad / total)),
+            }))
+          );
         }
+        // if (response.data.resoluciones.data.length > 0) {
+        //   setResoluciones((prev) =>
+        //     prev
+        //       ? [...prev, response.data.resoluciones]
+        //       : [response.data.resoluciones]
+        //   );
+
+        //   setTerminos((prev) =>
+        //     prev.length > 0
+        //       ? [...prev, response.data.termino]
+        //       : [response.data.termino]
+        //   );
+
+        //   // setGeoData((prevGeoData) => {
+        //   //   if (prevGeoData.length === 0) {
+        //   //     return response.data.departamentos.map((d) => ({
+        //   //       name: d.name,
+        //   //       results: {
+        //   //         [`termino_${numeroBusqueda}`]: d[`termino_${numeroBusqueda}`],
+        //   //       },
+        //   //     }));
+        //   //   }
+
+        //   //   const geoDataMap = new Map(
+        //   //     prevGeoData.map((d) => [d.name, { ...d }])
+        //   //   );
+
+        //   //   response.data.departamentos.forEach((nuevoDepartamento) => {
+        //   //     const nombre = nuevoDepartamento.name;
+        //   //     const nuevoIndice = `termino_${numeroBusqueda}`;
+        //   //     const nuevoValor = nuevoDepartamento[nuevoIndice];
+
+        //   //     if (geoDataMap.has(nombre)) {
+        //   //       const existente = geoDataMap.get(nombre);
+
+        //   //       if (!existente.results) {
+        //   //         existente.results = {};
+        //   //       }
+
+        //   //       existente.results[nuevoIndice] = nuevoValor;
+        //   //     } else {
+        //   //       geoDataMap.set(nombre, {
+        //   //         name: nombre,
+        //   //         results: {
+        //   //           [nuevoIndice]: nuevoValor,
+        //   //         },
+        //   //       });
+        //   //     }
+        //   //   });
+
+        //   //   return Array.from(geoDataMap.values());
+        //   // });
+
+        //   limpiarFiltros();
+        // } else {
+        //   alert("No existen datos");
+        // }
       })
-      .catch((error:unknown) => {
+      .catch((error: unknown) => {
         console.error("Error fetching data:", error);
       })
       .finally(() => {
@@ -197,7 +251,6 @@ const CompararDatos = () => {
     }));
   };
 
- 
   return (
     <div
       className="px-1 sm:px-5 md:px-10 lg:px-40 custom:px-0"
@@ -216,7 +269,7 @@ const CompararDatos = () => {
                   id="default-search"
                   onChange={(e) => updateFormData("busqueda", e.target.value)}
                   value={formData.busqueda}
-                  className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="block w-full p-4 ps-10 text-sm outline-none text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-2 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="Buscar términos clave..."
                   required
                 />
@@ -265,6 +318,8 @@ const CompararDatos = () => {
           <GeoChart contenido={geoData}></GeoChart>
         </div>
       )} */}
+
+      <MapComponent data={departamentos} />
     </div>
   );
 };

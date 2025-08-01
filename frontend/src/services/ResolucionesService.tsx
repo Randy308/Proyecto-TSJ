@@ -49,6 +49,10 @@ export const ResolucionesService = {
     instance.get("/filtrar-autos-supremos", {
       params,
     }),
+  actualizarFiltros: (params: object) =>
+    instance.post("/actualizar-filtros", params, {
+      withCredentials: true,
+    }),
   obtenerParametros: () => instance.get("/parametros-busqueda"),
   obtenerVariables: () => instance.get("/variables"),
   obtenerFechas: () => instance.get("/fechas"),

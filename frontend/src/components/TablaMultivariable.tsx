@@ -1,26 +1,29 @@
 import { useEffect, useState } from "react";
 import type { BaseData, DataRow } from "../types";
 import { titulo } from "../utils/filterForm";
+import { useAnalisisContext } from "../context";
 
 // --- Tipos ---
 
 // --- Componente ---
-export const TablaMultivariable = ({ records }: { records: BaseData[] }) => {
+export const TablaMultivariable = () => {
+
+  const {tableData} = useAnalisisContext();
   const [data, setData] = useState<BaseData[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [processedData, setProcessedData] = useState<DataRow[]>([]);
   const [stats, setStats] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    if (records && records.length > 0) {
-      setData(records);
-      const cols = getColumns(records);
+    if (tableData && tableData.length > 0) {
+      setData(tableData);
+      const cols = getColumns(tableData);
       setColumns(cols);
-      setProcessedData(preparaData(records, cols, "asc"));
-      setStats(getStats(records, cols));
+      setProcessedData(preparaData(tableData, cols, "asc"));
+      setStats(getStats(tableData, cols));
       setIsLoading(false);
     }
-  }, [records]);
+  }, [tableData]);
 
   const getColumns = (data: BaseData[]) => {
     if (data.length === 0) return [];

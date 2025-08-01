@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import My404Component from "./components/My404Component";
 import { lazy, Suspense } from "react";
 import { ProtectedRoutes } from "./auth/ProtectedRoutes";
-import { LayoutUser, LayoutPublic } from "./layouts/";
+import { LayoutUser, LayoutPublic, LayoutAnalisis } from "./layouts/";
 import { LoadingPage } from "./pages/LoadingPage";
 import { AppProviders } from "./AppProviders";
 const PanelAdmin = lazy(() => import("./pages/admin/PanelAdmin"));
@@ -29,9 +29,7 @@ const Jurisprudencia = lazy(() => import("./pages/Jurisprudencia"));
 const EstadisticasBasicas = lazy(
   () => import("./analisis/salas/EstadisticasBasicas")
 );
-const AnalisisBasico = lazy(
-  () => import("./analisis/salas/AnalisisBasico")
-);
+const AnalisisBasico = lazy(() => import("./analisis/salas/AnalisisBasico"));
 const Busqueda = lazy(() => import("./pages/busqueda/Busqueda"));
 const GeneracionRapida = lazy(
   () => import("./pages/cronologia/GeneracionRapida")
@@ -109,14 +107,12 @@ function App() {
               <Route path="inicio" element={<Inicio />} />
               <Route path="novedades" element={<Novedades />} />
               <Route path="jurisprudencia" element={<Jurisprudencia />} />
-              <Route
-                path="analisis"
-                element={<EstadisticasBasicas />}
-              />
-              <Route
-                path="sala/:id"
-                element={<AnalisisBasico />}
-              />
+
+              <Route path="/analisis" element={<LayoutAnalisis />}>
+                 <Route index element={<EstadisticasBasicas />} />
+                <Route path="sala/:id" element={<AnalisisBasico />} />
+              </Route>
+
               <Route path="resolucion/:id" element={<Resolucion />} />
               <Route path="busqueda" element={<Busqueda />} />
               <Route path="generacion-rapida" element={<GeneracionRapida />} />

@@ -1,29 +1,25 @@
 import { useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
-import "../data/dark.js";
-import { useThemeContext } from "../context";
+import "../../data/dark.js";
+import { useAnalisisContext, useThemeContext } from "../../context/index.js";
 import type {
   AnalisisData,
-  ChartType,
   DualChartType,
   SingleChartType,
-} from "../types";
+} from "../../types/index.js";
+import { ToolbarChart } from "./ToolbarChart.js";
 
-interface OptionChartProps {
-  dataset: AnalisisData;
-  chartType: ChartType;
-  isMultiVariable: boolean;
+export interface OptionChartProps {
   border?: boolean;
-  handleClick: (params: echarts.ECElementEvent) => void;
 }
-export const OptionChart = ({
-  dataset,
-  chartType,
-  isMultiVariable,
-  border = false,
-  handleClick,
-}: OptionChartProps) => {
+export const OptionChart = ({ border = false }: OptionChartProps) => {
+  const {
+    datos: dataset,
+    chartType,
+    isMultiVariable,
+    handleClick,
+  } = useAnalisisContext();
   // Configuraciones para una variable
   function getChartOption(
     chartType: SingleChartType,
@@ -408,19 +404,23 @@ export const OptionChart = ({
 
   return (
     <div
-      className={`p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] h-[500px] md:h-[700px] ${
+      className={`p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] ${
         border ? "border shadow-lg border-gray-300 dark:border-0" : ""
       }`}
     >
-      <ReactECharts
-        key={JSON.stringify(option)}
-        option={option}
-        theme={isDark ? "dark" : undefined}
-        style={{ height: "100%", width: "100%" }}
-        onEvents={{
-          click: handleClick,
-        }}
-      />
+      <ToolbarChart />
+
+      <div className="p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] h-[500px] md:h-[700px]">
+        <ReactECharts
+          key={JSON.stringify(option)}
+          option={option}
+          theme={isDark ? "dark" : undefined}
+          style={{ height: "100%", width: "100%" }}
+          onEvents={{
+            click: handleClick,
+          }}
+        />
+      </div>
     </div>
   );
 };

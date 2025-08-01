@@ -126,7 +126,8 @@ export interface FiltroAnalisis {
   serie?: string;
   departamentos?: string[];
   periodos?: string[];
-  sala?: string;
+  mapa?: string;
+  sala?: number;
 
   // término es opcional
   terminos?: {

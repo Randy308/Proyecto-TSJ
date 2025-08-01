@@ -36,7 +36,7 @@ const Inicio = () => {
     }
   }, [historic]);
 
-  const option:EChartsOption = {
+  const option: EChartsOption = {
     visualMap: [
       {
         show: false,
@@ -130,7 +130,7 @@ const Inicio = () => {
       {
         type: "line",
         showSymbol: false,
-        data: historic?.jurisprudencia || [], 
+        data: historic?.jurisprudencia || [],
         xAxisIndex: 1,
         yAxisIndex: 1,
       },
@@ -147,9 +147,11 @@ const Inicio = () => {
           />
         </div>
         <div className="w-full top-1/2 transform -translate-y-1/2 z-30 absolute">
-          <p className="mb-4 uppercase text-xl text-center font-extrabold leading-none tracking-tight text-white md:text-3xl lg:text-4xl">
-            Sistemas Administración de Métricas Estadísticas Dinámicas Judiciales
-          </p>
+          <p className="text-white text-center">SAMED TSJ</p>
+          {/* <p className="mb-4 uppercase text-xl text-center font-extrabold leading-none tracking-tight text-white md:text-3xl lg:text-4xl">
+            Sistemas Administración de Métricas Estadísticas Dinámicas
+            Judiciales
+          </p> */}
         </div>
       </div>
       <div>
@@ -171,7 +173,9 @@ const Inicio = () => {
           </div>
         </div>
         <div className="p-4 lg:col-span-2">
-          {historic && historic.resoluciones && historic.resoluciones.length > 0 ? (
+          {historic &&
+          historic.resoluciones &&
+          historic.resoluciones.length > 0 ? (
             <SimpleChart option={option}></SimpleChart>
           ) : (
             <Loading></Loading>

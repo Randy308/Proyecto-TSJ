@@ -15,6 +15,8 @@ export interface ListaData {
 export interface Faceta {
   id: number;
   nombre?: string;
+  grupo?:string;
+  grupo_id?: number;
   cantidad?: number;
   fecha_min?: string;
   fecha_max?: string;

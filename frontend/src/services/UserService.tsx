@@ -79,10 +79,10 @@ export const UserService = {
     }),
   buscarNuevasResoluciones: () => instance.post("/buscar-nuevas-resoluciones"),
   RealizarWebScraping: () => instance.post("/obtener-resoluciones"),
-  AjustarFechas: () => instance.post("/reparar-fechas-emision"),
+  AjustarFechas: () => instance.post("/reparar-fechas-emisiones"),
   AjustarDepartamentos: () => instance.post("/reparar-departamentos"),
   GenerarNodos: () => instance.post("/generar-nodos"),
-  GenerarTérminosClave: () => instance.post("/generar-terminos-clave"),
+  GenerarTérminosClave: () => instance.post("/generar-terminos-claves"),
   subirResoluciones: (formData: FormData) =>
     instance.post("/subir-resoluciones", formData, {
       headers: {

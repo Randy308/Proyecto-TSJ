@@ -63,7 +63,7 @@ const SimpleSearch = ({
           <input
             type="text"
             id="simple-search"
-            className="mt-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="mt-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm outline-none rounded-lg focus:border-2 focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Ingrese termino de búsqueda"
             value={termino}
             onChange={(e) => actualizarInput(e)}

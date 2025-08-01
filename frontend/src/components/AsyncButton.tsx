@@ -4,7 +4,7 @@ import { useIcons } from "./icons/Icons";
 
 
 interface AsyncProps {
-  asyncFunction: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
+  asyncFunction: (e: unknown) => Promise<void>;
   isLoading: boolean;
   name: string;
   full?: boolean;

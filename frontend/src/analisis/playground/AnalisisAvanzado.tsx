@@ -16,7 +16,7 @@ import type {
   FiltroAnalisis,
 } from "../../types";
 import type { ECElementEvent } from "echarts";
-import { OptionChart } from "../../components/OptionChart";
+import { OptionChart } from "../components/OptionChart";
 import Tab from "../../components/Tab";
 import { TablaMultivariable } from "../../components/TablaMultivariable";
 import { SkeletonChart } from "../../components/SkeletonChart";

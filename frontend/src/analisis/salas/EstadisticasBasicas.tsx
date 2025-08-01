@@ -12,6 +12,8 @@ import AsyncButton from "../../components/AsyncButton";
 interface ListaData {
   id: number;
   nombre: string;
+  grupo: string;
+  grupo_id: number;
   fecha_min: string;
   fecha_max: string;
 }
@@ -38,9 +40,9 @@ const EstadisticasBasicas = () => {
     setSala(null);
   };
 
-  const [selectedDepto, setSelectedDepto] = useState<string[]>([]);
+  const [selectedDepto, setSelectedDepto] = useState<number[]>([]);
 
-  const handleClick = (name: string) => {
+  const handleClick = (name: number) => {
     setSelectedDepto((prev) => {
       if (prev.includes(name)) {
         // Remove it
@@ -54,9 +56,12 @@ const EstadisticasBasicas = () => {
   };
 
   const updateSalas = (periodo: string) => {
+    if (!variables || !variables.sala) {
+      return;
+    }
     const salas = variables?.sala as ListaData[];
     if (periodo === "all" || periodo === null || salas.length <= 0) {
-      setValidSalas(salas);
+      setValidSalas(groupByGrupo(salas));
     } else {
       const startDate = parseInt(periodo);
       const filteredData = salas.filter((item) => {
@@ -64,8 +69,36 @@ const EstadisticasBasicas = () => {
         const fechaMax = parseInt(item.fecha_max);
         return fechaMax >= startDate && fechaMin <= startDate;
       });
-      setValidSalas(filteredData);
+      setValidSalas(groupByGrupo(filteredData));
     }
+  };
+
+  const groupByGrupo = (data: ListaData[]): ListaData[] => {
+    console.log("Grouping data by grupo:", data);
+    const grouped = new Map<number, ListaData>();
+
+    for (const item of data) {
+      const id = item.grupo_id;
+      const fechaMin = parseInt(item.fecha_min);
+      const fechaMax = parseInt(item.fecha_max);
+
+      if (!grouped.has(id)) {
+        grouped.set(id, { ...item });
+      } else {
+        const existing = grouped.get(id)!;
+
+        existing.fecha_min = Math.min(
+          parseInt(existing.fecha_min),
+          fechaMin
+        ).toString();
+        existing.fecha_max = Math.max(
+          parseInt(existing.fecha_max),
+          fechaMax
+        ).toString();
+      }
+    }
+
+    return Array.from(grouped.values());
   };
 
   const togglePeriodo = (nombre: string) => {
@@ -77,7 +110,7 @@ const EstadisticasBasicas = () => {
 
   const fetchData = async () => {
     if (!sala) {
-      toast.warning("Seleccione una sala primero antes de continuar");
+      toast.warning("Seleccione una materia primero antes de continuar");
       return;
     }
     if (isLoading) return;
@@ -88,8 +121,8 @@ const EstadisticasBasicas = () => {
       departamento: selectedDepto,
     });
 
-    navigate(`/sala/${sala}`, {
-      state:  validatedData ,
+    navigate(`/analisis/sala/${sala}`, {
+      state: validatedData,
     });
   };
 
@@ -161,7 +194,7 @@ const EstadisticasBasicas = () => {
         <div className="p-2 m-2 bg-white dark:bg-gray-600 dark:text-white shadow-md rounded-lg lg:col-span-2 ">
           <div className="text-lg font-bold">Paso 2</div>
           <div className="flex flex-row flex-wrap pb-4 justify-between items-center">
-            <span>Seleccioné un Sala a Analizar</span>
+            <span>Seleccioné un Materia a Analizar</span>
             <AsyncButton
               asyncFunction={fetchData}
               name="Analizar"
@@ -174,25 +207,25 @@ const EstadisticasBasicas = () => {
             {validSalas &&
               Array.isArray(validSalas) &&
               validSalas.map((item) => (
-                <div key={item.id}>
+                <div key={item.grupo_id}>
                   <input
                     type="checkbox"
                     id={item.nombre}
                     name={item.nombre}
                     value={item.nombre}
                     className="hidden peer"
-                    checked={sala === item.id}
-                    onChange={() => setSala(item.id)}
+                    checked={sala === item.grupo_id}
+                    onChange={() => setSala(item.grupo_id)}
                   />
                   <label
                     htmlFor={item.nombre}
-                    className={`inline-flex h-14 items-center justify-center text-center p-1 sm:p-3 w-full border-2 border-gray-200 rounded-lg cursor-pointer  ${
-                      sala == item.id
+                    className={`inline-flex h-24 items-center justify-center text-center p-1 sm:p-3 w-full border-2 border-gray-200 rounded-lg cursor-pointer  ${
+                      sala == item.grupo_id
                         ? "text-white bg-red-octopus-500"
                         : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"
                     }`}
                   >
-                    {item.nombre}
+                    {item.grupo}
                   </label>
                 </div>
               ))}
@@ -216,12 +249,12 @@ const EstadisticasBasicas = () => {
                   key={depto.id}
                   d={depto.d}
                   fill={
-                    selectedDepto.includes(depto.name) ? "#0ea5e9" : "#cbd5e1"
+                    selectedDepto.includes(depto.id) ? "#0ea5e9" : "#cbd5e1"
                   }
                   stroke="#1e293b"
                   strokeWidth={0.9}
                   className="cursor-pointer transition-colors duration-200 hover:fill-blue-600"
-                  onClick={() => handleClick(depto.name)}
+                  onClick={() => handleClick(depto.id)}
                 />
               ))}
             </svg>

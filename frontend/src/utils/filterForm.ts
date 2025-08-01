@@ -16,7 +16,8 @@ export const filterForm = (formData: object) => {
         value !== "all" &&
         value !== "Todos" &&
         value !== 0 &&
-        value !== "Todas"
+        value !== "Todas" &&
+        (!(Array.isArray(value) && value.length === 0))
     )
   );
 };
@@ -31,7 +32,8 @@ export const filterFormData = <T extends Record<string, unknown>>(formData: T): 
         value !== "all" &&
         value !== "Todos" &&
         value !== 0 &&
-        value !== "Todas"
+        value !== "Todas" &&
+        (!(Array.isArray(value) && value.length === 0))
     )
   ) as Partial<T>;
 };
