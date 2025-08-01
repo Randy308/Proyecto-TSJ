@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 /**
  * @property int $id
  * @property string $nombre
@@ -21,6 +22,7 @@ class Sala extends Model
 
     protected $fillable = [
         'nombre',
+        'grupo_sala_id',
     ];
 
     public function resolutions()
@@ -30,5 +32,10 @@ class Sala extends Model
     public function resuelveFondos()
     {
         return $this->hasMany(ResuelveFondo::class);
+    }
+
+    public function grupoSala()
+    {
+        return $this->belongsTo(GrupoSala::class, 'grupo_sala_id');
     }
 }

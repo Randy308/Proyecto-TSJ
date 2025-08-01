@@ -32,6 +32,135 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResolutionController extends Controller
 {
+
+    public function actualizarFiltros(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'filtros' => 'nullable|array',
+            'filtros.*.name' => 'required|string',
+            'filtros.*.ids' => 'required|array|min:1',
+            'filtros.*.ids.*' => 'required|integer|min:1',
+            'sala' => 'required|exists:salas,id',
+            'variable' => 'required|string',
+            'departamentos' => 'nullable|array',
+            'departamentos.*' => 'required|string',
+            'periodos' => 'nullable|array',
+            'periodos.*' => 'required|digits:4|integer|min:1900|max:' . (date('Y') + 1),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $variable = $request->input('variable');
+
+        $campos = [
+            'tipo_resolucion'     => ['tabla' => 'tipo_resolucions as tr',     'fk' => 'r.tipo_resolucion_id',     'id' => 'tr.id',  'nombre' => 'tr.nombre'],
+            'departamento'        => ['tabla' => 'departamentos as d',         'fk' => 'r.departamento_id',        'id' => 'd.id',   'nombre' => 'd.nombre'],
+            'sala'                => ['tabla' => 'salas as s',                 'fk' => 'r.sala_id',                'id' => 's.id',   'nombre' => 's.nombre'],
+            'magistrado'          => ['tabla' => 'magistrados as m',           'fk' => 'r.magistrado_id',          'id' => 'm.id',   'nombre' => 'm.nombre'],
+            'forma_resolucion'    => ['tabla' => 'forma_resolucions as fr',    'fk' => 'r.forma_resolucion_id',    'id' => 'fr.id',  'nombre' => 'fr.nombre'],
+            'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias as tj', 'fk' => 'j.tipo_jurisprudencia_id', 'id' => 'tj.id',  'nombre' => 'tj.nombre'],
+            'materia'             => ['tabla' => 'descriptors as dc',          'fk' => 'j.root_id',                'id' => 'dc.id',  'nombre' => 'dc.nombre'],
+            'decision'            => ['tabla' => 'resuelve_decisiones as rd',  'fk' => 'rd.resolution_id',         'id' => 'r.id',   'nombre' => 'rd.nombre'],
+            'tipo_decision'      => ['tabla' => 'resuelve_fondos as rf',      'fk' => 'rd.resuelve_fondo_id',     'id' => 'rf.id',  'nombre' => 'rf.nombre'],
+        ];
+
+        $selects = [];
+        $datos = DB::table('resolutions as r');
+
+        $yaSeUnio = [
+            'jurisprudencias' => false,
+            'resuelve_decisiones' => false,
+            'resuelve_fondos' => false,
+        ];
+        $lista_nombres = [];
+
+        $filtros = $request->input('filtros', []);
+        $filtros[] = [
+            'name' => $variable,
+            'ids' => [1]
+        ];
+
+        $groupByCampos = [];
+
+        foreach ($filtros as $config) {
+            $name = $config['name'];
+            if (!isset($campos[$name])) {
+                continue;
+            }
+
+            $lista_nombres[] = $name;
+
+            $filtro = $campos[$name];
+            $valores = $config['ids'];
+
+            // Jurisprudencias
+            if (in_array($name, ['materia', 'tipo_jurisprudencia']) && !$yaSeUnio['jurisprudencias']) {
+                $datos->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id');
+                $yaSeUnio['jurisprudencias'] = true;
+            }
+
+            // resuelve_decisiones
+            if (in_array($name, ['decision', 'tipo_decision']) && !$yaSeUnio['resuelve_decisiones']) {
+                $datos->join('resuelve_decisiones as rd', 'rd.resolution_id', '=', 'r.id');
+                $yaSeUnio['resuelve_decisiones'] = true;
+            }
+
+            // resuelve_fondos (solo si se usa el filtro)
+            if ($name === 'tipo_decision' && !$yaSeUnio['resuelve_fondos']) {
+                $datos->join('resuelve_fondos as rf', 'rd.resuelve_fondo_id', '=', 'rf.id');
+                $yaSeUnio['resuelve_fondos'] = true;
+            }
+
+            // Evita volver a unir tablas ya manejadas
+            if (!in_array($name, ['decision', 'tipo_decision'])) {
+                $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id']);
+            }
+
+            // Filtro especial para decision
+            if ($variable === $name) {
+                if ($variable === 'decision') {
+                    $selects[] = "rd.tipo as id";
+                    $selects[] = "rd.nombre";
+                    $groupByCampos[] = "rd.tipo";
+                    $groupByCampos[] = "rd.nombre";
+                } else {
+                    $selects[] = $filtro['nombre'];
+                    $selects[] = $filtro['id'];
+                    $groupByCampos[] = $filtro['id'];
+                }
+            } elseif ($name === 'decision') {
+                $datos->whereIn('rd.tipo', $valores);
+            } else {
+                $datos->whereIn($filtro['fk'], $valores);
+            }
+        }
+
+        $datos->select($selects);
+
+        if ($request->has('departamentos')) {
+            $datos->whereIn('departamento_id', $request->departamentos);
+        }
+        if ($request->has('periodos')) {
+            $years = $request->periodos;
+            $placeholders = implode(',', array_fill(0, count($years), '?'));
+            $datos->whereRaw("EXTRACT(YEAR FROM fecha_emision) IN ($placeholders)", $years);
+        }
+
+        if (!empty($groupByCampos)) {
+            $datos->groupBy($groupByCampos);
+        }
+
+        $datos->where('r.sala_id', $request->sala);
+
+        $values = $datos->get();
+
+        // Aquí puedes implementar la lógica para actualizar los filtros según tus necesidades
+
+        return response()->json(['message' => 'Filtros actualizados correctamente', 'resultado' => $values], 200);
+    }
+
     public function buscarResolucionesXY(Request $request)
     {
 
@@ -102,8 +231,12 @@ class ResolutionController extends Controller
             'filtros.*.name' => 'required|string',
             'filtros.*.ids' => 'required|array|min:1',
             'filtros.*.ids.*' => 'required|integer|min:1',
-            'serie' => 'nullable|string',
+            'series' => 'nullable|array|min:1',
+            'series.*' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'departamentos' => 'nullable|array|min:1',
+            'departamentos.*' => 'required|integer',
             'sala' => 'required|exists:salas,id',
+            'mapa' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -123,12 +256,21 @@ class ResolutionController extends Controller
             'tipo_jurisprudencia' => ['tabla' => 'tipo_jurisprudencias as tj', 'fk' => 'j.tipo_jurisprudencia_id', 'id' => 'tj.id',  'nombre' => 'tj.nombre as tipo_jurisprudencia'],
             'materia'             => ['tabla' => 'descriptors as dc',          'fk' => 'j.root_id',                'id' => 'dc.id',  'nombre' => 'dc.nombre as materia'],
             'decision'            => ['tabla' => 'resuelve_decisiones as rd',  'fk' => 'rd.resolution_id',         'id' => 'r.id',   'nombre' => 'rd.nombre as decision'],
-            'resuelve_fondo'      => ['tabla' => 'resuelve_fondos as rf',      'fk' => 'rd.resuelve_fondo_id',     'id' => 'rf.id',  'nombre' => 'rf.nombre as resuelve_fondo'],
+            'tipo_decision'      => ['tabla' => 'resuelve_fondos as rf',      'fk' => 'rd.resuelve_fondo_id',     'id' => 'rf.id',  'nombre' => 'rf.nombre as tipo_decision'],
         ];
 
         $selects = [];
         $groupByCampos = [];
         $datos = DB::table('resolutions as r');
+
+        $filtros = $request->input('filtros', []);
+        if ($request->has('mapa')) {
+            $filtros[] = [
+                'name' => 'departamento',
+                'ids' => $request->departamentos
+            ];
+        }
+
 
         $yaSeUnio = [
             'jurisprudencias' => false,
@@ -136,7 +278,7 @@ class ResolutionController extends Controller
             'resuelve_fondos' => false,
         ];
         $lista_nombres = [];
-        foreach ($request->filtros as $config) {
+        foreach ($filtros as $config) {
             $name = $config['name'];
             if (!isset($campos[$name])) {
                 continue;
@@ -154,32 +296,40 @@ class ResolutionController extends Controller
             }
 
             // resuelve_decisiones
-            if (in_array($name, ['decision', 'resuelve_fondo']) && !$yaSeUnio['resuelve_decisiones']) {
+            if (in_array($name, ['decision', 'tipo_decision']) && !$yaSeUnio['resuelve_decisiones']) {
                 $datos->join('resuelve_decisiones as rd', 'rd.resolution_id', '=', 'r.id');
                 $yaSeUnio['resuelve_decisiones'] = true;
             }
 
             // resuelve_fondos (solo si se usa el filtro)
-            if ($name === 'resuelve_fondo' && !$yaSeUnio['resuelve_fondos']) {
+            if ($name === 'tipo_decision' && !$yaSeUnio['resuelve_fondos']) {
                 $datos->join('resuelve_fondos as rf', 'rd.resuelve_fondo_id', '=', 'rf.id');
                 $yaSeUnio['resuelve_fondos'] = true;
             }
 
             // Evita volver a unir tablas ya manejadas
-            if (!in_array($name, ['decision', 'resuelve_fondo'])) {
+            if (!in_array($name, ['decision', 'tipo_decision'])) {
                 $datos->join($filtro['tabla'], $filtro['fk'], '=', $filtro['id']);
             }
 
             // Alias y group by
-            if (preg_match('/as\s+(\w+)$/i', $filtro['nombre'], $aliasMatch)) {
+            if (preg_match('/\bas\s+(\w+)\s*$/i', $filtro['nombre'], $aliasMatch)) {
                 $alias = $aliasMatch[1];
                 $selects[] = $filtro['nombre'];
-                $groupByCampos[] = $alias;
+
+                // 🔧 Nuevo: en lugar de usar el alias en el GROUP BY, usa el campo real
+                $partes = explode(' as ', strtolower($filtro['nombre']));
+                $campoReal = trim($partes[0]); // ej. rf.nombre
+                $groupByCampos[] = $campoReal;
             } else {
                 $selects[] = $filtro['nombre'];
             }
 
+
             // Filtro especial para decision
+            if ($name === 'departamento') {
+                continue;
+            }
             if ($name === 'decision') {
                 $datos->whereIn('rd.tipo', $valores);
             } else {
@@ -192,6 +342,15 @@ class ResolutionController extends Controller
             $lista_nombres[] = 'fecha';
             $selects[] = DB::raw("EXTRACT(YEAR FROM r.fecha_emision) as fecha");
             $groupByCampos[] = 'fecha';
+        }
+        if ($request->has('periodos')) {
+            $years = $request->periodos;
+            $placeholders = implode(',', array_fill(0, count($years), '?'));
+            $datos->whereRaw("EXTRACT(YEAR FROM fecha_emision) IN ($placeholders)", $years);
+        }
+
+        if ($request->has('departamentos')) {
+            $datos->whereIn('departamento_id', $request->departamentos);
         }
 
         $selects[] = DB::raw('COUNT(DISTINCT r.id) as cantidad');
@@ -360,8 +519,8 @@ class ResolutionController extends Controller
 
 
         $validator = Validator::make($request->all(), [
-            'departamento' => 'nullable|array',
-            'departamento.*' => 'required|string',
+            'departamentos' => 'nullable|array',
+            'departamentos.*' => 'required|integer',
             'sala' => 'required|integer',
             'periodos' => 'nullable|array',
             'periodos,*' => 'required|digits:4|integer|min:1900|max:' . (date('Y') + 1),
@@ -388,9 +547,8 @@ class ResolutionController extends Controller
             $query->whereRaw("EXTRACT(YEAR FROM fecha_emision) IN ($placeholders)", $years);
         }
 
-        if ($request->has('departamento')) {
-            $departamentos = Departamento::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
-            $query->whereIn('departamento_id', $departamentos);
+        if ($request->has('departamentos')) {
+            $query->whereIn('departamento_id', $request->departamentos);
         }
         $data = $query->get();
 
@@ -605,8 +763,8 @@ class ResolutionController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'departamento' => 'nullable|array',
-            'departamento.*' => 'required|string',
+            'departamentos' => 'nullable|array',
+            'departamentos.*' => 'required|string',
             'sala' => 'required|integer',
             'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
@@ -625,7 +783,7 @@ class ResolutionController extends Controller
             'tipo_jurisprudencia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true,  'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
             'materia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'root_id', 'join' => true,  'columna' => 'id', 'nombre' => 'materia'],
             'resuelve_decision' => ['tabla' => 'resuelve_decisiones', 'foreign_key' => 'rd.tipo', 'join' => true,  'columna' => 'id', 'nombre' => 'decision'],
-            'resuelve_fondo' => ['tabla' => 'resuelve_fondos', 'foreign_key' => 'rf.id', 'join' => true, 'columna' => 'id', 'nombre' => 'resuelve_fondo'],
+            'tipo_decision' => ['tabla' => 'resuelve_fondos', 'foreign_key' => 'rf.id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_decision'],
 
         ];
 
@@ -666,9 +824,8 @@ class ResolutionController extends Controller
                 $query->whereYear('fecha_emision', $request->periodo);
             }
 
-            if ($request->has('departamento')) {
-                $departamentos = Departamento::whereIn('nombre', $request->departamento)->pluck('id')->toArray();
-                $query->whereIn('departamento_id', $departamentos);
+            if ($request->has('departamentos')) {
+                $query->whereIn('departamento_id', $request->departamentos);
             }
 
 
@@ -719,11 +876,14 @@ class ResolutionController extends Controller
             ->selectRaw('
                 m.id,
                 m.nombre,
+                gs.id as grupo_id,
+                gs.nombre as grupo,
                 EXTRACT(YEAR FROM MAX(r.fecha_emision)) AS fecha_max,
                 EXTRACT(YEAR FROM MIN(r.fecha_emision)) AS fecha_min
             ')
             ->join('resolutions as r', 'r.sala_id', '=', 'm.id')
-            ->groupBy('m.id', 'm.nombre')
+            ->join('grupo_salas as gs', 'gs.id', '=', 'm.grupo_sala_id')
+            ->groupBy('m.id', 'm.nombre', 'gs.id')
             ->orderBy('nombre', 'asc')
             ->get();
 
@@ -743,7 +903,7 @@ class ResolutionController extends Controller
             'magistrado' => $magistrados->toArray(),
             'materia' => $materia->toArray(),
             'periodo' => $periodo->toArray(),
-            'resuelve_fondo' => $resuelve_fondos->toArray(),
+            'tipo_decision' => $resuelve_fondos->toArray(),
             'decision' => $decisiones->toArray(),
         ];
         $datos = array_filter($datos);

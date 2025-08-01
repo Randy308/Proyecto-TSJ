@@ -55,7 +55,7 @@ Route::prefix('v2')->group(function () {
     Route::get('/nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
 
     // rutas validadas
-
+    Route::post('/actualizar-filtros', [ResolutionController::class, 'actualizarFiltros']);
     Route::get('/variables', [ResolutionController::class, 'obtenerVariables']);
     Route::get('/estadisticas-por-sala', [ResolutionController::class, 'obtenerEstadisticasPorSala']);
     Route::get('/estadisticas', [ResolutionController::class, 'obtenerEstadisticas']);

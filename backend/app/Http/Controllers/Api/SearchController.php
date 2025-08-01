@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\FacetaResource;
 use App\Http\Resources\ResolutionResource;
+use App\Models\Departamento;
 use App\Models\Jurisprudencia;
 use App\Models\Resolution;
 use Illuminate\Http\Request;
@@ -40,7 +41,7 @@ class SearchController extends Controller
 
 
         $page = (int) $request->input('page', 1);
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 2);
         $select = ['resolution_id as id',];
 
 
@@ -50,10 +51,10 @@ class SearchController extends Controller
 
             $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@$campo $busqueda')")
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
-                ->groupBy('resolution_id')
+                ->groupBy('resolution_id')->take(1)
                 ->facet('departamento')
-                ->facet('periodo')->facet('mes')
-                ->facet('fecha_emision');
+                ->facet('periodo', null, 30)->facet('mes')
+                ->facet('fecha_emision', null, 1000);
 
             return $builder;
         })->raw();
@@ -65,16 +66,31 @@ class SearchController extends Controller
         }
 
 
+        $departamentos = $facetas['departamento'] ?? [];
+        $periodos = $facetas['periodo'] ?? [];
+
+        $all = Departamento::all()->pluck('id')->toArray();
+        $departamentos = collect($departamentos)->map(function ($item) use ($all) {
+            $id = $item['key'];
+            $nombre = Departamento::find($id)->nombre ?? 'Desconocido';
+            return [
+                'id' => $id,
+                'nombre' => $nombre,
+                'cantidad' => $item['count'],
+            ];
+        })->sortByDesc('cantidad')->values()->toArray();
+
+        $periodos = collect($periodos)->map(function ($item) {
+            return [
+                'periodo' => $item['key'],
+                'cantidad' => $item['count'],
+            ];
+        })->sortBy('periodo')->values()->toArray();
 
         //return response()->json($search, 200);
         return response()->json([
-            'data' => $search['hits'] ?? [],
-            'facets' => $facetas,
-            'current_page' => $page,
-            'per_page' => $perPage,
-            'total' => $search['meta']['total_found'] ?? 0,
-            'last_page' => ceil(($search['meta']['total_found'] ?? 0) / $perPage),
-
+            'departamentos' => $departamentos,
+            'periodos' => array_values($periodos),
         ]);
     }
     function buildManticoreMatch(array $filters): string
@@ -204,7 +220,6 @@ class SearchController extends Controller
             'last_page' => ceil(($search['meta']['total_found'] ?? 0) / $perPage),
 
         ]);
-
     }
     public function test(Request $request)
     {
@@ -307,7 +322,6 @@ class SearchController extends Controller
         ]);
 
         return $pdf->Output();
-
     }
 
     public function filtrarAutosSupremos(Request $request)
