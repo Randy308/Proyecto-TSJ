@@ -38,3 +38,87 @@
     height: 220px;
   }
 }
+
+.segment1 path {
+  fill: #77a4bd;
+  animation-delay: -0.5625s;
+}
+.segment2 path {
+  fill: #a0c8d7;
+  animation-delay: -0.625s;
+}
+.segment3 path {
+  fill: #e15b64;
+  animation-delay: -0.6875s;
+}
+.segment4 path {
+  fill: #c33737;
+  animation-delay: -0.75s;
+}
+.segment5 path {
+  fill: #f8b26a;
+  animation-delay: -0.8125s;
+}
+.segment6 path {
+  fill: #849b87;
+  animation-delay: -0.875s;
+}
+.segment7 path {
+  fill: #f47e60;
+  animation-delay: -0.9375s;
+}
+.segment8 path {
+  fill: #abbd81;
+  animation-delay: -1s;
+}
+
+.chart {
+  display: block;
+  margin: auto;
+}
+
+.ldl-ani {
+  transform-box: view-box;
+  opacity: 1;
+  transform-origin: 50% 50%;
+  transform: matrix3d(0.91, 0, 0, 0, 0, 0.91, 0, 0, 0, 0, 0.91, 0, 0, 0, 0, 1);
+  animation: animate 1s linear infinite normal forwards running;
+}
+
+/* Opcional: retraso en cada sector para efecto secuencial */
+.seg1 {
+  animation-delay: 0s;
+}
+.seg2 {
+  animation-delay: 0.125s;
+}
+.seg3 {
+  animation-delay: 0.25s;
+}
+.seg4 {
+  animation-delay: 0.375s;
+}
+.seg5 {
+  animation-delay: 0.5s;
+}
+.seg6 {
+  animation-delay: 0.625s;
+}
+.seg7 {
+  animation-delay: 0.75s;
+}
+.seg8 {
+  animation-delay: 0.875s;
+}
+
+@keyframes animate {
+  0% {
+    transform: scale(0.91);
+  }
+  50% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.91);
+  }
+}
