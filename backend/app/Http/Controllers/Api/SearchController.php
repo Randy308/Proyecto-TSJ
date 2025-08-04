@@ -353,7 +353,7 @@ class SearchController extends Controller
         }
 
         $query = $request->input('busqueda', '');
-        $highlight = $request->input('highlight', 'contenido');
+        $highlight = $request->input('campo', 'contenido');
 
         // Parámetros de paginación
         $page = (int) $request->input('page', 1);

@@ -40,7 +40,8 @@ class ResolutionController extends Controller
             'filtros.*.name' => 'required|string',
             'filtros.*.ids' => 'required|array|min:1',
             'filtros.*.ids.*' => 'required|integer|min:1',
-            'sala' => 'required|exists:salas,id',
+            'salas' => 'required|array',
+            'salas.*' => 'required|exists:salas,id',
             'variable' => 'required|string',
             'departamentos' => 'nullable|array',
             'departamentos.*' => 'required|string',
@@ -152,7 +153,7 @@ class ResolutionController extends Controller
             $datos->groupBy($groupByCampos);
         }
 
-        $datos->where('r.sala_id', $request->sala);
+        $datos->whereIn('r.sala_id', $request->salas);
 
         $values = $datos->get();
 
@@ -235,7 +236,8 @@ class ResolutionController extends Controller
             'series.*' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'departamentos' => 'nullable|array|min:1',
             'departamentos.*' => 'required|integer',
-            'sala' => 'required|exists:salas,id',
+            'salas' => 'required|array',
+            'salas.*' => 'required|exists:salas,id',
             'mapa' => 'nullable|string',
         ]);
 
@@ -356,7 +358,7 @@ class ResolutionController extends Controller
         $selects[] = DB::raw('COUNT(DISTINCT r.id) as cantidad');
 
         $datos->select($selects);
-        $datos->where('r.sala_id', $request->sala);
+        $datos->whereIn('r.sala_id', $request->salas);
 
         if (!empty($groupByCampos)) {
             $datos->groupBy($groupByCampos);
@@ -521,7 +523,8 @@ class ResolutionController extends Controller
         $validator = Validator::make($request->all(), [
             'departamentos' => 'nullable|array',
             'departamentos.*' => 'required|integer',
-            'sala' => 'required|integer',
+            'salas' => 'required|array',
+            'salas.*' => 'required|exists:salas,id',
             'periodos' => 'nullable|array',
             'periodos,*' => 'required|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
@@ -531,14 +534,11 @@ class ResolutionController extends Controller
             ], 422);
         }
 
-        $sala = Sala::findOrFail($request->sala);
-
-
         $query = DB::table('resolutions as r')->join('salas as s', 's.id', '=', 'r.sala_id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id');
 
         $query->selectRaw("s.nombre as sala , Count(r.id) as cantidad")
-            ->where('s.id', $sala->id)->groupBy('s.nombre');
+            ->whereIn('s.id', $request->salas)->groupBy('s.nombre');
 
 
         if ($request->has('periodos')) {
@@ -561,7 +561,7 @@ class ResolutionController extends Controller
 
             'data' => $data,
             'chart' => $resultado,
-            'tabla' => $sala->nombre,
+            'tabla' => "Variable: Sala",
             'multiVariable' => false,
         ]);
     }
@@ -765,7 +765,8 @@ class ResolutionController extends Controller
         $validator = Validator::make($request->all(), [
             'departamentos' => 'nullable|array',
             'departamentos.*' => 'required|string',
-            'sala' => 'required|integer',
+            'salas' => 'required|array',
+            'salas.*' => 'required|exists:salas,id',
             'periodo' => 'nullable|digits:4|integer|min:1900|max:' . (date('Y') + 1),
         ]);
 
@@ -818,7 +819,7 @@ class ResolutionController extends Controller
                 $query->join('resuelve_fondos as rf', 'rf.sala_id', '=', 'r.sala_id');
             }
 
-            $query->where("r.sala_id", $request->sala);
+            $query->whereIn("r.sala_id", $request->salas);
 
             if ($request->has('periodo')) {
                 $query->whereYear('fecha_emision', $request->periodo);
