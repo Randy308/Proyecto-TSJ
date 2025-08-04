@@ -3,6 +3,7 @@ import type {
   AnalisisData,
   ChartType,
   ContextProviderProps,
+  Faceta,
   Facetas,
   FiltroAnalisis,
   FiltroNombre,
@@ -27,7 +28,7 @@ export interface AnalisisContextType {
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   names: FiltroNombre[];
-  handlePair: (newPair: string) => void;
+  handlePair: (newPair: string, tipo?: string) => void;
   obtenerParametros: () => Promise<void>;
   invertirGrafico: () => void;
   columna: string | null;
@@ -39,24 +40,31 @@ export interface AnalisisContextType {
   realizarAnalisis: () => Promise<void>;
   params: Facetas;
   tableData: Registro[];
-  departamentos: string[];
-  setDepartamentos: React.Dispatch<React.SetStateAction<string[]>>;
-  periodos: string[];
-  setPeriodos: React.Dispatch<React.SetStateAction<string[]>>;
+  departamentos: Faceta[];
+  setDepartamentos: React.Dispatch<React.SetStateAction<Faceta[]>>;
+  periodos: Faceta[];
+  setPeriodos: React.Dispatch<React.SetStateAction<Faceta[]>>;
   listaX: ListaX[];
-  setId: React.Dispatch<React.SetStateAction<number>>;
+  setId: React.Dispatch<React.SetStateAction<number[]>>;
   setListaX: React.Dispatch<React.SetStateAction<ListaX[]>>;
   procesados: string[];
   setProcesados: React.Dispatch<React.SetStateAction<string[]>>;
   updateParams: (variable: string) => Promise<void>;
   limite: number;
+  groupByPeriodo?: boolean;
+  groupByDepartamento?: boolean;
+  setGroupByPeriodo?: React.Dispatch<React.SetStateAction<boolean>>;
+  setGroupByDepartamento?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   const { data } = useVariablesContext();
   const limite = 4;
   const navigate = useNavigate();
-  const [id, setId] = useState<number>(0);
+  const [id, setId] = useState<number[]>([]);
+  const [groupByPeriodo, setGroupByPeriodo] = useState<boolean>(false);
+  const [groupByDepartamento, setGroupByDepartamento] =
+    useState<boolean>(false);
   const [datos, setDatos] = useState<AnalisisData>([]);
   const [chartType, setChartType] = useState<ChartType>("bar");
   const [pares, setPares] = useState<string[]>([]);
@@ -64,8 +72,8 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [names, setNames] = useState<FiltroNombre[]>([]);
   const [tableData, setTableData] = useState<Registro[]>([]);
-  const [departamentos, setDepartamentos] = useState<string[]>([]);
-  const [periodos, setPeriodos] = useState<string[]>([]);
+  const [departamentos, setDepartamentos] = useState<Faceta[]>([]);
+  const [periodos, setPeriodos] = useState<Faceta[]>([]);
   const [listaX, setListaX] = useState<ListaX[]>([]);
   const [columna, setColumna] = useState<FiltroNombre | null>(null);
   const [params, setParams] = useState<Facetas>({} as Facetas);
@@ -100,21 +108,32 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   const realizarAnalisis = async () => {
     setIsLoading(true);
 
+    if (listaX.length === 0) {
+      toast.warning("Debe seleccionar al menos una variable para el análisis.");
+      setIsLoading(false);
+      return;
+    }
     const validatedData: Partial<FiltroAnalisis> = filterFormData({
-      sala: id,
-      departamentos: departamentos,
-      periodos: periodos,
+      salas: id,
+      departamentos: departamentos.map((item: Faceta) => item.id),
+      periodos: periodos.map((item: Faceta) => String(item.nombre)),
     });
 
     const params: FiltroAnalisis = {
       filtros: { ...listaX },
       ...validatedData,
-      serie: "series-temporales",
-      mapa:"mapa",
+      //serie: "series-temporales",
+      // mapa: "mapa",
     };
+    if (groupByDepartamento) {
+      params.mapa = "mapa";
+    }
+    if (groupByPeriodo) {
+      params.serie = "series-temporales";
+    }
     StatsService.getMultivariableSala(params)
       .then(({ data }) => {
-        if (data) {
+        if (data.data.length > 0) {
           const nombres = data.names || [];
           setPares(nombres.slice(0, 2));
           if (nombres.length > 2) {
@@ -126,6 +145,8 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
           setNames(data.names || []);
           setIsMultiVariable(data.multiVariable);
           setTableData(data.data.length > 0 ? data.data : []);
+        } else {
+          toast.warning("No se encontraron datos para el análisis.");
         }
       })
       .catch((error) => {
@@ -142,11 +163,11 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
       return;
     }
     const validatedData = filterForm({
-      sala: id,
+      salas: id,
       variable: variable,
       filtros: listaX,
-      departamento: departamentos,
-      periodos: periodos,
+      departamento: departamentos.map((item) => item.id),
+      periodos: periodos.map((item) => String(item.nombre)),
     });
     ResolucionesService.actualizarFiltros(validatedData)
       .then((response) => {
@@ -172,9 +193,9 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   const obtenerEstadisticas = async () => {
     setIsLoading(true);
     const validatedData = filterForm({
-      sala: id,
-      departamentos: departamentos,
-      periodos: periodos,
+      salas: id,
+      departamento: departamentos.map((item) => item.id),
+      periodos: periodos.map((item) => String(item.nombre)),
     });
 
     ResolucionesService.realizarAnalisisSala(validatedData)
@@ -184,7 +205,8 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
             response.data.data.length > 0 ? response.data.data : [];
           setDatos(values);
           setTableData(values);
-          setColumna(response.data.tabla);
+          setIsMultiVariable(false);
+          setColumna(response.data.columna || null);
           obtenerParametros();
         }
       })
@@ -198,28 +220,32 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
       });
   };
 
-  const handlePair = (newPair: string) => {
-    console.log("Nuevo par seleccionado:", newPair);
+  const handlePair = (newPair: string, tipo = "normal") => {
     if (pares.includes(newPair)) {
       return;
     }
     if (pares.length < 2) {
       return;
     }
-    const newPares = [...pares.slice(1), newPair];
-    if (newPares.length != 2) {
-      return;
+    if (tipo === "normal") {
+      const newPares = [...pares.slice(1), newPair];
+      if (newPares.length != 2) {
+        return;
+      }
+      setPares(newPares);
+      setDatos(reducirArray(tableData, newPares));
+    } else if (tipo === "serie") {
+      const newPares = ["fecha", newPair];
+      setPares(newPares);
+      setDatos(reducirArray(tableData, newPares));
     }
-    console.log("Pares seleccionados:", newPares);
-    setPares(newPares);
-    setDatos(reducirArray(tableData, newPares));
   };
 
   const obtenerParametros = async () => {
     const validatedData = filterForm({
-      sala: id,
-      departamentos: departamentos,
-      periodos: periodos,
+      salas: id,
+      departamento: departamentos.map((item) => item.id),
+      periodos: periodos.map((item) => String(item.nombre)),
     });
 
     ResolucionesService.obtenerFiltrosEstadisticos(validatedData)
@@ -258,7 +284,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (id.length > 0) {
       obtenerEstadisticas();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -301,6 +327,10 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
     procesados,
     setProcesados,
     limite,
+    groupByPeriodo,
+    groupByDepartamento,
+    setGroupByPeriodo,
+    setGroupByDepartamento,
   };
 
   return (

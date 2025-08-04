@@ -7,9 +7,11 @@ import { filterForm } from "../../utils/filterForm";
 import SimpleSelect from "../../components/SimpleSelect";
 import type { SimpleSearchFormData } from "../../types/search";
 import { ResolucionesService } from "../../services";
-import MapComponent from "../../analisis/components/MapComponent";
+import {MapComponent} from "../../analisis/components";
 
 interface Resolucion {
+  cantidad: string;
+  periodo: string;
   id: number;
   name: string;
   type: string;
@@ -33,7 +35,8 @@ const CompararDatos = () => {
 
   const [terminos, setTerminos] = useState<Termino[]>([]);
 
-  const [departamentos, setDepartamentos] = useState<RegionValue[]>([
+
+  const [, setDepartamentos] = useState<RegionValue[]>([
     { nombre: "Cochabamba", cantidad: 1 },
     { nombre: "La Paz", cantidad: 2 },
     { nombre: "Santa Cruz", cantidad: 1 },
@@ -130,7 +133,8 @@ const CompararDatos = () => {
           );
 
           const periodosTotal = response.data.periodos.reduce(
-            (acc: number, item) => acc + item.cantidad,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (acc: number, item:any) => acc + item.cantidad,
             0
           );
           console.log("Total periodos:", periodosTotal);
@@ -317,9 +321,10 @@ const CompararDatos = () => {
         <div className="p-4 bg-white text-medium text-gray-500 dark:text-gray-400 dark:bg-gray-800 rounded-lg h-[600px] mb-8">
           <GeoChart contenido={geoData}></GeoChart>
         </div>
+         data={departamentos}
       )} */}
 
-      <MapComponent data={departamentos} />
+      <MapComponent />
     </div>
   );
 };

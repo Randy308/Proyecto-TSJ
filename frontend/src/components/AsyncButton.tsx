@@ -4,7 +4,8 @@ import { useIcons } from "./icons/Icons";
 
 
 interface AsyncProps {
-  asyncFunction: (e: unknown) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  asyncFunction: (e: any) => Promise<void>;
   isLoading: boolean;
   name: string;
   full?: boolean;

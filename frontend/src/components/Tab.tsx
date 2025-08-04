@@ -9,8 +9,8 @@ interface TabProps {
 const lista = [
   { name: "Tabla", value: "tabla" },
   { name: "Gráfico", value: "grafico" },
-  { name: "Series Temporales", value: "series" },
-  { name: "Mapa", value: "mapa" },
+  // { name: "Series Temporales", value: "series" },
+  // { name: "Mapa", value: "mapa" },
 ];
 const Tab = ({ children, actual, setActual }: TabProps) => {
   return (
@@ -18,7 +18,7 @@ const Tab = ({ children, actual, setActual }: TabProps) => {
       <div>
         <ul className="flex flex-row  gap-2 justify-start items-center border-b-2 dark:border-gray-700 border-gray-300">
           {lista.map((item) => (
-            <li
+            <li key={item.value}
               onClick={() => setActual(item.value)}
               className={`p-4 hover:cursor-pointer rounded-t-md w-30 ${
                 actual === item.value

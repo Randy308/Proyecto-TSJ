@@ -5,7 +5,7 @@ import { MdOutlineRemoveCircle } from "react-icons/md";
 import { filterForm } from "../../utils/filterForm";
 import { useNavigate } from "react-router-dom";
 import { departamentos } from "../../data/Mapa";
-import type { Variables } from "../../types";
+import type { Faceta, Variables } from "../../types";
 import { toast } from "react-toastify";
 import AsyncButton from "../../components/AsyncButton";
 
@@ -40,17 +40,17 @@ const EstadisticasBasicas = () => {
     setSala(null);
   };
 
-  const [selectedDepto, setSelectedDepto] = useState<number[]>([]);
+  const [selectedDepto, setSelectedDepto] = useState<Faceta[]>([]);
 
-  const handleClick = (name: number) => {
+  const handleClick = (name: Faceta) => {
     setSelectedDepto((prev) => {
-      if (prev.includes(name)) {
+      if (prev.some(item => item.id === name.id)) {
         // Remove it
-        prev = prev.filter((item) => item !== name);
+        prev = prev.filter((item) => item.id !== name.id);
         return prev;
       } else {
         // Add it
-        return [...prev, name];
+        return [...prev, {nombre: name.nombre, id: name.id,}];
       }
     });
   };
@@ -74,7 +74,6 @@ const EstadisticasBasicas = () => {
   };
 
   const groupByGrupo = (data: ListaData[]): ListaData[] => {
-    console.log("Grouping data by grupo:", data);
     const grouped = new Map<number, ListaData>();
 
     for (const item of data) {
@@ -219,7 +218,7 @@ const EstadisticasBasicas = () => {
                   />
                   <label
                     htmlFor={item.nombre}
-                    className={`inline-flex h-24 items-center justify-center text-center p-1 sm:p-3 w-full border-2 border-gray-200 rounded-lg cursor-pointer  ${
+                    className={`inline-flex h-28 items-center justify-center text-center p-1 sm:p-3 w-full border-2 border-gray-200 rounded-lg cursor-pointer  ${
                       sala == item.grupo_id
                         ? "text-white bg-red-octopus-500"
                         : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"
@@ -249,12 +248,12 @@ const EstadisticasBasicas = () => {
                   key={depto.id}
                   d={depto.d}
                   fill={
-                    selectedDepto.includes(depto.id) ? "#0ea5e9" : "#cbd5e1"
+                    selectedDepto.some(item => item.id === depto.id) ? "#0ea5e9" : "#cbd5e1"
                   }
                   stroke="#1e293b"
                   strokeWidth={0.9}
                   className="cursor-pointer transition-colors duration-200 hover:fill-blue-600"
-                  onClick={() => handleClick(depto.id)}
+                  onClick={() => handleClick(depto)}
                 />
               ))}
             </svg>

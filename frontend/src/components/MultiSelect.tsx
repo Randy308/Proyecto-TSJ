@@ -18,24 +18,24 @@ const MultiSelect = ({
 
   const options = useMemo(() => {
     const lista = [
-      { value: "ratio", label: "Ratio" },
-      { value: "descriptor", label: "Descriptor" },
-      { value: "restrictor", label: "Restrictor" },
-      { value: "contenido", label: "Contenido" },
-      { value: "proceso", label: "Proceso" },
-      { value: "sintesis", label: "Síntesis" },
-      { value: "maxima", label: "Máxima" },
-      { value: "precedente", label: "Precedente" },
+      { value: "ratio", nombre: "Ratio" },
+      { value: "descriptor", nombre: "Descriptor" },
+      { value: "restrictor", nombre: "Restrictor" },
+      { value: "contenido", nombre: "Contenido" },
+      { value: "proceso", nombre: "Proceso" },
+      { value: "sintesis", nombre: "Síntesis" },
+      { value: "maxima", nombre: "Máxima" },
+      { value: "precedente", nombre: "Precedente" },
     ];
 
     const list = [
-      { value: "contenido", label: "Contenido" },
-      { value: "proceso", label: "Proceso" },
-      { value: "sintesis", label: "Síntesis" },
-      { value: "maxima", label: "Maxima" },
-      { value: "precedente", label: "Precedente" },
-      // { value: "demandado", label: "Demandado" },
-      // { value: "demandante", label: "Demandante" },
+      { value: "contenido", nombre: "Contenido" },
+      { value: "proceso", nombre: "Proceso" },
+      { value: "sintesis", nombre: "Síntesis" },
+      { value: "maxima", nombre: "Maxima" },
+      { value: "precedente", nombre: "Precedente" },
+      // { value: "demandado", nombre: "Demandado" },
+      // { value: "demandante", nombre: "Demandante" },
     ];
 
     if (type === "jurisprudencia") {
@@ -56,7 +56,7 @@ const MultiSelect = ({
   //     return;
   //   }
   //   const filtered = options.filter((f) =>
-  //     f.label.toLowerCase().startsWith(value)
+  //     f.nombre.toLowerCase().startsWith(value)
   //   );
   //   setFilteredOptions(filtered);
   // };
@@ -149,7 +149,7 @@ const MultiSelect = ({
                     onChange={handleChange}
                   />
                   <span className="flex-1 py-2 text-md ps-4 dark:bg-gray-700 hover:dark:bg-gray-950 hover:bg-red-octopus-300 hover:text-white w-full">
-                    {option.label}
+                    {option.nombre}
                   </span>
                 </label>
               )

@@ -140,21 +140,25 @@ const Inicio = () => {
   return (
     <div>
       <div className="mb-4 relative">
-        <div className="overflow-hidden bg-gradient-to-b from-red-octopus-50  to-red-octopus-100 dark:from-blue-50 dark:to-blue-500 [clip-path:ellipse(100%_70%_at_50%_20%)]">
+        {/* <div className="overflow-hidden bg-gradient-to-b from-red-octopus-50  to-red-octopus-100 dark:from-blue-50 dark:to-blue-500 [clip-path:ellipse(100%_70%_at_50%_20%)]">
           <img
             src="derechoo.webp"
             className="h-[300px] sm:h-[600px] w-full object-cover object-bottom mix-blend-multiply [clip-path:ellipse(100%_70%_at_50%_20%)]"
           />
-        </div>
-        <div className="w-full top-1/2 transform -translate-y-1/2 z-30 absolute">
-          <p className="text-white text-center text-[75px] font-bold">
-            SAMED TSJ
-          </p>
+        </div> */}
+        <div className="w-full my-6 flex items-center justify-center flex-wrap flex-row">
+          <div className="flex flex-col items-center justify-center text-center p-4 text-black dark:text-white">
+            <p className="text-end text-[40px] md:text-[75px] font-bold">
+              SAMED TSJ
+            </p>
+            <p className="pt-6 text-lg">
+              Sistema de Almacenamiento de Métricas Estadísticas Dinámicas
+              <br /> del Tribunal Supremo de Justicia
+            </p>
+          </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="500"
-            height="500"
-            className="chart"
+            className="chart h-auto w-[300px] md:w-[400px] lg:w-[500px] xl:w-[600px] 2xl:w-[700px]"
             viewBox="0 0 800 800"
             fill="none"
           >
@@ -373,6 +377,20 @@ const Inicio = () => {
           ) : (
             <Loading></Loading>
           )}
+        </div>
+      </div>
+      <div>
+        <p className="text-2xl text-center font-bold dark:text-white">Otros sitios de interés</p>
+        <div className="flex items-center flex-wrap justify-center gap-4 my-4">
+          <a href="https://samed-tcp.umss.edu.bo/Inicio" className="dark:bg-[#1e293b] rounded-md p-1 flex items-center bg-white shadow-xl border-2 border-gray-200 dark:border-gray-700">
+            <img src="/logo.png" alt="Logo SAMED" className="samed-logo w-auto h-20" />
+            <h1 className="text-[#004080] dark:text-white text-3xl font-extrabold tracking-wider uppercase drop-shadow-md">
+              SAMED TCP
+            </h1>
+          </a>
+          <a href="https://sigecro.umss.edu.bo/" className="px-4 rounded-md dark:bg-[#1e293b] shadow-xl border border-gray-200 dark:border-gray-700 p-1 flex items-center justify-center">
+            <img src="/sigecro-v2.svg" alt="SISGECRO" className="h-20 w-64" />
+          </a>
         </div>
       </div>
     </div>

@@ -9,12 +9,15 @@ import {
 import { GiRadarCrossSection } from "react-icons/gi";
 
 export const SelectType = () => {
-  const { chartType, isMultiVariable, setChartType } = useAnalisisContext();
-  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSelection = e.target.value as ChartType;
-    if (chartType != newSelection) {
-      setChartType(newSelection);
-    }
+  const { isMultiVariable, setChartType } = useAnalisisContext();
+  // const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  //   const newSelection = e.target.value as ChartType;
+  //   if (chartType != newSelection) {
+  //     setChartType(newSelection);
+  //   }
+  // };
+  const handleChartTypeChange = (value: ChartType) => {
+    setChartType(value);
   };
 
   return (
@@ -25,7 +28,7 @@ export const SelectType = () => {
       >
         Tipo de gráficos
       </label>
-      <select
+      {/* <select
         id="charts"
         value={chartType}
         onChange={(e) => handleSelect(e)}
@@ -50,17 +53,21 @@ export const SelectType = () => {
           <>
             <option value="bar">Barras</option>
             <option value="column">Columnas</option>
-            {/* <option value="area">Área</option>
-                  <option value="scatter">Dispersión</option>
-                  <option value="line">Lineas</option> */}
+            <option value="area">Área</option>
+            <option value="scatter">Dispersión</option>
+            <option value="line">Lineas</option>
             <option value="pie">Circular</option>
             <option value="donut">Dona</option>
           </>
         )}
-      </select>
+      </select> */}
       {isMultiVariable ? (
-        <div className="flex flex-row gap-8 flex-wrap mt-2">
-          <div className="flex flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2">
+        <div className="flex flex-row gap-2 flex-wrap mt-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("bar")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -70,9 +77,13 @@ export const SelectType = () => {
               <path d="M160-160v-440h160v440zm0-480v-160h160v160zm240 480v-320h160v320zm0-360v-160h160v160zm240 360v-200h160v200zm0-240v-160h160v160z" />
             </svg>
             Barras Agrupadas
-          </div>
+          </button>
 
-          <div className="flex flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("stackedBar")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -82,8 +93,12 @@ export const SelectType = () => {
               <path d="M640-160v-280h160v280zm-240 0v-640h160v640zm-240 0v-440h160v440z" />
             </svg>
             Barras Apiladas
-          </div>
-          <div className="flex flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2">
+          </button>
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("stackedColumn")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2"
+          >
             <svg
               className="rotate-90"
               xmlns="http://www.w3.org/2000/svg"
@@ -94,9 +109,13 @@ export const SelectType = () => {
               <path d="M160-160v-440h160v440zm0-480v-160h160v160zm240 480v-320h160v320zm0-360v-160h160v160zm240 360v-200h160v200zm0-240v-160h160v160z" />
             </svg>
             Columnas Apiladas
-          </div>
+          </button>
 
-          <div className="flex flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("column")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2"
+          >
             <svg
               className="rotate-90"
               xmlns="http://www.w3.org/2000/svg"
@@ -107,18 +126,30 @@ export const SelectType = () => {
               <path d="M640-160v-280h160v280zm-240 0v-640h160v640zm-240 0v-440h160v440z" />
             </svg>
             Barras Apiladas
-          </div>
+          </button>
 
-          <div className="flex flex-row text-blue-500 items-center mt-2 gap-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("polar")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 items-center mt-2 gap-2"
+          >
             <PiChartPolarThin className="h-5 w-5" />
             Polar
-          </div>
+          </button>
 
-          <div className="flex flex-row text-blue-500 items-center mt-2 gap-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("radar")}
+            className="flex border shadow-sm rounded-lg p-2  flex-row text-blue-500 items-center mt-2 gap-2"
+          >
             <GiRadarCrossSection className="h-5 w-5" />
             Radar
-          </div>
-          <div className="flex flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2">
+          </button>
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("stackedArea")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -128,12 +159,20 @@ export const SelectType = () => {
               <path d="M120-160v-520l160 120 200-280 200 160h160v520zm200-120 160-220 280 218v-318H652L496-725 298-447l-98-73v144z" />
             </svg>
             Areas apiladas
-          </div>
-          <div className="flex flex-row text-blue-500 items-center mt-2 gap-2">
+          </button>
+          {/* <button
+            type="button"
+            onClick={() => handleChartTypeChange("bar")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 items-center mt-2 gap-2"
+          >
             <PiChartDonutFill className="h-5 w-5" />
             Dona
-          </div>
-          <div className="flex flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2">
+          </button> */}
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("multiLine")}
+            className="flex border shadow-sm rounded-lg p-2  flex-row text-blue-500 fill-blue-500 items-center mt-2 gap-2"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -143,28 +182,44 @@ export const SelectType = () => {
               <path d="m140-100-60-60 300-300 160 160 284-320 56 56-340 384-160-160zm0-240-60-60 300-300 160 160 284-320 56 56-340 384-160-160z" />
             </svg>
             Lineas Multiples
-          </div>
+          </button>
         </div>
       ) : (
-        <div className="flex flex-row gap-8 flex-wrap mt-2">
-          <div className="flex flex-row text-blue-500 items-center mt-2 gap-2">
+        <div className="flex flex-row gap-2 flex-wrap mt-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("bar")}
+            className="flex border shadow-sm rounded-lg p-2 flex-row text-blue-500 items-center mt-2 gap-2"
+          >
             <BsBarChartFill className="h-5 w-5" />
             Barras
-          </div>
+          </button>
 
-          <div className="flex flex-row text-blue-500 items-center mt-2 gap-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("column")}
+            className="border shadow-sm rounded-lg p-2 flex flex-row text-blue-500 items-center mt-2 gap-2"
+          >
             <PiChartBarHorizontalFill className="h-5 w-5" />
             Columnas
-          </div>
+          </button>
 
-          <div className="flex flex-row text-blue-500 items-center mt-2 gap-2">
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("donut")}
+            className="border shadow-sm rounded-lg p-2 flex flex-row text-blue-500 items-center mt-2 gap-2"
+          >
             <PiChartDonutFill className="h-5 w-5" />
             Dona
-          </div>
-          <div className="flex flex-row text-blue-500 items-center mt-2 gap-2">
+          </button>
+          <button
+            type="button"
+            onClick={() => handleChartTypeChange("pie")}
+            className="border shadow-sm rounded-lg p-2 flex flex-row text-blue-500 items-center mt-2 gap-2"
+          >
             <BsFillPieChartFill className="h-5 w-5" />
             Pastel
-          </div>
+          </button>
         </div>
       )}
     </div>

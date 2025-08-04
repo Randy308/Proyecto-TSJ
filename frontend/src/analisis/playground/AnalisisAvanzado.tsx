@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AsyncButton from "../../components/AsyncButton";
 import { useLocation, useNavigate } from "react-router-dom";
 import { StatsService } from "../../services";
@@ -9,16 +9,11 @@ import { useSessionStorage } from "../../hooks/useSessionStorage";
 import { toast } from "react-toastify";
 import type {
   AnalisisData,
-  ChartType,
   ListaX,
   Facetas,
   BaseData,
   FiltroAnalisis,
 } from "../../types";
-import type { ECElementEvent } from "echarts";
-import { OptionChart } from "../components/OptionChart";
-import Tab from "../../components/Tab";
-import { TablaMultivariable } from "../../components/TablaMultivariable";
 import { SkeletonChart } from "../../components/SkeletonChart";
 
 const AnalisisAvanzado = () => {
@@ -36,9 +31,9 @@ const AnalisisAvanzado = () => {
   const [, setSerie] = useSessionStorage<AnalisisData>("serie", []);
   const [, setMapa] = useSessionStorage<AnalisisData>("mapa", []);
 
-  const [actual, setActual] = useState(true);
+  //const [actual, setActual] = useState(true);
   const [multiVariable, setMultiVariable] = useState(false);
-  const [tableData, setTableData] = useState<BaseData[]>([]);
+  const [, setTableData] = useState<BaseData[]>([]);
 
   const location = useLocation();
 
@@ -197,36 +192,36 @@ const AnalisisAvanzado = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedForm]);
 
-  const handleClick = useCallback(
-    (params: ECElementEvent) => {
-      if (
-        multiVariable &&
-        params.seriesName !== "Cantidad" &&
-        params.name !== "Cantidad"
-      ) {
-        const newItem = {
-          nameX: listaX[0].name,
-          valueX: params.name,
-          nameY: listaX[1].name,
-          valueY: params.seriesName,
-        };
+  // const handleClick = useCallback(
+  //   (params: ECElementEvent) => {
+  //     if (
+  //       multiVariable &&
+  //       params.seriesName !== "Cantidad" &&
+  //       params.name !== "Cantidad"
+  //     ) {
+  //       const newItem = {
+  //         nameX: listaX[0].name,
+  //         valueX: params.name,
+  //         nameY: listaX[1].name,
+  //         valueY: params.seriesName,
+  //       };
 
-        console.log("Clicked on series:", newItem);
-      } else if (
-        params.seriesName === "Cantidad" ||
-        params.name === "Cantidad"
-      ) {
-        const newItem = {
-          nameX: listaX[0].name,
-          valueX: params.name != "Cantidad" ? params.name : params.seriesName,
-        };
+  //       console.log("Clicked on series:", newItem);
+  //     } else if (
+  //       params.seriesName === "Cantidad" ||
+  //       params.name === "Cantidad"
+  //     ) {
+  //       const newItem = {
+  //         nameX: listaX[0].name,
+  //         valueX: params.name != "Cantidad" ? params.name : params.seriesName,
+  //       };
 
-        console.log("Clicked on series:", newItem);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [multiVariable]
-  );
+  //       console.log("Clicked on series:", newItem);
+  //     }
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [multiVariable]
+  // );
 
   return (
     <div className="p-0 md:p-2 lg:p-4 space-y-4">
@@ -326,7 +321,7 @@ const AnalisisAvanzado = () => {
         <div className="flex-1">
           {contenido && contenido.length > 0 ? (
             <div className="col-span-3 grid grid-cols-1">
-              <Tab actual={actual} setActual={setActual}>
+              {/* <Tab actual={actual} setActual={setActual}>
                 {actual ? (
                   <TablaMultivariable records={tableData} />
                 ) : (
@@ -337,7 +332,7 @@ const AnalisisAvanzado = () => {
                     handleClick={handleClick}
                   />
                 )}
-              </Tab>
+              </Tab> */}
             </div>
           ) : (
             <div className="h-full flex border-2 rounded-lg bg-white dark:bg-gray-800 items-center">

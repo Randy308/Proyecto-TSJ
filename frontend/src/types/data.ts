@@ -124,10 +124,10 @@ export type ChartType = SingleChartType | DualChartType;
 export interface FiltroAnalisis {
   filtros: ListaX[];
   serie?: string;
-  departamentos?: string[];
+  departamentos?: number[];
   periodos?: string[];
   mapa?: string;
-  sala?: number;
+  salas?: number[];
 
   // término es opcional
   terminos?: {

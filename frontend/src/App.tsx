@@ -71,6 +71,8 @@ function App() {
                 <Route path="dashboard" element={<PanelAdmin />} />
                 <Route path="perfil-usuario" element={<PerfilUsuario />} />
                 <Route path="admin/resoluciones" element={<SubirDatos />} />
+
+                <Route path="codificacion" element={<Codificacion />} />
                 <Route
                   path="admin/subir-autos-supremos"
                   element={<TablaCSV />}
@@ -103,13 +105,12 @@ function App() {
 
             <Route path="/" element={<LayoutPublic />}>
               <Route index element={<Navigate to="/inicio" />} />
-              <Route path="codificacion" element={<Codificacion />} />
               <Route path="inicio" element={<Inicio />} />
               <Route path="novedades" element={<Novedades />} />
               <Route path="jurisprudencia" element={<Jurisprudencia />} />
 
               <Route path="/analisis" element={<LayoutAnalisis />}>
-                 <Route index element={<EstadisticasBasicas />} />
+                <Route index element={<EstadisticasBasicas />} />
                 <Route path="sala/:id" element={<AnalisisBasico />} />
               </Route>
 

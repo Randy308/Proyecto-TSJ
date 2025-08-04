@@ -7,7 +7,10 @@ export const ToolbarChart = () => {
     useAnalisisContext();
 
   return (
-    <div className="flex flex-wrap flex-col items-center justify-between gap-4 p-4">
+    <div className="flex flex-wrap flex-col items-start justify-start gap-4 p-4">
+      <div>
+        <SelectType />
+      </div>
       {names && names.length > 2 && (
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-sm font-medium text-gray-900 dark:text-white whitespace-nowrap">
@@ -18,7 +21,7 @@ export const ToolbarChart = () => {
               <button
                 key={name}
                 type="button"
-                onClick={() => handlePair(name)}
+                onClick={() => handlePair(name,"serie")}
                 className={`px-3 py-1.5 rounded-lg text-white transition ${
                   pares.includes(name)
                     ? "bg-blue-600"
@@ -41,10 +44,6 @@ export const ToolbarChart = () => {
           Invertir gráfico
         </button>
       )}
-
-      <div>
-        <SelectType />
-      </div>
     </div>
   );
 };

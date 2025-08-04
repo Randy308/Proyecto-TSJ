@@ -37,7 +37,7 @@ export const EditarFondo = ({ item, setShowModal }: EditarFondoProps) => {
           sala_id: selected,
           tipo_decision: tipo,
         },
-        item.id
+        Number(item.id)
       );
       if (response.status === 200) {
         toast.success("Fondo editado exitosamente");
