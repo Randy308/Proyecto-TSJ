@@ -87,8 +87,8 @@ const AnalisisBasico = () => {
     <div className="flex flex-col md:flex-row my-4 gap-2">
       <div className="p-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg">
         {columna && (
-          <p className="text-black dark:text-white pb-4">
-            <span className="italic font-bold capitalize"> {columna}</span>
+          <p className="text-black dark:text-white pb-4 md:w-40">
+            <span className="italic font-bold capitalize text-clip"> {columna}</span>
           </p>
         )}
 
