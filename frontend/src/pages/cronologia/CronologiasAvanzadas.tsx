@@ -107,8 +107,8 @@ const CronologiasAvanzadas = () => {
     //obtenerResoluciones()
   };
 
-  const obtenerCronologia = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const obtenerCronologia = async () => {
+    
 
     if (selectedIds.length <= 0) {
       toast.error("Debe agregar resoluciones");
@@ -293,7 +293,7 @@ const CronologiasAvanzadas = () => {
                     id="voice-search"
                     value={busqueda}
                     onChange={(e) => actualizarInput(e)}
-                    className="bg-gray-50 h-full border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-octopus-500 focus:border-red-octopus-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-octopus-500 dark:focus:border-red-octopus-500"
+                    className="bg-gray-50 outline-none h-full border focus:border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-octopus-500 focus:border-red-octopus-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-octopus-500 dark:focus:border-red-octopus-500"
                     placeholder="Búsqueda de jurisprudencia...."
                     required
                   />

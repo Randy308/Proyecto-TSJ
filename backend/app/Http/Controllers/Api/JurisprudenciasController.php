@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Descriptor;
-use App\Models\Jurisprudencias;
-use App\Models\Resolutions;
+use App\Models\Jurisprudencia;
+use App\Models\Resolution;
 use App\Utils\NLP;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +37,7 @@ class JurisprudenciasController extends Controller
         $offset = ($page - 1) * $perPage;
         $highlight = ['contenido', 'demandante', 'demandado', 'proceso', 'sintesis', 'maxima', 'precedente'];
 
-        $search = Resolutions::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset) {
+        $search = Resolution::search($query, function ($meilisearch, $query, $options) use ($highlight, $perPage, $offset) {
             $options['attributesToHighlight'] = $highlight;
             $options['attributesToCrop'] = $highlight;
             $options['cropLength'] = 80;
@@ -124,7 +124,7 @@ class JurisprudenciasController extends Controller
         $lista = ['restrictor', 'ratio'];
 
         if (! in_array($campo, $lista)) {
-            $query = Resolutions::select(
+            $query = Resolution::select(
                 DB::raw("DATE_TRUNC('year', fecha_emision)::date AS periodo"),
                 DB::raw('COUNT(*) as cantidad'),
             )
@@ -133,7 +133,7 @@ class JurisprudenciasController extends Controller
                 ->orderBy(DB::raw("DATE_TRUNC('year', fecha_emision)::date"))
                 ->get();
         } else {
-            $query = Jurisprudencias::join('resolutions as r', 'jurisprudencias.resolution_id', '=', 'r.id')
+            $query = Jurisprudencia::join('resolutions as r', 'jurisprudencias.resolution_id', '=', 'r.id')
                 ->select(
                     DB::raw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo"),
                     DB::raw('COUNT(DISTINCT(r.id)) as cantidad'),
@@ -291,7 +291,7 @@ class JurisprudenciasController extends Controller
             'include_fields' => 'descriptor_facet',
         ];
 
-        $search = Jurisprudencias::search($query)->options($options);
+        $search = Jurisprudencia::search($query)->options($options);
         $search = $search->raw();
         $facets = $search['facet_counts'][0]['counts'] ?? [];
 

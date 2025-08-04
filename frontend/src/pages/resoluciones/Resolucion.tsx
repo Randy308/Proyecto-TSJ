@@ -1,14 +1,72 @@
 import { useEffect, useRef, useState } from "react";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
-import styles from "./ResolucionTSJ.module.css";
 import { ResolucionesService } from "../../services";
 import { titulo } from "../../utils/filterForm";
 import type { Jurisprudencia, Resolucion } from "../../types";
 import { useParams } from "react-router-dom";
+import {
+  Document,
+  Font,
+  Page,
+  PDFViewer,
+  StyleSheet,
+  Text,
+  View,
+} from "@react-pdf/renderer";
 
 const Resolucion = () => {
   const { id } = useParams();
+  const styles = StyleSheet.create({
+    body: {
+      paddingTop: 35,
+      paddingBottom: 65,
+      width: "100%",
+      height: "100%",
+      paddingHorizontal: 35,
+    },
+    title: {
+      fontSize: 24,
+      textAlign: "center",
+      fontFamily: "Oswald",
+    },
+    author: {
+      fontSize: 12,
+      textAlign: "center",
+      marginBottom: 40,
+    },
+    subtitle: {
+      fontSize: 18,
+      margin: 12,
+      fontFamily: "Oswald",
+    },
+    text: {
+      margin: 10,
+      fontSize: 14,
+      textAlign: "justify",
+      fontFamily: "Times-Roman",
+    },
+    image: {
+      marginVertical: 15,
+      marginHorizontal: 100,
+    },
+    header: {
+      fontSize: 12,
+      marginBottom: 20,
+      textAlign: "center",
+      color: "grey",
+    },
+    pageNumber: {
+      position: "absolute",
+      fontSize: 12,
+      bottom: 30,
+      left: 0,
+      right: 0,
+      textAlign: "center",
+      color: "grey",
+    },
+  });
+
   const [resolucion, setResolucion] = useState<Resolucion>({} as Resolucion);
   const [fichas, setFichas] = useState<Jurisprudencia[]>([]);
   const [actual, setActual] = useState(2);
@@ -120,122 +178,143 @@ const Resolucion = () => {
           </div>
         );
       case 4:
+        Font.register({
+          family: "Oswald",
+          src: "https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf",
+        });
+
         return (
-          <div ref={docRef} className="bg-white p-4 m-5 rounded-lg">
-            {resolucion.contenido
-              ? resolucion.contenido.split("\r").map((line, index) =>
-                  line === line.toUpperCase() ? (
-                    <div
-                      className={`${styles.tinosBold} text-center`}
-                      key={index}
-                    >
-                      {line}
-                    </div>
-                  ) : (
-                    <div key={index} className={styles.tinosRegular}>
-                      {line}
-                    </div>
-                  )
-                )
-              : null}
+          <div
+            ref={docRef} style={{  height: "100dvh" }}
+            className="bg-white p-4 m-5 rounded-lg"
+          >
+            <PDFViewer className="w-full h-full">
+              <Document>
+                <Page size="LETTER" style={styles.body}>
+                  {resolucion.contenido &&
+                    resolucion.contenido.split("\r").map((line, index) =>
+                      line === line.toUpperCase() ? (
+                        <View key={index} style={styles.subtitle}>
+                          <Text>{line}</Text>
+                        </View>
+                      ) : (
+                        <View key={index} style={styles.text}>
+                          <Text>{line}</Text>
+                        </View>
+                      )
+                    )}
+                  <Text
+                    style={styles.pageNumber}
+                    render={({ pageNumber, totalPages }) =>
+                      `${pageNumber} / ${totalPages}`
+                    }
+                    fixed
+                  />{" "}
+                </Page>
+              </Document>
+            </PDFViewer>
           </div>
         );
+      // <div ref={docRef} className="bg-white p-4 m-5 rounded-lg">
+
+      // </div>
+
       default:
         return "";
     }
   };
   return (
-  <div className="flex flex-col h-screen">
-    {/* Título y Descripción global */}
-    <header className="p-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-      <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-        Resolución del Tribunal Supremo de Justicia
-      </h1>
-      <p className="text-gray-600 dark:text-gray-300 mt-1">
-        Explora los datos generales, las fichas jurisprudenciales relacionadas y el contenido completo de la resolución seleccionada.
-      </p>
-    </header>
+    <div className="flex flex-col h-screen">
+      {/* Título y Descripción global */}
+      <header className="p-6 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+          Resolución del Tribunal Supremo de Justicia
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">
+          Explora los datos generales, las fichas jurisprudenciales relacionadas
+          y el contenido completo de la resolución seleccionada.
+        </p>
+      </header>
 
-    {/* Contenedor principal con Sidebar + Contenido */}
-    <div className="flex flex-1 overflow-hidden">
-      {/* Sidebar */}
-      <aside
-        ref={sidebarRef}
-        className="w-full sm:w-64 bg-gray-100 dark:bg-gray-900 p-4 overflow-y-auto"
-      >
-        <div className="flex flex-col gap-2 text-black dark:text-white">
-          <label
-            htmlFor="datosGenerales"
-            className={`p-3 rounded-md cursor-pointer ${
-              actual === 2
-                ? "bg-red-octopus-700 text-white dark:bg-blue-600"
-                : "hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-          >
-            <input
-              id="datosGenerales"
-              type="radio"
-              className="appearance-none hidden"
-              checked={actual === 2}
-              onChange={() => setActual(2)}
-            />
-            <span className="uppercase font-bold block text-center">
-              Datos Generales
-            </span>
-          </label>
-
-          {fichas && fichas.length > 0 && (
+      {/* Contenedor principal con Sidebar + Contenido */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside
+          ref={sidebarRef}
+          className="w-full sm:w-64 bg-gray-100 dark:bg-gray-900 p-4 overflow-y-auto"
+        >
+          <div className="flex flex-col gap-2 text-black dark:text-white">
             <label
-              htmlFor="jurisprudencia"
+              htmlFor="datosGenerales"
               className={`p-3 rounded-md cursor-pointer ${
-                actual === 3
+                actual === 2
                   ? "bg-red-octopus-700 text-white dark:bg-blue-600"
                   : "hover:bg-gray-200 dark:hover:bg-gray-700"
               }`}
             >
               <input
-                id="jurisprudencia"
+                id="datosGenerales"
                 type="radio"
                 className="appearance-none hidden"
-                checked={actual === 3}
-                onChange={() => setActual(3)}
+                checked={actual === 2}
+                onChange={() => setActual(2)}
               />
               <span className="uppercase font-bold block text-center">
-                Fichas Jurisprudenciales
+                Datos Generales
               </span>
             </label>
-          )}
 
-          <label
-            htmlFor="contenido"
-            className={`p-3 rounded-md cursor-pointer ${
-              actual === 4
-                ? "bg-red-octopus-700 text-white dark:bg-blue-600"
-                : "hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-          >
-            <input
-              id="contenido"
-              type="radio"
-              className="appearance-none hidden"
-              checked={actual === 4}
-              onChange={() => setActual(4)}
-            />
-            <span className="uppercase font-bold block text-center">
-              Contenido
-            </span>
-          </label>
-        </div>
-      </aside>
+            {fichas && fichas.length > 0 && (
+              <label
+                htmlFor="jurisprudencia"
+                className={`p-3 rounded-md cursor-pointer ${
+                  actual === 3
+                    ? "bg-red-octopus-700 text-white dark:bg-blue-600"
+                    : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                }`}
+              >
+                <input
+                  id="jurisprudencia"
+                  type="radio"
+                  className="appearance-none hidden"
+                  checked={actual === 3}
+                  onChange={() => setActual(3)}
+                />
+                <span className="uppercase font-bold block text-center">
+                  Fichas Jurisprudenciales
+                </span>
+              </label>
+            )}
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-6">
-        {renderContent(actual)}
-      </main>
+            <label
+              htmlFor="contenido"
+              className={`p-3 rounded-md cursor-pointer ${
+                actual === 4
+                  ? "bg-red-octopus-700 text-white dark:bg-blue-600"
+                  : "hover:bg-gray-200 dark:hover:bg-gray-700"
+              }`}
+            >
+              <input
+                id="contenido"
+                type="radio"
+                className="appearance-none hidden"
+                checked={actual === 4}
+                onChange={() => setActual(4)}
+              />
+              <span className="uppercase font-bold block text-center">
+                Contenido
+              </span>
+            </label>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto bg-white dark:bg-gray-900">
+          {renderContent(actual)}
+        </main>
+      </div>
     </div>
-  </div>
-);
-
+  );
 };
 
 export default Resolucion;

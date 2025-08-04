@@ -12,36 +12,61 @@ const instance = axios.create({
   withCredentials: false,
 });
 
+
+
+let csrfFetched = false;
+const getCsrfToken = async () => {
+  if (csrfFetched) return;
+  try {
+    await axios.get(
+      `${import.meta.env.VITE_REACT_APP_TOKEN}/sanctum/csrf-cookie`,
+      {
+        withCredentials: true,
+      }
+    );
+    csrfFetched = true;
+  } catch (error) {
+    console.error("Error obteniendo CSRF token:", error);
+  }
+};
+
+instance.interceptors.request.use(async (config) => {
+  await getCsrfToken(); // Siempre intenta obtener CSRF (solo se hará una vez)
+  return config;
+});
+
+
+
 export const JurisprudenciaService = {
   searchTermino: (formData:object) =>
-    instance.get("/buscar-termino-jurisprudencia", {
+    instance.get("/terminos-jurisprudencias", {
       params: formData,
     }),
   busquedaRapida: (formData:object) =>
-    instance.get("/buscar-descriptor", {
+    instance.get("/buscar-descriptores", {
       params: formData,
     }),
   actualizarNodo: (formData:object) =>
-    instance.get("/actualizar-nodo", {
+    instance.get("/refrescar-nodos", {
       params: formData,
     }),
   parametrosCronologia: (formData:object) =>
-    instance.get("/obtener-parametros-cronologia", {
+    instance.get("/busqueda-parametros", {
       params: formData,
     }),
   obtenerCronologia: (formData:object) =>
-    instance.post("/obtener-cronologias", formData, {
+    instance.post("/cronologias", formData, {
       responseType: "blob",
     }),
   obtenerCronologiabyIds: (formData:object) =>
-    instance.post("/obtener-cronologias-ids", formData, {
+    instance.post("/cronologias-ids", formData, {
       responseType: "blob",
     }),
 
   obtenerNodos: () =>
-    instance.get("/obtener-nodos"),
+    instance.get("/nodos"),
   obtenerResoluciones: (formData:DatosArrayForm) =>
-    instance.get("/obtener-resoluciones-cronologia", {
+    instance.get("/buscar-jurisprudencias", {
       params: formData,
     }),
 };

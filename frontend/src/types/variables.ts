@@ -5,19 +5,18 @@ export interface VariableOld {
   datos: ListaData[];
 }
 
-export interface MagistradoItem extends ListaData {
-  fecha_min: string;
-  fecha_max: string;
-}
-
 export interface ListaData {
   id: number;
   nombre: string;
+  // fecha_min?: string;
+  // fecha_max?: string;
 }
 
 export interface Faceta {
   id: number;
   nombre?: string;
+  grupo?:string;
+  grupo_id?: number;
   cantidad?: number;
   fecha_min?: string;
   fecha_max?: string;
@@ -33,6 +32,8 @@ export interface Facetas {
   materia: Faceta[];
   periodo?: Faceta[];
   categoria?: Faceta[];
+  resuelve_fondo?: Faceta[];
+  decision?: Faceta[];
 }
 export interface Variables {
   departamento: ListaData[];
@@ -40,7 +41,7 @@ export interface Variables {
   tipo_jurisprudencia: ListaData[];
   tipo_resolucion: ListaData[];
   forma_resolucion: ListaData[];
-  magistrado: MagistradoItem[];
+  magistrado: ListaData[];
   materia: ListaData[];
   periodo?: ListaData[];
 }

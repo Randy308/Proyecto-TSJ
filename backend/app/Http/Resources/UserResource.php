@@ -3,25 +3,35 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property \Illuminate\Support\Carbon $created_at
+ */
 class UserResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @return array<string, mixed>
      */
     public function toArray($request)
     {
-        return [
+        /** @var \App\Models\User $user */
+        $user = $this->resource;
 
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
-            'role' => $this->getRoleNames()[0],
-            'permissions' => $this->getPermissionsViaRoles()->pluck('name'),
-            'created_at' => $this->created_at,
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->getRoleNames()->first() ?? 'Sin rol',
+            'permissions' => $user->getPermissionsViaRoles()->pluck('name')->values(),
+            'created_at' => $user->created_at?->toDateTimeString(),
         ];
     }
+
 }

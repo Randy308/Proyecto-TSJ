@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Jurisprudencia> $jurisprudencias
+ * @property-read int|null $jurisprudencias_count
+ * @mixin \Eloquent
+ */
 class Restrictor extends Model
 {
     //
@@ -16,6 +21,6 @@ class Restrictor extends Model
 
     public function jurisprudencias()
     {
-        return $this->hasMany(Jurisprudencias::class, 'descriptor_id');
+        return $this->hasMany(Jurisprudencia::class, 'descriptor_id');
     }
 }

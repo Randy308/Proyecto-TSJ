@@ -3,19 +3,19 @@
 namespace App\Jobs;
 
 use App\Models\CategoriaResolucion;
-use App\Models\Contents;
-use App\Models\Departamentos;
+use App\Models\Content;
+use App\Models\Departamento;
 use App\Models\Descriptor;
-use App\Models\FormaResolucions;
-use App\Models\Jurisprudencias;
-use App\Models\Magistrados;
-use App\Models\Mapeos;
+use App\Models\FormaResolucion;
+use App\Models\Jurisprudencia;
+use App\Models\Magistrado;
+use App\Models\Mapeo;
 use App\Models\Notification;
-use App\Models\Resolutions;
+use App\Models\Resolution;
 use App\Models\Sala;
 use App\Models\Tema;
 use App\Models\TipoJurisprudencia;
-use App\Models\TipoResolucions;
+use App\Models\TipoResolucion;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -110,7 +110,7 @@ class ProcesarWebScrapping implements ShouldQueue
                 }
 
                 $resolucion = $data['resolucion'];
-                if (Mapeos::where('external_id', $resolucion['id'])->exists()) {
+                if (Mapeo::where('external_id', $resolucion['id'])->exists()) {
                     $omitidas++;
 
                     continue;
@@ -119,8 +119,8 @@ class ProcesarWebScrapping implements ShouldQueue
                 DB::beginTransaction();
                 $res_data = $this->prepareResolutionData($resolucion, $maps, $this->userId);
                 // $res = Resolutions::create($res_data);
-                $res = Resolutions::withoutSyncingToSearch(function () use ($res_data) {
-                    return Resolutions::create($res_data);
+                $res = Resolution::withoutSyncingToSearch(function () use ($res_data) {
+                    return Resolution::create($res_data);
                 });
 
                 $this->storeRelatedData($res, $resolucion, $maps);
@@ -152,11 +152,11 @@ class ProcesarWebScrapping implements ShouldQueue
     private function prepareResolutionData(array $resolucion, array &$maps, int $id): array
     {
         return array_filter([
-            'magistrado_id' => $this->getOrCreateId(Magistrados::class, 'nombre', $resolucion['magistrado'] ?? null, $maps['magistrado']),
-            'forma_resolucion_id' => $this->getOrCreateId(FormaResolucions::class, 'nombre', $resolucion['forma_resolucion'] ?? null, $maps['formaResolucion']),
+            'magistrado_id' => $this->getOrCreateId(Magistrado::class, 'nombre', $resolucion['magistrado'] ?? null, $maps['magistrado']),
+            'forma_resolucion_id' => $this->getOrCreateId(FormaResolucion::class, 'nombre', $resolucion['forma_resolucion'] ?? null, $maps['formaResolucion']),
             'sala_id' => $this->getOrCreateId(Sala::class, 'nombre', $resolucion['sala'] ?? null, $maps['sala']),
-            'departamento_id' => $this->obtenerDepartamentoId(Departamentos::class, 'nombre', $resolucion['departamento'] ?? null, $maps['departamento']),
-            'tipo_resolucion_id' => $this->getOrCreateId(TipoResolucions::class, 'nombre', $resolucion['tipo_resolucion'] ?? null, $maps['tipoResolucion']),
+            'departamento_id' => $this->obtenerDepartamentoId(Departamento::class, 'nombre', $resolucion['departamento'] ?? null, $maps['departamento']),
+            'tipo_resolucion_id' => $this->getOrCreateId(TipoResolucion::class, 'nombre', $resolucion['tipo_resolucion'] ?? null, $maps['tipoResolucion']),
             'fecha_emision' => $this->formatDate($resolucion['fecha_emision'] ?? null),
             'fecha_publicacion' => $this->formatDate($resolucion['fecha_publicacion'] ?? null),
             'nro_resolucion' => $this->sanitize($resolucion['nro_resolucion'] ?? null),
@@ -172,11 +172,11 @@ class ProcesarWebScrapping implements ShouldQueue
         ], fn($value) => ! is_null($value));
     }
 
-    private function storeRelatedData(Resolutions $res, array $resolucion, array &$maps): void
+    private function storeRelatedData(Resolution $res, array $resolucion, array &$maps): void
     {
         try {
-            Contents::create(['contenido' => $this->sanitize($resolucion['contenido'] ?? null), 'resolution_id' => $res->id]);
-            Mapeos::create(['external_id' => $resolucion['id'], 'resolution_id' => $res->id]);
+            Content::create(['contenido' => $this->sanitize($resolucion['contenido'] ?? null), 'resolution_id' => $res->id]);
+            Mapeo::create(['external_id' => $resolucion['id'], 'resolution_id' => $res->id]);
             $res->searchable();
             $this->crearJurisprudencia($res, $resolucion, $maps);
         } catch (\Exception $e) {
@@ -184,7 +184,7 @@ class ProcesarWebScrapping implements ShouldQueue
         }
     }
 
-    private function crearJurisprudencia(Resolutions $res, array $resolucion, array &$maps): void
+    private function crearJurisprudencia(Resolution $res, array $resolucion, array &$maps): void
     {
 
         if (empty($resolucion)) {
@@ -202,7 +202,7 @@ class ProcesarWebScrapping implements ShouldQueue
 
                 return;
             }
-            if (Jurisprudencias::where('resolution_id', $res->id)->where('restrictor', $restrictor)->exists()) {
+            if (Jurisprudencia::where('resolution_id', $res->id)->where('restrictor', $restrictor)->exists()) {
                 Log::info("[{$this->jobId}] Jurisprudencia ya existe para resolución {$res->id} con restrictor {$restrictor}");
 
                 return;
@@ -211,7 +211,7 @@ class ProcesarWebScrapping implements ShouldQueue
 
             $variables = explode('/', $descriptor, 2);
 
-            Jurisprudencias::create([
+            Jurisprudencia::create([
                 'resolution_id' => $res->id,
                 'restrictor' => $restrictor,
                 'descriptor' => $descriptor,
@@ -225,7 +225,7 @@ class ProcesarWebScrapping implements ShouldQueue
         }
     }
 
-    private function agregarJurisprudencias(Resolutions $res, array $temas, array &$maps): void
+    private function agregarJurisprudencias(Resolution $res, array $temas, array &$maps): void
     {
         foreach ($temas as $tema) {
             $this->crearJurisprudencia($res, $tema, $maps);

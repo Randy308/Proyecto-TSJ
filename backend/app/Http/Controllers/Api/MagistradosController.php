@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Jurisprudencias;
-use App\Models\Magistrados;
-use App\Models\Resolutions;
+use App\Models\Jurisprudencia;
+use App\Models\Magistrado;
+use App\Models\Resolution;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -24,42 +24,16 @@ class MagistradosController extends Controller
         return $array;
     }
 
-    public function update($id, Request $request)
-    {
-        $request->validate([
-            'nombre' => 'nullable|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
-        ]);
-
-        $magistrado = Magistrados::findOrFail($id);
-
-        if ($request->hasFile('image')) {
-            if ($magistrado->ruta_imagen && Storage::exists(str_replace('storage/', 'public/', $magistrado->ruta_imagen))) {
-                Storage::delete(str_replace('storage/', 'public/', $magistrado->ruta_imagen));
-            }
-
-            $image = $request->file('image');
-            $fileName = time().'.'.$image->getClientOriginalExtension();
-            $path = $image->storeAs('public/magistrados', $fileName);
-            $magistrado->ruta_imagen = str_replace('public/', 'storage/', $path);
-        }
-
-        if ($request->filled('nombre')) {
-            $magistrado->nombre = $request->nombre;
-        }
-
-        $magistrado->save();
-
-        return response()->json(['message' => 'Información actualizada con éxito', 'magistrado' => $magistrado], 200);
-    }
 
     public function obtenerSerieTemporal($id, Request $request)
     {
 
-        $magistrado = Magistrados::where('id', $id)->first();
+        $magistrado = Magistrado::where('id', $id)->first();
         $actual = $request['actual'];
         $fecha_inicial = $request['dato'];
+        $fecha_final = "";
         $resolutions = [];
+        $query = null;
         if ($fecha_inicial && $actual != 'year') {
             switch ($actual) {
                 case 'month':
@@ -113,7 +87,7 @@ class MagistradosController extends Controller
                 ]);
             }
         } else {
-            $resolutions = Resolutions::where('magistrado_id', $magistrado->id)
+            $resolutions = Resolution::where('magistrado_id', $magistrado->id)
                 ->select(
                     DB::raw('EXTRACT(YEAR FROM fecha_emision) as fecha'),
                     DB::raw('COUNT(*) as cantidad')
@@ -125,8 +99,8 @@ class MagistradosController extends Controller
 
             foreach ($resolutions as &$item) {
                 $year = $item->fecha;
-                $item->fecha_final = ($year.'-12-31');
-                $item->fecha_inicio = ($year.'-01-01');
+                $item->fecha_final = ($year . '-12-31');
+                $item->fecha_inicio = ($year . '-01-01');
             }
         }
         $data = [
@@ -141,7 +115,7 @@ class MagistradosController extends Controller
     public function descomponerSerie(Request $request)
     {
 
-        $magistrado = Magistrados::where('id', $request->id)->firstOrFail();
+        $magistrado = Magistrado::where('id', $request->id)->firstOrFail();
         $salas = DB::table('resolutions as r')
             ->join('magistrados as m', 'm.id', '=', 'r.magistrado_id')
             ->select(
@@ -190,7 +164,7 @@ class MagistradosController extends Controller
         if ($response->successful()) {
             return $response->json();
         } else {
-            return response()->json(['error' => 'Error al enviar datos a Flask'.$response], 500);
+            return response()->json(['error' => 'Error al enviar datos a Flask' . $response], 500);
         }
     }
 
@@ -205,7 +179,7 @@ class MagistradosController extends Controller
             'tipo_jurisprudencia' => 'tipo_jurisprudencias',
         ];
 
-        if (! array_key_exists($name, $allowedTables)) {
+        if (!array_key_exists($name, $allowedTables)) {
             throw new ModelNotFoundException("No se encontró el modelo '$name'.");
         }
 
@@ -224,7 +198,7 @@ class MagistradosController extends Controller
         $group_by = 'salas.nombre';
 
         // Base query
-        $query = Magistrados::selectRaw($select)
+        $query = Magistrado::selectRaw($select)
             ->join('resolutions as r', 'r.magistrado_id', '=', 'magistrados.id')
             ->join('salas', 'r.sala_id', '=', 'salas.id')
             ->whereIn('r.sala_id', $salas)
@@ -234,7 +208,7 @@ class MagistradosController extends Controller
         foreach ($tablas as $tabla) {
             $table_name = $tabla->nombre;
             $values = $tabla->ids;
-            $full_name = $table_name.'s';
+            $full_name = $table_name . 's';
             if ($table_name && $values) {
                 if ($table_name == 'tipo_jurisprudencia') {
 
@@ -242,13 +216,13 @@ class MagistradosController extends Controller
                     $query->join('jurisprudencias as j', 'j.resolution_id', '=', 'r.id')
                         ->join('tipo_jurisprudencias as tj', 'j.tipo_jurisprudencia_id', '=', 'tj.id')
                         ->whereIn('j.tipo_jurisprudencia_id', $values);
-                    $select .= ', tj.nombre AS '.$table_name;
-                    $group_by .= ', '.$table_name;
+                    $select .= ', tj.nombre AS ' . $table_name;
+                    $group_by .= ', ' . $table_name;
                 } else {
-                    $query->join($full_name, $full_name.'.id', '=', 'r.'.$table_name.'_id')
-                        ->whereIn($full_name.'.id', $values);
-                    $select .= ', '.$full_name.'.nombre AS '.$table_name;
-                    $group_by .= ', '.$full_name.'.nombre';
+                    $query->join($full_name, $full_name . '.id', '=', 'r.' . $table_name . '_id')
+                        ->whereIn($full_name . '.id', $values);
+                    $select .= ', ' . $full_name . '.nombre AS ' . $table_name;
+                    $group_by .= ', ' . $full_name . '.nombre';
                 }
             }
         }

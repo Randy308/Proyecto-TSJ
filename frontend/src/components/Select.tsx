@@ -9,23 +9,20 @@ interface SelectProps {
   memoizedParams: Facetas;
 }
 
-const Select = ({ memoizedParams, limite, listaX, setListaX }: SelectProps) => {
+const Select = ({ memoizedParams }: SelectProps) => {
   const [visible, setVisible] = useState<string | null>(null);
   const result = useMemo(() => {
     return Object.entries(memoizedParams).map(([name, contenido]) => (
       <div key={name}>
         <MultiBtnDropdown
           setVisible={setVisible}
-          listaX={listaX}
-          limite={limite}
-          setListaX={setListaX}
           name={name as FiltroNombre}
           contenido={contenido as ListaData[]}
           visible={visible}
         />
       </div>
     ));
-  }, [memoizedParams, setVisible, listaX, setListaX, limite, visible]);
+  }, [memoizedParams, setVisible, visible]);
 
   return <div>{result}</div>;
 };

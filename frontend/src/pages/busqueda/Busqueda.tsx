@@ -205,8 +205,8 @@ const Busqueda = () => {
 
   return (
     <div className="pt-20 text-black dark:text-white">
-      <div className="mx-auto container max-w-7xl p-4 border-2 rounded-lg my-4">
-        <p className="text-4xl uppercase titulo font-bold text-center">
+      <div className="sm:mx-auto container max-w-7xl p-1 md:p-3 border-2 rounded-lg my-4">
+        <p className="text-2xl md:text-4xl uppercase titulo font-bold text-center">
           Búsqueda de Resoluciones
         </p>
 
@@ -218,7 +218,7 @@ const Busqueda = () => {
             <button
               type="button"
               onClick={() => advancedSearch(1)}
-              className="p-2.5 ms-2 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border border-red-octopus-700 hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+              className="p-2.5 ms-2 mt-4 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border  hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
             >
               <IoMdSearch className="w-4 h-4" />
               <span className="">Buscar</span>
@@ -231,7 +231,7 @@ const Busqueda = () => {
           />
         )}
 
-        <div className="p-2 m-2">
+        <div className="p-0 m-2 md:p-2 md:m-2">
           <label className="inline-flex items-center cursor-pointer">
             <input
               type="checkbox"
@@ -285,7 +285,7 @@ const Busqueda = () => {
                         key={index}
                         className="text-xs p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
                         onClick={() =>
-                          removeItem(item.id, name as keyof Facetas)
+                          removeItem(item.id, name as keyof DatosArray)
                         }
                       >
                         <span>{item.nombre}</span>

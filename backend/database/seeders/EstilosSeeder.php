@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Estilos;
+use App\Models\Estilo;
 use Illuminate\Database\Seeder;
 
 class EstilosSeeder extends Seeder
@@ -144,7 +144,7 @@ class EstilosSeeder extends Seeder
         ];
 
         foreach ($estilos as $estilo) {
-            Estilos::create($estilo);
+            Estilo::create($estilo);
         }
     }
 }

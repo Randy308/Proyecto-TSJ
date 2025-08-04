@@ -1,4 +1,4 @@
-import type { AnalisisData } from "../types";
+import type { AnalisisData, Registro } from "../types";
 
 export function transposeArray(data: AnalisisData): AnalisisData {
   if (!data.length) return [];
@@ -14,34 +14,73 @@ export function transposeArray(data: AnalisisData): AnalisisData {
   return transposed;
 }
 
+export function reducirArray(
+  data: Registro[],
+  clavesAgrupar: string[]
+): AnalisisData {
 
-// export function transposeArray(data: AnalisisData) {
-//   const transposed:object = {};
-//   data.forEach((item) => {
-//     Object.keys(item).forEach((key) => {
-//       if (!transposed[key]) {
-//         transposed[key] = [];
-//       }
-//       transposed[key].push(item[key]);
-//     });
-//   });
+  const agrupado: Record<string, Registro> = data.reduce((acc, item) => {
+    const key = clavesAgrupar.map((clave) => item[clave]).join("|");
 
-//   const result = Object.entries(transposed).map(([key, values]) => [
-//     key,
-//     ...values,
-//   ]);
-//   const headers = result[0];
+    if (!acc[key]) {
+      acc[key] = {} as Registro;
+      clavesAgrupar.forEach((clave) => {
+        acc[key][clave] = item[clave];
+      });
+      acc[key].cantidad = 0;
+    }
 
-//   const keyValueArray = result.slice(1).map((row) => {
-//     return headers.reduce((obj, header, index) => {
-//       obj[header] = row[index];
-//       return obj;
-//     }, {});
-//   });
-//   return keyValueArray;
-// }
+    acc[key].cantidad += item.cantidad;
+    return acc;
+  }, {} as Record<string, Registro>);
+
+  const resultado = Object.values(agrupado);
+
+  return completarArray(resultado, clavesAgrupar[0], clavesAgrupar[1]);
+}
+
+function completarArray(
+  data: Registro[],
+  columnaX: string,
+  columnaY: string
+): AnalisisData {
+  const filasPorNombre: Record<string, Record<string, number>> = {};
+  const datosSet = new Set<string>();
+
+  data.forEach((element) => {
+    const nombre = String(element[columnaX]);
+    const dato = String(element[columnaY]);
+    const cantidad = element["cantidad"];
+
+    if (!filasPorNombre[nombre]) {
+      filasPorNombre[nombre] = {};
+    }
+    filasPorNombre[nombre][dato] = cantidad;
+    datosSet.add(dato);
+  });
+
+  const datos = Array.from(datosSet).sort();
+  const resultado: AnalisisData = [];
+
+  // Encabezado
+  const header = [columnaX, ...datos];
+  resultado.push(header);
+
+  // Filas con datos o ceros
+  for (const nombre in filasPorNombre) {
+    const fila: (string | number)[] = [nombre];
+    for (const dato of datos) {
+      fila.push(filasPorNombre[nombre][dato] ?? 0);
+    }
+    resultado.push(fila);
+  }
+
+  return resultado;
+}
+
 
 export const invertirXY = (matriz: AnalisisData) => {
+  
   if (!matriz || matriz.length === 0) return [];
 
   const filas = matriz.length;
@@ -57,7 +96,6 @@ export const invertirXY = (matriz: AnalisisData) => {
 
 export const obtenerEstadisticas = (data: AnalisisData) => {
 
-  console.log("Datos para estadísticas:", data);
   if (!data || data.length === 0) return {};
 
   const rawValues = data[data.length - 1].slice(1, -1);

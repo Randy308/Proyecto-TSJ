@@ -50,21 +50,21 @@ instance.interceptors.response.use(
 export const UserService = {
   // Usuarios
   getAllUsers: (page: number) =>
-    instance.get("/admin/user", { params: { page } }),
+    instance.get("/admin/users", { params: { page } }),
   getAllResolutions: (page: number) =>
-    instance.get("/admin/resolutions", { params: { page } }),
-  getUser: (id: number) => instance.get(`/admin/user/${id}`),
-  createUser: (userData: CreateUser) => instance.post("/admin/user", userData),
+    instance.get("/admin/resoluciones", { params: { page } }),
+  getUser: (id: number) => instance.get(`/admin/users/${id}`),
+  createUser: (userData: CreateUser) => instance.post("/admin/users", userData),
   updateUser: (id: number, userData: CreateUser) =>
-    instance.put(`/admin/user/${id}`, userData),
-  deleteUser: (id: number) => instance.delete(`/admin/user/${id}`),
+    instance.put(`/admin/users/${id}`, userData),
+  deleteUser: (id: number) => instance.delete(`/admin/users/${id}`),
 
   // Notificaciones
   getUnreadNotifications: () => instance.get("/obtener-no-leidas"),
   getAllNotifications: (page = 1) =>
     instance.get("/notificaciones", { params: { page } }),
   markNotificationAsRead: (id: number) =>
-    instance.put(`/actualizar-notificacion/${id}`),
+    instance.put(`/notificaciones/${id}`),
   markAllNotificationsAsRead: () =>
     instance.put("/actualizar-todas-notificaciones"),
   // Resoluciones
@@ -79,10 +79,10 @@ export const UserService = {
     }),
   buscarNuevasResoluciones: () => instance.post("/buscar-nuevas-resoluciones"),
   RealizarWebScraping: () => instance.post("/obtener-resoluciones"),
-  AjustarFechas: () => instance.post("/reparar-fechas-emision"),
+  AjustarFechas: () => instance.post("/reparar-fechas-emisiones"),
   AjustarDepartamentos: () => instance.post("/reparar-departamentos"),
   GenerarNodos: () => instance.post("/generar-nodos"),
-  GenerarTérminosClave: () => instance.post("/generar-terminos-clave"),
+  GenerarTérminosClave: () => instance.post("/generar-terminos-claves"),
   subirResoluciones: (formData: FormData) =>
     instance.post("/subir-resoluciones", formData, {
       headers: {

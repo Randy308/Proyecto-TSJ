@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Departamentos;
-use App\Models\Resolutions;
+use App\Models\Departamento;
+use App\Models\Resolution;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +17,7 @@ class ConfigController extends Controller
     public function repararDepartamentos(Request $request)
     {
 
-        $departamentos = Departamentos::all()->pluck('id', 'nombre')->toArray();
+        $departamentos = Departamento::all()->pluck('id', 'nombre')->toArray();
 
         // return response()->json($departamentos, 200);
         $statement = "select * from obtener_departamentos_vacios(100);";
@@ -25,9 +25,9 @@ class ConfigController extends Controller
 
         $querys = DB::select($statement);
 
-    
+
         foreach ($querys as $query) {
-            $resolution = Resolutions::find($query->r_id);
+            $resolution = Resolution::find($query->r_id);
 
             $departamento = ucwords(strtolower($query->departamento));
             if ($departamento === 'Potosi' || $departamento === 'PotosÍ') {
@@ -66,12 +66,12 @@ class ConfigController extends Controller
         $querys = DB::select($statement);
         // $data = [];
         foreach ($querys as $query) {
-            if (! empty($query->fecha)) {
+            if (!empty($query->fecha)) {
                 $dateString = preg_replace('/[{}"]/', '', strtolower($query->fecha));
                 $dateString = strtr($dateString, $months); // traducir mes
                 $carbonDate = Carbon::createFromFormat('d \d\e F \d\e Y', $dateString);
 
-                $resolution = Resolutions::find($query->r_id);
+                $resolution = Resolution::find($query->r_id);
                 if ($resolution) {
                     $resolution->fecha_emision = $carbonDate->format('Y-m-d');
                 }

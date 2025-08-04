@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Departamentos;
-use App\Models\FormaResolucions;
-use App\Models\Magistrados;
+use App\Models\Departamento;
+use App\Models\FormaResolucion;
+use App\Models\Magistrado;
 use App\Models\Sala;
 use App\Models\Tema;
 use App\Models\TipoJurisprudencia;
-use App\Models\TipoResolucions;
+use App\Models\TipoResolucion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -41,7 +41,7 @@ class CompareController extends Controller
         $numero_busqueda = $request->input('numero_busqueda');
 
         $validIntervals = ['month', 'quarter', 'year'];
-        if (! in_array($intervalo, $validIntervals)) {
+        if (!in_array($intervalo, $validIntervals)) {
             throw new InvalidArgumentException('Invalid interval specified.');
         }
 
@@ -98,10 +98,10 @@ class CompareController extends Controller
 
         // Modificar la consulta de agrupación por departamentos
         $agrupar_departamentos = DB::table('resolutions AS r')
-            ->selectRaw('d.nombre as name, COUNT(r.id) AS termino_'.$numero_busqueda)
+            ->selectRaw('d.nombre as name, COUNT(r.id) AS termino_' . $numero_busqueda)
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
             ->groupBy('d.nombre')
-            ->orderByDesc('termino_'.$numero_busqueda);
+            ->orderByDesc('termino_' . $numero_busqueda);
 
         if ($request->has('magistrado')) {
             $agrupar_departamentos->where('r.magistrado_id', $request->magistrado);
@@ -147,13 +147,13 @@ class CompareController extends Controller
 
         return response()->json([
             'termino' => [
-                'name' => 'termino_'.$numero_busqueda,
+                'name' => 'termino_' . $numero_busqueda,
                 'id' => $numero_busqueda,
-                'value' => 'Busqueda #'.$numero_busqueda,
+                'value' => 'Busqueda #' . $numero_busqueda,
                 'detalles' => $request->all(),
             ],
             'resoluciones' => [
-                'name' => 'Busqueda #'.$numero_busqueda,
+                'name' => 'Busqueda #' . $numero_busqueda,
                 'type' => 'line',
                 'id' => $numero_busqueda,
                 'data' => $result,
@@ -219,7 +219,7 @@ class CompareController extends Controller
                 $query->where('j.tipo_jurisprudencia', $request->tipo_jurisprudencia);
             }
             if ($request->has('materia')) {
-                $query->where('j.descriptor', 'like', $request->materia.'%');
+                $query->where('j.descriptor', 'like', $request->materia . '%');
             }
         }
         if ($fecha_inicial && $fecha_final && strtotime($fecha_inicial) && strtotime($fecha_final)) {
@@ -253,17 +253,17 @@ class CompareController extends Controller
 
     public function getParams()
     {
-        $tipo_resolucion = TipoResolucions::all('nombre', 'id');
+        $tipo_resolucion = TipoResolucion::all('nombre', 'id');
         $salas = Sala::all('nombre', 'id');
-        $departamentos = Departamentos::all('nombre', 'id');
-        $magistrados = Magistrados::all('nombre', 'id');
-        $forma_res = FormaResolucions::all('nombre', 'id');
+        $departamentos = Departamento::all('nombre', 'id');
+        $magistrados = Magistrado::all('nombre', 'id');
+        $forma_res = FormaResolucion::all('nombre', 'id');
 
         $jurisprudencias = TipoJurisprudencia::all('nombre', 'id');
 
         $materia = Tema::select('nombre', 'id')->whereNull('tema_id')->get();
 
-        if (! $salas || ! $tipo_resolucion) {
+        if (!$salas || !$tipo_resolucion) {
             return response()->json(['error' => 'Solicitud no encontrada'], 404);
         }
 

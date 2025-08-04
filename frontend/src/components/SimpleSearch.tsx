@@ -14,7 +14,7 @@ const SimpleSearch = ({
 }: SimpleSearchProp) => {
   const [termino, setTermino] = React.useState("");
   const [errorBusqueda, setErrorBusqueda] = React.useState("");
-
+  const [label, setLabel] = React.useState("");
   const checkSearch = (valor: string) => {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'"’-]+$/;
 
@@ -29,7 +29,12 @@ const SimpleSearch = ({
     const valor = e.target.value;
     if (checkSearch(valor)) {
       setTermino(valor);
-      updateFormData("busqueda", valor);
+      setFormData((prevData) => ({
+        ...prevData,
+        "busqueda": valor,
+      }));
+
+      //updateFormData("busqueda", valor);
       setErrorBusqueda("");
     } else {
       setErrorBusqueda("No se permiten caracteres especiales");
@@ -41,20 +46,24 @@ const SimpleSearch = ({
       ...prevData,
       [key]: value,
     }));
+    setLabel(value);
   };
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row flex-wrap gap-4 p-2 m-2">
+      <div className="flex flex-col md:items-center sm:flex-row flex-wrap gap-4 p-2 m-2">
         <label htmlFor="simple-search" className="sr-only">
           Criterio de Búsqueda:
         </label>
         <SimpleSelect updateFormData={updateFormData} />
         <div className="flex-1 flex flex-col sm:flex-row gap-4 relative">
+          <label className="absolute capitalize left-0 -top-1 px-3 bg-white dark:bg-[#242e42] text-gray-400 text-xs">
+            {label}
+          </label>
           <input
             type="text"
             id="simple-search"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="mt-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm outline-none rounded-lg focus:border-2 focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Ingrese termino de búsqueda"
             value={termino}
             onChange={(e) => actualizarInput(e)}
@@ -62,12 +71,11 @@ const SimpleSearch = ({
           <button
             type="button"
             onClick={() => obtenerResoluciones(1)}
-            className="p-2.5 ms-2 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border border-red-octopus-700 hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            className="p-2.5 ms-2 mt-4 md:mt-0 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             <IoMdSearch className="w-4 h-4" />
             <span className="">Buscar</span>
           </button>
-          
         </div>
       </div>
       <div className="flex flex-col md:flex-row gap-4">

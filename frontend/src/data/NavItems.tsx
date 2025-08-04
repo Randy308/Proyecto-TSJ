@@ -37,8 +37,8 @@ export const jurisprudenciaItems = [
 export const navItemsAnalisis = [
   {
     id: 1,
-    title: "Estadísticas Básicas",
-    path: "/estadisticas-basicas",
+    title: "Analisis",
+    path: "/analisis",
     cName: "nav-item",
     icon: (
       <FaRegChartBar className="flex-shrink-0 w-5 h-5 transition duration-75" />
@@ -53,15 +53,15 @@ export const navItemsAnalisis = [
       <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
     ),
   },
-  // {
-  //   id: 3,
-  //   title: "Comparar Datos",
-  //   path: "/comparar-datos",
-  //   cName: "nav-item",
-  //   icon: (
-  //     <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
-  //   ),
-  // },
+  {
+    id: 3,
+    title: "Comparar Datos",
+    path: "/comparar-datos",
+    cName: "nav-item",
+    icon: (
+      <MdOutlineSsidChart className="flex-shrink-0 w-5 h-5 transition duration-75" />
+    ),
+  },
 ];
 export const navItems = [
   {
@@ -76,7 +76,8 @@ export const navItems = [
     id: 2,
     title: "Análisis",
     path: "/analisis",
-    lista: navItemsAnalisis,
+    //lista: navItemsAnalisis,
+    lista:[],
     cName: "nav-item",
     icon: (
       <FaRegChartBar className="flex-shrink-0 w-5 h-5 transition duration-75" />

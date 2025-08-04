@@ -454,7 +454,7 @@
             </div>
             <div class="contenido">
                 <span class="resolution">
-                    <a href="http://127.0.0.1:8000/resolucion/{{ $item->resolution_id }}">
+                    <a href="http://samed-tsj.umss.edu.bo/resolucion/{{ $item->resolution_id }}">
                         {{ $item->nro_resolucion }}
                     </a>
                 </span>

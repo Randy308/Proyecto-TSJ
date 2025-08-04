@@ -3,7 +3,6 @@ export * from "./historicContextProvider";
 export * from "./nodosContextProvider";
 export * from "./notificationContextProvider";
 export * from "./permissionContextProvider";
-export * from "./postContextProvider";
 export * from "./resolutionContextProvider";
 export * from "./roleContextProvider";
 export * from "./themeContextProvider";

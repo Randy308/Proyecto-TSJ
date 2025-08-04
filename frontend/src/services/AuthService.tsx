@@ -1,5 +1,10 @@
 import axios from "axios";
-import type { CreateUser, Login } from "../types";
+import type {
+  CreateUser,
+  FormaDecision,
+  Login,
+  ResueleveFondo,
+} from "../types";
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
 let csrfFetched = false;
@@ -53,4 +58,24 @@ export const AuthService = {
   getLogout: () => instance.post(`/logout`), // Correct path
   getAuthUser: () => instance.get(`/auth-user`), // Obtener usuario autenticado
   updateProfile: (data: CreateUser) => instance.put(`/actualizar-perfil`, data), // Actualizar perfil
+  subirResuelveFondo: (data: FormData) =>
+    instance.post("subir-resuelve-fondo", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }),
+  saveResuelveFondo: (data: ResueleveFondo) =>
+    instance.post("subir-reactiveresume", data),
+  saveDecideForma: (data: FormaDecision) =>
+    instance.post("forma-decisiones", data),
+  editResuelveFondo: (data: ResueleveFondo, id: number) =>
+    instance.put(`resuelve-fondos/${id}`, data),
+  editDecideForma: (data: FormaDecision, id: number) =>
+    instance.put(`forma-decisiones/${id}`, data),
+  deleteResuelveFondo: (id: number) => instance.delete(`resuelve-fondos/${id}`),
+  deleteDecideForma: (id: number) => instance.delete(`forma-decisiones/${id}`),
+  showResuelveFondo: (id: number) => instance.get(`resuelve-fondos/${id}`),
+  showDecideForma: (id: number) => instance.get(`forma-decisiones/${id}`),
+  getResuelveFondo: () => instance.get(`resuelve-fondos`),
+  getDecideForma: () => instance.get(`forma-decisiones`),
 };

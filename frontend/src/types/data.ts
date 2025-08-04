@@ -88,6 +88,13 @@ export interface DatosArrayForm {
 
 export type AnalisisData = (string | number)[][];
 
+
+export interface Registro {
+  [key: string]: string | number;
+  cantidad: number;
+}
+
+
 export interface ReceivedForm {
   nombre: string;
   variable: string[];
@@ -117,6 +124,10 @@ export type ChartType = SingleChartType | DualChartType;
 export interface FiltroAnalisis {
   filtros: ListaX[];
   serie?: string;
+  departamentos?: number[];
+  periodos?: string[];
+  mapa?: string;
+  salas?: number[];
 
   // término es opcional
   terminos?: {

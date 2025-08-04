@@ -5,7 +5,9 @@ import { toast } from "react-toastify";
 interface MultiSelectProps {
   type?: string;
   selectedOptions: { value: string; id: string }[];
-  setSelectedOptions: React.Dispatch<React.SetStateAction<{ value: string; id: string }[]>>;
+  setSelectedOptions: React.Dispatch<
+    React.SetStateAction<{ value: string; id: string }[]>
+  >;
 }
 const MultiSelect = ({
   type = "resoluciones",
@@ -16,24 +18,24 @@ const MultiSelect = ({
 
   const options = useMemo(() => {
     const lista = [
-      { value: "ratio", label: "Ratio" },
-      { value: "descriptor", label: "Descriptor" },
-      { value: "restrictor", label: "Restrictor" },
-      { value: "contenido", label: "Contenido" },
-      { value: "proceso", label: "Proceso" },
-      { value: "sintesis", label: "Síntesis" },
-      { value: "maxima", label: "Máxima" },
-      { value: "precedente", label: "Precedente" },
+      { value: "ratio", nombre: "Ratio" },
+      { value: "descriptor", nombre: "Descriptor" },
+      { value: "restrictor", nombre: "Restrictor" },
+      { value: "contenido", nombre: "Contenido" },
+      { value: "proceso", nombre: "Proceso" },
+      { value: "sintesis", nombre: "Síntesis" },
+      { value: "maxima", nombre: "Máxima" },
+      { value: "precedente", nombre: "Precedente" },
     ];
 
     const list = [
-      { value: "contenido", label: "Contenido" },
-      { value: "proceso", label: "Proceso" },
-      { value: "sintesis", label: "Síntesis" },
-      { value: "maxima", label: "Maxima" },
-      { value: "precedente", label: "Precedente" },
-      // { value: "demandado", label: "Demandado" },
-      // { value: "demandante", label: "Demandante" },
+      { value: "contenido", nombre: "Contenido" },
+      { value: "proceso", nombre: "Proceso" },
+      { value: "sintesis", nombre: "Síntesis" },
+      { value: "maxima", nombre: "Maxima" },
+      { value: "precedente", nombre: "Precedente" },
+      // { value: "demandado", nombre: "Demandado" },
+      // { value: "demandante", nombre: "Demandante" },
     ];
 
     if (type === "jurisprudencia") {
@@ -54,7 +56,7 @@ const MultiSelect = ({
   //     return;
   //   }
   //   const filtered = options.filter((f) =>
-  //     f.label.toLowerCase().startsWith(value)
+  //     f.nombre.toLowerCase().startsWith(value)
   //   );
   //   setFilteredOptions(filtered);
   // };
@@ -73,19 +75,19 @@ const MultiSelect = ({
       return;
     }
     setShow(false);
-    setSelectedOptions((prev) => [...prev, { value:newValue, id:id }]);
+    setSelectedOptions((prev) => [...prev, { value: newValue, id: id }]);
   };
 
   return (
-    <div className="flex dark:bg-gray-800 relative m-2 justify-between items-center gap-2 border rounded-md py-2 w-auto">
+    <div className="flex dark:bg-gray-700 relative m-1 justify-between items-center gap-2 border border-gray-500 rounded-md py-2 w-auto">
       <div className="ps-1">
         {selectedOptions.length > 0 ? (
           <>
-            <div className="flex flex-row sm:flex-col flex-wrap gap-2">
+            <div className="flex flex-row flex-wrap gap-1">
               {selectedOptions.map((option) => (
                 <div
                   key={option.id}
-                  className="text-xs dark:bg-gray-900 capitalize p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
+                  className="text-xs dark:bg-gray-800 capitalize p-1 rounded-md border border-gray-500 hover:cursor-pointer hover:border-red-400 flex gap-2 justify-between items-center group"
                   onClick={() =>
                     setSelectedOptions((prev) =>
                       prev.filter((item) => item !== option)
@@ -108,13 +110,16 @@ const MultiSelect = ({
       <div className="text-xs p-1 rounded-md group hover:border-red-400  border-gray-300 flex gap-2 justify-between items-center">
         {selectedOptions.length > 0 && (
           <a
-            className="hover:text-gray-400"
+            className="hover:text-gray-400 hover:cursor-pointer"
             onClick={() => setSelectedOptions([])}
           >
             <IoMdClose className="h-5 w-5" />
           </a>
         )}
-        <a className="hover:text-gray-400" onClick={() => setShow(!show)}>
+        <a
+          className="hover:text-gray-400 hover:cursor-pointer border-l-2 pl-2"
+          onClick={() => setShow(!show)}
+        >
           <IoIosArrowDown className="h-5 w-5" />
         </a>
         <div
@@ -130,8 +135,10 @@ const MultiSelect = ({
             className="p-2 m-2 dark:text-black border rounded-lg"
           /> */}
           {options.map(
-            (option,index) =>
-              !selectedOptions.some((selected) => selected.value === option.value) && (
+            (option, index) =>
+              !selectedOptions.some(
+                (selected) => selected.value === option.value
+              ) && (
                 <label className="group w-full flex" key={option.value}>
                   <input
                     name={`${index}-${option.value}`}
@@ -142,7 +149,7 @@ const MultiSelect = ({
                     onChange={handleChange}
                   />
                   <span className="flex-1 py-2 text-md ps-4 dark:bg-gray-700 hover:dark:bg-gray-950 hover:bg-red-octopus-300 hover:text-white w-full">
-                    {option.label}
+                    {option.nombre}
                   </span>
                 </label>
               )

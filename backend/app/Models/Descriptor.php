@@ -5,6 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property string $nombre
+ * @property int|null $descriptor_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Jurisprudencia> $jurisprudencias
+ * @property-read int|null $jurisprudencias_count
+ * @mixin \Eloquent
+ */
 class Descriptor extends Model
 {
     //
@@ -23,6 +33,6 @@ class Descriptor extends Model
 
     public function jurisprudencias()
     {
-        return $this->hasMany(Jurisprudencias::class, 'descriptor_id');
+        return $this->hasMany(Jurisprudencia::class, 'descriptor_id');
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Jurisprudencias;
-use App\Models\Resolutions;
+use App\Models\Jurisprudencia;
+use App\Models\Resolution;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 
@@ -19,11 +19,11 @@ class DatabaseSeeder extends Seeder
         // \App\Models\User::factory(10)->create();
 
 
-        Artisan::call('scout:delete-index', ['name' => app(Resolutions::class)->searchableAs()]);
-        Artisan::call('manticore:index', ['model' => Resolutions::class]);
+        Artisan::call('scout:delete-index', ['name' => app(Resolution::class)->searchableAs()]);
+        Artisan::call('manticore:index', ['model' => Resolution::class]);
 
-        Artisan::call('scout:delete-index', ['name' => app(Jurisprudencias::class)->searchableAs()]);
-        Artisan::call('manticore:index', ['model' => Jurisprudencias::class]);
+        Artisan::call('scout:delete-index', ['name' => app(Jurisprudencia::class)->searchableAs()]);
+        Artisan::call('manticore:index', ['model' => Jurisprudencia::class]);
 
         $this->call([
             PermissionsSeeder::class,

@@ -3,7 +3,6 @@ import type {
   Faceta,
   Facetas,
   ListaData,
-  MagistradoItem,
   Variables,
 } from "../types";
 
@@ -17,10 +16,28 @@ export const filterForm = (formData: object) => {
         value !== "all" &&
         value !== "Todos" &&
         value !== 0 &&
-        value !== "Todas"
+        value !== "Todas" &&
+        (!(Array.isArray(value) && value.length === 0))
     )
   );
 };
+
+export const filterFormData = <T extends Record<string, unknown>>(formData: T): Partial<T> => {
+  return Object.fromEntries(
+    Object.entries(formData).filter(
+      ([, value]) =>
+        value !== null &&
+        value !== undefined &&
+        value !== "" &&
+        value !== "all" &&
+        value !== "Todos" &&
+        value !== 0 &&
+        value !== "Todas" &&
+        (!(Array.isArray(value) && value.length === 0))
+    )
+  ) as Partial<T>;
+};
+
 
 export const filterTitle = (string: string) => {
   const splitString = string.split("/");
@@ -44,7 +61,7 @@ export const validateErrors = (lista: string[]) => {
 };
 
 export const obtenerFacetas = (response: Facetas, data: Facetas): Facetas => {
-   const lista = {} as Facetas;
+  const lista = {} as Facetas;
 
   for (const [key, value] of Object.entries(response)) {
     // Validar que la clave existe en `data`
@@ -61,7 +78,7 @@ export const obtenerFacetas = (response: Facetas, data: Facetas): Facetas => {
         .filter((item) => map1[item.id])
         .map((item) => ({
           ...map1[item.id],
-          ...item, 
+          ...item,
         }));
 
       lista[tabla] = merged as Faceta[];
@@ -87,11 +104,9 @@ export const filterParams = (
       // Filtrar por IDs
       const filtrado = objeto.filter((item) => ids?.includes(item.id));
 
-      lista[tabla] = filtrado as ListaData[] & MagistradoItem[]; // usamos `as any` para evitar conflicto de tipos exactos
+      lista[tabla] = filtrado as ListaData[]; // usamos `as any` para evitar conflicto de tipos exactos
     }
   }
-
-  console.log("Lista filtrada:", lista);
   return lista;
 };
 
@@ -119,7 +134,14 @@ export const filterAtributte = (
 
 export const titulo = (nombre: string) => {
   // Reemplaza el primer guion bajo por " de "
-  const string = nombre.replace(/_/i, " de ");
+  let string = nombre;
+  if (nombre === "resuelve_fondo") {
+
+    string = nombre.replace(/_/i, " ");
+  } else {
+
+    string = nombre.replace(/_/i, " de ");
+  }
 
   // Función para poner tilde en "on" final
   const agregarTilde = (str: string) => {

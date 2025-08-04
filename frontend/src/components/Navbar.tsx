@@ -72,7 +72,7 @@ const Navbar = () => {
             {!menuOpen ? (
               <FaBars id="bars" key="first" className="w-7 h-7"></FaBars>
             ) : (
-              <FaTimes id="close" key="second" className="w-7 h-7"></FaTimes>
+              <FaTimes id="close" key="second" className="w-7 h-7 fixed"></FaTimes>
             )}
           </button>
         </div>
