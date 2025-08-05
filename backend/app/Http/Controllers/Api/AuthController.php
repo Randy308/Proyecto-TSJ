@@ -72,9 +72,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
 
-        Log::info('CSRF Token from header: ' . $request->header('X-CSRF-TOKEN'));
-        Log::info('CSRF Token from session: ' . $request->session()->token());
-        Log::info('XSRF-TOKEN from header:', [$request->header('X-XSRF-TOKEN')]);
+        // Log::info('CSRF Token from header: ' . $request->header('X-CSRF-TOKEN'));
+        // Log::info('CSRF Token from session: ' . $request->session()->token());
+        // Log::info('XSRF-TOKEN from header:', [$request->header('X-XSRF-TOKEN')]);
 
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
