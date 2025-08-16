@@ -904,8 +904,8 @@ class ResolutionController extends Controller
             'magistrado' => $magistrados->toArray(),
             'materia' => $materia->toArray(),
             'periodo' => $periodo->toArray(),
-            'tipo_decision' => $resuelve_fondos->toArray(),
             'decision' => $decisiones->toArray(),
+            'tipo_decision' => $resuelve_fondos->toArray(),
         ];
         $datos = array_filter($datos);
 

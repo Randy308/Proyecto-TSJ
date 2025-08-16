@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\FormaDecisionController;
 use App\Http\Controllers\Api\JurisprudenciasController;
+use App\Http\Controllers\Api\LogsController;
 use App\Http\Controllers\Api\MagistradosController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\ResolutionController;
@@ -91,6 +92,7 @@ Route::prefix('v2')->group(function () {
     Route::get('/fechas', [CompareController::class, 'getDates']);
     Route::get('/elementos', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');
 
+    
     // rutas admin
 
     Route::middleware(['web'])->group(function () {
@@ -111,6 +113,7 @@ Route::prefix('v2')->group(function () {
         Route::apiResource('/forma-decisiones', FormaDecisionController::class);
         Route::apiResource('/resuelve-fondos', ResuelveFondoController::class);
 
+        Route::get('/logs', [LogsController::class, 'show'])->name('show.logs'); 
         Route::get('/admin/permisos', [PermissionController::class, 'index']);
         Route::put('/actualizar-todas-notificaciones', [NotificationController::class, 'updateAll']);
 

@@ -24,8 +24,16 @@ class PermissionsSeeder extends Seeder
         $arrayOfPermissionNames = [
             // Admin
             'administrar_datos',
+            'ver_logs',
             'subir_resoluciones',
             'subir_jurisprudencia',
+            'subir_decisiones',
+            'ver_decisiones',
+            'eliminar_decisiones',
+            'editar_decisiones',
+            'ver_forma_decisiones',
+            'editar_forma_decisiones',
+            'eliminar_forma_decisiones',
             'realizar_web_scrapping',
             'actualizar_resoluciones',
             'actualizar_jurisprudencia',
