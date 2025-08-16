@@ -8,7 +8,7 @@ import Tab from "../../components/Tab";
 import { TablaMultivariable } from "../../components/TablaMultivariable";
 import MultiBtnDropdown from "../../components/MultiBtnDropdown";
 import { useAnalisisContext, useVariablesContext } from "../../context";
-import { MultipleSelect } from "../components";
+import { Mapa, MultipleSelect, Serie } from "../components";
 
 const AnalisisBasico = () => {
   const { id } = useParams();
@@ -24,6 +24,7 @@ const AnalisisBasico = () => {
     departamentos,
     periodos,
     setDepartamentos,
+    clearData,
     setPeriodos,
     params,
     datos,
@@ -37,6 +38,7 @@ const AnalisisBasico = () => {
   } = useAnalisisContext();
 
   useEffect(() => {
+    clearData();
     const receivedForm = location.state;
     const periodos = receivedForm?.periodo || [];
     const periodoArray = Array.isArray(periodos)
@@ -82,13 +84,31 @@ const AnalisisBasico = () => {
     return salas;
   };
 
-  useEffect(() => {}, [validSalas]);
+  const renderContent = () => {
+    switch (actual) {
+      case "tabla":
+        return <TablaMultivariable />;
+      case "grafico":
+        return <OptionChart />;
+      case "series":
+        if (setGroupByPeriodo) setGroupByPeriodo(true);
+        return <Serie />;
+      case "mapa":
+        if (setGroupByDepartamento) setGroupByDepartamento(true);
+        return <Mapa />;
+      default:
+        return null;
+    }
+  };
   return (
     <div className="flex flex-col md:flex-row my-4 gap-2">
       <div className="p-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg">
         {columna && (
           <p className="text-black dark:text-white pb-4 md:w-40">
-            <span className="italic font-bold capitalize text-clip"> {columna}</span>
+            <span className="italic font-bold capitalize text-clip">
+              {" "}
+              {columna}
+            </span>
           </p>
         )}
 
@@ -174,7 +194,7 @@ const AnalisisBasico = () => {
 
       {datos && datos.length > 0 ? (
         <Tab actual={actual} setActual={setActual}>
-          {actual === "tabla" ? <TablaMultivariable /> : <OptionChart />}
+          {renderContent()}
         </Tab>
       ) : (
         <div>

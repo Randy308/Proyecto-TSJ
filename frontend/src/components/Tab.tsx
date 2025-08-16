@@ -9,8 +9,8 @@ interface TabProps {
 const lista = [
   { name: "Tabla", value: "tabla" },
   { name: "Gráfico", value: "grafico" },
-  // { name: "Series Temporales", value: "series" },
-  // { name: "Mapa", value: "mapa" },
+  { name: "Series Temporales", value: "series" },
+  { name: "Mapa", value: "mapa" },
 ];
 const Tab = ({ children, actual, setActual }: TabProps) => {
   return (

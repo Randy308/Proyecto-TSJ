@@ -21,7 +21,6 @@ import {
   type Variables,
   type Faceta,
 } from "../../types";
-import { SkeltonTable } from "../../components/tables/SkeltonTable";
 import SimpleSearch from "../../components/SimpleSearch";
 import type { SearchField, SimpleSearchFormData } from "../../types/search";
 import { useNavigate } from "react-router-dom";
@@ -318,7 +317,7 @@ const Busqueda = () => {
                     />
                   </>
                 ) : (
-                  <SkeltonTable />
+                  <div className="text-center">Realice una busqueda</div>
                 )}
               </div>
             </div>

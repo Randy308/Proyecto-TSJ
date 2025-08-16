@@ -57,6 +57,8 @@ const ListaRoles = lazy(() =>
   }))
 );
 
+const Logs = lazy(() => import("./logs/Logs"));
+
 const PerfilUsuario = lazy(() => import("./pages/profile/Ajustes"));
 
 const Codificacion = lazy(() => import("./codificacion/Codificacion"));
@@ -89,7 +91,7 @@ function App() {
                   path="admin/subir-resuelve-fondo"
                   element={<TablaResuelveFondo />}
                 />
-
+                <Route path="admin/logs" element={<Logs />} />
                 <Route
                   path="admin/realizar-web-scrapping"
                   element={<WebScrapping />}
