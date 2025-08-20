@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\CompareController;
 use App\Http\Controllers\Api\ConfigController;
 use App\Http\Controllers\Api\ExcelController;
 use App\Http\Controllers\Api\FormaDecisionController;
+use App\Http\Controllers\Api\GrupoSalaController;
 use App\Http\Controllers\Api\JurisprudenciasController;
 use App\Http\Controllers\Api\LogsController;
 use App\Http\Controllers\Api\MagistradosController;
@@ -92,7 +93,7 @@ Route::prefix('v2')->group(function () {
     Route::get('/fechas', [CompareController::class, 'getDates']);
     Route::get('/elementos', [CompareController::class, 'obtenerElemento'])->name('obtener-elemento');
 
-    
+
     // rutas admin
 
     Route::middleware(['web'])->group(function () {
@@ -112,20 +113,20 @@ Route::prefix('v2')->group(function () {
         Route::apiResource('/admin/roles', RoleController::class);
         Route::apiResource('/forma-decisiones', FormaDecisionController::class);
         Route::apiResource('/resuelve-fondos', ResuelveFondoController::class);
-
-        Route::get('/logs', [LogsController::class, 'show'])->name('show.logs'); 
+        Route::apiResource('/admin/salas', SalaController::class);
+        Route::apiResource('/admin/grupo-salas', GrupoSalaController::class);
+        Route::get('/logs', [LogsController::class, 'show'])->name('show.logs');
         Route::get('/admin/permisos', [PermissionController::class, 'index']);
         Route::put('/actualizar-todas-notificaciones', [NotificationController::class, 'updateAll']);
-
         Route::get('/admin/resoluciones', [ResolutionController::class, 'userResolutions']);
         Route::post('/admin/magistrados/{id}', [MagistradosController::class, 'update']);
-
         Route::post('/subir-resoluciones', [ExcelController::class, 'handleUpload'])->name('excel.upload');
         Route::post('/subir-jurisprudencia', [ExcelController::class, 'upload_jurisprudencia'])->name('excel.upload.jurisprudencia');
         Route::post('/subir-resuelve-fondo', [ExcelController::class, 'upload_resuelve_fondo'])->name('excel.upload_resuelve_fondo');
         Route::post('/buscar-nuevas-resoluciones', [WebScrappingController::class, 'buscarResolucionesTSJ']);
         Route::post('/obtener-resoluciones', [WebScrappingController::class, 'obtenerResolucionesTSJ']);
 
+        Route::put('/actualizar-forma-decisiones', [FormaDecisionController::class, 'updateMultiple']);
         Route::get('/obtener-no-leidas', [NotificationController::class, 'unread']);
         Route::get('/notificaciones', [NotificationController::class, 'index']);
         Route::put('/notificaciones/{id}', [NotificationController::class, 'update']);
