@@ -55,6 +55,7 @@ export interface AnalisisContextType {
   groupByDepartamento?: boolean;
   setGroupByPeriodo?: React.Dispatch<React.SetStateAction<boolean>>;
   setGroupByDepartamento?: React.Dispatch<React.SetStateAction<boolean>>;
+  clearData: () => void;
 }
 
 export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
@@ -78,6 +79,21 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   const [columna, setColumna] = useState<FiltroNombre | null>(null);
   const [params, setParams] = useState<Facetas>({} as Facetas);
   const [procesados, setProcesados] = useState<string[]>([]);
+
+  const clearData = () => {
+    setDatos([]);
+    setTableData([]);
+    setNames([]);
+    setPares([]);
+    setColumna(null);
+    setIsMultiVariable(false);
+    setParams({} as Facetas);
+    setProcesados([]);
+    setListaX([]);
+    setChartType("bar");
+    setGroupByDepartamento(false);
+    setGroupByPeriodo(false);
+  };
   const handleClick = useCallback(
     (params: echarts.ECElementEvent) => {
       if (!columna) {
@@ -331,6 +347,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
     groupByDepartamento,
     setGroupByPeriodo,
     setGroupByDepartamento,
+    clearData,
   };
 
   return (

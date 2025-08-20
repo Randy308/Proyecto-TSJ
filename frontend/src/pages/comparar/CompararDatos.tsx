@@ -7,7 +7,7 @@ import { filterForm } from "../../utils/filterForm";
 import SimpleSelect from "../../components/SimpleSelect";
 import type { SimpleSearchFormData } from "../../types/search";
 import { ResolucionesService } from "../../services";
-import {MapComponent} from "../../analisis/components";
+import MapComponent from "../../analisis/components/MapComponent";
 
 interface Resolucion {
   cantidad: string;
@@ -36,16 +36,16 @@ const CompararDatos = () => {
   const [terminos, setTerminos] = useState<Termino[]>([]);
 
 
-  const [, setDepartamentos] = useState<RegionValue[]>([
-    { nombre: "Cochabamba", cantidad: 1 },
-    { nombre: "La Paz", cantidad: 2 },
-    { nombre: "Santa Cruz", cantidad: 1 },
-    { nombre: "Potosí", cantidad: 5 },
-    { nombre: "Oruro", cantidad: 6 },
-    { nombre: "El Beni", cantidad: 7 },
-    { nombre: "Chuquisaca", cantidad: 8 },
-    { nombre: "Tarija", cantidad: 9 },
-    { nombre: "Pando", cantidad: 10 },
+  const [ departamentos, setDepartamentos] = useState<RegionValue[]>([
+    { nombre: "Cochabamba", cantidad: 0 },
+    { nombre: "La Paz", cantidad: 0 },
+    { nombre: "Santa Cruz", cantidad:0 },
+    { nombre: "Potosí", cantidad: 0 },
+    { nombre: "Oruro", cantidad: 0 },
+    { nombre: "El Beni", cantidad: 0 },
+    { nombre: "Chuquisaca", cantidad: 0 },
+    { nombre: "Tarija", cantidad: 0 },
+    { nombre: "Pando", cantidad: 0 },
   ]);
 
   const [option, setOption] = useState({});
@@ -140,6 +140,7 @@ const CompararDatos = () => {
           console.log("Total periodos:", periodosTotal);
           console.log("Total departamentos:", total);
           setResoluciones(response.data.periodos);
+          
           setDepartamentos(
             response.data.departamentos.map((item: RegionValue) => ({
               nombre: item.nombre,
@@ -324,7 +325,7 @@ const CompararDatos = () => {
          data={departamentos}
       )} */}
 
-      <MapComponent />
+      <MapComponent  data={departamentos} />
     </div>
   );
 };

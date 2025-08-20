@@ -1,13 +1,20 @@
 import React from "react";
 import LogoUmss from "../images/Logo_umss.png";
 import { NavLink } from "react-router-dom";
-import { FaBars, FaDatabase, FaUsers, FaUsersGear } from "react-icons/fa6";
+import {
+  FaBars,
+  FaDatabase,
+  FaDiagramPredecessor,
+  FaUsers,
+  FaUsersGear,
+} from "react-icons/fa6";
 import { RiDashboard2Fill } from "react-icons/ri";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import Settings from "./Settings";
-import { FaMailBulk, FaTimes } from "react-icons/fa";
+import { FaMailBulk, FaTimes, FaUserEdit } from "react-icons/fa";
 import { useNotificationContext } from "../context/notificationContext";
 import { useAuthContext } from "../context";
+import { GiArchiveRegister } from "react-icons/gi";
 const Sidebar = () => {
   const [show, setShow] = React.useState(false);
 
@@ -47,7 +54,7 @@ const Sidebar = () => {
                 }`
               }
             >
-              <RiDashboard2Fill className="w-5 h-5  transition duration-75 " />
+              <FaUserEdit  className="w-5 h-5  transition duration-75 " />
               <span className="ms-3">Perfil de Usuario</span>
             </NavLink>
           </li>
@@ -67,6 +74,48 @@ const Sidebar = () => {
                 >
                   <FaUsers className="w-5 h-5  transition duration-75 " />
                   <span className="ms-3">Usuarios</span>
+                </NavLink>
+              </li>
+            </>
+          )}
+
+          {can("ver_logs") && (
+            <>
+              <li>
+                <NavLink
+                  to="/admin/logs"
+                  onClick={() => setShow(false)}
+                  className={({ isActive }) =>
+                    `flex items-center p-2  rounded-lg  group ${
+                      isActive
+                        ? "dark:text-white text-gray-900"
+                        : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`
+                  }
+                >
+                  <GiArchiveRegister className="w-5 h-5  transition duration-75 " />
+                  <span className="ms-3">Registros</span>
+                </NavLink>
+              </li>
+            </>
+          )}
+
+          {can("ver_decisiones") && (
+            <>
+              <li>
+                <NavLink
+                  to="/codificacion"
+                  onClick={() => setShow(false)}
+                  className={({ isActive }) =>
+                    `flex items-center p-2  rounded-lg  group ${
+                      isActive
+                        ? "dark:text-white text-gray-900"
+                        : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`
+                  }
+                >
+                  <FaDiagramPredecessor className="w-5 h-5  transition duration-75 " />
+                  <span className="ms-3">Decisiones</span>
                 </NavLink>
               </li>
             </>

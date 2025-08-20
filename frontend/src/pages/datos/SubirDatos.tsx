@@ -39,6 +39,12 @@ const SubirDatos = () => {
       icon: <FaMagnifyingGlassChart className="text-white w-[50px] h-[50px]" />,
       permiso: "realizar_web_scrapping",
     },
+    {
+      nombre: "Subir Resoluciones",
+      path: "/admin/subir-resuelve-fondo",
+      icon: <FaMagnifyingGlassChart className="text-white w-[50px] h-[50px]" />,
+      permiso: "subir_decisiones",
+    }
   ];
   const handlePageClick = (page?: number) => {
     const selectedPage = Math.min(page || 1, pageCount);
