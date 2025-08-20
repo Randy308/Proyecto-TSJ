@@ -76,8 +76,8 @@ export const navItems = [
     id: 2,
     title: "Análisis",
     path: "/analisis",
-    lista: navItemsAnalisis,
-    //lista:[],
+    //lista: navItemsAnalisis,
+    lista:[],
     cName: "nav-item",
     icon: (
       <FaRegChartBar className="flex-shrink-0 w-5 h-5 transition duration-75" />

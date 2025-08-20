@@ -54,7 +54,7 @@ const Sidebar = () => {
                 }`
               }
             >
-              <FaUserEdit  className="w-5 h-5  transition duration-75 " />
+              <FaUserEdit className="w-5 h-5  transition duration-75 " />
               <span className="ms-3">Perfil de Usuario</span>
             </NavLink>
           </li>
@@ -95,6 +95,48 @@ const Sidebar = () => {
                 >
                   <GiArchiveRegister className="w-5 h-5  transition duration-75 " />
                   <span className="ms-3">Registros</span>
+                </NavLink>
+              </li>
+            </>
+          )}
+
+          {can("ver_salas") && (
+            <>
+              <li>
+                <NavLink
+                  to="/admin/salas"
+                  onClick={() => setShow(false)}
+                  className={({ isActive }) =>
+                    `flex items-center p-2  rounded-lg  group ${
+                      isActive
+                        ? "dark:text-white text-gray-900"
+                        : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`
+                  }
+                >
+                  <GiArchiveRegister className="w-5 h-5  transition duration-75 " />
+                  <span className="ms-3">Salas</span>
+                </NavLink>
+              </li>
+            </>
+          )}
+
+          {can("ver_forma_decisiones") && (
+            <>
+              <li>
+                <NavLink
+                  to="/admin/formas-decision"
+                  onClick={() => setShow(false)}
+                  className={({ isActive }) =>
+                    `flex items-center p-2  rounded-lg  group ${
+                      isActive
+                        ? "dark:text-white text-gray-900"
+                        : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`
+                  }
+                >
+                  <FaDiagramPredecessor className="w-5 h-5  transition duration-75 " />
+                  <span className="ms-3">Formas de Decision</span>
                 </NavLink>
               </li>
             </>

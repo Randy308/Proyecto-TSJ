@@ -35,11 +35,11 @@ const CompararDatos = () => {
 
   const [terminos, setTerminos] = useState<Termino[]>([]);
 
-
-  const [ departamentos, setDepartamentos] = useState<RegionValue[]>([
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [departamentos, setDepartamentos] = useState<RegionValue[]>([
     { nombre: "Cochabamba", cantidad: 0 },
     { nombre: "La Paz", cantidad: 0 },
-    { nombre: "Santa Cruz", cantidad:0 },
+    { nombre: "Santa Cruz", cantidad: 0 },
     { nombre: "Potosí", cantidad: 0 },
     { nombre: "Oruro", cantidad: 0 },
     { nombre: "El Beni", cantidad: 0 },
@@ -134,13 +134,13 @@ const CompararDatos = () => {
 
           const periodosTotal = response.data.periodos.reduce(
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (acc: number, item:any) => acc + item.cantidad,
+            (acc: number, item: any) => acc + item.cantidad,
             0
           );
           console.log("Total periodos:", periodosTotal);
           console.log("Total departamentos:", total);
           setResoluciones(response.data.periodos);
-          
+
           setDepartamentos(
             response.data.departamentos.map((item: RegionValue) => ({
               nombre: item.nombre,
@@ -325,7 +325,7 @@ const CompararDatos = () => {
          data={departamentos}
       )} */}
 
-      <MapComponent  data={departamentos} />
+      {departamentos && departamentos.length > 0 && <MapComponent />}
     </div>
   );
 };

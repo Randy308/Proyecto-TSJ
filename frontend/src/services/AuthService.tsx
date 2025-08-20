@@ -1,7 +1,6 @@
 import axios from "axios";
 import type {
   CreateUser,
-  FormaDecision,
   Login,
   ResueleveFondo,
 } from "../types";
@@ -66,16 +65,28 @@ export const AuthService = {
     }),
   saveResuelveFondo: (data: ResueleveFondo) =>
     instance.post("subir-reactiveresume", data),
-  saveDecideForma: (data: FormaDecision) =>
-    instance.post("forma-decisiones", data),
   editResuelveFondo: (data: ResueleveFondo, id: number) =>
     instance.put(`resuelve-fondos/${id}`, data),
-  editDecideForma: (data: FormaDecision, id: number) =>
-    instance.put(`forma-decisiones/${id}`, data),
+  editDecideForma: (
+    grupoSala: string,
+    tipo: number,
+    sala_id: number,
+    
+  ) =>
+    instance.put(`actualizar-forma-decisiones`, {
+      sala_id,
+      tipo,
+      nombre: grupoSala,
+    }),
   deleteResuelveFondo: (id: number) => instance.delete(`resuelve-fondos/${id}`),
-  deleteDecideForma: (id: number) => instance.delete(`forma-decisiones/${id}`),
   showResuelveFondo: (id: number) => instance.get(`resuelve-fondos/${id}`),
-  showDecideForma: (id: number) => instance.get(`forma-decisiones/${id}`),
   getResuelveFondo: () => instance.get(`resuelve-fondos`),
   getDecideForma: () => instance.get(`forma-decisiones`),
+  getSalas: () => instance.get(`admin/salas`), // Obtener salas
+  getGrupoSalas: () => instance.get(`admin/grupo-salas`), // Obtener grupos de salas
+  getLogs: () => instance.get(`logs`), // Obtener roles
+  crearGrupoSala: (nombre: string) =>
+    instance.post(`admin/grupo-salas`, { nombre }), // Crear grupo de sala
+  updateSala: (grupoSalaId: number, salaId: number) =>
+    instance.put(`admin/salas/${salaId}`, { grupo_sala_id: grupoSalaId }), // Actualizar sala con grupo
 };
