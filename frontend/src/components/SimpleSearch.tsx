@@ -51,7 +51,7 @@ const SimpleSearch = ({
 
   return (
     <div>
-      <div className="flex flex-col md:items-center sm:flex-row flex-wrap gap-4 p-2 m-2">
+      <div className="flex flex-col md:items-end sm:flex-row flex-wrap gap-4 p-2 m-2">
         <label htmlFor="simple-search" className="sr-only">
           Criterio de Búsqueda:
         </label>
@@ -71,7 +71,7 @@ const SimpleSearch = ({
           <button
             type="button"
             onClick={() => obtenerResoluciones(1)}
-            className="p-2.5 ms-2 mt-4 md:mt-0 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            className="p-2.5 ms-2 mt-4 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
             <IoMdSearch className="w-4 h-4" />
             <span className="">Buscar</span>

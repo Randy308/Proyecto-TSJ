@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import PortalButton from "../components/modal/PortalButton";
-import { DecidoForma } from "./DecideForma";
-import { ResuelveFondo } from "./ResuelveFondo";
 import { AuthService } from "../services";
 import type { ResueleveFondo } from "../types";
 import { EditarFondo } from "./EditarFondo";
@@ -47,19 +45,6 @@ const Codificacion = () => {
   }
   return (
     <div>
-      <div className="flex flex-row gap-4 p-4 m-4">
-        <PortalButton
-          name="Crear nuevo fondo de decision"
-          content={() => <ResuelveFondo />}
-          full={false}
-        />
-
-        <PortalButton
-          name="Crear nuevo fondo de decision"
-          content={() => <DecidoForma />}
-          full={false}
-        />
-      </div>
       <div className="overflow-x-auto p-4">
         <table className="table-auto w-full border-collapse border border-gray-300 dark:border-gray-700">
           <thead className="bg-gray-100 dark:bg-gray-800">
@@ -84,7 +69,9 @@ const Codificacion = () => {
                 <td className="border px-4 py-2">
                   <PortalButton
                     name="Editar"
-                    content={(_, setShowModal) => <EditarFondo item={item} setShowModal={setShowModal} />}
+                    content={(_, setShowModal) => (
+                      <EditarFondo item={item} setShowModal={setShowModal} />
+                    )}
                     full={false}
                   />
                 </td>

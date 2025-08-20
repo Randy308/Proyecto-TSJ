@@ -776,6 +776,7 @@ class ResolutionController extends Controller
             ], 422);
         }
         $campos = [
+            'tipo_decision' => ['tabla' => 'resuelve_fondos', 'foreign_key' => 'rf.id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_decision'],
             'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false,  'columna' => 'id', 'nombre' => 'tipo_resolucion'],
             // 'departamento' => ['tabla' => 'departamentos', 'foreign_key' => 'departamento_id', 'join' => false, 'columna' => 'id', 'nombre' => 'departamento'],
             'sala' => ['tabla' => 'salas', 'foreign_key' => 'sala_id', 'join' => false,  'columna' => 'id', 'nombre' => 'sala'],
@@ -784,7 +785,6 @@ class ResolutionController extends Controller
             'tipo_jurisprudencia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true,  'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
             'materia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'root_id', 'join' => true,  'columna' => 'id', 'nombre' => 'materia'],
             'resuelve_decision' => ['tabla' => 'resuelve_decisiones', 'foreign_key' => 'rd.tipo', 'join' => true,  'columna' => 'id', 'nombre' => 'decision'],
-            'tipo_decision' => ['tabla' => 'resuelve_fondos', 'foreign_key' => 'rf.id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_decision'],
 
         ];
 
@@ -868,10 +868,9 @@ class ResolutionController extends Controller
         $forma_resolucions = FormaResolucion::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $magistrados = Magistrado::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $resuelve_fondos = ResuelveFondo::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
-        $decisiones = ResuelveDecision::selectRaw('tipo as id, CONCAT(\'Tipo \', tipo) as nombre')
-            ->groupBy('tipo')
+        $decisiones = ResuelveDecision::select('tipo as id', 'nombre')
+            ->groupBy('tipo', 'nombre')
             ->get();
-
 
         $salas = DB::table('salas as m')
             ->selectRaw('

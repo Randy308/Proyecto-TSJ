@@ -57,9 +57,13 @@ const ListaRoles = lazy(() =>
   }))
 );
 
+const Logs = lazy(() => import("./logs/Logs"));
+
 const PerfilUsuario = lazy(() => import("./pages/profile/Ajustes"));
 
 const Codificacion = lazy(() => import("./codificacion/Codificacion"));
+const Salas = lazy(() => import("./pages/admin/salas/Salas"));
+const FormaDecision = lazy(() => import("./pages/admin/formas/FormaDecision"));
 function App() {
   return (
     <AppProviders>
@@ -89,11 +93,14 @@ function App() {
                   path="admin/subir-resuelve-fondo"
                   element={<TablaResuelveFondo />}
                 />
-
+                <Route path="admin/formas-decision" element={<FormaDecision />} />
+                <Route path="admin/logs" element={<Logs />} />
                 <Route
                   path="admin/realizar-web-scrapping"
                   element={<WebScrapping />}
                 />
+
+                <Route path="admin/salas" element={<Salas />} />
                 <Route path="admin/usuarios" element={<Usuarios />} />
                 <Route path="admin/roles" element={<ListaRoles />} />
                 <Route
