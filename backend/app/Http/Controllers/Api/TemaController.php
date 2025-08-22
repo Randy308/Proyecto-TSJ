@@ -364,7 +364,7 @@ class TemaController extends Controller
 
         $request->validate([
             'tema_id' => 'required|integer',
-            'descriptor' => 'nullable|string|max:100',
+            'descriptor' => 'nullable|string',
             'cantidad' => 'nullable|integer|min:1|max:100',
             'seccion' => 'nullable|boolean',
         ]);
@@ -487,7 +487,7 @@ class TemaController extends Controller
         $mi_sala = Sala::where('nombre', $sala)->first();
 
         if (! $mi_sala) {
-            return response()->json(['error' => 'Sala no encontrada a'.$sala], 404);
+            return response()->json(['error' => 'Sala no encontrada a' . $sala], 404);
         }
 
         $data = [];
