@@ -3,10 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
     image: laravel-app
     container_name: laravel-app
     ports:
       - "9000:9000"
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - .:/var/www
     depends_on:

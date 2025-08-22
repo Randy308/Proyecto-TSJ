@@ -21,17 +21,21 @@ class FormaDecisionController extends Controller
 
         $resuelveDecisions = DB::table('resuelve_decisiones')
             ->join('resuelve_fondos', 'resuelve_decisiones.resuelve_fondo_id', '=', 'resuelve_fondos.id')
-            ->join('resolutions as r', 'resuelve_decisiones.resolution_id', '=', 'r.id')
-            ->join('salas', 'r.sala_id', '=', 'salas.id')
-            ->select(DB::raw('DISTINCT ON (resuelve_decisiones.tipo, salas.nombre)
-                resuelve_decisiones.id,
-                resuelve_decisiones.nombre as nombre,
-                resuelve_decisiones.tipo as tipo,
-                resuelve_decisiones.resuelve_fondo_id,
-                resuelve_fondos.nombre as resuelve_fondo,
-                salas.id as sala_id,
-                salas.nombre as sala_nombre
-            '))->get();
+            ->join('salas', 'resuelve_fondos.sala_id', '=', 'salas.id')
+            ->selectRaw(
+                'MIN(resuelve_decisiones.id) as id, resuelve_decisiones.nombre, resuelve_decisiones.tipo, resuelve_decisiones.resuelve_fondo_id, resuelve_fondos.nombre as resuelve_fondo, salas.id as sala_id, salas.nombre as sala_nombre'
+            )
+            ->groupBy(
+                'resuelve_decisiones.nombre',
+                'resuelve_decisiones.tipo',
+                'resuelve_decisiones.resuelve_fondo_id',
+                'resuelve_fondos.nombre',
+                'salas.id',
+                'salas.nombre'
+            )
+            ->orderBy('resuelve_decisiones.tipo')
+            ->get();
+
 
 
         return response()->json(['message' => 'List of ResuelveFondo', 'data' => $resuelveDecisions], 200);
@@ -122,6 +126,7 @@ class FormaDecisionController extends Controller
             'nombre' => 'required|string',
             'tipo' => 'required|integer',       // coincide con tu migración
             'sala_id' => 'required|exists:salas,id',
+            'resuelve_fondo_id' => 'nullable|exists:resuelve_fondos,id',
         ]);
 
         if ($validator->fails()) {
@@ -138,6 +143,7 @@ class FormaDecisionController extends Controller
             ->join('salas as s', 'r.sala_id', '=', 's.id')
             ->where('d.tipo', $request->input('tipo'))
             ->where('s.id', $request->input('sala_id'))
+            ->where('d.resuelve_fondo_id', $request->input('resuelve_fondo_id'))
             ->update(['d.nombre' => $request->input('nombre')]);
 
         return response()->json([
