@@ -6,7 +6,9 @@ export type Categorias =
   | "forma_resolucion"
   | "tipo_jurisprudencia"
   | "materia"
-  | "periodo";
+  | "periodo"
+  | "tipo_decision"
+  | "decision";
 export type TerminosClave =
   | "proceso"
   | "demandante"
