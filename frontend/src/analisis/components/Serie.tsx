@@ -86,16 +86,21 @@ export const Serie = ({ border = false }: OptionChartProps) => {
       } else {
         console.warn("dataset[0] no es un array:", firstItem);
       }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      if (!pares.includes("fecha")) {
-        const newPares = [...pares.slice(1), "fecha"];
-        if (newPares.length === 2) {
-          setPares(newPares);
-        }
+  useEffect(() => {
+    if (!pares.includes("fecha")) {
+      const newPares = [...pares.slice(1), "fecha"];
+      if (newPares.length === 2) {
+        setPares(newPares);
+        invertirGrafico();
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    console.log("Pares actuales:", pares);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pares]);
 
   if (!isMultiVariable || dataset.length === 0) {
     return (

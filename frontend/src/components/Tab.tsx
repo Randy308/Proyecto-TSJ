@@ -11,7 +11,7 @@ const lista = [
   { name: "Tabla", value: "tabla" },
   { name: "Gráfico", value: "grafico" },
   { name: "Series Temporales", value: "series" },
-  { name: "Mapa", value: "mapa" },
+  //{ name: "Mapa", value: "mapa" },
 ];
 const Tab = ({ children, actual, setActual }: TabProps) => {
   const { groupByDepartamento, groupByPeriodo } = useAnalisisContext();
