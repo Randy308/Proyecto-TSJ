@@ -122,7 +122,7 @@ class ResolutionController extends Controller
             // Filtro especial para decision
             if ($variable === $name) {
                 if ($variable === 'decision') {
-                    $selects[] = "rd.tipo as id";
+                    $selects[] = 'MIN(rd.id) as id';
                     $selects[] = "rd.nombre";
                     $groupByCampos[] = "rd.tipo";
                     $groupByCampos[] = "rd.nombre";
@@ -132,13 +132,15 @@ class ResolutionController extends Controller
                     $groupByCampos[] = $filtro['id'];
                 }
             } elseif ($name === 'decision') {
-                $datos->whereIn('rd.tipo', $valores);
+                $tipo_decisiones = ResuelveDecision::whereIn('id', $valores)->pluck('resuelve_fondo_id')->toArray();
+
+                $datos->whereIn('rd.resuelve_fondo_id', $tipo_decisiones);
             } else {
                 $datos->whereIn($filtro['fk'], $valores);
             }
         }
 
-        $datos->select($selects);
+        $datos->selectRaw(implode(', ', $selects));
 
         if ($request->has('departamentos')) {
             $datos->whereIn('departamento_id', $request->departamentos);
@@ -333,7 +335,9 @@ class ResolutionController extends Controller
                 continue;
             }
             if ($name === 'decision') {
-                $datos->whereIn('rd.tipo', $valores);
+
+                $tipo_decisiones = ResuelveDecision::whereIn('id', $valores)->pluck('resuelve_fondo_id')->toArray();
+                $datos->whereIn('rd.resuelve_fondo_id', $tipo_decisiones);
             } else {
                 $datos->whereIn($filtro['fk'], $valores);
             }
@@ -473,6 +477,8 @@ class ResolutionController extends Controller
 
             // Filtro especial para decision
             if ($name === 'decision') {
+                //$tipo_decisiones = ResuelveDecision::whereIn('id', $valores)->pluck('tipo')->toArray();
+
                 $datos->whereIn('rd.tipo', $valores);
             } else {
                 $datos->whereIn($filtro['fk'], $valores);
@@ -776,16 +782,15 @@ class ResolutionController extends Controller
             ], 422);
         }
         $campos = [
-            'tipo_decision' => ['tabla' => 'resuelve_fondos', 'foreign_key' => 'rf.id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_decision'],
             'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false,  'columna' => 'id', 'nombre' => 'tipo_resolucion'],
             // 'departamento' => ['tabla' => 'departamentos', 'foreign_key' => 'departamento_id', 'join' => false, 'columna' => 'id', 'nombre' => 'departamento'],
             'sala' => ['tabla' => 'salas', 'foreign_key' => 'sala_id', 'join' => false,  'columna' => 'id', 'nombre' => 'sala'],
             'magistrado' => ['tabla' => 'magistrados', 'foreign_key' => 'magistrado_id', 'join' => false,  'columna' => 'id', 'nombre' => 'magistrado'],
-            'forma_resolucion' => ['tabla' => 'forma_resolucions', 'foreign_key' => 'forma_resolucion_id', 'join' => false,  'columna' => 'id', 'nombre' => 'forma_resolucion'],
-            'tipo_jurisprudencia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true,  'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
             'materia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'root_id', 'join' => true,  'columna' => 'id', 'nombre' => 'materia'],
-            'resuelve_decision' => ['tabla' => 'resuelve_decisiones', 'foreign_key' => 'rd.tipo', 'join' => true,  'columna' => 'id', 'nombre' => 'decision'],
-
+            'tipo_jurisprudencia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true,  'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
+            'tipo_decision' => ['tabla' => 'resuelve_fondos', 'foreign_key' => 'rf.id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_decision'],
+            'resuelve_decision' => ['tabla' => 'resuelve_decisiones', 'foreign_key' => 'rd.resuelve_fondo_id', 'join' => true,  'columna' => 'id', 'nombre' => 'decision'],
+            'forma_resolucion' => ['tabla' => 'forma_resolucions', 'foreign_key' => 'forma_resolucion_id', 'join' => false,  'columna' => 'id', 'nombre' => 'forma_resolucion'],
         ];
 
         $nombre = strtolower("sala");
@@ -868,8 +873,8 @@ class ResolutionController extends Controller
         $forma_resolucions = FormaResolucion::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $magistrados = Magistrado::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
         $resuelve_fondos = ResuelveFondo::select('id', 'nombre')->orderBy('nombre', 'asc')->get();
-        $decisiones = ResuelveDecision::select('tipo as id', 'nombre')
-            ->groupBy('tipo', 'nombre')
+        $decisiones = ResuelveDecision::selectRaw('resuelve_fondo_id as grupo_id, MIN(id) as id,nombre')
+            ->groupBy('resuelve_fondo_id', 'nombre')
             ->get();
 
         $salas = DB::table('salas as m')
