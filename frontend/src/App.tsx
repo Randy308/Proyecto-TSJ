@@ -146,7 +146,7 @@ function App() {
           </Routes>
         </Suspense>
       </main>
-      <ToastContainer />
+      <ToastContainer limit={1} />
     </AppProviders>
   );
 }

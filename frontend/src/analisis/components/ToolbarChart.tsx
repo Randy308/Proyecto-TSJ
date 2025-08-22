@@ -21,7 +21,7 @@ export const ToolbarChart = () => {
               <button
                 key={name}
                 type="button"
-                onClick={() => handlePair(name,"serie")}
+                onClick={() => handlePair(name,"normal")}
                 className={`px-3 py-1.5 rounded-lg text-white transition ${
                   pares.includes(name)
                     ? "bg-blue-600"

@@ -8,6 +8,7 @@ export interface VariableOld {
 export interface ListaData {
   id: number;
   nombre: string;
+  grupo_id?: number;
   // fecha_min?: string;
   // fecha_max?: string;
 }
@@ -15,7 +16,7 @@ export interface ListaData {
 export interface Faceta {
   id: number;
   nombre?: string;
-  grupo?:string;
+  grupo?: string;
   grupo_id?: number;
   cantidad?: number;
   fecha_min?: string;
@@ -44,6 +45,8 @@ export interface Variables {
   magistrado: ListaData[];
   materia: ListaData[];
   periodo?: ListaData[];
+  resuelve_fondo?: Faceta[];
+  decision?: Faceta[];
 }
 
 export interface Resolucion {

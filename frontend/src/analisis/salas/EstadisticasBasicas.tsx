@@ -109,6 +109,7 @@ const EstadisticasBasicas = () => {
 
   const fetchData = async () => {
     if (!sala) {
+      toast.dismiss();
       toast.warning("Seleccione una materia primero antes de continuar");
       return;
     }

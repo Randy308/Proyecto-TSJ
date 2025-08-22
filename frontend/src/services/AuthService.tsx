@@ -71,11 +71,13 @@ export const AuthService = {
     grupoSala: string,
     tipo: number,
     sala_id: number,
+    resuelve_fondo_id: number
     
   ) =>
     instance.put(`actualizar-forma-decisiones`, {
       sala_id,
       tipo,
+      resuelve_fondo_id,
       nombre: grupoSala,
     }),
   deleteResuelveFondo: (id: number) => instance.delete(`resuelve-fondos/${id}`),

@@ -70,6 +70,9 @@ const FormaDecision = () => {
                       Sala
                     </th>
                     <th scope="col" className="px-6 py-3">
+                      Tipo de decisión
+                    </th>
+                    <th scope="col" className="px-6 py-3">
                       Acción
                     </th>
                   </tr>
@@ -90,6 +93,9 @@ const FormaDecision = () => {
                         {item.nombre}
                       </td>
                       <td className="px-6 py-4">{item.sala_nombre}</td>
+                      <td className="px-6 py-4">
+                        {item.resuelve_fondo ? item.resuelve_fondo : "N/A"}
+                      </td>
                       <td className="px-6 py-4 flex flex-row gap-2 items-center">
                         {can("actualizar_salas") && (
                           <div>
@@ -112,36 +118,58 @@ const FormaDecision = () => {
                 </tbody>
               </table>
 
-              <div className="flex flex-col gap-4 md:hidden text-gray-800 dark:text-gray-400">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:hidden">
                 {formas.map((item, index) => (
                   <div
                     key={index}
-                    className="p-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 shadow-md"
+                    className="p-5 border border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300"
                   >
-                     <div className="text-lg font-bold text-gray-900 dark:text-white">
-                      {item.tipo}
-                    </div>
-                    <div className="text-lg font-bold text-gray-900 dark:text-white">
-                      {item.nombre}
-                    </div>{" "}
-                    <div className="text-md text-center">{item.sala_nombre}</div>
-                    <div className="mt-2 flex gap-4 justify-center">
-                      {can("actualizar_salas") && (
-                        <div>
-                          <PortalButton
-                            Icon={FaEdit}
-                            title="Editar sala"
-                            color="yellow"
-                            content={(_showModal, setShowModal) => (
-                              <EditarForma
-                                sala={item}
-                                setShowModal={setShowModal}
-                              />
-                            )}
-                          />
-                        </div>
+                    {/* Badge con el ID */}
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">
+                        ID: {item.id}
+                      </span>
+                      {item.resuelve_fondo ? (
+                        <span className="text-xs bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded">
+                          {item.resuelve_fondo}
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400 px-2 py-1 rounded">
+                          N/A
+                        </span>
                       )}
                     </div>
+
+                    {/* Título principal */}
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 capitalize">
+                      {item.tipo}
+                    </h3>
+                    <p className="text-lg text-gray-700 dark:text-gray-300 font-medium capitalize">
+                      {item.nombre}
+                    </p>
+
+                    {/* Sala */}
+                    <div className="mt-3 flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                      <span className="font-semibold">Sala:</span>
+                      <span>{item.sala_nombre}</span>
+                    </div>
+
+                    {/* Botón de acción */}
+                    {can("actualizar_salas") && (
+                      <div className="mt-4 flex justify-end">
+                        <PortalButton
+                          Icon={FaEdit}
+                          title="Editar sala"
+                          color="yellow"
+                          content={(_showModal, setShowModal) => (
+                            <EditarForma
+                              sala={item}
+                              setShowModal={setShowModal}
+                            />
+                          )}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

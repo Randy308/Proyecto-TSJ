@@ -178,6 +178,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
     if (listaX.length >= limite) {
       return;
     }
+
     const validatedData = filterForm({
       salas: id,
       variable: variable,

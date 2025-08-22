@@ -23,7 +23,8 @@ const MultiBtnDropdown = ({
   size = 8,
   isCategorical = true,
 }: MultiBtnDropdownProps) => {
-  const { listaX, setListaX, limite, updateParams, procesados } = useAnalisisContext();
+  const { listaX, setListaX, limite, updateParams, procesados } =
+    useAnalisisContext();
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activo, setActivo] = useState<boolean>(false);
@@ -44,6 +45,7 @@ const MultiBtnDropdown = ({
           existingItem.ids.length >= size &&
           !existingItem.ids.includes(itemId)
         ) {
+          toast.dismiss();
           toast.warning(
             `No se pueden agregar más de ${size} variables. Quite alguna antes de agregar.`
           );
@@ -113,15 +115,25 @@ const MultiBtnDropdown = ({
   };
 
   const handleClick = () => {
+    if (
+      name === "decision" &&
+      listaX.some(
+        (item) =>
+          (item.name as string) === "tipo_decision" && item.ids.length > 1
+      )
+    ) {
+      toast.warning(
+        "Seleccione únicamente una categoría para la variable 'Tipo de decisión'."
+      );
+      return;
+    }
     const nextState = !activo;
     setActivo(nextState);
-
     if (
       old != name &&
       !procesados.some((item) => item === name) &&
       !listaX.some((item) => item.name === name)
     ) {
-     
       setIsLoading(true);
       updateParams(name).finally(() => {
         setIsLoading(false);
@@ -209,12 +221,12 @@ const MultiBtnDropdown = ({
             <ul className="flex-1 grid grid-cols-1 max-h-[400px] overflow-x-auto">
               {contenido.map((currentItem) => (
                 <li
-                  key={currentItem.id}
+                  key={currentItem.nombre + currentItem.id + name}
                   className="p-1 flex flex-row-reverse justify-between items-center"
                 >
                   <input
                     type="checkbox"
-                    id={currentItem.nombre + name}
+                    id={currentItem.id + name}
                     name={currentItem.nombre}
                     value={currentItem.id}
                     className="h-5 w-5 peer accent-red-octopus-500 dark:accent-red-octopus-500"
@@ -225,7 +237,7 @@ const MultiBtnDropdown = ({
                     onChange={handleCheckboxChange}
                   />
                   <label
-                    htmlFor={currentItem.nombre + name}
+                    htmlFor={currentItem.id + name}
                     className="w-full cursor-pointer rounded-sm dark:hover:text-gray-300 dark:border-gray-700 peer-checked:bg-gray-50  peer-checked:text-red-octopus-500 hover:text-gray-600 dark:peer-checked:text-gray-300  peer-checked:dark:bg-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700 capitalize text-sm"
                   >
                     {currentItem.nombre}

@@ -102,8 +102,13 @@ export const filterParams = (
       if (!Array.isArray(objeto)) continue;
 
       // Filtrar por IDs
+      if(tabla === 'decision'){
+        const filtrado = objeto.filter((item) => ids?.includes(item.grupo_id));
+        lista[tabla] = filtrado as ListaData[];
+        continue;
+      }
       const filtrado = objeto.filter((item) => ids?.includes(item.id));
-
+      
       lista[tabla] = filtrado as ListaData[]; // usamos `as any` para evitar conflicto de tipos exactos
     }
   }

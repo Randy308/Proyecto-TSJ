@@ -91,10 +91,8 @@ const AnalisisBasico = () => {
       case "grafico":
         return <OptionChart />;
       case "series":
-        if (setGroupByPeriodo) setGroupByPeriodo(true);
         return <Serie />;
       case "mapa":
-        if (setGroupByDepartamento) setGroupByDepartamento(true);
         return <Mapa />;
       default:
         return null;

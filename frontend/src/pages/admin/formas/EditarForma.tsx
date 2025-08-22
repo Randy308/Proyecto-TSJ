@@ -22,7 +22,8 @@ const EditarForma = ({ sala, setShowModal }: Props) => {
       const { data } = await AuthService.editDecideForma(
         grupoSala,
         sala.tipo,
-        sala.sala_id
+        sala.sala_id,
+        sala.resuelve_fondo_id
       );
       if (!data || !data.message) {
         throw new Error("Error al crear grupo de sala");
