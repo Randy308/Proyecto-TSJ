@@ -244,7 +244,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
     if (pares.length < 2) {
       return;
     }
-    if (tipo === "normal") {
+    if (tipo === "normal" || newPair === "fecha") {
       const newPares = [...pares.slice(1), newPair];
       if (newPares.length != 2) {
         return;

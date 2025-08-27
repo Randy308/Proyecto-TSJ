@@ -20,6 +20,7 @@ export interface SearchFormData {
 
 
 export type SearchField = {
+  id:number;
   field: string;       // El nombre del campo (de selectedOptions)
   value: string;       // El valor escrito en el input
   operator: "AND" | "OR" | "NOT"; // El operador entre esta y la anterior

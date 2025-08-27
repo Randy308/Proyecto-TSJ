@@ -17,7 +17,6 @@ export const Serie = ({ border = false }: OptionChartProps) => {
     handleClick,
     names,
     pares,
-    setPares,
     handlePair,
     invertirGrafico,
   } = useAnalisisContext();
@@ -66,14 +65,7 @@ export const Serie = ({ border = false }: OptionChartProps) => {
     };
   }
 
-  useEffect(() => {
-    if (!isMultiVariable || dataset.length === 0) return;
-    const configs = getDualChartConfig(dataset);
-    if (configs) setOption(configs);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataset, isDark, chartStyle]);
-
-  useEffect(() => {
+  const invertir = () => {
     if (Array.isArray(dataset) && dataset.length > 0) {
       const firstItem = dataset[0];
 
@@ -87,18 +79,24 @@ export const Serie = ({ border = false }: OptionChartProps) => {
         console.warn("dataset[0] no es un array:", firstItem);
       }
     }
+  };
+  useEffect(() => {
+    if (!isMultiVariable || dataset.length === 0) return;
+    const configs = getDualChartConfig(dataset);
+    if (configs) setOption(configs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataset, isDark, chartStyle]);
+
+  useEffect(() => {
+    invertir();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!pares.includes("fecha")) {
-      const newPares = [...pares.slice(1), "fecha"];
-      if (newPares.length === 2) {
-        setPares(newPares);
-        invertirGrafico();
-      }
+      handlePair("fecha", "serie");
+      invertir();
     }
-    console.log("Pares actuales:", pares);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pares]);
 

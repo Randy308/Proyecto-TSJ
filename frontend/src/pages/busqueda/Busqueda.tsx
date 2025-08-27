@@ -7,7 +7,7 @@ import {
   titulo,
   filterParams,
 } from "../../utils/filterForm";
-import { IoMdClose, IoMdSearch } from "react-icons/io";
+import { IoMdClose } from "react-icons/io";
 import { ResolucionesService } from "../../services";
 import PaginationData from "./PaginationData";
 import Paginate from "../../components/tables/Paginate";
@@ -67,6 +67,10 @@ const Busqueda = () => {
   const handlePageClick = (page: number) => {
     const selectedPage = Math.min(page, lastPage);
     setActualPage(page);
+    if (searchType) {
+      advancedSearch(selectedPage);
+      return;
+    }
     obtenerResoluciones(selectedPage);
   };
 
@@ -100,6 +104,9 @@ const Busqueda = () => {
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
+          const { proceso_facet } = response.data.facets;
+          console.log("Facetas recibidas:", proceso_facet);
+
           setFacetas(
             obtenerFacetas(response.data.facets, (data as Facetas) || {})
           );
@@ -181,6 +188,9 @@ const Busqueda = () => {
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
+          const { proceso_facet } = response.data.facets;
+          console.log("Facetas recibidas:", proceso_facet);
+
           setFacetas(
             obtenerFacetas(response.data.facets, (data as Facetas) || {})
           );
@@ -200,29 +210,35 @@ const Busqueda = () => {
 
   useEffect(() => {
     setSelector(filterParams(formData, (data as Variables) || {}));
+    if (searchType) {
+      if (Object.keys(searchFields).length < 1) {
+        console.warn("Debe seleccionar al menos un campo de búsqueda");
+        return;
+      }
+      advancedSearch(1);
+    } else {
+      if (Object.keys(selectedOptions).length < 1) {
+        console.warn("Debe seleccionar al menos un campo de búsqueda");
+        return;
+      }
+      obtenerResoluciones(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, formData]);
 
   return (
     <div className="pt-20 text-black dark:text-white">
       <div className="sm:mx-auto container max-w-7xl p-1 md:p-3 border-2 rounded-lg my-4">
-        <p className="text-2xl md:text-4xl uppercase titulo font-bold text-center">
-          Búsqueda de Resoluciones
+        <p className="text-2xl md:text-3xl titulo font-bold text-center">
+          {searchType ? "Búsqueda Avanzada" : "Búsqueda Simple"}
         </p>
 
         {searchType ? (
           <MultiSearch
             searchFields={searchFields}
             setSearchFields={setSearchFields}
-          >
-            <button
-              type="button"
-              onClick={() => advancedSearch(1)}
-              className="p-2.5 ms-2 mt-4 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border  hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              <IoMdSearch className="w-4 h-4" />
-              <span className="">Buscar</span>
-            </button>
-          </MultiSearch>
+            advancedSearch={advancedSearch}
+          />
         ) : (
           <SimpleSearch
             obtenerResoluciones={obtenerResoluciones}
@@ -301,23 +317,25 @@ const Busqueda = () => {
               <div className="sm:p-4 pt-4">
                 {resoluciones.length > 0 ? (
                   <>
-                    <PaginationData
-                      resolutions={resoluciones}
-                      setSelectedIds={setSelectedIds}
-                      selectedIds={selectedIds}
-                      isLoading={isLoading}
-                      obtenerCronologia={obtenerCronologia}
-                    />
-
                     <Paginate
                       handlePageClick={handlePageClick}
                       pageCount={pageCount}
                       actualPage={actualPage}
                       totalCount={totalCount}
-                    />
+                    >
+                      <PaginationData
+                        resolutions={resoluciones}
+                        setSelectedIds={setSelectedIds}
+                        selectedIds={selectedIds}
+                        isLoading={isLoading}
+                        obtenerCronologia={obtenerCronologia}
+                      />
+                    </Paginate>
                   </>
                 ) : (
-                  <div className="text-center">Realice una busqueda</div>
+                  <div className="text-gray-500 text-center">
+                    No hay resoluciones para mostrar
+                  </div>
                 )}
               </div>
             </div>

@@ -1,64 +1,79 @@
 import "../styles/footer.css";
-import { FaFacebook } from "react-icons/fa6";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaFacebook, FaWhatsapp } from "react-icons/fa";
 import { IoMail } from "react-icons/io5";
-
-import iijp from "../images/iijp.png";
 
 const Footer = () => {
   return (
-    <footer>
-      <div className="footer flex flex-row justify-center flex-wrap gap-10 p-4">
-        <div className="flex justify-center items-center">
+    <footer className="text-white bg-white border-t-2 mt-8">
+      {/* Sección de logos */}
+      <div className="bg-white flex flex-wrap justify-center items-center gap-6 p-6 border-b border-gray-700">
+        {[
+          { src: "./umss.webp", alt: "Logo UMSS", w: "w-32" },
+          { src: "./tsj.webp", alt: "Logo TSJ", w: "h-16" },
+          { src: "./fcjyp.webp", alt: "Logo FCJyP", w: "w-32" },
+          { src: "./fcyt.webp", alt: "Logo FCyT", w: "w-20" },
+          { src: "./iijp.webp", alt: "Logo IIJP", w: "w-32" },
+        ].map((logo, i) => (
           <img
-            src={iijp}
-            alt="Logo del IIJP"
-            id="imagen-footer"
-            className="rounded-md"
+            key={i}
+            src={logo.src}
+            alt={logo.alt}
+            className={`bg-white rounded-md ${logo.w}  object-contain`}
           />
+        ))}
+      </div>
+
+      {/* Sección de información y redes */}
+      <div className="grid footer md:grid-cols-2 gap-8 p-6 text-sm">
+        {/* Información institucional */}
+        <div className="flex flex-col items-start gap-3">
+          <p className="text-lg font-semibold">Instituto de Investigaciones Jurídicas y Políticas</p>
+          <p>Dirección: Av. Oquendo esq. Sucre, Campus Universitario.</p>
+          <p className="text-gray-400">© 2025 IIJP - Todos los derechos reservados</p>
         </div>
-        <div className="footer-title flex  flex-col items-start justify-center gap-4">
-          <div className="titulo">Dirección: Av. Oquendo esq. Sucre Campus Universitario.     </div>
-          <p className="titulo">
-            © 2025 IIJP - Instituto de Investigaciones Juridicas y Politicas
-          </p>
-        </div>
-        <div className="flex flex-col justify-center flex-wrap gap-4 items-start">
-          <div className="titulo">Redes Sociales</div>
-          <div
-            id="footer-icons"
-            className="flex flex-row flex-wrap gap-4 justify-center"
-          >
-            <a
+
+        {/* Redes sociales */}
+        <div className="flex flex-col items-end gap-3">
+          <p className="text-lg font-semibold">Síguenos</p>
+          <div className="flex gap-4">
+            <button
+              aria-label="Facebook"
               onClick={() =>
                 window.open(
                   "https://www.facebook.com/people/Instituto-de-Investigaciones-Jur%C3%ADdicas-y-Pol%C3%ADticas-FCJyP/100075651683119/",
                   "_blank"
                 )
               }
+              className="p-2 rounded-full bg-gray-800 hover:bg-blue-600 transition"
             >
-              <FaFacebook className="footer-icon p-2 text-4xl" />
-            </a>
+              <FaFacebook className="text-2xl" />
+            </button>
 
-            <a onClick={() =>
+            <button
+              aria-label="WhatsApp"
+              onClick={() =>
                 window.open(
                   "http://twitter.com/share?text=INSTITUTO%20DE%20INVESTIGACIONES%20JUR%C3%8DDICAS%20Y%20POL%C3%8DTICAS%20%28IIJP%29&url=https%3A%2F%2Fwww.umss.edu.bo%2Finstituto-de-investigaciones-juridicas-y-politicas-iijp%2F",
                   "_blank"
                 )
-              }>
-              <FaWhatsapp className="footer-icon p-2 text-4xl" />
-            </a>
+              }
+              className="p-2 rounded-full bg-gray-800 hover:bg-green-500 transition"
+            >
+              <FaWhatsapp className="text-2xl" />
+            </button>
 
-            <a
+            <button
+              aria-label="Correo electrónico"
               onClick={() =>
                 window.open(
                   "https://mail.google.com/mail/u/0/?view=cm&fs=1&su=INSTITUTO%20DE%20INVESTIGACIONES%20JUR%C3%8DDICAS%20Y%20POL%C3%8DTICAS%20%28IIJP%29&body=https%3A%2F%2Fwww.umss.edu.bo%2Finstituto-de-investigaciones-juridicas-y-politicas-iijp%2F&ui=2&tf=1",
                   "_blank"
                 )
               }
+              className="p-2 rounded-full bg-gray-800 hover:bg-red-500 transition"
             >
-              <IoMail className="footer-icon p-2 text-4xl" />
-            </a>
+              <IoMail className="text-2xl" />
+            </button>
           </div>
         </div>
       </div>

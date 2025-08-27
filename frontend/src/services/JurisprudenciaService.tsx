@@ -12,8 +12,6 @@ const instance = axios.create({
   withCredentials: false,
 });
 
-
-
 let csrfFetched = false;
 const getCsrfToken = async () => {
   if (csrfFetched) return;
@@ -35,37 +33,38 @@ instance.interceptors.request.use(async (config) => {
   return config;
 });
 
-
-
 export const JurisprudenciaService = {
-  searchTermino: (formData:object) =>
+  searchTermino: (formData: object) =>
     instance.get("/terminos-jurisprudencias", {
       params: formData,
     }),
-  busquedaRapida: (formData:object) =>
+  busquedaRapida: (formData: object) =>
     instance.get("/buscar-descriptores", {
       params: formData,
     }),
-  actualizarNodo: (formData:object) =>
+  actualizarNodo: (formData: object) =>
     instance.get("/refrescar-nodos", {
       params: formData,
     }),
-  parametrosCronologia: (formData:object) =>
+  parametrosCronologia: (formData: object) =>
     instance.get("/busqueda-parametros", {
       params: formData,
     }),
-  obtenerCronologia: (formData:object) =>
+  obtenerCronologia: (formData: object) =>
     instance.post("/cronologias", formData, {
       responseType: "blob",
     }),
-  obtenerCronologiabyIds: (formData:object) =>
+  obtenerCronologiabyIds: (formData: object) =>
     instance.post("/cronologias-ids", formData, {
       responseType: "blob",
     }),
+  busquedaAvanzada: (params: object) =>
+    instance.post("/buscar-jurisprudencia-avanzado", params, {
+      withCredentials: true,
+    }),
 
-  obtenerNodos: () =>
-    instance.get("/nodos"),
-  obtenerResoluciones: (formData:DatosArrayForm) =>
+  obtenerNodos: () => instance.get("/nodos"),
+  obtenerResoluciones: (formData: DatosArrayForm) =>
     instance.get("/buscar-jurisprudencias", {
       params: formData,
     }),

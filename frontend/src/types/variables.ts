@@ -72,3 +72,5 @@ export interface Jurisprudencia {
   restrictor?: string;
   tipo_jurisprudencia?: string;
 }
+
+export type AutoSupremo = Resolucion & Jurisprudencia;

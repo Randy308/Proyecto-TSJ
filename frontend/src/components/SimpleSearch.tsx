@@ -31,7 +31,7 @@ const SimpleSearch = ({
       setTermino(valor);
       setFormData((prevData) => ({
         ...prevData,
-        "busqueda": valor,
+        busqueda: valor,
       }));
 
       //updateFormData("busqueda", valor);
@@ -49,6 +49,11 @@ const SimpleSearch = ({
     setLabel(value);
   };
 
+  const handleFormClick = (event: React.FormEvent) => {
+    event.preventDefault();
+    obtenerResoluciones(1);
+  };
+
   return (
     <div>
       <div className="flex flex-col md:items-end sm:flex-row flex-wrap gap-4 p-2 m-2">
@@ -56,8 +61,11 @@ const SimpleSearch = ({
           Criterio de Búsqueda:
         </label>
         <SimpleSelect updateFormData={updateFormData} />
-        <div className="flex-1 flex flex-col sm:flex-row gap-4 relative">
-          <label className="absolute capitalize left-0 -top-1 px-3 bg-white dark:bg-[#242e42] text-gray-400 text-xs">
+        <form
+          onSubmit={handleFormClick}
+          className="flex-1 flex flex-col sm:flex-row gap-4 relative"
+        >
+          <label className="absolute capitalize left-2 top-1 px-3 bg-white dark:bg-[#242e42] text-gray-400 text-xs">
             {label}
           </label>
           <input
@@ -76,7 +84,7 @@ const SimpleSearch = ({
             <IoMdSearch className="w-4 h-4" />
             <span className="">Buscar</span>
           </button>
-        </div>
+        </form>
       </div>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full">

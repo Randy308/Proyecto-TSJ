@@ -85,7 +85,7 @@ export const navItems = [
   },
   {
     id: 3,
-    title: "Documentos",
+    title: "Cronojurídicas",
     path: "/jurisprudencia",
     cName: "nav-item",
     lista: jurisprudenciaItems,

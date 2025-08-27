@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useState } from "react";
 import "../styles/main.css";
-import LogoUmss from "../images/Logo_umss.png";
 import Settings from "./Settings";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { navItems } from "../data/NavItems";
@@ -76,8 +75,9 @@ const Navbar = () => {
             )}
           </button>
         </div>
-        <a className="flex items-center justify-center m-1 bg-white rounded-lg">
-          <img src={LogoUmss} alt="first-logo" className="h-16 self-center " />
+        <a className="flex items-center justify-center m-1 rounded-lg titulo text-white font-bold text-xl md:order-1" href="/">
+          <img src="./vite.svg" alt="first-logo" className="h-16 self-center " />
+          SAMED TSJ
         </a>
         <div
           className={`items-center md:flex-1 md:px-4 justify-center md:flex md:w-auto md:order-1 ${

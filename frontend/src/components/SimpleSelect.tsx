@@ -21,7 +21,6 @@ const SimpleSelect = ({
       { id: "ratio", nombre: "Ratio" },
       { id: "descriptor", nombre: "Descriptor" },
       { id: "restrictor", nombre: "Restrictor" },
-      { id: "contenido", nombre: "Contenido" },
       { id: "proceso", nombre: "Proceso" },
       { id: "sintesis", nombre: "Síntesis" },
       { id: "maxima", nombre: "Máxima" },

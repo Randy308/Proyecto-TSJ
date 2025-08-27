@@ -98,6 +98,11 @@ const AnalisisBasico = () => {
         return null;
     }
   };
+
+  const handleClick = async () => {
+    setActual("tabla");
+    realizarAnalisis();
+  };
   return (
     <div className="flex flex-col md:flex-row my-4 gap-2">
       <div className="p-4 border border-gray-300 dark:border-gray-950 bg-white dark:bg-gray-600 rounded-lg">
@@ -181,7 +186,7 @@ const AnalisisBasico = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 pb-2">
               <AsyncButton
                 name={"Analizar"}
-                asyncFunction={realizarAnalisis}
+                asyncFunction={handleClick}
                 isLoading={isLoading}
                 full={false}
               />

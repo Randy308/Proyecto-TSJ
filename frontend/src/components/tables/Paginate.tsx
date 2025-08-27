@@ -1,16 +1,22 @@
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
 
-
 interface PaginateProps {
   handlePageClick: (page: number) => void;
   pageCount: number;
   actualPage: number;
   totalCount: number;
+  children?: React.ReactNode;
 }
-const Paginate = ({ handlePageClick, pageCount, actualPage, totalCount }: PaginateProps) => {
 
+const Paginate = ({
+  handlePageClick,
+  pageCount,
+  actualPage,
+  totalCount,
+  children
+}: PaginateProps) => {
 
-  return (
+  const PaginationControls = () => (
     <div className="flex justify-center sm:justify-between items-center p-2 text-black dark:text-white flex-wrap gap-4">
       <div>{totalCount} Resultados encontrados</div>
 
@@ -22,10 +28,11 @@ const Paginate = ({ handlePageClick, pageCount, actualPage, totalCount }: Pagina
         {/* Botón Anterior */}
         <button
           className={`w-10 h-10 flex items-center justify-center rounded-md border transition 
-            ${actualPage <= 1
+          ${
+            actualPage <= 1
               ? "border-gray-300 text-gray-400 cursor-not-allowed"
               : "border-gray-500 hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"
-            }`}
+          }`}
           onClick={() => actualPage > 1 && handlePageClick(actualPage - 1)}
           disabled={actualPage <= 1}
           aria-label="Página anterior"
@@ -36,10 +43,11 @@ const Paginate = ({ handlePageClick, pageCount, actualPage, totalCount }: Pagina
         {/* Botón Siguiente */}
         <button
           className={`w-10 h-10 flex items-center justify-center rounded-md border transition 
-            ${actualPage >= pageCount
+          ${
+            actualPage >= pageCount
               ? "border-gray-300 text-gray-400 cursor-not-allowed"
               : "border-gray-500 hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-gray-700"
-            }`}
+          }`}
           onClick={() =>
             actualPage < pageCount && handlePageClick(actualPage + 1)
           }
@@ -49,6 +57,16 @@ const Paginate = ({ handlePageClick, pageCount, actualPage, totalCount }: Pagina
           <BsChevronRight />
         </button>
       </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <PaginationControls />
+      {/* Contenido */}
+      <div>{children}</div>
+
+      <PaginationControls />
     </div>
   );
 };

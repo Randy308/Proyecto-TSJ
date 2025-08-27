@@ -1,5 +1,6 @@
-
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libertinus+Serif+Display&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,14 +9,12 @@
   src: local("trebuchet_ms"), url("./fonts/trebuc.ttf") format("truetype");
 }
 
-
 input:-webkit-autofill {
   box-shadow: 0 0 0px 1000px white inset !important;
   -webkit-box-shadow: 0 0 0px 1000px white inset !important;
   -webkit-text-fill-color: #000 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
-
 
 /* width */
 ::-webkit-scrollbar {
@@ -79,9 +78,8 @@ code {
 }
 
 .titulo {
-  font-family: var(--vt-font-family-base);
   font-optical-sizing: auto;
-  font-style: bold;
+  font-family: "Roboto Serif", serif;
 }
 .dark-theme .titulo,
 .dark-theme .subtitulo {

@@ -159,7 +159,7 @@ const GeneracionRapida = () => {
     <div id="cronologia-container" className="p-4 m-4">
       <div className="header-container">
         <div>
-          <p className="text-bold text-3xl text-center my-4 titulo uppercase font-bold text-black dark:text-white">
+          <p className="text-bold text-2xl md:text-3xl text-center my-4 titulo font-bold text-black dark:text-white">
             Generación de Cronojurídicas
           </p>
         </div>

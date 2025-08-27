@@ -1,36 +1,46 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MultiSelect from "./MultiSelect";
 import { type SearchField } from "../types/search";
 import { SearchFieldInput } from "./SearchFieldInput";
+import { IoMdSearch } from "react-icons/io";
+
 interface MultiSearchProps {
-  children?: React.ReactNode;
+  advancedSearch: (page?: number) => Promise<void>;
   searchFields: SearchField[];
+  type?: string;
   setSearchFields: React.Dispatch<React.SetStateAction<SearchField[]>>;
 }
 const MultiSearch = ({
   searchFields,
   setSearchFields,
-  children,
+  advancedSearch,
+  type = "resoluciones",
 }: MultiSearchProps) => {
-  const [selectedOptions, setSelectedOptions] = React.useState<{ value: string; id: string }[]>([]);
+  const [options, setOptions] = React.useState<SearchField[]>([]);
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    advancedSearch(1);
+  };
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSearchFields((prevFields) =>
-      selectedOptions.map((option) => ({
+      options.map((option) => ({
         id: option.id,
-        field: option.value,
-        value: prevFields.find((f) => f.field === option.value)?.value || "",
-        operator: prevFields.find((f) => f.field === option.value)?.operator || "AND",
+        field: option.field,
+        value: prevFields.find((f) => f.id === option.id)?.value || "",
+        operator:
+          prevFields.find((f) => f.id === option.id)?.operator || "AND",
       }))
     );
-  }, [selectedOptions, setSearchFields]);
+  }, [options, setSearchFields]);
 
   return (
-    <div>
+    <form onSubmit={handleFormSubmit}>
       <div className="flex flex-col sm:flex-col flex-wrap gap-4 p-0 m-0 md:p-2 md:m-2">
         <MultiSelect
-          selectedOptions={selectedOptions}
-          setSelectedOptions={setSelectedOptions}
+          type={type}
+          selectedOptions={options}
+          setSelectedOptions={setOptions}
         />
 
         {searchFields.length > 0 && (
@@ -51,9 +61,16 @@ const MultiSearch = ({
         )}
       </div>
       <div className="flex justify-end p-0 m-0 md:p-2 md:m-2">
-        {searchFields.length > 0 && children}
+        {searchFields.length > 0 && (
+          <button type="submit"
+            className="p-2.5 ms-2 mt-4 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border  hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            <IoMdSearch className="w-4 h-4" />
+            <span className="">Buscar</span>
+          </button>
+        )}
       </div>
-    </div>
+    </form>
   );
 };
 

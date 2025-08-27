@@ -18,18 +18,10 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
     const checkedId = Number(event.target.value);
     const isChecked = selectedIds.includes(checkedId);
 
-    let updated;
-
-    if (nombre === "periodo") {
-      // Solo un valor permitido
-      updated = isChecked ? [] : [checkedId];
-    } else {
-      // Comportamiento múltiple
-      updated = isChecked
+    const updated = isChecked
         ? selectedIds.filter((id) => id !== checkedId)
         : [...selectedIds, checkedId];
-    }
-
+  
     setFormData((prev) => ({
       ...prev,
       [nombre]: updated,
