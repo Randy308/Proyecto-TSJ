@@ -76,7 +76,7 @@ const Navbar = () => {
           </button>
         </div>
         <a className="flex items-center justify-center m-1 rounded-lg titulo text-white font-bold text-xl md:order-1" href="/">
-          <img src="./vite.svg" alt="first-logo" className="h-16 self-center " />
+          <img src="./vite.svg" alt="first-logo" className="h-20 self-center " />
           SAMED TSJ
         </a>
         <div

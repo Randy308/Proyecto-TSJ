@@ -158,7 +158,7 @@ const Inicio = () => {
           </div>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="chart h-auto w-[300px] md:w-[400px] lg:w-[500px]"
+            className="chart h-auto w-[300px] md:w-[350px] lg:w-[420px]"
             viewBox="0 0 800 800"
             fill="none"
           >
