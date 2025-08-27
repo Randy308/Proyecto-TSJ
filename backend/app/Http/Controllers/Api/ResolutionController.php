@@ -782,15 +782,16 @@ class ResolutionController extends Controller
             ], 422);
         }
         $campos = [
-            'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false,  'columna' => 'id', 'nombre' => 'tipo_resolucion'],
             // 'departamento' => ['tabla' => 'departamentos', 'foreign_key' => 'departamento_id', 'join' => false, 'columna' => 'id', 'nombre' => 'departamento'],
             'sala' => ['tabla' => 'salas', 'foreign_key' => 'sala_id', 'join' => false,  'columna' => 'id', 'nombre' => 'sala'],
-            'magistrado' => ['tabla' => 'magistrados', 'foreign_key' => 'magistrado_id', 'join' => false,  'columna' => 'id', 'nombre' => 'magistrado'],
             'materia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'root_id', 'join' => true,  'columna' => 'id', 'nombre' => 'materia'],
             'tipo_jurisprudencia' => ['tabla' => 'jurisprudencias', 'foreign_key' => 'tipo_jurisprudencia_id', 'join' => true,  'columna' => 'id', 'nombre' => 'tipo_jurisprudencia'],
             'tipo_decision' => ['tabla' => 'resuelve_fondos', 'foreign_key' => 'rf.id', 'join' => true, 'columna' => 'id', 'nombre' => 'tipo_decision'],
             'resuelve_decision' => ['tabla' => 'resuelve_decisiones', 'foreign_key' => 'rd.resuelve_fondo_id', 'join' => true,  'columna' => 'id', 'nombre' => 'decision'],
             'forma_resolucion' => ['tabla' => 'forma_resolucions', 'foreign_key' => 'forma_resolucion_id', 'join' => false,  'columna' => 'id', 'nombre' => 'forma_resolucion'],
+            'tipo_resolucion' => ['tabla' => 'tipo_resolucions', 'foreign_key' => 'tipo_resolucion_id', 'join' => false,  'columna' => 'id', 'nombre' => 'tipo_resolucion'],
+            'magistrado' => ['tabla' => 'magistrados', 'foreign_key' => 'magistrado_id', 'join' => false,  'columna' => 'id', 'nombre' => 'magistrado'],
+
         ];
 
         $nombre = strtolower("sala");

@@ -44,6 +44,8 @@ Route::prefix('v2')->group(function () {
     Route::get('/filtrar-autos-supremos', [SearchController::class, 'filtrarAutosSupremos']);
     Route::get('/terminos-jurisprudencias', [SearchController::class, 'busquedaTerminos']);
     Route::get('/buscar-jurisprudencias', [SearchController::class, 'obtenerResolucionesCronologia']);
+    Route::post('/buscar-jurisprudencia-avanzado', [SearchController::class, 'buscarJurisprudenciaAvanzado']);
+
     Route::post('/buscar-resoluciones', [SearchController::class, 'buscarResolucionesAvanzado']);
     Route::get('/obtener-serie-terminos', [SearchController::class, 'buscarSerieTemporal']);
 

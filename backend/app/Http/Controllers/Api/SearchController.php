@@ -128,7 +128,95 @@ class SearchController extends Controller
     }
 
 
+    public function buscarJurisprudenciaAvanzado(Request $request)
+    {
 
+        $validator = Validator::make($request->all(), [
+            'filtros' => 'required|array',
+            'filtros.*.field' => 'required|string|in:contenido,descriptor,sintesis,precedente,maxima,proceso,ratio,descriptor,restrictor',
+            'filtros.*.value' => 'required|string',
+            'filtros.*.operator' => 'required|string|in:AND,OR,NOT',
+            'serie' => 'string',
+            'page' => 'integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación de los filtros.',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY); // 422
+        }
+
+        $matchString = $this->buildManticoreMatch($request->input('filtros', []));
+
+
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 20);
+        $offset = ($page - 1) * $perPage;
+        $select = ['resolution_id', 'jurisprudencia_id as id', 'nro_resolucion', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion', 'maxima', 'descriptor', 'restrictor'];
+
+        $search = Jurisprudencia::search('', function (Builder $builder) use ($matchString, $perPage, $offset, $request, $select) {
+
+
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('$matchString')")
+                ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
+                ->facet('sala')->groupBy('resolution_id')
+                ->facet('departamento')
+                ->facet('tipo_resolucion')
+                ->facet('periodo')->facet('mes')
+                ->facet('magistrado')->facet('tipo_jurisprudencia')
+                ->facet('forma_resolucion')->take($perPage)
+                ->offset($offset);
+
+            if ($request->has('periodo')) {
+                $list = implode(',', $request->periodo);
+                $builder->whereRaw("periodo IN ($list)");
+            }
+
+            if ($request->has('tipo_resolucion')) {
+                $list = implode(',', $request->tipo_resolucion);
+                $builder->whereRaw("tipo_resolucion IN ($list)");
+            }
+            if ($request->has('sala')) {
+                $list = implode(',', $request->sala);
+                $builder->whereRaw("sala IN ($list)");
+            }
+            if ($request->has('departamento')) {
+                $list = implode(',', $request->departamento);
+                $builder->whereRaw("departamento IN ($list)");
+            }
+
+            if ($request->has('magistrado')) {
+                $list = implode(',', $request->magistrado);
+                $builder->whereRaw("magistrado IN ($list)");
+            }
+            if ($request->has('forma_resolucion')) {
+                $list = implode(',', $request->forma_resolucion);
+                $builder->whereRaw("forma_resolucion IN ($list)");
+            }
+            return $builder;
+        })->raw();
+
+        $facetas = $search['facets'] ?? [];
+
+        foreach ($facetas as $nombre => $facetGroup) {
+            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
+        }
+
+
+
+        //return response()->json($search, 200);
+        return response()->json([
+            'data' => $search['hits'] ?? [],
+            'facets' => $facetas,
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $search['meta']['total_found'] ?? 0,
+            'last_page' => ceil(($search['meta']['total_found'] ?? 0) / $perPage),
+
+        ]);
+    }
     public function buscarResolucionesAvanzado(Request $request)
     {
 
@@ -370,7 +458,7 @@ class SearchController extends Controller
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
                 ->facet('sala')->groupBy('resolution_id')
                 ->facet('departamento')
-                ->facet('tipo_resolucion')
+                ->facet('tipo_resolucion')->facet('proceso_facet')
                 ->facet('periodo')->facet('mes')
                 ->facet('magistrado')
                 ->facet('forma_resolucion')->take($perPage)
@@ -500,6 +588,9 @@ class SearchController extends Controller
         ]);
 
         $query = $request->input('busqueda', 'derecho');
+        $campo = $request->input('campo', default: 'ratio');
+
+
         $highlight = $request->input('highlight', 'contenido');
 
         // Parámetros de paginación
@@ -517,21 +608,21 @@ class SearchController extends Controller
         $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 20);
         $offset = ($page - 1) * $perPage;
-        $select = ['resolution_id', 'jurisprudencia_id as id', 'nro_resolucion', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion', 'ratio', 'descriptor', 'restrictor'];
+        $select = ['resolution_id', 'jurisprudencia_id as id', 'nro_resolucion', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion', 'descriptor', 'restrictor'];
 
 
 
-        $search = Jurisprudencia::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $select) {
+        $search = Jurisprudencia::search('', function (Builder $builder) use ($query, $campo, $perPage, $offset, $request, $select) {
 
 
-            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@(ratio,restrictor,descriptor) $query')")
+            $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('@$campo $query')")
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
                 ->facet('sala')->groupBy('resolution_id')
                 ->facet('departamento')
                 ->facet('tipo_resolucion')
                 ->facet('periodo')
-                ->facet('magistrado')
-                ->facet('materia')
+                ->facet('magistrado')->facet('proceso_facet')->facet('restrictor_facet')->facet('materia_facet')
+                ->facet('materia')->facet('tipo_jurisprudencia')
                 ->facet('forma_resolucion')->take($perPage)
                 ->offset($offset);
 

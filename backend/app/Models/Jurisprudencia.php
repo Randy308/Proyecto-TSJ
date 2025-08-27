@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Scout\Searchable;
+
 /**
  * @property int $id
  * @property int $resolution_id
@@ -86,6 +87,10 @@ class Jurisprudencia extends Model
                 'forma_resolucion' => ['type' => 'int'],
                 'sala' => ['type' => 'int'],
                 'departamento' => ['type' => 'int'],
+                'proceso_facet' => ['type' => 'string'],
+                'restrictor_facet' => ['type' => 'string'],
+                'materia_facet' => ['type' => 'string'], // Para facetas
+
 
                 // Campos de texto completo para búsqueda
                 'restrictor' => ['type' => 'text'],
@@ -110,7 +115,7 @@ class Jurisprudencia extends Model
 
     public function toSearchableArray()
     {
-        $this->loadMissing('resolution');
+        $this->loadMissing('resolution', 'tipo_descriptor');
 
         $fechaEmision = $this->resolution?->fecha_emision;
         $fechaCarbon = $fechaEmision ? \Carbon\Carbon::parse($fechaEmision) : null;
@@ -139,7 +144,12 @@ class Jurisprudencia extends Model
             'maxima' => (string) $this->resolution?->maxima ?? '',
             'sintesis' => (string) $this->resolution?->sintesis ?? '',
             'nro_expediente' => (string) $this->resolution?->nro_expediente ?? '',
+
+
+
+            'proceso_facet' => (string) ($this->resolution?->proceso ?? ''),
+            'restrictor_facet' => (string) ($this->restrictor ?? ''),
+            'materia_facet' => ($this->tipo_descriptor?->nombre ?? 'Desconocido'), // Para facetas
         ];
     }
-
 }

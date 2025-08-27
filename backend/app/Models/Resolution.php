@@ -118,7 +118,7 @@ class Resolution extends Model
 
     public function resuelveDecision()
     {
-        return $this->hasOne(ResuelveDecision::class, 'resolucion_id', 'id');
+        return $this->hasOne(ResuelveDecision::class, 'resolution_id', 'id');
     }
 
     public function categoria_resolucion()
@@ -148,6 +148,9 @@ class Resolution extends Model
                 'departamento' => ['type' => 'uint'],
                 'categoria_resolucion' => ['type' => 'uint'],
                 'tiene_jurisprudencias' => ['type' => 'uint'],
+                'decision' => ['type' => 'uint'],
+                'tipo_decision' => ['type' => 'uint'],
+                'proceso_facet' => ['type' => 'string'],
 
                 // Campos de texto completo para búsqueda
                 'contenido' => ['type' => 'text'],
@@ -170,7 +173,7 @@ class Resolution extends Model
     public function toSearchableArray()
     {
         // Evitar N+1 cargando relaciones necesarias
-        $this->loadMissing(['content', 'jurisprudencias']);
+        $this->loadMissing(['content', 'jurisprudencias','resuelveDecision']);
 
         // Fecha segura
         $fechaEmision = $this->fecha_emision ?? null;
@@ -198,11 +201,14 @@ class Resolution extends Model
 
             'sintesis' => (string) ($this->sintesis ?? ''),
             'precedente' => (string) ($this->precedente ?? ''),
+            'proceso_facet' => (string) ($this->proceso ?? ''),
             'proceso' => (string) ($this->proceso ?? ''),
             'maxima' => (string) ($this->maxima ?? ''),
 
             // Contenido limpio (evita errores de null)
             'contenido' => (string) ($this->content->contenido ?? ''),
+
+            'tipo_decision' => (int) ($this->resuelveDecision->resuelve_fondo_id ?? 0),
         ];
     }
 }
