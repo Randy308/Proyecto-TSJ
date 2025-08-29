@@ -3,12 +3,14 @@ import type { BaseData, DataRow } from "../types";
 import { titulo } from "../utils/filterForm";
 import { useAnalisisContext } from "../context";
 
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { FaDownload } from "react-icons/fa";
 // --- Tipos ---
 
 // --- Componente ---
 export const TablaMultivariable = () => {
-
-  const {tableData} = useAnalisisContext();
+  const { tableData } = useAnalisisContext();
   const [data, setData] = useState<BaseData[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [processedData, setProcessedData] = useState<DataRow[]>([]);
@@ -28,6 +30,27 @@ export const TablaMultivariable = () => {
   const getColumns = (data: BaseData[]) => {
     if (data.length === 0) return [];
     return Object.keys(data[0]).filter((k) => k !== "id");
+  };
+
+  const exportToExcel = () => {
+    // 1. Crear hoja de cálculo a partir del JSON
+    const worksheet = XLSX.utils.json_to_sheet(data);
+
+    // 2. Crear libro de Excel y agregar la hoja
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
+
+    // 3. Convertir a un archivo binario
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    // 4. Crear un blob y descargar
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    saveAs(blob, "datos.xlsx");
   };
 
   const ReorderArray = (index: keyof BaseData) => {
@@ -230,7 +253,7 @@ export const TablaMultivariable = () => {
           {columns.map((col) =>
             col === "cantidad" ? null : (
               <option key={col} value={col}>
-                 {titulo(col)}
+                {titulo(col)}
               </option>
             )
           )}
@@ -295,6 +318,13 @@ export const TablaMultivariable = () => {
           </tbody>
         </table>
       </div>
+      <button
+        onClick={exportToExcel}
+        className="mt-4 px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-200 bg-gray-100 border-1 border-gray-600 text-gray-700 rounded"
+      >
+        <FaDownload />
+        Descargar Tabla
+      </button>
     </div>
   );
 };

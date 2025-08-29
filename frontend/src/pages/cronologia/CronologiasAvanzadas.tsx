@@ -8,6 +8,7 @@ import { JurisprudenciaService } from "../../services";
 import {
   filterAtributte,
   filterForm,
+  filterParams,
   filterTitle,
   obtenerFacetas,
   titulo,
@@ -27,6 +28,8 @@ import type {
   Facetas,
   Faceta,
   Resolucion,
+  Variables,
+  ListaData,
 } from "../../types";
 import SimpleSearchForm from "./SimpleSearchForm";
 import MultiSearch from "../../components/MultiSearch";
@@ -85,6 +88,8 @@ const CronologiasAvanzadas = () => {
   const [lastPage, setLastPage] = useState(1);
   const [actualPage, setActualPage] = useState(1);
   const [pageCount, setPageCount] = useState(1);
+
+  const [selector, setSelector] = useState<Facetas>({} as Facetas);
   const [totalCount, setTotalCount] = useState(1);
   const [resoluciones, setResoluciones] = useState<Resultado[]>([]);
 
@@ -358,24 +363,45 @@ const CronologiasAvanzadas = () => {
     );
   };
 
-  
-    useEffect(() => {
-      if (searchType) {
-        if (Object.keys(searchFields).length < 1) {
-          console.warn("Debe seleccionar al menos un campo de búsqueda");
-          return;
+  const removeItem = <K extends keyof DatosArray>(
+    nombre: K,
+    value: DatosArray[K] extends (infer U)[] ? U : number | string
+  ) => {
+    setFormData((prev) => {
+      const newFormData = { ...prev };
+      const current = newFormData[nombre];
+      if (current) {
+        const selectedIds = current.filter(
+          (id) => id !== value
+        ) as DatosArray[K];
+        if ((selectedIds ?? []).length > 0) {
+          newFormData[nombre] = selectedIds;
+        } else {
+          delete newFormData[nombre];
         }
-        advancedSearch(1);
-      } else {
-        if (Object.keys(selectedOptions).length < 1) {
-          console.warn("Debe seleccionar al menos un campo de búsqueda");
-          return;
-        }
-        obtenerResoluciones(1);
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, formData]);
+      return newFormData;
+    });
+  };
 
+  useEffect(() => {
+    setSelector(filterParams(formData, (data as Variables) || {}));
+
+    if (searchType) {
+      if (Object.keys(searchFields).length < 1) {
+        console.warn("Debe seleccionar al menos un campo de búsqueda");
+        return;
+      }
+      advancedSearch(1);
+    } else {
+      if (Object.keys(selectedOptions).length < 1) {
+        console.warn("Debe seleccionar al menos un campo de búsqueda");
+        return;
+      }
+      obtenerResoluciones(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, formData]);
 
   return (
     <div id="cronologia-container" className="sm:p-4 sm:m-4 m-2 p-2">
@@ -509,7 +535,7 @@ const CronologiasAvanzadas = () => {
             </>
           ) : (
             <div className="flex flex-row flex-wrap gap-4">
-              <div className="lg:w-auto w-full">
+              <div className="w-auto md:w-52">
                 {Object.entries(facetas).map(([name, contenido]) => (
                   <Filtros
                     key={name}
@@ -522,6 +548,36 @@ const CronologiasAvanzadas = () => {
               </div>
               <div className="md:flex-1">
                 <>
+                  {selector && Object.keys(selector).length > 0 && (
+                    <div className="flex gap-4 items-center flex-wrap">
+                      <span className="text-lg font-bold">Filtrado por:</span>
+                      {Object.entries(selector).map(([name, contenido]) => (
+                        <div
+                          className="flex gap-4 items-center flex-wrap"
+                          key={name}
+                        >
+                          <span className="uppercase text-xs font-bold">
+                            {titulo(name)}:
+                          </span>
+                          <div className="flex gap-4 flex-wrap">
+                            {contenido.map((item: ListaData, index: number) => (
+                              <div
+                                key={index}
+                                className="text-xs p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
+                                onClick={() =>
+                                  removeItem(name as keyof DatosArray, item.id)
+                                }
+                              >
+                                <span>{item.nombre}</span>
+                                <IoMdClose className="group-hover:text-red-400" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {resoluciones.length > 0 ? (
                     <div className="mt-6">
                       <Paginate

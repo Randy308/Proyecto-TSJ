@@ -48,7 +48,7 @@ const AnalisisBasico = () => {
     setDepartamentos(departamentos);
     setPeriodos(periodoArray);
     const salas = filteredSalas(periodoArray);
-    setId(salas.map((sala) => sala.id));
+    setId(salas.map((sala) => Number(sala.id)));
     setColumna(salas[0]?.grupo || null);
     setValidSalas(salas);
     setSelectedSala(salas);
@@ -60,7 +60,7 @@ const AnalisisBasico = () => {
       const salas = filteredSalas(periodos);
       setValidSalas(salas);
       setSelectedSala(salas);
-      setId(salas.map((sala) => sala.id));
+      setId(salas.map((sala) => Number(sala.id)));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variables, periodos]);

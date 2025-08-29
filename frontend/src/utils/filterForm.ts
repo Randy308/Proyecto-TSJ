@@ -83,6 +83,16 @@ export const obtenerFacetas = (response: Facetas, data: Facetas): Facetas => {
 
       lista[tabla] = merged as Faceta[];
 
+    } else if (key === 'proceso' || key === 'descriptor' || key === 'restrictor') {
+      const tabla = key;
+      const list1 = value
+        .filter((item: Faceta) => item.id !== null && item.id !== undefined && item.id !== '')
+        .map((item: Faceta) => ({
+          ...item,
+          nombre: item.id
+        })) as Faceta[];
+
+      lista[tabla as keyof Facetas] = list1;
     }
   }
   return lista;
@@ -102,14 +112,19 @@ export const filterParams = (
       if (!Array.isArray(objeto)) continue;
 
       // Filtrar por IDs
-      if(tabla === 'decision'){
+      if (tabla === 'decision') {
         const filtrado = objeto.filter((item) => ids?.includes(item.grupo_id));
         lista[tabla] = filtrado as ListaData[];
         continue;
       }
       const filtrado = objeto.filter((item) => ids?.includes(item.id));
-      
+
       lista[tabla] = filtrado as ListaData[]; // usamos `as any` para evitar conflicto de tipos exactos
+    } else if (key === 'proceso' || key === 'descriptor' || key === 'restrictor') {
+
+      const tabla = key;
+      const list1 = ids.map((item: Faceta) => ({ id: item, nombre: item })) as Faceta[];
+      lista[tabla] = list1;
     }
   }
   return lista;

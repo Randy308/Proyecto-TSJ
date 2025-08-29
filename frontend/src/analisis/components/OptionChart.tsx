@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import "../../data/dark.js";
@@ -9,6 +9,8 @@ import type {
   SingleChartType,
 } from "../../types/index.js";
 import { ToolbarChart } from "./ToolbarChart.js";
+import { titulo } from "../../utils/filterForm.js";
+import { FaDownload } from "react-icons/fa";
 
 export interface OptionChartProps {
   border?: boolean;
@@ -18,13 +20,29 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
     datos: dataset,
     chartType,
     isMultiVariable,
+    pares,
     handleClick,
   } = useAnalisisContext();
   // Configuraciones para una variable
   function getChartOption(
     chartType: SingleChartType,
-    dataset: AnalisisData
+    dataset: AnalisisData,
+    pares: string[] // variables seleccionadas
   ): echarts.EChartsOption {
+    const commonGrid = {
+      left: "6%",
+      right: "4%",
+      top: 120, // espacio para título
+      bottom: 100, // espacio para descripción y leyenda
+      containLabel: true,
+    };
+
+    // Configuración de leyenda común
+    const commonLegend = {
+      top: 80,
+      textStyle: { color: isDark ? "#F9FAFB" : "#374151" },
+    };
+
     switch (chartType) {
       case "bar":
         return {
@@ -32,13 +50,37 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
             trigger: "axis",
             axisPointer: { type: "shadow" },
           },
-          legend: {},
-          grid: {
-            left: "3%",
-            right: "4%",
-            bottom: "3%",
-            containLabel: true,
-          },
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           dataset: { source: dataset },
           xAxis: {
             type: "category",
@@ -63,7 +105,37 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "line":
         return {
-          legend: {},
+          legend: commonLegend,
+          grid: commonGrid,
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
           xAxis: { type: "category" },
@@ -82,7 +154,37 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "pie":
         return {
-          legend: {},
+          legend: commonLegend,
+          grid: commonGrid,
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
           tooltip: {
             trigger: "item",
             formatter: "{b}: {c} ({d}%)",
@@ -107,7 +209,37 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "scatter":
         return {
-          legend: {},
+          legend: commonLegend,
+          grid: commonGrid,
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
           tooltip: {
             trigger: "axis",
             axisPointer: { type: "cross" },
@@ -126,7 +258,37 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "area":
         return {
-          legend: {},
+          legend: commonLegend,
+          grid: commonGrid,
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
           xAxis: { type: "category" },
@@ -153,14 +315,38 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
             trigger: "axis",
             axisPointer: { type: "shadow" },
           },
-          legend: {},
-          grid: {
-            left: "3%",
-            right: "4%",
-            bottom: "3%",
-            containLabel: true,
-          },
 
+          legend: commonLegend,
+          grid: commonGrid,
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
           dataset: {
             source: dataset,
           },
@@ -182,7 +368,38 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
             trigger: "item",
             formatter: "{b}: {c} ({d}%)",
           },
-          legend: {},
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+
+          legend: commonLegend,
+          grid: commonGrid,
           dataset: { source: dataset },
           series: [
             {
@@ -208,20 +425,63 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
   function getDualChartConfig(
     type: DualChartType,
-    dataset: AnalisisData
+    dataset: AnalisisData,
+    pares: string[],
+    isDark: boolean = false
   ): echarts.EChartsOption {
     const seriesCount = Math.max(dataset[0].length - 1, 1); // quitamos la primera columna (categoría)
+
+    // Título y descripción comunes
+
+    // Configuración de grid común
+    const commonGrid = {
+      left: "6%",
+      right: "4%",
+      top: 120, // espacio para título
+      bottom: 100, // espacio para descripción y leyenda
+      containLabel: true,
+    };
+
+    // Configuración de leyenda común
+    const commonLegend = {
+      top: 80,
+      textStyle: { color: isDark ? "#F9FAFB" : "#374151" },
+    };
 
     switch (type) {
       case "stackedColumn":
         return {
-          legend: {},
-          grid: {
-            left: "3%",
-            right: "4%",
-            bottom: "3%",
-            containLabel: true,
-          },
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
           dataset: { source: dataset },
           xAxis: { type: "value" },
@@ -234,10 +494,43 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "stackedBar":
         return {
-          legend: {},
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
           dataset: { source: dataset },
-          xAxis: { type: "category" },
+          xAxis: {
+            type: "category",
+            axisLabel: { rotate: dataset[0].length > 7 ? 45 : 0 },
+          },
           yAxis: { type: "value" },
           series: Array.from({ length: seriesCount }, () => ({
             type: "bar",
@@ -245,40 +538,86 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
           })),
         };
 
-      case "column": {
-        const barSeriesCount = Math.max(dataset[0].length - 1, 1);
+      case "column":
         return {
-          legend: {},
-          grid: {
-            left: "3%",
-            right: "4%",
-            bottom: "3%",
-            containLabel: true,
-          },
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
           dataset: { source: dataset },
           xAxis: { type: "value" },
           yAxis: { type: "category" },
-          series: Array.from({ length: barSeriesCount }, () => ({
+          series: Array.from({ length: seriesCount }, () => ({
             type: "bar",
             seriesLayoutBy: "column",
           })),
         };
-      }
 
       case "bar":
         return {
-          legend: {},
-          grid: {
-            left: "3%",
-            right: "4%",
-            bottom: "3%",
-            containLabel: true,
-          },
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
           dataset: { source: dataset },
           xAxis: { type: "category", axisLabel: { rotate: 40 } },
-          yAxis: { gridIndex: 0 },
+          yAxis: { type: "value" },
           series: Array.from({ length: seriesCount }, () => ({
             type: "bar",
             seriesLayoutBy: "column",
@@ -287,7 +626,37 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "multiLine":
         return {
-          legend: {},
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
           xAxis: { type: "category", boundaryGap: false },
@@ -301,7 +670,37 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "stackedArea":
         return {
-          legend: {},
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           tooltip: { trigger: "axis" },
           dataset: { source: dataset },
           xAxis: { type: "category", boundaryGap: false },
@@ -316,21 +715,47 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       case "polar":
         return {
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          grid: commonGrid,
           tooltip: { trigger: "axis" },
-          legend: {},
           dataset: { source: dataset },
           radiusAxis: {},
           polar: {},
-          angleAxis: {
-            type: "category",
-          },
+          angleAxis: { type: "category" },
           series: Array.from({ length: seriesCount }, () => ({
             type: "bar",
             coordinateSystem: "polar",
             stack: "a",
-            emphasis: {
-              focus: "series",
-            },
+            emphasis: { focus: "series" },
           })),
         };
 
@@ -338,33 +763,53 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
         const globalMax = Math.max(
           ...dataset.slice(1).flatMap((row) => row.slice(1).map(Number))
         );
-
         const indicators = dataset.slice(1).map((row) => ({
           name: String(row[0]),
-          max: globalMax, // Puedes ajustar esto según el rango de valores
+          max: globalMax,
         }));
-
         const transposed = dataset[0].map((_, colIndex) =>
           dataset.map((row) => row[colIndex])
         );
-
         return {
-          tooltip: {},
-          legend: {},
-          radar: {
-            indicator: indicators,
-          },
-          dataset: {
-            source: dataset,
-          },
+          title: [
+            {
+              text: `Cantidad de autos supremos agrupados por ${pares
+                .map(titulo)
+                .join(", ")}`,
+              left: "center",
+              top: 20,
+              textStyle: { fontSize: 20 },
+              subtextStyle: {
+                color: "#175ce5",
+                fontSize: 15,
+                fontWeight: "bold",
+              },
+            },
+            {
+              text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+              subtext: [
+                `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+                `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+                dataset
+                  .slice(1)
+                  .map((item) => item[0])
+                  .join(", "),
+              ].join("\n"),
+              left: "left",
+              bottom: 10,
+              textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+            },
+          ],
+          legend: commonLegend,
+          radar: { indicator: indicators },
+          dataset: { source: dataset },
           series: [
             {
               name: "Budget vs spending",
               type: "radar",
-              data: transposed.slice(1).map((row) => ({
-                name: row[0],
-                value: row.slice(1), // Puedes ajustar esto según el rango de valores
-              })),
+              data: transposed
+                .slice(1)
+                .map((row) => ({ name: row[0], value: row.slice(1) })),
             },
           ],
         };
@@ -376,6 +821,25 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
   }
 
   const [option, setOption] = useState<echarts.EChartsOption>({});
+
+  const chartRef = useRef<ReactECharts>(null);
+  const downloadImage = () => {
+    const instance = chartRef.current?.getEchartsInstance();
+    if (instance) {
+      const dataURL = instance.getDataURL({
+        type: "png", // "jpeg" o "svg" también son opciones
+        pixelRatio: 2, // mayor calidad
+        backgroundColor: isDark ? "#0F172A" : "#FFFFFF", // fondo acorde al tema
+      });
+
+      // Crear un enlace para descargar
+      const link = document.createElement("a");
+      link.href = dataURL;
+      link.download = "grafico.png";
+      link.click();
+    }
+  };
+
   // Actualizar gráfico cuando cambian las configuraciones
   useEffect(() => {
     if (dataset.length === 0) {
@@ -394,8 +858,8 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
   const updateChart = () => {
     const configs: echarts.EChartsOption = !isMultiVariable
-      ? getChartOption(chartType as SingleChartType, dataset)
-      : getDualChartConfig(chartType as DualChartType, dataset);
+      ? getChartOption(chartType as SingleChartType, dataset, pares)
+      : getDualChartConfig(chartType as DualChartType, dataset, pares);
     if (configs) {
       setOption(configs);
     }
@@ -412,6 +876,7 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
 
       <div className="p-2 m-2 rounded-xl bg-white dark:bg-[#100C2A] h-[500px] md:h-[700px]">
         <ReactECharts
+          ref={chartRef}
           key={JSON.stringify(option)}
           option={option}
           theme={isDark ? "dark" : undefined}
@@ -421,6 +886,13 @@ export const OptionChart = ({ border = false }: OptionChartProps) => {
           }}
         />
       </div>
+      <button
+        onClick={downloadImage}
+        className="mt-4 px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-200 bg-gray-100 border-1 border-gray-600 text-gray-700 rounded"
+      >
+        <FaDownload />
+        Descargar Gráfico
+      </button>
     </div>
   );
 };

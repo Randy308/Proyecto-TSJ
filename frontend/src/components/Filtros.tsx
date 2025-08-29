@@ -10,18 +10,26 @@ interface FiltrosProps {
   setFormData: React.Dispatch<React.SetStateAction<DatosArray>>;
 }
 const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
-  const selectedIds: number[] = formData[nombre] || [];
+  const selectedIds = (formData[nombre] || []) as (string | number)[];
 
   const checkedAll = selectedIds.length === 0;
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const checkedId = Number(event.target.value);
+    let checkedId: string|number = Number(event.target.value);
+
+    if (
+      nombre === "proceso" ||
+      nombre === "restrictor" ||
+      nombre === "descriptor"
+    ) {
+      checkedId = event.target.value;
+    }
     const isChecked = selectedIds.includes(checkedId);
 
     const updated = isChecked
-        ? selectedIds.filter((id) => id !== checkedId)
-        : [...selectedIds, checkedId];
-  
+      ? selectedIds.filter((id) => id !== checkedId)
+      : [...selectedIds, checkedId];
+
     setFormData((prev) => ({
       ...prev,
       [nombre]: updated,
@@ -86,8 +94,8 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
                 checked={selectedIds.includes(item.id)}
                 onChange={handleCheckboxChange}
               />
-              <span>{item.nombre}</span>
-            </label>
+              <span className="text-wrap text-sm w-28 capitalize">{item.nombre}</span>
+            </label> 
             {item.cantidad && (
               <span className="text-gray-500 text-xs dark:text-gray-300 ms-2">
                 {item.cantidad}

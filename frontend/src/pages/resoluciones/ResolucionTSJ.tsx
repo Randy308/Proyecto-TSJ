@@ -121,7 +121,7 @@ const ResolucionTSJ = ({ id }: { id: number }) => {
         );
       case 4:
         return (
-          <div ref={docRef} className="bg-white p-4 m-5 rounded-lg">
+          <div ref={docRef} className="bg-white overflow-auto text-black p-4 m-5 rounded-lg">
             {resolucion.contenido
               ? resolucion.contenido.split("\r").map((line, index) =>
                   line === line.toUpperCase() ? (

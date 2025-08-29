@@ -14,7 +14,7 @@ export interface ListaData {
 }
 
 export interface Faceta {
-  id: number;
+  id: number | string;
   nombre?: string;
   grupo?: string;
   grupo_id?: number;
@@ -35,6 +35,9 @@ export interface Facetas {
   categoria?: Faceta[];
   resuelve_fondo?: Faceta[];
   decision?: Faceta[];
+  proceso?: Faceta[];
+  descriptor?: Faceta[];
+  restrictor?: Faceta[];
 }
 export interface Variables {
   departamento: ListaData[];
@@ -47,6 +50,9 @@ export interface Variables {
   periodo?: ListaData[];
   resuelve_fondo?: Faceta[];
   decision?: Faceta[];
+  proceso?: Faceta[];
+  descriptor?: Faceta[];
+  restrictor?: Faceta[];
 }
 
 export interface Resolucion {

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import "../../data/dark.js";
 import { useAnalisisContext, useThemeContext } from "../../context/index.js";
 import type { AnalisisData } from "../../types/index.js";
 import { titulo } from "../../utils/filterForm.js";
+import { FaDownload } from "react-icons/fa";
 
 interface OptionChartProps {
   border?: boolean;
@@ -21,6 +22,7 @@ export const Serie = ({ border = false }: OptionChartProps) => {
     invertirGrafico,
   } = useAnalisisContext();
 
+  const chartRef = useRef<ReactECharts>(null);
   const [chartStyle, setChartStyle] = useState<"line" | "area">("line");
   const [option, setOption] = useState<echarts.EChartsOption>({});
   const { isDark } = useThemeContext();
@@ -30,6 +32,30 @@ export const Serie = ({ border = false }: OptionChartProps) => {
     const seriesCount = Math.max(dataset[0].length - 1, 1);
 
     return {
+      title: [
+        {
+          text: "Cantidad de autos supremos por periodo",
+          left: "center",
+          top: 20, // margen superior para que no choque con el borde
+          textStyle: { fontSize: 20 },
+          subtextStyle: { color: "#175ce5", fontSize: 15, fontWeight: "bold" },
+        },
+        {
+          text: "Fuente: Tribunal Supremo de Justicia. Bolivia",
+          subtext: [
+            `Variables seleccionadas: ${pares.map(titulo).join(", ")}`,
+            `Categorías seleccionadas: ${dataset[0].slice(1).join(", ")}`,
+            dataset
+              .slice(1)
+              .map((item) => item[0])
+              .join(", "),
+          ].join("\n"),
+          left: "left",
+          bottom: 10,
+          textStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+          subtextStyle: { fontSize: 12, color: "#666", lineHeight: 18 },
+        },
+      ],
       backgroundColor: "transparent",
       color: isDark
         ? ["#4ADE80", "#60A5FA", "#FACC15", "#F472B6"]
@@ -41,19 +67,32 @@ export const Serie = ({ border = false }: OptionChartProps) => {
         textStyle: { color: isDark ? "#F9FAFB" : "#1F2937" },
       },
       legend: {
-        top: 10,
+        top: 80, // subimos un poco la leyenda para que no choque con el título
         textStyle: { color: isDark ? "#F9FAFB" : "#374151" },
       },
-      grid: { left: "3%", right: "3%", bottom: "5%", containLabel: true },
+      grid: {
+        top: 150,
+        bottom: 100, // más espacio para descripción y leyenda
+        left: 60,
+        right: 40,
+        containLabel: true, // evita que labels del eje se corten
+      },
       dataset: { source: dataset },
       xAxis: {
         type: "category",
         boundaryGap: false,
         axisLine: { lineStyle: { color: isDark ? "#9CA3AF" : "#374151" } },
+        axisLabel: {
+          rotate: dataset[0].length > 7 ? 45 : 0, // rotar si muchas categorías
+          interval: 0,
+        },
       },
       yAxis: {
         type: "value",
         axisLine: { lineStyle: { color: isDark ? "#9CA3AF" : "#374151" } },
+        splitLine: {
+          lineStyle: { type: "dashed", color: isDark ? "#4B5563" : "#E5E7EB" },
+        },
       },
       series: Array.from({ length: seriesCount }, () => ({
         type: "line",
@@ -64,7 +103,6 @@ export const Serie = ({ border = false }: OptionChartProps) => {
       })),
     };
   }
-
   const invertir = () => {
     if (Array.isArray(dataset) && dataset.length > 0) {
       const firstItem = dataset[0];
@@ -80,6 +118,24 @@ export const Serie = ({ border = false }: OptionChartProps) => {
       }
     }
   };
+
+  const downloadImage = () => {
+    const instance = chartRef.current?.getEchartsInstance();
+    if (instance) {
+      const dataURL = instance.getDataURL({
+        type: "png", // "jpeg" o "svg" también son opciones
+        pixelRatio: 2, // mayor calidad
+        backgroundColor: isDark ? "#0F172A" : "#FFFFFF", // fondo acorde al tema
+      });
+
+      // Crear un enlace para descargar
+      const link = document.createElement("a");
+      link.href = dataURL;
+      link.download = "grafico.png";
+      link.click();
+    }
+  };
+
   useEffect(() => {
     if (!isMultiVariable || dataset.length === 0) return;
     const configs = getDualChartConfig(dataset);
@@ -187,6 +243,7 @@ export const Serie = ({ border = false }: OptionChartProps) => {
       {/* Gráfico */}
       <div className="h-[500px] md:h-[700px] rounded-lg overflow-hidden">
         <ReactECharts
+          ref={chartRef}
           key={JSON.stringify(option)}
           option={option}
           theme={isDark ? "dark" : undefined}
@@ -196,6 +253,13 @@ export const Serie = ({ border = false }: OptionChartProps) => {
           }}
         />
       </div>
+      <button
+        onClick={downloadImage}
+        className="mt-4 px-4 py-2 flex items-center justify-center gap-2 hover:bg-gray-200 bg-gray-100 border-1 border-gray-600 text-gray-700 rounded"
+      >
+        <FaDownload />
+        Descargar Gráfico
+      </button>
     </div>
   );
 };

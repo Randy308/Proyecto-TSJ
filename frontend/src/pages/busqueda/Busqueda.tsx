@@ -48,13 +48,18 @@ const Busqueda = () => {
     {} as SimpleSearchFormData
   );
 
-  const removeItem = (value: number, nombre: keyof DatosArray) => {
+  const removeItem = <K extends keyof DatosArray>(
+    nombre: K,
+    value: DatosArray[K] extends (infer U)[] ? U : number | string
+  ) => {
     setFormData((prev) => {
       const newFormData = { ...prev };
-      if (newFormData[nombre]) {
-        const selectedIds = newFormData[nombre].filter((id) => id !== value);
-
-        if (selectedIds.length > 0) {
+      const current = newFormData[nombre];
+      if (current) {
+        const selectedIds = current.filter(
+          (id) => id !== value
+        ) as DatosArray[K];
+        if ((selectedIds ?? []).length > 0) {
           newFormData[nombre] = selectedIds;
         } else {
           delete newFormData[nombre];
@@ -188,8 +193,6 @@ const Busqueda = () => {
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
-          const { proceso_facet } = response.data.facets;
-          console.log("Facetas recibidas:", proceso_facet);
 
           setFacetas(
             obtenerFacetas(response.data.facets, (data as Facetas) || {})
@@ -299,9 +302,8 @@ const Busqueda = () => {
                       <div
                         key={index}
                         className="text-xs p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
-                        onClick={() =>
-                          removeItem(item.id, name as keyof DatosArray)
-                        }
+                        onClick={() => removeItem(name as keyof DatosArray, item.id)}
+
                       >
                         <span>{item.nombre}</span>
                         <IoMdClose className="group-hover:text-red-400" />

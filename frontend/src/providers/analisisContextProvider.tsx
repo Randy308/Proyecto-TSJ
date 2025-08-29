@@ -131,7 +131,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
     }
     const validatedData: Partial<FiltroAnalisis> = filterFormData({
       salas: id,
-      departamentos: departamentos.map((item: Faceta) => item.id),
+      departamentos: departamentos.map((item: Faceta) => Number(item.id)),
       periodos: periodos.map((item: Faceta) => String(item.nombre)),
     });
 
@@ -220,8 +220,9 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
         if (response.data) {
           const values =
             response.data.data.length > 0 ? response.data.data : [];
-          setDatos(values);
+          setDatos(response.data.chart.length > 0 ? response.data.chart : []);
           setTableData(values);
+          setPares(["Salas"]);
           setIsMultiVariable(false);
           setColumna(response.data.columna || null);
           obtenerParametros();

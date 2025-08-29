@@ -72,18 +72,18 @@ const SimpleSearchForm = ({
       <form onSubmit={handleClick} className="flex gap-2">
         <SimpleSelect updateFormData={updateFormData} type="jurisprudencia" />
         <div className="relative w-full">
-          <label className="absolute capitalize left-2 -top-1 px-3 bg-white dark:bg-[#242e42] text-gray-400 text-xs">
-            {label}
-          </label>
           <input
             type="text"
             id="voice-search"
             value={termino}
             onChange={(e) => actualizarInput(e)}
-            className="bg-gray-50 outline-none h-full border focus:border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-octopus-500 focus:border-red-octopus-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-red-octopus-500 dark:focus:border-red-octopus-500"
+            className="bg-white peer dark:bg-[#242e42] outline-none h-full border focus:border-2 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-octopus-500 focus:border-red-octopus-500 dark:focus:ring-blue-500 dark: block w-full p-2.5 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white  dark:focus:border-blue-500"
             placeholder="Búsqueda de jurisprudencia...."
             required
           />
+          <label className="absolute dark:peer-focus:text-blue-500 peer-focus:text-red-octopus-800 capitalize left-2 -top-1 px-3 bg-white dark:bg-[#242e42] text-gray-400 text-xs">
+            {label}
+          </label>
           {busqueda.length > 0 && (
             <a
               className="absolute inset-y-0 end-0 flex items-center justify-center pe-3 hover:cursor-pointer"

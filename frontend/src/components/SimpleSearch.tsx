@@ -65,17 +65,20 @@ const SimpleSearch = ({
           onSubmit={handleFormClick}
           className="flex-1 flex flex-col sm:flex-row gap-4 relative"
         >
-          <label className="absolute capitalize left-2 top-1 px-3 bg-white dark:bg-[#242e42] text-gray-400 text-xs">
-            {label}
-          </label>
           <input
             type="text"
             id="simple-search"
-            className="mt-4 bg-gray-50 border border-gray-300 text-gray-900 text-sm outline-none rounded-lg focus:border-2 focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="mt-4 bg-gray-50 peer border border-gray-300 text-gray-900 text-sm outline-none rounded-lg focus:border-2 focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Ingrese termino de búsqueda"
             value={termino}
             onChange={(e) => actualizarInput(e)}
           />
+          <label
+            htmlFor="simple-search"
+            className="absolute text-gray-400 capitalize peer-focus:text-blue-400 left-2 top-1 px-3 bg-white dark:bg-[#242e42]  text-xs"
+          >
+            {label}
+          </label>
           <button
             type="button"
             onClick={() => obtenerResoluciones(1)}

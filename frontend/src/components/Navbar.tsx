@@ -54,7 +54,7 @@ const Navbar = () => {
   return (
     <nav
       id="navbar-submenu"
-      className="bg-white relative border-gray-200 dark:bg-gray-900"
+      className="relative border-gray-200"
     >
       <div className="flex justify-between items-center mx-auto max-w-screen-xl p-1">
         <div className="flex gap-2 md:w-auto justify-between items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
@@ -76,7 +76,7 @@ const Navbar = () => {
           </button>
         </div>
         <a className="flex items-center justify-center m-1 rounded-lg titulo text-white font-bold text-xl md:order-1" href="/">
-          <img src="./vite.svg" alt="first-logo" className="h-20 self-center " />
+          <img src="/vite.svg" alt="first-logo" className="h-20 self-center " />
           SAMED TSJ
         </a>
         <div
