@@ -162,9 +162,9 @@ class SearchController extends Controller
             $builder->selectRaw(implode(",", $select))->whereRaw("MATCH('$matchString')")
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
                 ->facet('sala')->groupBy('resolution_id')
-                ->facet('departamento')
-                ->facet('tipo_resolucion')
-                ->facet('periodo')->facet('mes')
+                ->facet('departamento')->facet('materia')
+                ->facet('tipo_resolucion')->facet('tipo_decision')
+                ->facet('periodo')->facet('mes')->facet('proceso_facet')->facet('restrictor_facet')->facet('materia_facet')
                 ->facet('magistrado')->facet('tipo_jurisprudencia')
                 ->facet('forma_resolucion')->take($perPage)
                 ->offset($offset);
@@ -173,6 +173,22 @@ class SearchController extends Controller
                 $list = implode(',', $request->periodo);
                 $builder->whereRaw("periodo IN ($list)");
             }
+            if ($request->has('materia')) {
+                $list = implode(',', $request->materia);
+                $builder->whereRaw("materia IN ($list)");
+            }
+
+            if ($request->has('descriptor')) {
+                $builder->whereIn("materia_facet", $request->descriptor);
+            }
+
+            if ($request->has('proceso')) {
+                $builder->whereIn("proceso_facet", $request->proceso);
+            }
+            if ($request->has('restrictor')) {
+                $builder->whereIn("restrictor_facet", $request->restrictor);
+            }
+
 
             if ($request->has('tipo_resolucion')) {
                 $list = implode(',', $request->tipo_resolucion);
@@ -195,16 +211,29 @@ class SearchController extends Controller
                 $list = implode(',', $request->forma_resolucion);
                 $builder->whereRaw("forma_resolucion IN ($list)");
             }
+            if ($request->has("tipo_decision")) {
+                $list = implode(',', $request->tipo_decision);
+                $builder->whereRaw("tipo_decision IN ($list)");
+            }
             return $builder;
         })->raw();
 
+
+
         $facetas = $search['facets'] ?? [];
 
-        foreach ($facetas as $nombre => $facetGroup) {
-            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
-        }
+        // Convertir todos los grupos a colecciones de FacetaResource
+        $facetas = collect($facetas)->map(fn($group) => FacetaResource::collection(collect($group)))->toArray();
 
+        // Extraer facetas especiales y crear facetas_textos
+        $facetas_textos = [
+            'descriptor' => $facetas['materia_facet'] ?? null,
+            'restrictor' => $facetas['restrictor_facet'] ?? null,
+            'proceso'    => $facetas['proceso_facet'] ?? null,
+        ];
 
+        // Remover claves que ya usamos y fusionar con facetas_textos
+        $facetas = array_diff_key($facetas, array_flip(['materia_facet', 'restrictor_facet', 'proceso_facet'])) + $facetas_textos;
 
         //return response()->json($search, 200);
         return response()->json([
@@ -256,7 +285,7 @@ class SearchController extends Controller
                 ->facet('sala')->groupBy('resolution_id')
                 ->facet('departamento')
                 ->facet('tipo_resolucion')
-                ->facet('periodo')->facet('mes')
+                ->facet('periodo')->facet('proceso_facet')->facet('tipo_decision')
                 ->facet('magistrado')
                 ->facet('forma_resolucion')->take($perPage)
                 ->offset($offset);
@@ -264,6 +293,10 @@ class SearchController extends Controller
             if ($request->has('periodo')) {
                 $list = implode(',', $request->periodo);
                 $builder->whereRaw("periodo IN ($list)");
+            }
+
+            if ($request->has('proceso')) {
+                $builder->whereIn("proceso_facet", $request->proceso);
             }
 
             if ($request->has('tipo_resolucion')) {
@@ -290,12 +323,19 @@ class SearchController extends Controller
             return $builder;
         })->raw();
 
+
         $facetas = $search['facets'] ?? [];
 
-        foreach ($facetas as $nombre => $facetGroup) {
-            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
-        }
+        // Convertir todos los grupos a colecciones de FacetaResource
+        $facetas = collect($facetas)->map(fn($group) => FacetaResource::collection(collect($group)))->toArray();
 
+        // Extraer facetas especiales y crear facetas_textos
+        $facetas_textos = [
+            'proceso'    => $facetas['proceso_facet'] ?? null,
+        ];
+
+        // Remover claves que ya usamos y fusionar con facetas_textos
+        $facetas = array_diff_key($facetas, array_flip(['proceso_facet'])) + $facetas_textos;
 
 
         //return response()->json($search, 200);
@@ -458,7 +498,7 @@ class SearchController extends Controller
                 ->highlight(['before_match' => '<b>', 'after_match' => '</b>'])
                 ->facet('sala')->groupBy('resolution_id')
                 ->facet('departamento')
-                ->facet('tipo_resolucion')->facet('proceso_facet')
+                ->facet('tipo_resolucion')->facet('proceso_facet')->facet('tipo_decision')
                 ->facet('periodo')->facet('mes')
                 ->facet('magistrado')
                 ->facet('forma_resolucion')->take($perPage)
@@ -468,6 +508,10 @@ class SearchController extends Controller
                 $list = implode(',', $request->periodo);
                 $builder->whereRaw("periodo IN ($list)");
             }
+            if ($request->has('proceso')) {
+                $builder->whereIn("proceso_facet", $request->proceso);
+            }
+
 
             if ($request->has('tipo_resolucion')) {
                 $list = implode(',', $request->tipo_resolucion);
@@ -490,21 +534,33 @@ class SearchController extends Controller
                 $list = implode(',', $request->forma_resolucion);
                 $builder->whereRaw("forma_resolucion IN ($list)");
             }
+
+            if ($request->has('tipo_decision')) {
+                $list = implode(',', $request->tipo_decision);
+                $builder->whereRaw("tipo_decision IN ($list)");
+            }
+
+
             return $builder;
         })->raw();
-
         $facetas = $search['facets'] ?? [];
 
-        foreach ($facetas as $nombre => $facetGroup) {
-            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
-        }
+        // Convertir todos los grupos a colecciones de FacetaResource
+        $facetas = collect($facetas)->map(fn($group) => FacetaResource::collection(collect($group)))->toArray();
 
+        // Extraer facetas especiales y crear facetas_textos
+        $facetas_textos = [
+            'proceso'    => $facetas['proceso_facet'] ?? null,
+        ];
 
+        // Remover claves que ya usamos y fusionar con facetas_textos
+        $facetas = array_diff_key($facetas, array_flip(['proceso_facet'])) + $facetas_textos;
 
         //return response()->json($search, 200);
         return response()->json([
             'data' => $search['hits'] ?? [],
             'facets' => $facetas,
+            'facetas' => $facetas_textos,
             'current_page' => $page,
             'per_page' => $perPage,
             'total' => $search['meta']['total_found'] ?? 0,
@@ -576,7 +632,12 @@ class SearchController extends Controller
             'busqueda' => 'nullable|string',
             'materia' => 'nullable|array',
             'materia.*' => 'required|integer',
-            'descriptor' => 'nullable|integer',
+            'descriptor' => 'nullable|array',
+            'descriptor.*' => 'required|string',
+            'restrictor' => 'nullable|array',
+            'restrictor.*' => 'required|string',
+            'proceso' => 'nullable|array',
+            'proceso.*' => 'required|string',
             'periodo' => 'nullable|array',
             'tipo_resolucion' => 'nullable|array',
             'sala' => 'nullable|array',
@@ -620,7 +681,7 @@ class SearchController extends Controller
                 ->facet('sala')->groupBy('resolution_id')
                 ->facet('departamento')
                 ->facet('tipo_resolucion')
-                ->facet('periodo')
+                ->facet('periodo')->facet('tipo_decision')
                 ->facet('magistrado')->facet('proceso_facet')->facet('restrictor_facet')->facet('materia_facet')
                 ->facet('materia')->facet('tipo_jurisprudencia')
                 ->facet('forma_resolucion')->take($perPage)
@@ -632,8 +693,14 @@ class SearchController extends Controller
             }
 
             if ($request->has('descriptor')) {
-                $item = intval($request->descriptor);
-                $builder->whereRaw("descriptor_id = $item");
+                $builder->whereIn("materia_facet", $request->descriptor);
+            }
+
+            if ($request->has('proceso')) {
+                $builder->whereIn("proceso_facet", $request->proceso);
+            }
+            if ($request->has('restrictor')) {
+                $builder->whereIn("restrictor_facet", $request->restrictor);
             }
 
             if ($request->has('periodo')) {
@@ -662,14 +729,30 @@ class SearchController extends Controller
                 $list = implode(',', $request->forma_resolucion);
                 $builder->whereRaw("forma_resolucion IN ($list)");
             }
+
+            if ($request->has("tipo_decision")) {
+                $list = implode(',', $request->tipo_decision);
+                $builder->whereRaw("tipo_decision IN ($list)");
+            }
+
             return $builder;
         })->raw();
 
         $facetas = $search['facets'] ?? [];
 
-        foreach ($facetas as $nombre => $facetGroup) {
-            $facetas[$nombre] = FacetaResource::collection(collect($facetGroup));
-        }
+        // Convertir todos los grupos a colecciones de FacetaResource
+        $facetas = collect($facetas)->map(fn($group) => FacetaResource::collection(collect($group)))->toArray();
+
+        // Extraer facetas especiales y crear facetas_textos
+        $facetas_textos = [
+            'descriptor' => $facetas['materia_facet'] ?? null,
+            'restrictor' => $facetas['restrictor_facet'] ?? null,
+            'proceso'    => $facetas['proceso_facet'] ?? null,
+        ];
+
+        // Remover claves que ya usamos y fusionar con facetas_textos
+        $facetas = array_diff_key($facetas, array_flip(['materia_facet', 'restrictor_facet', 'proceso_facet'])) + $facetas_textos;
+
 
         //return response()->json($search, 200);
         return response()->json([

@@ -87,6 +87,7 @@ class Jurisprudencia extends Model
                 'forma_resolucion' => ['type' => 'int'],
                 'sala' => ['type' => 'int'],
                 'departamento' => ['type' => 'int'],
+                'tipo_decision' => ['type' => 'int'],
                 'proceso_facet' => ['type' => 'string'],
                 'restrictor_facet' => ['type' => 'string'],
                 'materia_facet' => ['type' => 'string'], // Para facetas
@@ -115,7 +116,7 @@ class Jurisprudencia extends Model
 
     public function toSearchableArray()
     {
-        $this->loadMissing('resolution', 'tipo_descriptor');
+        $this->loadMissing('tipo_descriptor', 'resolution.resuelveDecision');
 
         $fechaEmision = $this->resolution?->fecha_emision;
         $fechaCarbon = $fechaEmision ? \Carbon\Carbon::parse($fechaEmision) : null;
@@ -144,12 +145,10 @@ class Jurisprudencia extends Model
             'maxima' => (string) $this->resolution?->maxima ?? '',
             'sintesis' => (string) $this->resolution?->sintesis ?? '',
             'nro_expediente' => (string) $this->resolution?->nro_expediente ?? '',
-
-
-
             'proceso_facet' => (string) ($this->resolution?->proceso ?? ''),
             'restrictor_facet' => (string) ($this->restrictor ?? ''),
             'materia_facet' => ($this->tipo_descriptor?->nombre ?? 'Desconocido'), // Para facetas
+            'tipo_decision' => (int) ($this->resolution?->resuelveDecision?->resuelve_fondo_id ?? 0),
         ];
     }
 }
