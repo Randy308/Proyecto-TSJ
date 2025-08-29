@@ -311,8 +311,7 @@
 
 
             <td style="width: 10%;">
-                <img src="{{ public_path('/images/iijp.png') }}" alt="Image"
-                    style="max-width: 100px; height: auto;" />
+                <img src="{{ public_path('/images/iijp.png') }}" alt="Image" style="max-width: 100px; height: auto;" />
             </td>
         </tr>
     </table>
@@ -458,7 +457,7 @@
         <div class="resolucion-card">
             <h2 class="resolucion-header">
                 <tocentry content="{{ $item['nro_resolucion'] }}" level="1" />
-                <a class="resolucion-link" href="http://127.0.0.1:8000/resolucion/{{ $item['id'] }}">
+                <a class="resolucion-link" href="https://samed-tsj.umss.edu.bo/resolucion/{{ $item['id'] }}">
                     {!! $item['nro_resolucion'] !!}
                 </a>
             </h2>
@@ -479,44 +478,44 @@
         </div>
     @endforeach
 
-    {{-- 
+    {{--
     @if ($referencias && count($referencias) > 0)
-        <pagebreak even-footer-value="-1" resetpagenum="1" />
+    <pagebreak even-footer-value="-1" resetpagenum="1" />
 
 
-        <p style="font-size: 20pt;" class="titulo-referencias">Bibliografía consultada</p>
+    <p style="font-size: 20pt;" class="titulo-referencias">Bibliografía consultada</p>
 
-        @foreach ($referencias as $elemento)
-            <div style="margin-bottom: 1em; font-size: 12pt; line-height: 1.6; text-align: justify;">
+    @foreach ($referencias as $elemento)
+    <div style="margin-bottom: 1em; font-size: 12pt; line-height: 1.6; text-align: justify;">
 
-                @if ($elemento->tipo_resolucion)
-                    <span>
-                        {{ $elemento->tipo_resolucion }}
-                    </span>
-                @endif
-                @if ($elemento->nro_resolucion)
-                    <span>
-                        {{ ltrim($elemento->nro_resolucion, '0') }}
-                    </span>
-                @endif
-                @if ($elemento->fecha_emision)
-                    <span>
-                        de {{ $elemento->fecha_emision }}.
-                    </span>
-                @endif
-                @if ($elemento->sala)
-                    <span>
-                        Tribunal Supremo de Justicia, Sala {{ $elemento->sala }}.
-                    </span>
-                @endif
-                @if ($elemento->external_id)
-                    <a href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
-                        Enlace
-                    </a>
-                @endif
+        @if ($elemento->tipo_resolucion)
+        <span>
+            {{ $elemento->tipo_resolucion }}
+        </span>
+        @endif
+        @if ($elemento->nro_resolucion)
+        <span>
+            {{ ltrim($elemento->nro_resolucion, '0') }}
+        </span>
+        @endif
+        @if ($elemento->fecha_emision)
+        <span>
+            de {{ $elemento->fecha_emision }}.
+        </span>
+        @endif
+        @if ($elemento->sala)
+        <span>
+            Tribunal Supremo de Justicia, Sala {{ $elemento->sala }}.
+        </span>
+        @endif
+        @if ($elemento->external_id)
+        <a href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
+            Enlace
+        </a>
+        @endif
 
-            </div>
-        @endforeach
+    </div>
+    @endforeach
 
     @endif --}}
 
