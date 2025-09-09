@@ -4,6 +4,7 @@ export interface AuthUser {
   id: number;
   permissions?: string[];
   rol?: string;
+  role?:string;
   name?: string;
   email?: string;
   created_at?: string;
@@ -11,6 +12,12 @@ export interface AuthUser {
 
 export interface AuthContextType {
   authUser: AuthUser | null;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string
+  ) => Promise<{ success: boolean; message?: string; user?: AuthUser }>;
   setAuthUser: React.Dispatch<React.SetStateAction<AuthUser | null>>;
   loading: boolean;
   login: (

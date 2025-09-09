@@ -10,7 +10,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState<boolean | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState<number | null>(null);
-  const { hasAccess } = useAuthContext();
+  const { hasAccess, authUser } = useAuthContext();
 
   const actualizarBoton = () => {
     setMenuOpen((prevState) => !prevState);
@@ -38,10 +38,10 @@ const Navbar = () => {
         <>
           <li>
             <NavLink
-              to="/dashboard"
+              to={`${authUser?.role !== "user" ? "/dashboard" : "/perfil-usuario"}`}
               className={`flex items-center  rounded-xl p-2 text-gray-200 hover:text-white dark:hover:text-white`}
             >
-              <span>Dashboard</span>
+              <span>Mis acciones</span>
             </NavLink>
           </li>
         </>
@@ -52,10 +52,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      id="navbar-submenu"
-      className="relative border-gray-200"
-    >
+    <nav id="navbar-submenu" className="relative border-gray-200">
       <div className="flex justify-between items-center mx-auto max-w-screen-xl p-1">
         <div className="flex gap-2 md:w-auto justify-between items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
           <button
@@ -71,11 +68,18 @@ const Navbar = () => {
             {!menuOpen ? (
               <FaBars id="bars" key="first" className="w-7 h-7"></FaBars>
             ) : (
-              <FaTimes id="close" key="second" className="w-7 h-7 fixed"></FaTimes>
+              <FaTimes
+                id="close"
+                key="second"
+                className="w-7 h-7 fixed"
+              ></FaTimes>
             )}
           </button>
         </div>
-        <a className="flex items-center justify-center m-1 rounded-lg titulo text-white font-bold text-xl md:order-1" href="/">
+        <a
+          className="flex items-center justify-center m-1 rounded-lg titulo text-white font-bold text-xl md:order-1"
+          href="/"
+        >
           <img src="/vite.svg" alt="first-logo" className="h-20 self-center " />
           SAMED TSJ
         </a>

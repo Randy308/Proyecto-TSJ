@@ -3,6 +3,10 @@ import { HiMoon, HiOutlineLogin, HiSun } from "react-icons/hi";
 import { FaGear } from "react-icons/fa6";
 import "../styles/main.css";
 import { useAuthContext, useThemeContext } from "../context";
+import PortalAnchor from "./modal/PortalAnchor";
+import { CiLogin } from "react-icons/ci";
+import { IoLogInOutline } from "react-icons/io5";
+import { Form } from "../auth/Form";
 const Settings = ({ reversed = false }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -117,6 +121,21 @@ const Settings = ({ reversed = false }) => {
         </>
       );
     }
+
+    return (
+      <ul className="space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
+        <li>
+          <PortalAnchor
+            name="Iniciar sesión"
+            Icon={CiLogin}
+            color="link"
+            content={(_showModal, setShowModal) => (
+              <Form setShowModal={setShowModal} />
+            )}
+          />
+        </li>
+      </ul>
+    );
   };
 
   return (
@@ -136,7 +155,7 @@ const Settings = ({ reversed = false }) => {
             <HiMoon className="w-7 h-7" />
           )}
         </button>
-        {hasAccess() && (
+        {hasAccess() ? (
           <button
             onClick={logoutUser}
             className={`dark:text-gray-400 dark:hover:text-white ${
@@ -147,6 +166,14 @@ const Settings = ({ reversed = false }) => {
           >
             <HiOutlineLogin className="flex-shrink-0 w-7 h-7 transition duration-75 " />
           </button>
+        ) : (
+          <PortalAnchor
+            Icon={IoLogInOutline}
+            color="link"
+            content={(_showModal, setShowModal) => (
+              <Form setShowModal={setShowModal} />
+            )}
+          />
         )}
       </div>
       <div className="relative sm:hidden">

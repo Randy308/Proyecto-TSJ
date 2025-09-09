@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
-import {JurisprudenciaService} from "../../services";
+import { JurisprudenciaService } from "../../services";
 import { filterForm } from "../../utils/filterForm";
 import AsyncButton from "../../components/AsyncButton";
 import { IoMdClose } from "react-icons/io";
@@ -15,7 +15,6 @@ interface ArbolJurisprudencial {
   nombre: string;
 }
 interface ResultadosBusqueda {
-
   descriptor: string;
   cantidad: number;
 }
@@ -88,6 +87,9 @@ const GeneracionRapida = () => {
       .catch((error) => {
         const message = error.response?.data?.error || "Ocurrió un error";
         console.error("Error fetching data:", message);
+        if (error.response?.status === 429) {
+          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.");
+        }
       })
       .finally(() => {
         setIsLoading(false);

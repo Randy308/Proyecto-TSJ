@@ -18,7 +18,7 @@ import { GiArchiveRegister } from "react-icons/gi";
 const Sidebar = () => {
   const [show, setShow] = React.useState(false);
 
-  const { hasAccess, can } = useAuthContext();
+  const { hasAccess, can, authUser } = useAuthContext();
 
   const { notifications } = useNotificationContext();
 
@@ -26,22 +26,25 @@ const Sidebar = () => {
     if (hasAccess()) {
       return (
         <>
-          <li>
-            <NavLink
-              to="/dashboard"
-              onClick={() => setShow(false)}
-              className={({ isActive }) =>
-                `flex items-center p-2  rounded-lg  group ${
-                  isActive
-                    ? "dark:text-white text-gray-900"
-                    : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`
-              }
-            >
-              <RiDashboard2Fill className="w-5 h-5  transition duration-75 " />
-              <span className="ms-3">Dashboard</span>
-            </NavLink>
-          </li>
+          {authUser && authUser.role !== "user" && (
+            <li>
+              <NavLink
+                to="/dashboard"
+                onClick={() => setShow(false)}
+                className={({ isActive }) =>
+                  `flex items-center p-2  rounded-lg  group ${
+                    isActive
+                      ? "dark:text-white text-gray-900"
+                      : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <RiDashboard2Fill className="w-5 h-5  transition duration-75 " />
+                <span className="ms-3">Dashboard</span>
+              </NavLink>
+            </li>
+          )}
+
           <li>
             <NavLink
               to="/perfil-usuario"

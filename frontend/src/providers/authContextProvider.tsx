@@ -4,6 +4,8 @@ import { AuthContext, type AuthUser, type AuthContextType } from "../context";
 import { AuthService } from "../services";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export const AuthContextProvider = ({ children }: ContextProviderProps) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -11,8 +13,9 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
     "isAuthenticated",
     false
   );
+  const navigate  = useNavigate();
   const [loading, setLoading] = useState(true);
-   // Assuming you want to use the current location for navigation
+  // Assuming you want to use the current location for navigation
   // Check if user is authenticated on app load
   useEffect(() => {
     checkAuth();
@@ -54,12 +57,37 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
     }
   };
 
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    password_confirmation: string
+  ) => {
+    try {
+      const response = await AuthService.getRegister({
+        name,
+        email,
+        password,
+        password_confirmation,
+      });
+      setAuthUser(response.data.user);
+      setIsAuthenticated(true);
+      return { success: true, user: response.data.user };
+    } catch (error: unknown) {
+      console.error("Register error:", error);
+      const message = "Error al registrar usuario";
+      return { success: false, message };
+    }
+  };
+
   const logout = async () => {
     try {
       await AuthService.getLogout();
       toast.success("Sesión cerrada correctamente");
       setAuthUser(null);
       setIsAuthenticated(false);
+      await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
+      //window.location.href = '/';
       return { success: true };
     } catch (error: unknown) {
       // Even if logout fails, clear user state
@@ -90,6 +118,7 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
     setAuthUser,
     loading,
     login,
+    register,
     logout,
     checkAuth,
     can,

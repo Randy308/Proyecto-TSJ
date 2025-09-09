@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
     "@react-pdf/renderer": "^4.3.0",
     "@types/d3": "^7.4.3",
     "@types/file-saver": "^2.0.7",
@@ -24,12 +25,14 @@
     "file-saver": "^2.0.5",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.62.0",
     "react-icons": "^5.5.0",
     "react-papaparse": "^4.4.0",
     "react-router-dom": "^7.6.3",
     "react-toastify": "^11.0.5",
     "topojson-client": "^3.1.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "zod": "^4.1.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",

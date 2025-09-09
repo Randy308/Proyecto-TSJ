@@ -1,58 +1,52 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CgSpinner } from "react-icons/cg";
 import { useAuthContext } from "../context";
-import { EmailInput, PasswordInput } from "../components/form";
-import type { CreateUser, FormInput, UserFields } from "../types";
+
+import { z } from "zod";
+
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import CustomInput from "../components/form/CustomInput";
+const schema = z.object({
+  email: z
+    .string()
+    .email("Correo electronico invalido")
+    .min(1, "El correo electronico es obligatorio"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 export function Login() {
   const { hasAccess, login } = useAuthContext();
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [formState, setFormState] = useState<FormInput>({
-    email: false,
-    password: false,
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    mode: "onBlur",
   });
 
-  const [formData, setFormData] = useState<CreateUser>({
-    email: "",
-    password: "",
-  });
-
-  const setParams = (name: UserFields, value: string | number) => {
-    setFormData((prevData: CreateUser) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const actualizarInput = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setParams(event.target.name as UserFields, event.target.value);
-  };
-
-  const [error, setError] = useState("");
-  useEffect(() => {
-    if (hasAccess()) {
-      navigate("/");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const isFormValid = Object.values(formState).every(Boolean);
-    if (!isFormValid) return;
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const { success } = await login(formData.email ?? "", formData.password ?? "");
+      const { success, user } = await login(data.email, data.password);
 
-      if (success) {
+      if (!success) {
+        setError("Email o contraseña incorrectos");
+        return;
+      }
+
+      if (user?.role !== "user") {
         navigate("/dashboard");
       } else {
-        setError("Email o contraseña incorrectos");
+        navigate("/");
       }
     } catch (err) {
       console.error("Error en la solicitud:", err);
@@ -60,52 +54,62 @@ export function Login() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (hasAccess()) {
+      navigate("/");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="bg-gray-300 dark:bg-gray-900 bg-cover bg-center bg-no-repeat bg-fixed flex flex-col justify-center items-center h-screen w-screen sm:p-5 md:p-10 lg:p-30">
-      <div className="grid md:grid-cols-3 sm:grid-cols-1 shadow-lg rounded-lg">
-        <div className="md:col-span-2 col-span-1">
-          <img
-            src="derechoo.webp"
-            className="object-contain w-full h-full"
-            alt="Logo UMSS"
-          ></img>
-        </div>
-        <div className="col-span-1 flex items-center bg-white dark:bg-gray-700 dark:border-gray-900 border border-gray-300 rounded-md">
-          <form onSubmit={submitForm} className="w-full p-4 ml-0 mt-0 ">
-            <div className="text-center text-black dark:text-white text-4xl font-bold titulo">
-              SAMED
-            </div>
-            <EmailInput
-              email={formData.email ?? ""}
-              setEmail={actualizarInput}
-              setFormState={setFormState}
-            />
+    <>
+      {/* Botón cerrar */}
 
-            <PasswordInput
-              password={formData.password ?? ""}
-              setPassword={actualizarInput}
-              setFormState={setFormState}
-            />
-            {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+      <a className="flex gap-1 items-center justify-center">
+        <img src="/vite.svg" className="w-20 h-20" alt="SAMED-TSJ Logo"></img>
+        <p className="titulo uppercase text-xl md:text-3xl font-black">
+          SAMED-TSJ
+        </p>
+      </a>
+      <p className="titulo text-2xl py-2 text-center">Inicio de sesión</p>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-1">
+        <CustomInput
+          name="email"
+          control={control}
+          label="Email"
+          placeholder="Ingrese su email"
+          type="email"
+          error={errors.email}
+        />
+        <CustomInput
+          name="password"
+          control={control}
+          label="Contraseña"
+          placeholder="**************"
+          type="password"
+          mode="password"
+          error={errors.password}
+        />
 
-            <button
-              type="submit"
-              disabled={!formState}
-              className={`text-white bg-red-octopus-700 hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 font-medium rounded-lg text-sm w-full px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 ${
-                !formState
-                  ? "bg-gray-300 cursor-not-allowed hover:bg-gray-300"
-                  : ""
-              }`}
-            >
-              {isLoading ? (
-                <CgSpinner className="inline w-5 h-5 me-3 text-white animate-spin dark:text-gray-600" />
-              ) : (
-                "Acceder"
-              )}
-            </button>
-          </form>
+        <div className="h-4">
+          {error && (
+            <div className="invalid-feedback text-red-600 text-xs">{error}</div>
+          )}
         </div>
+
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="text-white bg-blue-700 w-full hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Iniciar sesión
+          </button>
+        </div>
+      </form>
+      <div className="text-center flex items-center justify-center dark:text-white my-2">
+        <p>No tienes una cuenta?</p>
       </div>
-    </div>
+    </>
   );
 }

@@ -214,6 +214,9 @@ const CronologiasAvanzadas = () => {
       .catch((error) => {
         const message = error.response?.data?.error || "Ocurrió un error";
         console.error("Error fetching data:", message);
+        if (error.response?.status === 429) {
+          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.");
+        }
       })
       .finally(() => {
         setIsLoading(false);

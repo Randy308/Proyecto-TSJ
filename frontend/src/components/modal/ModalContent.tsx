@@ -1,18 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { IoMdClose } from "react-icons/io";
-import {Login} from "../../auth";
-
 
 interface ModalProps {
   onClose: React.MouseEventHandler<HTMLButtonElement>;
   title?: string;
   content?: React.ReactNode;
 }
-export default function ModalContent({ onClose, title, content }:ModalProps) {
+export default function ModalContent({ onClose, title, content }: ModalProps) {
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white dark:bg-[#242E42] p-6 rounded-lg shadow-lg w-full max-w-md">
+    <div className="custom-portal-modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white dark:bg-[#242E42] p-2 rounded-lg shadow-lg w-full max-w-md">
         <div
           className={`modal-header flex flex-row items-center  ${
             title ? "justify-between" : "justify-end"
@@ -32,7 +30,7 @@ export default function ModalContent({ onClose, title, content }:ModalProps) {
             <IoMdClose className="w-7 h-7" />
           </button>
         </div>
-        <div className="modal-body">{content || <Login />}</div>{" "}
+        <div className="modal-body">{content || ""}</div>{" "}
       </div>
     </div>,
     document.body

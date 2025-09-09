@@ -47,9 +47,6 @@ const AnalisisAvanzado = lazy(
 const SerieTemporal = lazy(() => import("./analisis/playground/SerieTemporal"));
 const Mapa = lazy(() => import("./analisis/playground/Mapa"));
 
-const Login = lazy(() =>
-  import("./auth/Login").then((module) => ({ default: module.Login }))
-);
 
 const ListaRoles = lazy(() =>
   import("./pages/admin/Roles/ListaRoles").then((module) => ({
@@ -136,7 +133,6 @@ function App() {
               <Route path="data-playground" element={<AnalisisAvanzado />} />
               <Route path="serie-temporal/:id" element={<SerieTemporal />} />
               <Route path="mapa-estadistico/:id" element={<Mapa />} />
-              <Route path="iijp-login" element={<Login />} />
             </Route>
 
             <Route>
