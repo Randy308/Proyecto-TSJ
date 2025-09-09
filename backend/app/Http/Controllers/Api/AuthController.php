@@ -72,10 +72,6 @@ class AuthController extends Controller
     public function login(Request $request)
     {
 
-        // Log::info('CSRF Token from header: ' . $request->header('X-CSRF-TOKEN'));
-        // Log::info('CSRF Token from session: ' . $request->session()->token());
-        // Log::info('XSRF-TOKEN from header:', [$request->header('X-XSRF-TOKEN')]);
-
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:4',
@@ -101,12 +97,13 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
+
         return response()->json([
             'success' => true,
             'message' => 'Inicio de sesión exitoso.',
             'login' => true,
             'user' => new UserResource($user),
-            'rol' => $user->getRoleNames(),
+            'rol' => $user->getRoleNames()[0],
         ]);
     }
 
@@ -159,6 +156,7 @@ class AuthController extends Controller
         $user->assignRole('user');
 
         $response['success'] = true;
+
 
         // $response['user'] =  $user;
         // $response['token'] = $user->createToken('web token')->plainTextToken;

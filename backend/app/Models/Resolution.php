@@ -80,6 +80,11 @@ class Resolution extends Model
         return $this->hasMany(Jurisprudencia::class, 'resolution_id', 'id');
     }
 
+    public function contenidoPartes()
+    {
+        return $this->hasMany(ContenidoParte::class, 'resolution_id', 'id');
+    }
+
     public function tema()
     {
         return $this->belongsTo(Tema::class);
@@ -125,6 +130,7 @@ class Resolution extends Model
     {
         return $this->belongsTo(CategoriaResolucion::class, 'categoria_resolucion_id');
     }
+
 
     public function scoutIndexMigration(): array
     {

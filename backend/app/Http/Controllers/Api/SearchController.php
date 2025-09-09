@@ -156,6 +156,14 @@ class SearchController extends Controller
         $offset = ($page - 1) * $perPage;
         $select = ['resolution_id', 'jurisprudencia_id as id', 'nro_resolucion', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion', 'maxima', 'descriptor', 'restrictor'];
 
+        if ($request->has('tipo_decision')) {
+            $select[] = "tipo_decision";
+        }
+
+        if ($request->has('proceso')) {
+            $select[] = "proceso_facet as proceso";
+        }
+
         $search = Jurisprudencia::search('', function (Builder $builder) use ($matchString, $perPage, $offset, $request, $select) {
 
 
@@ -276,6 +284,15 @@ class SearchController extends Controller
         $select = ['resolution_id as id', 'sala', 'nro_resolucion', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
 
 
+
+        if ($request->has('tipo_decision')) {
+            $select[] = "tipo_decision";
+        }
+
+
+        if ($request->has('proceso')) {
+            $select[] = "proceso_facet as proceso";
+        }
 
         $search = Resolution::search('', function (Builder $builder) use ($matchString, $perPage, $offset, $request, $select) {
 
@@ -489,6 +506,14 @@ class SearchController extends Controller
         $offset = ($page - 1) * $perPage;
         $select = ['resolution_id as id', 'sala', 'nro_resolucion', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion'];
 
+        if ($request->has('tipo_decision')) {
+            $select[] = "tipo_decision";
+        }
+
+
+        if ($request->has('proceso')) {
+            $select[] = "proceso_facet as proceso";
+        }
 
 
         $search = Resolution::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $select, $highlight) {
@@ -671,6 +696,15 @@ class SearchController extends Controller
         $offset = ($page - 1) * $perPage;
         $select = ['resolution_id', 'jurisprudencia_id as id', 'nro_resolucion', 'sala', 'departamento', 'tipo_resolucion', 'periodo', 'magistrado', 'forma_resolucion', 'descriptor', 'restrictor'];
 
+
+        if ($request->has('tipo_decision')) {
+            $select[] = "tipo_decision";
+        }
+
+
+        if ($request->has('proceso')) {
+            $select[] = "proceso_facet as proceso";
+        }
 
 
         $search = Jurisprudencia::search('', function (Builder $builder) use ($query, $campo, $perPage, $offset, $request, $select) {

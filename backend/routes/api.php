@@ -38,9 +38,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v2')->group(function () {
 
+    Route::post('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias')->middleware('throttle:cronologias');
+    Route::post('/cronologias-ids', [TemaController::class, 'obtenerCronologiasbyIds'])->middleware('throttle:cronologias');
+    Route::post('/resoluciones-ids', [SearchController::class, 'obtenerResolucionesIds'])->middleware('throttle:cronologias');
+
+
     // rutas de busqueda
     Route::get('/test', [SearchController::class, 'test']);
-    Route::post('/resoluciones-ids', [SearchController::class, 'obtenerResolucionesIds']);
     Route::get('/filtrar-autos-supremos', [SearchController::class, 'filtrarAutosSupremos']);
     Route::get('/terminos-jurisprudencias', [SearchController::class, 'busquedaTerminos']);
     Route::get('/buscar-jurisprudencias', [SearchController::class, 'obtenerResolucionesCronologia']);
@@ -54,8 +58,6 @@ Route::prefix('v2')->group(function () {
     Route::get('/buscar-descriptores', [JurisprudenciasController::class, 'buscarDescriptor']);
 
     Route::get('/refrescar-nodos', [JurisprudenciasController::class, 'actualizarNodo']);
-    Route::post('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
-    Route::post('/cronologias-ids', [TemaController::class, 'obtenerCronologiasbyIds']);
     Route::get('/nodos', [TemaController::class, 'obtenerNodos'])->name('obtener-nodos');
 
     // rutas validadas
@@ -144,6 +146,7 @@ Route::prefix('v2')->group(function () {
 
     // rutas de prueba
     Route::get('/test-arima', [ArimaController::class, 'test_arima']);
+    Route::get('/testeo', [WebScrappingController::class, 'testeo']);
 
     Route::get('/serie-temporales', [ResolutionController::class, 'obtenerSerieTemporal']);
 
