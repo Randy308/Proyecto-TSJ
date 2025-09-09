@@ -4,7 +4,6 @@ import { AuthContext, type AuthUser, type AuthContextType } from "../context";
 import { AuthService } from "../services";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export const AuthContextProvider = ({ children }: ContextProviderProps) => {
@@ -13,7 +12,7 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
     "isAuthenticated",
     false
   );
-  const navigate  = useNavigate();
+  //const navigate  = useNavigate();
   const [loading, setLoading] = useState(true);
   // Assuming you want to use the current location for navigation
   // Check if user is authenticated on app load
