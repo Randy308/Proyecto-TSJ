@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\ProcesarLotes;
 use App\Models\Mapeo;
 use App\Models\Resolution;
+use Cloudstudio\Ollama\Facades\Ollama;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,18 @@ class WebScrappingController extends Controller
 
     public function testeo()
     {
+
+
+        $response = Ollama::agent(
+            'Eres un microservicio que devuelve las respuestas en espanol en formato json.'
+        )
+            ->prompt("explica la inflacion monetaria en 200 letras")
+            ->model('llama3.2:1b')
+            ->format('json')
+            ->options(['temperature' => 0.1])
+            ->ask();
+
+        return response()->json(['data'=> json_decode($response['response'],true)],200);
 
         $sala_id = request()->input("sala_id", 2);
 

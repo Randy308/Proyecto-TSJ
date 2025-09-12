@@ -25,7 +25,18 @@ services:
       retries: 3
     networks:
       - internal_net
-
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-server
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama serve & sleep 5 && ollama pull llama3.2:1b && tail -f /dev/null"
+    networks:
+      - internal_net
   nginx:
     image: nginx:alpine
     container_name: nginx
@@ -98,6 +109,7 @@ volumes:
   pgdata:
   manticore_data:
   manticore_config:
+  ollama_data:
 
 networks:
   internal_net:

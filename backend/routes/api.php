@@ -38,9 +38,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v2')->group(function () {
 
-    Route::post('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias')->middleware('throttle:cronologias');
-    Route::post('/cronologias-ids', [TemaController::class, 'obtenerCronologiasbyIds'])->middleware('throttle:cronologias');
-    Route::post('/resoluciones-ids', [SearchController::class, 'obtenerResolucionesIds'])->middleware('throttle:cronologias');
+
+
+    Route::middleware(['throttle:cronologias'])->group(function () {
+        Route::post('/cronologias', [TemaController::class, 'obtenerCronologias'])->name('cronologias');
+        Route::post('/cronologias-ids', [TemaController::class, 'obtenerCronologiasbyIds']);
+        Route::post('/resoluciones-ids', [SearchController::class, 'obtenerResolucionesIds']);
+    });
+
 
 
     // rutas de busqueda
