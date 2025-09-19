@@ -7,6 +7,7 @@ import { ProtectedRoutes } from "./auth/ProtectedRoutes";
 import { LayoutUser, LayoutPublic, LayoutAnalisis } from "./layouts/";
 import { LoadingPage } from "./pages/LoadingPage";
 import { AppProviders } from "./AppProviders";
+import { LayoutCronologias } from "./layouts/LayoutCronologias";
 const PanelAdmin = lazy(() => import("./pages/admin/PanelAdmin"));
 const SubirDatos = lazy(() => import("./pages/datos/SubirDatos"));
 const TablaCSV = lazy(() => import("./pages/datos/TablaCSV"));
@@ -46,7 +47,6 @@ const AnalisisAvanzado = lazy(
 );
 const SerieTemporal = lazy(() => import("./analisis/playground/SerieTemporal"));
 const Mapa = lazy(() => import("./analisis/playground/Mapa"));
-
 
 const ListaRoles = lazy(() =>
   import("./pages/admin/Roles/ListaRoles").then((module) => ({
@@ -90,7 +90,10 @@ function App() {
                   path="admin/subir-resuelve-fondo"
                   element={<TablaResuelveFondo />}
                 />
-                <Route path="admin/formas-decision" element={<FormaDecision />} />
+                <Route
+                  path="admin/formas-decision"
+                  element={<FormaDecision />}
+                />
                 <Route path="admin/logs" element={<Logs />} />
                 <Route
                   path="admin/realizar-web-scrapping"
@@ -111,25 +114,30 @@ function App() {
               <Route index element={<Navigate to="/inicio" />} />
               <Route path="inicio" element={<Inicio />} />
               <Route path="novedades" element={<Novedades />} />
-              <Route path="jurisprudencia" element={<Jurisprudencia />} />
 
               <Route path="/analisis" element={<LayoutAnalisis />}>
                 <Route index element={<EstadisticasBasicas />} />
                 <Route path="sala/:id" element={<AnalisisBasico />} />
               </Route>
 
-              <Route path="resolucion/:id" element={<Resolucion />} />
-              <Route path="busqueda" element={<Busqueda />} />
-              <Route path="generacion-rapida" element={<GeneracionRapida />} />
+              <Route path="/cronojuridicas" element={<LayoutCronologias />}>
+                <Route index element={<Jurisprudencia />} />
+                <Route
+                  path="generacion-rapida"
+                  element={<GeneracionRapida />}
+                />
+                <Route
+                  path="jurisprudencia"
+                  element={<CronologiasAvanzadas />}
+                />
+                <Route path="autos-supremos" element={<Busqueda />} />
+
+                <Route path="resultados" element={<CronologiasResultados />} />
+                <Route path="resolucion/:id" element={<Resolucion />} />
+              </Route>
+
               <Route path="comparar-datos" element={<CompararDatos />} />
-              <Route
-                path="busqueda-de-jurisprudencia"
-                element={<CronologiasAvanzadas />}
-              />
-              <Route
-                path="jurisprudencia/cronologias/resultados"
-                element={<CronologiasResultados />}
-              />
+
               <Route path="data-playground" element={<AnalisisAvanzado />} />
               <Route path="serie-temporal/:id" element={<SerieTemporal />} />
               <Route path="mapa-estadistico/:id" element={<Mapa />} />

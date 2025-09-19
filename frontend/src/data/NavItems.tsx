@@ -6,7 +6,7 @@ export const jurisprudenciaItems = [
   {
     id: 1,
     title: "Generacion rápida",
-    path: "/generacion-rapida",
+    path: "/cronojuridicas/generacion-rapida",
     cName: "tool-item",
     resumen:
       "El módulo está diseñado para recuperar la información almacenada y presentarla de manera clara y comprensible para los usuarios. ",
@@ -16,7 +16,7 @@ export const jurisprudenciaItems = [
   {
     id: 2,
     title: "Generación avanzada",
-    path: "/busqueda-de-jurisprudencia",
+    path: "cronojuridicas/jurisprudencia",
     cName: "tool-item",
     resumen:
       "El módulo de Cronojurídicas se encarga de recuperar la información segmentada de la jurisprudencia, y presentarla de manera estructurada, facilitando su comprensión y utilización posterior",
@@ -27,7 +27,7 @@ export const jurisprudenciaItems = [
   {
     id: 3,
     title: "Busqueda",
-    path: "/busqueda",
+    path: "cronojuridicas/autos-supremos",
     cName: "nav-item",
     lista: [],
     icon: <FaHome className="icon-style" />,
@@ -86,7 +86,7 @@ export const navItems = [
   {
     id: 3,
     title: "Cronojurídicas",
-    path: "/jurisprudencia",
+    path: "/cronojuridicas",
     cName: "nav-item",
     lista: jurisprudenciaItems,
     icon: (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { titulo } from "../utils/filterForm";
 import type { DatosArray, Faceta, FiltroBusqueda } from "../types";
@@ -15,7 +15,7 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
   const checkedAll = selectedIds.length === 0;
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let checkedId: string|number = Number(event.target.value);
+    let checkedId: string | number = Number(event.target.value);
 
     if (
       nombre === "proceso" ||
@@ -47,6 +47,9 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
   const [show, setShow] = useState(false);
   const handleClick = () => setShow(!show);
 
+  const plus = useMemo(() => <FaPlus className="text-gray-500" />, []);
+  const minus = useMemo(() => <FaMinus className="text-gray-500" />, []);
+
   return (
     <div className="border-b border-gray-300 mb-4 dark:text-white text-black">
       <button
@@ -54,11 +57,7 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
         onClick={handleClick}
       >
         <span className="uppercase font-bold">{titulo(nombre)}</span>
-        {show ? (
-          <FaMinus className="text-gray-500" />
-        ) : (
-          <FaPlus className="text-gray-500" />
-        )}
+        {show ? minus : plus}
       </button>
 
       <div>
@@ -94,8 +93,10 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
                 checked={selectedIds.includes(item.id)}
                 onChange={handleCheckboxChange}
               />
-              <span className="text-wrap text-sm w-28 capitalize">{item.nombre}</span>
-            </label> 
+              <span className="text-wrap text-sm w-28 capitalize">
+                {item.nombre}
+              </span>
+            </label>
             {item.cantidad && (
               <span className="text-gray-500 text-xs dark:text-gray-300 ms-2">
                 {item.cantidad}

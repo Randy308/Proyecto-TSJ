@@ -1,220 +1,53 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
-import {
-  filterForm,
-  obtenerFacetas,
-  titulo,
-  filterParams,
-} from "../../utils/filterForm";
+import { titulo, filterParams } from "../../utils/filterForm";
 import { IoMdClose } from "react-icons/io";
-import { ResolucionesService } from "../../services";
 import PaginationData from "./PaginationData";
 import Paginate from "../../components/tables/Paginate";
-import { toast } from "react-toastify";
 import {
   type DatosArray,
-  type Facetas,
   type ListaData,
-  type Resolucion,
   type FiltroBusqueda,
   type Variables,
   type Faceta,
 } from "../../types";
 import SimpleSearch from "../../components/SimpleSearch";
-import type { SearchField, SimpleSearchFormData } from "../../types/search";
-import { useNavigate } from "react-router-dom";
 import MultiSearch from "../../components/MultiSearch";
+import { useCronologiaContext } from "../../context/cronologiaContext";
 const Busqueda = () => {
   const { data } = useVariablesContext();
 
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState<DatosArray>({});
-  const [selector, setSelector] = useState<Facetas>({} as Facetas);
-  const [resoluciones, setResoluciones] = useState<Resolucion[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const [searchType, setSearchType] = useState<boolean>(false);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-
-  const [facetas, setFacetas] = useState<Facetas>({} as Facetas);
-  // const [searchType, setSearchType] = useState(null);
-  const [lastPage, setLastPage] = useState(1);
-  const [actualPage, setActualPage] = useState(1);
-  const [pageCount, setPageCount] = useState(1);
-  const [totalCount, setTotalCount] = useState(1);
-
-  const [selectedOptions, setSelectedOptions] = useState<SimpleSearchFormData>(
-    {} as SimpleSearchFormData
-  );
-
-  const removeItem = <K extends keyof DatosArray>(
-    nombre: K,
-    value: DatosArray[K] extends (infer U)[] ? U : number | string
-  ) => {
-    setFormData((prev) => {
-      const newFormData = { ...prev };
-      const current = newFormData[nombre];
-      if (current) {
-        const selectedIds = current.filter(
-          (id) => id !== value
-        ) as DatosArray[K];
-        if ((selectedIds ?? []).length > 0) {
-          newFormData[nombre] = selectedIds;
-        } else {
-          delete newFormData[nombre];
-        }
-      }
-      return newFormData;
-    });
-  };
+  const {
+    resoluciones,
+    facetas,
+    searchType,
+    setSearchType,
+    formData,
+    setFormData,
+    searchFields,
+    setSearchFields,
+    selector,
+    setSelector,
+    selectedOptions,
+    setSelectedOptions,
+    selectedIds,
+    setSelectedIds,
+    removeItem,
+    handlePage,
+    isLoading,
+    advancedSearchBusqueda,
+    obtenerCronologiaBusqueda,
+    obtenerResolucionesBusqueda,
+  } = useCronologiaContext();
 
   const handlePageClick = (page: number) => {
-    const selectedPage = Math.min(page, lastPage);
-    setActualPage(page);
+    const selectedPage = handlePage(page);
     if (searchType) {
-      advancedSearch(selectedPage);
+      advancedSearchBusqueda(selectedPage);
       return;
     }
-    obtenerResoluciones(selectedPage);
-  };
-
-  const obtenerResoluciones = async (page: number = 1) => {
-    if (Object.keys(selectedOptions).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda");
-      return;
-    }
-    if (isLoading) {
-      return;
-    }
-    setIsLoading(true);
-
-    const validPage = page && !isNaN(page) && page > 0 ? page : 1;
-    if (validPage === 1) {
-      setActualPage(1);
-    }
-
-    const validatedData = filterForm({
-      ...selectedOptions,
-      ...searchFields,
-      ...formData,
-    });
-    setResoluciones([]);
-    ResolucionesService.buscarResoluciones({
-      ...validatedData,
-      page: validPage,
-    })
-      .then((response) => {
-        if (response.data.data.length > 0) {
-          setResoluciones(response.data.data);
-          setLastPage(response.data.last_page);
-          setPageCount(response.data.last_page);
-          const { proceso_facet } = response.data.facets;
-          console.log("Facetas recibidas:", proceso_facet);
-
-          setFacetas(
-            obtenerFacetas(response.data.facets, (data as Facetas) || {})
-          );
-          setTotalCount(response.data.total);
-        } else {
-          toast.warning("No existen datos");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setResoluciones([]);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const obtenerCronologia = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    if (selectedIds.length <= 0) {
-      toast.error("Debe agregar resoluciones");
-      return;
-    }
-
-    const validatedData = filterForm({
-      ids: selectedIds,
-    });
-    setIsLoading(true);
-    ResolucionesService.obtenerCronologiabyIds(validatedData)
-      .then(({ data }) => {
-        const pdfBlob = new Blob([data], {
-          type: "application/pdf",
-        });
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        console.log("PDF URL:", pdfUrl);
-        navigate("/Jurisprudencia/Cronologias/Resultados", {
-          state: { pdfUrl: pdfUrl },
-        });
-      })
-      .catch((error) => {
-        const message = error.response?.data?.error || "Ocurrió un error";
-        console.error("Error fetching data:", message);
-        if(error.response?.status === 403){
-          toast.error("No tiene permiso para realizar esta acción");
-        }
-        if(error.response?.status === 429){
-          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.");
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const [searchFields, setSearchFields] = useState<SearchField[]>([]);
-  const advancedSearch = async (page: number = 1) => {
-    if (Object.keys(searchFields).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda");
-      return;
-    }
-    if (isLoading) {
-      return;
-    }
-    setIsLoading(true);
-
-    const validPage = page && !isNaN(page) && page > 0 ? page : 1;
-    if (validPage === 1) {
-      setActualPage(1);
-    }
-
-    const validatedData = filterForm(searchFields);
-    const validatedFilters = filterForm(formData);
-    setResoluciones([]);
-    ResolucionesService.busquedaAvanzada({
-      filtros: {
-        ...validatedData,
-      },
-      ...validatedFilters,
-
-      page: validPage,
-    })
-      .then((response) => {
-        if (response.data.data.length > 0) {
-          setResoluciones(response.data.data);
-          setLastPage(response.data.last_page);
-          setPageCount(response.data.last_page);
-
-          setFacetas(
-            obtenerFacetas(response.data.facets, (data as Facetas) || {})
-          );
-          setTotalCount(response.data.total);
-        } else {
-          toast.warning("No existen datos");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-        setResoluciones([]);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    obtenerResolucionesBusqueda(selectedPage);
   };
 
   useEffect(() => {
@@ -224,13 +57,13 @@ const Busqueda = () => {
         console.warn("Debe seleccionar al menos un campo de búsqueda");
         return;
       }
-      advancedSearch(1);
+      advancedSearchBusqueda(1);
     } else {
       if (Object.keys(selectedOptions).length < 1) {
         console.warn("Debe seleccionar al menos un campo de búsqueda");
         return;
       }
-      obtenerResoluciones(1);
+      obtenerResolucionesBusqueda(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, formData]);
@@ -246,11 +79,11 @@ const Busqueda = () => {
           <MultiSearch
             searchFields={searchFields}
             setSearchFields={setSearchFields}
-            advancedSearch={advancedSearch}
+            advancedSearch={advancedSearchBusqueda}
           />
         ) : (
           <SimpleSearch
-            obtenerResoluciones={obtenerResoluciones}
+            obtenerResoluciones={obtenerResolucionesBusqueda}
             setFormData={setSelectedOptions}
           />
         )}
@@ -308,8 +141,9 @@ const Busqueda = () => {
                       <div
                         key={index}
                         className="text-xs p-1 rounded-md border hover:cursor-pointer border-gray-300 hover:border-red-400 flex gap-2 justify-between items-center group"
-                        onClick={() => removeItem(name as keyof DatosArray, item.id)}
-
+                        onClick={() =>
+                          removeItem(name as keyof DatosArray, item.id)
+                        }
                       >
                         <span>{item.nombre}</span>
                         <IoMdClose className="group-hover:text-red-400" />
@@ -325,18 +159,13 @@ const Busqueda = () => {
               <div className="sm:p-4 pt-4">
                 {resoluciones.length > 0 ? (
                   <>
-                    <Paginate
-                      handlePageClick={handlePageClick}
-                      pageCount={pageCount}
-                      actualPage={actualPage}
-                      totalCount={totalCount}
-                    >
+                    <Paginate handlePageClick={handlePageClick}>
                       <PaginationData
                         resolutions={resoluciones}
                         setSelectedIds={setSelectedIds}
                         selectedIds={selectedIds}
                         isLoading={isLoading}
-                        obtenerCronologia={obtenerCronologia}
+                        obtenerCronologia={obtenerCronologiaBusqueda}
                       />
                     </Paginate>
                   </>

@@ -2,21 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import Loading from "../../components/Loading";
 import { TiBackspace } from "react-icons/ti";
 import { useNodosContext } from "../../context/nodosContext";
-import type{ Nodos } from "../../types";
+import type { Nodos } from "../../types";
+import { useCronologiaContext } from "../../context/cronologiaContext";
 
-interface ArbolJurisprudencialProps {
-  currentID: number | null;
-  setCurrentID: (id: number | null) => void;
-  setArbol: React.Dispatch<React.SetStateAction<Nodos[]>>;
-}
-const ArbolJurisprudencial = ({ currentID, setCurrentID, setArbol }:ArbolJurisprudencialProps) => {
+const ArbolJurisprudencial = () => {
   const { nodos } = useNodosContext();
 
+  const { currentID, setCurrentID, setArbol } = useCronologiaContext();
   const [data, setData] = useState<Nodos[]>([]);
   const [parentID, setParentID] = useState<number | null>(null);
   const returnButton = useMemo(() => <TiBackspace className="w-5 h-5" />, []);
 
-  const updateNode = (id:number) => {
+  const updateNode = (id: number) => {
     const element = (nodos || []).filter((item) => item.id === id);
     const children = (nodos || []).filter(
       (item) => item.descriptor_id === element[0].id

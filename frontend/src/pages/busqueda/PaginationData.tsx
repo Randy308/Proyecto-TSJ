@@ -1,5 +1,4 @@
 import ResolucionTSJ from "../resoluciones/ResolucionTSJ";
-import PortalButton from "../../components/modal/PortalButton";
 import { filterAtributte, filterTitle, titulo } from "../../utils/filterForm";
 
 import { format } from "date-fns";
@@ -11,13 +10,16 @@ import type { Resolucion, Facetas } from "../../types";
 import { useVariablesContext } from "../../context";
 import { IoMdClose } from "react-icons/io";
 import AsyncButton from "../../components/AsyncButton";
+import ConfirmModal from "../../components/modal/ConfirmModal";
+import Modal from "../../components/modal/Modal";
+import { useState } from "react";
 
 interface PaginationDataProps {
   resolutions: Resolucion[];
   selectedIds: number[];
   isLoading: boolean;
   setSelectedIds: React.Dispatch<React.SetStateAction<number[]>>;
-  obtenerCronologia:(e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
+  obtenerCronologia: (e: React.MouseEvent<HTMLButtonElement>) => Promise<void>;
 }
 const PaginationData = ({
   resolutions,
@@ -30,6 +32,18 @@ const PaginationData = ({
 
   const { data } = useVariablesContext();
   const { removeAllIcon, checkAllIcon } = useIcons();
+
+  const [showDetails, setShowDetails] = useState<number | null>(null);
+  const [confirmModalOpen, setConfirmModalOpen] = useState<number | null>(null);
+
+  const onClose = (id: number | null) => {
+    setConfirmModalOpen(null);
+    if (id) {
+      setShowDetails(id);
+    }
+    console.log(id);
+  };
+
   const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newID = Number(e.target.value);
 
@@ -78,6 +92,15 @@ const PaginationData = ({
 
   return (
     <div className="relative overflow-x-auto flex flex-col gap-4 p-4">
+      <Modal
+        isOpen={showDetails !== null}
+        onClose={() => setShowDetails(null)}
+        title="Detalle de la Resolución"
+        size="xl"
+      >
+        <ResolucionTSJ id={Number(showDetails)} />
+      </Modal>
+
       {selectedIds && selectedIds.length > 0 && (
         <div className="py-4 flex items-center justify-end gap-4 flex-wrap">
           <div className="text-sm flex flex-row items-center flex-wrap gap-2">
@@ -116,7 +139,6 @@ const PaginationData = ({
           {removeAllIcon}
           <span className="ms-2 text-xs">Quitar Selección</span>
         </a>
-
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {resolutions.map((item, index) => (
@@ -153,23 +175,25 @@ const PaginationData = ({
               </label>
             )}
 
-            <div className="text-center">
-              <PortalButton
-                title="Auto Supremo"
-                color="link"
-                withIcon={false}
-                full={false}
-                name={`${filterAtributte(
-                  (String(item.tipo_resolucion) || "").toLowerCase(),
+            <div className="flex flex-col items-center">
+              <a
+                className="text-xl font-bold text-center text-blue-600 hover:underline hover:cursor-pointer dark:text-blue-400"
+                onClick={() => setConfirmModalOpen(Number(item.id))}
+              >
+                {`${filterAtributte(
+                  String(item.tipo_resolucion),
                   "tipo_resolucion",
-                  (data || {}) as Facetas
-                )} Nº${filterTitle(item.nro_resolucion || "")}`}
-                large={true}
-                content={() => <ResolucionTSJ id={Number(item.id)} />}
+                  (data as Facetas) || {}
+                )} Nº${filterTitle(String(item.nro_resolucion))}`}
+              </a>
+              <ConfirmModal
+                isOpen={confirmModalOpen === Number(item.id) ? true : false}
+                setIsOpen={() => setConfirmModalOpen(null)}
+                onClose={onClose}
+                id={Number(item.id)}
               />
             </div>
-
-            <div className="space-y-2 text-sm">
+            <div className="space-y-2 pt-4 text-sm">
               {Object.keys(item)
                 .filter(
                   (key) =>

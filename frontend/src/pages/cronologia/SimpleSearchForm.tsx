@@ -1,31 +1,23 @@
 import { useMemo, useState } from "react";
 import { FaSearch } from "react-icons/fa";
-import { MdClear } from "react-icons/md";
 import SimpleSelect from "../../components/SimpleSelect";
 import type { SimpleSearchFormData } from "../../types/search";
 import { FaInfo } from "react-icons/fa6";
+import { useCronologiaContext } from "../../context/cronologiaContext";
 
 interface Props {
-  busqueda: string;
-  setBusqueda: React.Dispatch<React.SetStateAction<string>>;
-  searchDescriptors: (checked: boolean) => void;
+  searchDescriptors: (page: number) => void;
   setFormData: React.Dispatch<React.SetStateAction<SimpleSearchFormData>>;
-  actualizarInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 const SimpleSearchForm = ({
-  busqueda,
-  setBusqueda,
   searchDescriptors,
   setFormData,
 }: Props) => {
-  const [checked, setChecked] = useState(true);
   const [errorBusqueda, setErrorBusqueda] = useState("");
 
-  const [termino, setTermino] = useState("");
+  const {busqueda:termino , setBusqueda:setTermino} = useCronologiaContext();
 
-  const searchIcon = useMemo(() => <FaSearch className="w-4 h-4 " />, []);
-
-  const clearIcon = useMemo(() => <MdClear className="w-4 h-4 " />, []);
+  const searchIcon = useMemo(() => <FaSearch className="w-4 h-4" />, []);
 
   const [label, setLabel] = useState("");
 
@@ -39,8 +31,7 @@ const SimpleSearchForm = ({
 
   const handleClick = (event: React.FormEvent) => {
     event.preventDefault();
-    searchDescriptors(checked);
-    setChecked(true);
+    searchDescriptors(1);
   };
 
   const checkSearch = (valor: string) => {
@@ -84,14 +75,7 @@ const SimpleSearchForm = ({
           <label className="absolute dark:peer-focus:text-blue-500 peer-focus:text-red-octopus-800 capitalize left-2 -top-1 px-3 bg-white dark:bg-[#242e42] text-gray-400 text-xs">
             {label}
           </label>
-          {busqueda.length > 0 && (
-            <a
-              className="absolute inset-y-0 end-0 flex items-center justify-center pe-3 hover:cursor-pointer"
-              onClick={() => setBusqueda("")}
-            >
-              {clearIcon}
-            </a>
-          )}
+         
         </div>
         <button
           type="submit"
@@ -100,31 +84,6 @@ const SimpleSearchForm = ({
           {searchIcon}{" "}
         </button>
       </form>
-      {/* <div className="flex flex-row flex-wrap items-center md:justify-end gap-4 mt-2 text-lg text-black dark:text-gray-300">
-        <div className="flex items-center">
-          {" "}
-          <input
-            type="radio"
-            value={"res"}
-            id="checkbox-res"
-            checked={checked}
-            onChange={() => setChecked(true)}
-            className="peer"
-          />
-          <label htmlFor="checkbox-res">Buscar resoluciones</label>
-        </div>
-        <div className="flex items-center">
-          <input
-            type="radio"
-            value={"desc"}
-            id="checkbox-desc"
-            checked={!checked}
-            onChange={() => setChecked(false)}
-            className="peer"
-          />
-          <label htmlFor="checkbox-desc">Buscar descriptores</label>
-        </div>
-      </div> */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full">
           {errorBusqueda.length > 0 && (

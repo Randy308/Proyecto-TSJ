@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import MultiSelect from "./MultiSelect";
 import { type SearchField } from "../types/search";
 import { SearchFieldInput } from "./SearchFieldInput";
 import { IoMdSearch } from "react-icons/io";
 
 interface MultiSearchProps {
-  advancedSearch: (page?: number) => Promise<void>;
+  advancedSearch: (page: number) => Promise<void>;
   searchFields: SearchField[];
   type?: string;
   setSearchFields: React.Dispatch<React.SetStateAction<SearchField[]>>;
@@ -22,14 +22,14 @@ const MultiSearch = ({
     advancedSearch(1);
   };
 
+  const searchIcon = useMemo(() => <IoMdSearch className="w-4 h-4" />, []);
   useEffect(() => {
     setSearchFields((prevFields) =>
       options.map((option) => ({
         id: option.id,
         field: option.field,
         value: prevFields.find((f) => f.id === option.id)?.value || "",
-        operator:
-          prevFields.find((f) => f.id === option.id)?.operator || "AND",
+        operator: prevFields.find((f) => f.id === option.id)?.operator || "AND",
       }))
     );
   }, [options, setSearchFields]);
@@ -62,10 +62,11 @@ const MultiSearch = ({
       </div>
       <div className="flex justify-end p-0 m-0 md:p-2 md:m-2">
         {searchFields.length > 0 && (
-          <button type="submit"
+          <button
+            type="submit"
             className="p-2.5 ms-2 mt-4 flex gap-2 items-center text-sm font-medium text-white bg-red-octopus-700 rounded-lg border  hover:bg-red-octopus-800 focus:ring-4 focus:outline-none focus:ring-red-octopus-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
-            <IoMdSearch className="w-4 h-4" />
+            {searchIcon}
             <span className="">Buscar</span>
           </button>
         )}

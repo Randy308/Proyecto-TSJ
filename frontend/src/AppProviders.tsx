@@ -1,7 +1,7 @@
 // src/AppProviders.tsx
 import type { ReactNode } from "react";
 import {
-  AnalisisContextProvider,
+  CronologiaContextProvider,
   AuthContextProvider,
   HistoricContextProvider,
   NodosContextProvider,
@@ -25,7 +25,7 @@ export const AppProviders = ({ children }: Props) => {
         <HistoricContextProvider>
           <NodosContextProvider>
             <VariablesContextProvider>
-              <AnalisisContextProvider>
+              <CronologiaContextProvider>
                 <ResolutionContextProvider>
                   <UserContextProvider>
                     <RoleContextProvider>
@@ -37,7 +37,7 @@ export const AppProviders = ({ children }: Props) => {
                     </RoleContextProvider>
                   </UserContextProvider>
                 </ResolutionContextProvider>
-              </AnalisisContextProvider>
+              </CronologiaContextProvider>
             </VariablesContextProvider>
           </NodosContextProvider>
         </HistoricContextProvider>

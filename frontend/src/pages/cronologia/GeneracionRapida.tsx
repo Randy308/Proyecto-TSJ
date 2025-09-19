@@ -1,26 +1,30 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import ArbolJurisprudencial from "./ArbolJurisprudencial";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { FaInfo } from "react-icons/fa";
-import { JurisprudenciaService } from "../../services";
-import { filterForm } from "../../utils/filterForm";
 import AsyncButton from "../../components/AsyncButton";
 import { IoMdClose } from "react-icons/io";
-import type { Nodos } from "../../types";
+import { useCronologiaContext } from "../../context/cronologiaContext";
 
 interface ArbolJurisprudencial {
   id: number;
   nombre: string;
 }
-interface ResultadosBusqueda {
-  descriptor: string;
-  cantidad: number;
-}
+
 const GeneracionRapida = () => {
-  const [currentID, setCurrentID] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    arbol,
+    resultados,
+    vaciarNodo,
+    errorBusqueda,
+    search,
+    setResultados,
+    actualizarNodos,
+    obtenerCronologia,
+    isLoading,
+    busqueda,
+    setBusqueda,
+  } = useCronologiaContext();
 
   const searchIcon = useMemo(
     () => (
@@ -29,133 +33,15 @@ const GeneracionRapida = () => {
     []
   );
 
-  const [arbol, setArbol] = useState<Nodos[]>([]);
-
-  const [errorBusqueda, setErrorBusqueda] = useState("");
-
-  const [busqueda, setBusqueda] = useState("");
-  const [resultados, setResultados] = useState<ResultadosBusqueda[]>([]);
-
-  const checkSearch = (valor: string) => {
-    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'’-]+$/;
-
-    if (regex.test(valor) || valor === "") {
-      return true;
-    } else {
-      return false;
-    }
-  };
   const actualizarInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.currentTarget.value;
-    if (checkSearch(valor)) {
-      setBusqueda(valor);
-      setErrorBusqueda("");
-    } else {
-      setErrorBusqueda("No se permiten caracteres especiales");
-    }
+    setBusqueda(valor);
   };
 
-  const vaciarNodo = () => {
-    setArbol([]);
-    setCurrentID(null);
-  };
-
-  const obtenerCronologia = async () => {
-    if (arbol.length <= 0) {
-      toast.error("Seleccione una materia primero");
-      return;
-    }
-    const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
-
-    const validatedData = filterForm({
-      tema_id: arbol[arbol.length - 1].id,
-      descriptor: nombresTemas,
-    });
-    setIsLoading(true);
-    JurisprudenciaService.obtenerCronologia(validatedData)
-      .then(({ data }) => {
-        console.log(data);
-        const pdfBlob = new Blob([data], {
-          type: "application/pdf",
-        });
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-
-        navigate("/Jurisprudencia/Cronologias/Resultados", {
-          state: { pdfUrl: pdfUrl },
-        });
-      })
-      .catch((error) => {
-        const message = error.response?.data?.error || "Ocurrió un error";
-        console.error("Error fetching data:", message);
-        if (error.response?.status === 429) {
-          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.");
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const actualizarNodos = async (descriptor: string) => {
-    try {
-      JurisprudenciaService.actualizarNodo({
-        busqueda: descriptor,
-      })
-        .then(({ data }) => {
-          if (data) {
-            console.log(data);
-            setArbol(data.nodos);
-            setCurrentID(data.last);
-            setResultados([]);
-          }
-        })
-        .catch(({ err }) => {
-          console.log("Existe un error " + err);
-        });
-    } catch (error: unknown) {
-      let message = "Ocurrió un error";
-      if (typeof error === "object" && error !== null && "response" in error) {
-        // @ts-expect-error: We are checking for response property
-        message = error.response?.data?.error || message;
-      }
-      console.error("Error fetching data:", message);
-      console.error("Error :", error);
-    }
-  };
-
-  const search = async () => {
-    if (!checkSearch(busqueda)) {
-      return;
-    }
-    try {
-      const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
-
-      JurisprudenciaService.busquedaRapida({
-        busqueda: busqueda,
-        descriptor: nombresTemas,
-      })
-        .then(({ data }) => {
-          if (data) {
-            setResultados(data);
-          }
-        })
-        .catch(({ err }) => {
-          console.log("Existe un error " + err);
-          setErrorBusqueda("No se encontraron resultados");
-          setResultados([]);
-        });
-    } catch (error: unknown) {
-      let message = "Ocurrió un error";
-      if (typeof error === "object" && error !== null && "response" in error) {
-        // @ts-expect-error: We are checking for response property
-        message = error.response?.data?.error || message;
-      }
-      console.error("Error fetching data:", message);
-      console.error("Error :", error);
-    }
-  };
-
-  const navigate = useNavigate();
+  const closeButton = useMemo(
+    () => <IoMdClose className="group-hover:text-red-500" />,
+    []
+  );
 
   return (
     <div id="cronologia-container" className="p-4 m-4">
@@ -170,22 +56,24 @@ const GeneracionRapida = () => {
         <div>
           <div>
             <div className="relative w-full mb-4">
-              <input
-                type="text"
-                id="voice-search"
-                value={busqueda}
-                onChange={(e) => actualizarInput(e)}
-                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Buscar en el árbol jurisprudencial...."
-                required
-              />
-              <button
-                type="button"
-                onClick={() => search()}
-                className="absolute inset-y-0 end-0 flex items-center pe-3"
-              >
-                {searchIcon}{" "}
-              </button>
+              <form onSubmit={(e) => search(e)}>
+                <input
+                  type="text"
+                  id="voice-search"
+                  value={busqueda}
+                  onChange={(e) => actualizarInput(e)}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Buscar en el árbol jurisprudencial...."
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={(e) => search(e)}
+                  className="absolute inset-y-0 end-0 flex items-center pe-3"
+                >
+                  {searchIcon}{" "}
+                </button>
+              </form>
             </div>
 
             {errorBusqueda.length > 0 && (
@@ -205,11 +93,11 @@ const GeneracionRapida = () => {
                     Filtrado por:
                   </span>
                   <div
-                    onClick={() => vaciarNodo()}
+                    onClick={vaciarNodo}
                     className="bg-white group flex gap-4 items-center justify-between hover:cursor-pointer rounded-lg p-2 font-bold m-4 border hover:border-red-500 text-xs dark:bg-gray-500"
                   >
                     <span>{arbol.map(({ nombre }) => nombre).join(" / ")}</span>
-                    <IoMdClose className="group-hover:text-red-500" />
+                    {closeButton}
                   </div>
                 </div>
                 <AsyncButton
@@ -254,11 +142,7 @@ const GeneracionRapida = () => {
                   ))}
                 </>
               ) : (
-                <ArbolJurisprudencial
-                  currentID={currentID}
-                  setCurrentID={setCurrentID}
-                  setArbol={setArbol}
-                />
+                <ArbolJurisprudencial />
               )}
             </div>
           </div>
