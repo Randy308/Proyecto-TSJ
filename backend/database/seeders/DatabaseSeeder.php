@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             PermissionsSeeder::class,
             EstilosSeeder::class,
             DescriptorSeeder::class,
+            SalaPermissionSeeder::class,
         ]);
 
 

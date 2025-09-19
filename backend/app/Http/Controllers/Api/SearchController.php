@@ -9,6 +9,7 @@ use App\Models\Departamento;
 use App\Models\Jurisprudencia;
 use App\Models\Resolution;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 use RomanStruk\ManticoreScoutEngine\Mysql\Builder;
@@ -429,13 +430,37 @@ class SearchController extends Controller
 
         $ids = $request['ids'];
 
-        // @phpstan-ignore larastan.relationExistence
-        $resolutions = Resolution::with('tipo_resolucion', 'forma_resolucion', 'sala', 'departamento', 'magistrado')->whereIn('id', $ids)
-            ->get();
-        $resultados = ResolutionResource::collection($resolutions)->resolve(); // <- esta línea es clave
 
+        $query = DB::table(DB::raw('resolutions r FULL OUTER JOIN jurisprudencias j ON r.id = j.resolution_id'))
+            ->join('mapeos as m', 'm.resolution_id', '=', 'r.id')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->select(
+                'r.id',
+                'r.sintesis',
+                'r.maxima',
+                'r.precedente',
+                'j.ratio',
+                'j.descriptor',
+                'j.restrictor',
+                'r.nro_resolucion',
+                'tr.nombre as tipo_resolucion',
+                'r.proceso',
+                'fr.nombre as forma_resolucion',
+                'r.fecha_emision',
+                'm.external_id'
+            )
+            ->whereIn('r.id', $ids);
+
+        $resolutions = $query->orderBy('tipo_resolucion')->get();
+
+        foreach ($resolutions as $resolution) {
+
+            $variables = explode('/', $resolution->nro_resolucion, 2);
+            $resolution->titulo = $resolution->tipo_resolucion . " " . ltrim($variables[1], '0') ?? $resolution->nro_resolucion;
+        }
         //return response()->json($resolutions, 200);
-        $pdf = LaravelMpdf::loadView('resolution', ['results' => $resultados], [], [
+        $pdf = LaravelMpdf::loadView('resolution', ['results' => $resolutions], [], [
             'format' => 'letter',
             'margin_left' => 25,  // 2.5 cm in mm
             'margin_right' => 25,  // 2.5 cm in mm

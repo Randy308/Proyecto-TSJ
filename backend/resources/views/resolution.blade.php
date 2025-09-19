@@ -320,7 +320,7 @@
         <p style="font-size: 26pt;" class="titulo-portada">SERIE DE CRONOLOGÍAS JURÍDICAS (CRONOJURÍDICAS)</p>
 
         @if (isset($subtitulo))
-            <p style="font-size: 20pt;" class="titulo-portada">{{ $subtitulo }}</p>
+        <p style="font-size: 20pt;" class="titulo-portada">{{ $subtitulo }}</p>
         @endif
 
 
@@ -337,12 +337,12 @@
 
 
     @if (isset($fechaActual))
-        <div style="margin-top: 5%;margin-left: 10%;">
-            <p style="font-size: 11pt;">Actualizado al {{ $fechaActual }}</p>
-            <p style="font-size: 11pt;"> Con enlaces para acceder al texto completo</p>
-            <p style="font-size: 13pt;  font-family: 'times-new-roman', sans-serif;">Instituto de
-                Investigaciones Jurídicas y Políticas </p>
-        </div>
+    <div style="margin-top: 5%;margin-left: 10%;">
+        <p style="font-size: 11pt;">Actualizado al {{ $fechaActual }}</p>
+        <p style="font-size: 11pt;"> Con enlaces para acceder al texto completo</p>
+        <p style="font-size: 13pt;  font-family: 'times-new-roman', sans-serif;">Instituto de
+            Investigaciones Jurídicas y Políticas </p>
+    </div>
     @endif
 
 
@@ -365,6 +365,25 @@
         </tr>
     </table>
 
+
+
+    <table style="width: 100%; text-align: center;margin-top: 300px; border-collapse: collapse;">
+        <tr>
+            <td style="width: 15%;">
+
+            </td>
+            <td style="width: 70%; padding: 10px;">
+                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 400px; height: auto;" />
+
+            </td>
+
+
+            <td style="width: 15%;">
+            </td>
+        </tr>
+    </table>
+
+
     <pagebreak even-footer-value="-1" resetpagenum="1" />
 
 
@@ -373,11 +392,11 @@
 
 
         @if (isset($fechaActual))
-            <p>Instituto de Investigaciones Jurídicas y Políticas (IIJP).
-                ({{ \Illuminate\Support\Str::afterLast($fechaActual, ' ') }}).
-                <em>Serie de Cronologías Jurídicas (CRONOJURÍDICAS)</em>. Cochabamba: IIJP.
-                Actualizado al {{ $fechaActual }}.
-            </p>
+        <p>Instituto de Investigaciones Jurídicas y Políticas (IIJP).
+            ({{ \Illuminate\Support\Str::afterLast($fechaActual, ' ') }}).
+            <em>Serie de Cronologías Jurídicas (CRONOJURÍDICAS)</em>. Cochabamba: IIJP.
+            Actualizado al {{ $fechaActual }}.
+        </p>
         @endif
 
 
@@ -452,31 +471,39 @@
 
 
     <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />
-
     @foreach ($results as $item)
-        <div class="resolucion-card">
-            <h2 class="resolucion-header">
-                <tocentry content="{{ $item['nro_resolucion'] }}" level="1" />
-                <a class="resolucion-link" href="https://samed-tsj.umss.edu.bo/resolucion/{{ $item['id'] }}">
-                    {!! $item['nro_resolucion'] !!}
-                </a>
-            </h2>
+    <div class="resolucion-card">
+        <h2 class="resolucion-header">
+            <tocentry content="{{ $item->titulo }}" level="1" />
+            <a class="resolucion-link" target="_blank" href="https://samed-tsj.umss.edu.bo/resolucion/{{ $item->id }}">
 
-            @foreach (['nro_expediente', 'periodo', 'precedente', 'maxima', 'departamento', 'forma_resolucion', 'tipo_resolucion', 'magistrado', 'proceso', 'sala', 'demandante', 'demandado'] as $field)
-                @if (!empty($item[$field]))
-                    <span class="resolucion-meta">
-                        | {!! nl2br(str_replace('_x000D_', "\n", $item[$field])) !!}
-                    </span>
+                @if ($item->titulo)
+                <span>
+                    {{$item->titulo}}
+                </span>
                 @endif
-            @endforeach
 
-            @if (!empty($item['resumen']))
-                <p class="resolucion-resumen">
-                    <strong>Resumen:</strong> {!! nl2br(str_replace('_x000D_', '', $item['resumen'])) !!}
-                </p>
-            @endif
-        </div>
+            </a>
+        </h2>
+
+        @foreach (['periodo','descriptor','restrictor' ,'ratio', 'sintesis','maxima','precedente', 'forma_resolucion', 'proceso'] as $field)
+        @if (!empty($item->$field))
+        <span>{{ ucfirst(str_replace("_", " de ", $field)) }}</span>
+        <span class="resolucion-meta">
+            {!! nl2br(str_replace('_x000D_', "\n", $item->$field)) !!}
+        </span>
+        <br />
+        @endif
+        @endforeach
+
+        @if (!empty($item->resumen))
+        <p class="resolucion-resumen">
+            <strong>Resumen:</strong> {!! nl2br(str_replace('_x000D_', '', $item->resumen)) !!}
+        </p>
+        @endif
+    </div>
     @endforeach
+
 
     {{--
     @if ($referencias && count($referencias) > 0)
@@ -491,28 +518,28 @@
         @if ($elemento->tipo_resolucion)
         <span>
             {{ $elemento->tipo_resolucion }}
-        </span>
-        @endif
-        @if ($elemento->nro_resolucion)
-        <span>
-            {{ ltrim($elemento->nro_resolucion, '0') }}
-        </span>
-        @endif
-        @if ($elemento->fecha_emision)
-        <span>
-            de {{ $elemento->fecha_emision }}.
-        </span>
-        @endif
-        @if ($elemento->sala)
-        <span>
-            Tribunal Supremo de Justicia, Sala {{ $elemento->sala }}.
-        </span>
-        @endif
-        @if ($elemento->external_id)
-        <a href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
-            Enlace
-        </a>
-        @endif
+    </span>
+    @endif
+    @if ($elemento->nro_resolucion)
+    <span>
+        {{ ltrim($elemento->nro_resolucion, '0') }}
+    </span>
+    @endif
+    @if ($elemento->fecha_emision)
+    <span>
+        de {{ $elemento->fecha_emision }}.
+    </span>
+    @endif
+    @if ($elemento->sala)
+    <span>
+        Tribunal Supremo de Justicia, Sala {{ $elemento->sala }}.
+    </span>
+    @endif
+    @if ($elemento->external_id)
+    <a href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
+        Enlace
+    </a>
+    @endif
 
     </div>
     @endforeach
