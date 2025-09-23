@@ -6,7 +6,6 @@ import { titulo } from "../../utils/filterForm";
 import type { Jurisprudencia, Resolucion } from "../../types";
 import { useParams } from "react-router-dom";
 import {
-  PDFDownloadLink,
   Document,
   Page,
   PDFViewer,
@@ -15,6 +14,7 @@ import {
   View,
   Font,
   Image,
+  usePDF,
 } from "@react-pdf/renderer";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { CiLink } from "react-icons/ci";
@@ -23,6 +23,8 @@ import Modal from "../../components/modal/Modal";
 const Resolucion = () => {
   const { id } = useParams();
   const [resolucion, setResolucion] = useState<Resolucion>({} as Resolucion);
+  const [bloques, setBloques] = useState<string[]>([]);
+  const [titulos, setTitulos] = useState<string[]>([]);
   const [fichas, setFichas] = useState<Jurisprudencia[]>([]);
   const [options, setOptions] = useState(false);
   const [subMenu, setSubMenu] = useState<number | null>(null);
@@ -34,10 +36,15 @@ const Resolucion = () => {
     body: { paddingTop: 35, paddingBottom: 65, paddingHorizontal: 35 },
     subtitle: { fontSize: 18, margin: 12, fontFamily: "Oswald" },
     text: {
-      margin: 10,
-      fontSize: 14,
+      margin: 5,
+      fontSize: 12,
       textAlign: "justify",
       fontFamily: "Times-Roman",
+    },
+    header: {
+      fontSize: 14,
+      margin: 7,
+      fontFamily: "Oswald",
     },
     pageNumber: {
       position: "absolute",
@@ -65,6 +72,8 @@ const Resolucion = () => {
       .then(({ data }) => {
         setResolucion(data.resolucion);
         setFichas(data.jurisprudencias);
+        setBloques(data.bloques);
+        setTitulos(data.titulos);
       })
       .catch(console.error);
   }, [id]);
@@ -92,23 +101,37 @@ const Resolucion = () => {
     document.body.removeChild(element);
   };
 
+  const normalizeText = (str: string) => {
+    return (
+      str
+        // colapsar secuencias repetidas (\s\s\s → \s, \n\n → \n, etc.)
+        .replace(/(\\[rnts])+/g, (match) => match.slice(0, 2))
+        // convertir escapes en caracteres reales
+        .replace(/\\r/g, "\r")
+        .replace(/\\n/g, "\n")
+        .replace(/\\t/g, " ") // tab = 4 espacios
+        .replace(/\\s/g, " ")
+    ); // espacio simple
+  };
+
   // Memoizamos el documento para evitar remounts innecesarios
   const MyDocument = useMemo(
     () => (
       <Document>
         <Page size="LETTER" style={styles.body}>
           <Image style={styles.image} src="/tsj.png" />
-          {resolucion.contenido?.split("\r").map((line, index) =>
-            line === line.toUpperCase() ? (
-              <View key={index} style={styles.subtitle}>
-                <Text>{line}</Text>
-              </View>
-            ) : (
-              <View key={index} style={styles.text}>
-                <Text>{line}</Text>
-              </View>
-            )
-          )}
+          {bloques.map((line, index) => (
+            <View key={index} style={styles.text}>
+              <Text style={styles.header}>{titulos[index]}</Text>
+              {normalizeText(line)
+                .split("\r")
+                .map((part, idx) => (
+                  <Text key={idx} style={styles.text}>
+                    {part.replace(/\s+/g, " ").trim()}
+                  </Text>
+                ))}
+            </View>
+          ))}
           <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) =>
@@ -128,7 +151,7 @@ const Resolucion = () => {
       <tbody>
         {Object.entries(resolucion).map(
           ([key, value]) =>
-            key !== "contenido" &&
+            !["contenido", "id"].includes(key) &&
             value && (
               <tr
                 key={key}
@@ -163,6 +186,7 @@ const Resolucion = () => {
             <tbody>
               {Object.entries(item).map(
                 ([key, value]) =>
+                  key !== "last" &&
                   value && (
                     <tr
                       key={key}
@@ -182,6 +206,15 @@ const Resolucion = () => {
         )}
       </div>
     ));
+
+  const [instance, updateInstance] = usePDF({ document: MyDocument });
+
+  useEffect(() => {
+    updateInstance(MyDocument);
+  }, [MyDocument, updateInstance]);
+  if (instance.loading) return <Loading />;
+
+  if (instance.error) return <div>Something went wrong: {instance.error}</div>;
 
   if (!resolucion) return <Loading />;
 
@@ -230,16 +263,15 @@ const Resolucion = () => {
             </button>
             {options && (
               <>
-                <PDFDownloadLink
-                  document={MyDocument}
-                  fileName={`resolucion_${id}.pdf`}
-                >
-                  {({ loading }) => (
-                    <button className="p-4 flex bg-white items-center justify-center rounded-lg border-2 border-gray-200 text-gray-600 w-full">
-                      {loading ? "Generando PDF..." : "PDF"}
-                    </button>
-                  )}
-                </PDFDownloadLink>
+                {instance.url && (
+                  <a
+                    className="p-4 flex bg-white items-center justify-center rounded-lg border-2 border-gray-200 text-gray-600 w-full"
+                    href={instance.url}
+                    download={`Resolucion-${id}.pdf`}
+                  >
+                    PDF
+                  </a>
+                )}
                 <button
                   className="p-4 flex bg-white items-center justify-center rounded-lg border-2 border-gray-200 text-gray-600 w-full"
                   onClick={downloadTextFile}

@@ -84,7 +84,7 @@ const EliminarRol = ({ id, setShowModal }: Props) => {
 
   return (
     <div className="container mx-auto pt-6 mt-6 max-w-4xl">
-      <form>
+      <form onSubmit={submitForm}>
         {/* Header Section */}
         <div className="mb-8 text-center">
           <div className="flex justify-center items-center gap-2 text-xl text-red-700">
@@ -116,7 +116,6 @@ const EliminarRol = ({ id, setShowModal }: Props) => {
         <div className="flex justify-center pt-6">
           <button
             type="submit"
-            onClick={() =>submitForm}
             className="w-full sm:w-auto text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-6 py-3 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
           >
             Eliminar Rol
