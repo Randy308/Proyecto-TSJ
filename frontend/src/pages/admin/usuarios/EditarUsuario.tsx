@@ -6,9 +6,29 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
 import { useUserContext } from "../../../context/userContext";
-import type { CreateUser, FormInput, UserFields } from "../../../types";
+import type { CreateUser } from "../../../types";
 import { useAuthContext } from "../../../context";
-import { EmailInput, NameInput, PasswordInput } from "../../../components/form";
+
+import { z } from "zod";
+
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import CustomInput from "../../../components/form/CustomInput";
+import { filterForm } from "../../../utils/filterForm";
+const schema = z.object({
+  name: z.string().min(1, "El nombre es obligatorio"),
+  email: z
+    .string()
+    .email("Correo electronico invalido")
+    .min(1, "El correo electronico es obligatorio"),
+  password: z
+    .string()
+    .min(6, "La contraseña debe tener al menos 6 caracteres")
+    .optional()
+    .or(z.literal("")),
+});
+
+type FormValues = z.infer<typeof schema>;
 
 interface UsuarioProps {
   setShowModal: (val: boolean) => void;
@@ -20,14 +40,8 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
   const navigate = useNavigate();
   const { roles } = useRoleContext();
   const { users, obtenerUsers } = useUserContext();
-  const [formData, setFormData] = useState<CreateUser>({} as CreateUser);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, setFormState] = useState<FormInput>({
-    email: false,
-    name: false,
-    password: false,
-    role: false,
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [role, setRole] = useState<string>("");
 
   useEffect(() => {
     if (!can("actualizar_usuarios")) {
@@ -35,53 +49,31 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
     }
   }, [can, navigate]);
 
-  const setParams = (name: UserFields, value: string | number) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    mode: "onBlur",
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
+  });
 
-  const actualizarInput = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setParams(event.target.name as UserFields, event.target.value);
-  };
+  const onSubmit: SubmitHandler<FormValues> = async (data) => {
+    const filteredData = filterForm({...data, role});
+    console.log(filteredData);
 
-  const changeRole = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      role: event.target.value.trim(),
-    }));
-    setFormState((prev) => ({ ...prev, role: true }));
-  };
-
-  useEffect(() => {
-    if (users) {
-      setFormData(
-        (users as CreateUser[]).find((item) => item.id === id) ||
-          ({} as CreateUser)
-      );
+    if (!filteredData.role || role === "") {
+      toast.error("Debe seleccionar un rol para el usuario");
+      return;
     }
-  }, [id, users]);
-
-  const submitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
     try {
-      const filteredData = Object.fromEntries(
-        Object.entries(formData).filter(
-          ([value]) =>
-            value && value !== null &&
-            value !== undefined &&
-            value !== "" &&
-            value !== "all"
-        )
-      );
-
-      await UserService.updateUser(id, {
-        ...filteredData,
-      } as CreateUser)
+      await UserService.updateUser(id, { ...filteredData } as CreateUser)
         .then(({ data }) => {
           if (data) {
             setShowModal(false);
@@ -117,33 +109,49 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
     }
   };
 
-  if (!formData || Object.keys(formData).length === 0) {
-    return (
-      <div className="h-[400px]">
-        <Loading></Loading>
-      </div>
-    );
-  }
+  const changeRole = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRole(e.target.value);
+  };
+  useEffect(() => {
+    if (users) {
+      const user = users.find((item) => item.id === id);
+      console.log(user);
+      if (user) {
+        setRole(user.role || "");
+        reset(user);
+        setIsLoading(false);
+      }
+    }
+  }, [id, reset, users]);
+
+  if (!users || isLoading) return <Loading />;
   return (
     <div className="container mx-auto pt-4 mt-4">
-      <form>
-        <NameInput
-          input={formData.name ?? ""}
-          setInput={actualizarInput}
-          setFormState={setFormState}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <CustomInput
+          name="name"
+          control={control}
+          label="Nombre"
+          placeholder="Ingrese su nombre completo"
+          type="text"
+          error={errors.name}
         />
-
-        <EmailInput
-          email={formData.email ?? ""}
-          setEmail={actualizarInput}
-          setFormState={setFormState}
+        <CustomInput
+          name="email"
+          control={control}
+          label="Email"
+          placeholder="Ingrese su email"
+          type="email"
+          error={errors.email}
         />
-
-        <PasswordInput
-          password={formData.password ?? ""}
-          setPassword={actualizarInput}
-          setFormState={setFormState}
-          isEditing={true}
+        <CustomInput
+          name="password"
+          control={control}
+          label="Contraseña"
+          placeholder="**************"
+          type="password"
+          mode="password"
+          error={errors.password}
         />
         <div className="mb-6">
           <label
@@ -155,7 +163,7 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
           <select
             id="role"
             name="role"
-            value={formData.role || ""}
+            value={role || ""}
             onChange={changeRole}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 capitalize"
           >
@@ -172,7 +180,6 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
         </div>
         <button
           type="submit"
-          onClick={submitForm}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Actualizar información

@@ -18,14 +18,14 @@ import { GiArchiveRegister } from "react-icons/gi";
 const Sidebar = () => {
   const [show, setShow] = React.useState(false);
 
-  const { hasAccess, can, authUser } = useAuthContext();
+  const { hasAccess, can } = useAuthContext();
   const { notifications } = useNotificationContext();
 
   const navLinks = () => {
     if (hasAccess()) {
       return (
         <>
-          {authUser && authUser.role !== "user" && (
+          {can("ver_dashboard") && (
             <li>
               <NavLink
                 to="/dashboard"

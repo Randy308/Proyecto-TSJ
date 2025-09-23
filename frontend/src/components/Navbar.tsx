@@ -10,7 +10,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState<boolean | null>(null);
   const [settingsOpen, setSettingsOpen] = useState<number | null>(null);
   const [isOpen, setIsOpen] = useState<number | null>(null);
-  const { hasAccess, authUser } = useAuthContext();
+  const { hasAccess, can } = useAuthContext();
 
   const actualizarBoton = () => {
     setMenuOpen((prevState) => !prevState);
@@ -38,7 +38,7 @@ const Navbar = () => {
         <>
           <li>
             <NavLink
-              to={`${authUser?.role !== "user" ? "/dashboard" : "/perfil-usuario"}`}
+              to={`${can("ver_dashboard") ? "/dashboard" : "/perfil-usuario"}`}
               className={`flex items-center  rounded-xl p-2 text-gray-200 hover:text-white dark:hover:text-white`}
             >
               <span>Mis acciones</span>

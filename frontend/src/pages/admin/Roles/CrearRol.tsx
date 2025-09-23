@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {RoleService} from "../../../services";
+import { RoleService } from "../../../services";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useRoleContext } from "../../../context/roleContext";
@@ -10,7 +10,7 @@ import { useAuthContext } from "../../../context";
 interface CrearRolProps {
   permissions: Permission[] | undefined;
   showModal?: boolean;
-  setShowModal: (val:boolean) => void;
+  setShowModal: (val: boolean) => void;
 }
 const CrearRol = ({ permissions, setShowModal }: CrearRolProps) => {
   const { can } = useAuthContext();
@@ -91,7 +91,7 @@ const CrearRol = ({ permissions, setShowModal }: CrearRolProps) => {
 
   return (
     <div className="container mx-auto pt-4 mt-4">
-      <form>
+      <form onSubmit={submitForm}>
         <div className="mb-6">
           <label
             htmlFor="roleName"
@@ -146,7 +146,6 @@ const CrearRol = ({ permissions, setShowModal }: CrearRolProps) => {
         </div>
         <button
           type="submit"
-          onClick={() => submitForm}
           className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
         >
           Crear rol

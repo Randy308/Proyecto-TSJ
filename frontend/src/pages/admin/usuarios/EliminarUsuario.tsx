@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUser } from "react-icons/fa";
-import {UserService} from "../../../services";
+import { UserService } from "../../../services";
 import { ImWarning } from "react-icons/im";
 import Loading from "../../../components/Loading";
 import { useNavigate } from "react-router-dom";
@@ -28,15 +28,16 @@ const EliminarUsuario = ({ id, setShowModal }: UsuarioProps) => {
   }, [can, navigate]);
   useEffect(() => {
     if (users) {
-      setFormData((users as CreateUser[]).find((item) => item.id === id) || {} as CreateUser);
+      setFormData(
+        (users as CreateUser[]).find((item) => item.id === id) ||
+          ({} as CreateUser)
+      );
     }
-
   }, [id, users]);
 
-  const submitForm = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const submitForm = async (e: React.MouseEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-
       await UserService.deleteUser(id)
         .then(({ data }) => {
           if (data) {
@@ -81,7 +82,7 @@ const EliminarUsuario = ({ id, setShowModal }: UsuarioProps) => {
 
   return (
     <div className="container mx-auto pt-4 mt-4">
-      <form>
+      <form onSubmit={submitForm}>
         <div className="mb-6 flex gap-4 justify-center items-center text-2xl">
           <ImWarning className="w-4 h-4 text-red-700" />
           <label
@@ -108,19 +109,17 @@ const EliminarUsuario = ({ id, setShowModal }: UsuarioProps) => {
         <div className="flex flex-wrap gap-4 pt-4">
           <button
             type="submit"
-            onClick={submitForm}
             className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800"
           >
             Eliminar usuario
           </button>
-
+          {/* 
           <button
             type="submit"
-            onClick={submitForm}
             className="bg-white text-red-700 hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:text-red-600  dark:hover:bg-gray-300 dark:focus:ring-red-800"
           >
             Eliminar usuario y su contenido
-          </button>
+          </button> */}
         </div>
       </form>
     </div>

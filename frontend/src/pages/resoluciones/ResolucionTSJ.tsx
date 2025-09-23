@@ -15,7 +15,7 @@ const ResolucionTSJ = ({ id }: { id: number }) => {
 
   useEffect(() => {
     const getResolution = async () => {
-      ResolucionesService.obtenerResolucion(id)
+      ResolucionesService.obtenerResolucionSimple(id)
         .then(({ data }) => {
           setResolucion(data.resolucion);
           setFichas(data.jurisprudencias);
