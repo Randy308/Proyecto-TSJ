@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { SearchField } from "../types/search";
 import { Etiquetas } from "./Etiquetas";
 
@@ -10,16 +11,20 @@ export const SearchFieldInput = ({
   index: number;
   updateField: (index: number, updated: Partial<SearchField>) => void;
 }) => {
+  const etiqueta = useMemo(
+    () => (
+      <Etiquetas
+        selected={field.operator}
+        onChange={(op) =>
+          updateField(index, { operator: op as "AND" | "OR" | "NOT" })
+        }
+      />
+    ),
+    [field.operator, index, updateField]
+  );
   return (
     <div className="flex flex-row pt-1 items-center gap-2">
-      {index > 0 && (
-        <Etiquetas
-          selected={field.operator}
-          onChange={(op) =>
-            updateField(index, { operator: op as "AND" | "OR" | "NOT" })
-          }
-        />
-      )}
+      {index > 0 && etiqueta}
       <div className="flex-1 relative">
         <input
           type="text"

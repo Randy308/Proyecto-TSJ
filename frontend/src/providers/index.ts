@@ -10,3 +10,4 @@ export * from "./userContextProvider";
 export * from "./variablesContextProvider";
 export * from "./authContextProvider";
 export * from "./formContextProvider";
+export * from "./cronologiaContextProvider";

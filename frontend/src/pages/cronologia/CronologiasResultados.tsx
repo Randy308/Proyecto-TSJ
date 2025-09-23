@@ -1,48 +1,71 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useCronologiaContext } from "../../context/cronologiaContext";
+import { FaDownload } from "react-icons/fa";
+import { MdOutlineZoomInMap } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 const CronologiasResultados = () => {
-  const location = useLocation();
-  const [pdfUrl, setPdfUrl] = useState(null);
+  const { pdfBlob } = useCronologiaContext();
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(false);
+  const navigate = useNavigate();
 
   const generateFilename = () => {
     const now = new Date();
-    const formattedDate = now
-      .toISOString()
-      .replace(/T/, "_")
-      .replace(/:/g, "-")
-      .split(".")[0];
-    return `cronojurídica_${formattedDate}.pdf`;
+    return `cronojurídica_${
+      now.toISOString().replace(/T/, "_").replace(/:/g, "-").split(".")[0]
+    }.pdf`;
   };
 
   useEffect(() => {
-    if (location.state?.pdfUrl) {
-      setPdfUrl(location.state.pdfUrl);
+    if (pdfBlob) {
+      const url = URL.createObjectURL(pdfBlob);
+      setPdfUrl(url);
+    } else {
+      navigate(-1);
     }
 
     return () => {
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
     };
-  }, [location.state, pdfUrl]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pdfBlob]);
 
   return (
-    <div className="flex items-center justify-center">
+    <div
+      className={`flex pt-4 flex-col items-center ${
+        zoom ? "absolute top-0 left-0 w-full bg-gray-800 z-50" : ""
+      }`}
+    >
       {pdfUrl ? (
-        <div className="flex flex-col p-4 m-4 gap-4">
-          <div className="pb-4">
+        <div className="flex flex-col gap-1">
+          {/* Toolbar */}
+          <div className="py-2 ps-2 flex gap-4 items-center">
             <a
               href={pdfUrl}
               download={generateFilename()}
-              className="p-4 bg-blue-600 rounded-lg text-white"
+              title="Descargar PDF"
+              className="p-4 bg-gray-600 rounded-lg text-white"
             >
-              Descargar PDF
+              <FaDownload />
             </a>
+            <button
+              className="p-4 bg-gray-600 rounded-lg text-white"
+              type="button"
+              title="Alternar Zoom"
+              onClick={() => setZoom(!zoom)}
+            >
+              <MdOutlineZoomInMap />
+            </button>
           </div>
+
+          {/* PDF Viewer usando iframe */}
           <iframe
             src={pdfUrl}
-            title="PDF Document"
-            style={{ width: "90dvw", height: "100dvh" }}
-            frameBorder="0"
+            className={`border-2 border-gray-300 ${
+              zoom ? "w-[95dvw] h-screen" : "w-[70dvw] h-[100dvh]"
+            }`}
+            title="PDF Viewer"
           />
         </div>
       ) : (

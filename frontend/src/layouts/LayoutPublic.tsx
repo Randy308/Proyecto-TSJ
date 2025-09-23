@@ -4,7 +4,7 @@ import MyNavbar from "../components/Navbar";
 
 export const LayoutPublic = () => {
   const location = useLocation();
-  const noNavbarRoutes: string[] = ["/jurisprudencia/resolucion/:id", "/iijp-login"];
+  const noNavbarRoutes: string[] = ["/cronojuridicas/resolucion/:id", "/iijp-login"];
 
   const FooterRoutes: string[] = [
     "/inicio",

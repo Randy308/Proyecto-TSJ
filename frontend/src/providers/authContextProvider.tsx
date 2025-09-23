@@ -74,7 +74,7 @@ export const AuthContextProvider = ({ children }: ContextProviderProps) => {
       return { success: true, user: response.data.user };
     } catch (error: unknown) {
       console.error("Register error:", error);
-      const message = "Error al registrar usuario";
+      const message = "Error al registrar usuario, el email ya está en uso";
       return { success: false, message };
     }
   };

@@ -29,11 +29,12 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>;
 
-interface Props{
-  setLoginMode: (mode:boolean) => void;
+interface Props {
+  setLoginMode: (mode: boolean) => void;
 }
-const Register = ({setLoginMode}:Props) => {
+const Register = ({ setLoginMode }: Props) => {
   const { hasAccess, register } = useAuthContext();
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -50,7 +51,7 @@ const Register = ({setLoginMode}:Props) => {
     if (isLoading) return;
     setIsLoading(true);
     try {
-      const { success } = await register(
+      const { success,message } = await register(
         data.name,
         data.email,
         data.password,
@@ -62,8 +63,10 @@ const Register = ({setLoginMode}:Props) => {
         navigate("/");
       } else {
         console.error("Email o contraseña incorrectos");
+        setError(message || "Error al registrar el usuario");
       }
     } catch (err) {
+      setError("Error al registrar el usuario");
       console.error("Error en la solicitud:", err);
     } finally {
       setIsLoading(false);
@@ -77,6 +80,10 @@ const Register = ({setLoginMode}:Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    console.log(error);
+  }, [error])
+  
   return (
     <>
       <a className="flex gap-1 items-center justify-center">
@@ -121,6 +128,12 @@ const Register = ({setLoginMode}:Props) => {
           type="password"
           error={errors.passwordConfirmation}
         />
+        {error && (
+          <div className="invalid-feedback text-red-600 text-xs">
+            {error}
+          </div>
+        )}
+
         <div className="pt-2">
           <button
             type="submit"

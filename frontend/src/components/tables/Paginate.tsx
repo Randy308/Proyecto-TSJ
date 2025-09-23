@@ -1,20 +1,13 @@
 import { BsChevronLeft, BsChevronRight } from "react-icons/bs";
+import { useCronologiaContext } from "../../context/cronologiaContext";
 
 interface PaginateProps {
   handlePageClick: (page: number) => void;
-  pageCount: number;
-  actualPage: number;
-  totalCount: number;
   children?: React.ReactNode;
 }
 
-const Paginate = ({
-  handlePageClick,
-  pageCount,
-  actualPage,
-  totalCount,
-  children
-}: PaginateProps) => {
+const Paginate = ({ children, handlePageClick }: PaginateProps) => {
+  const { actualPage, pageCount, totalCount } = useCronologiaContext();
 
   const PaginationControls = () => (
     <div className="flex justify-center sm:justify-between items-center p-2 text-black dark:text-white flex-wrap gap-4">

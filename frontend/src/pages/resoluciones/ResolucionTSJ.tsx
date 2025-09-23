@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import styles from "./ResolucionTSJ.module.css";
-import {ResolucionesService} from "../../services";
+import { ResolucionesService } from "../../services";
 import { titulo } from "../../utils/filterForm";
 import type { Jurisprudencia, Resolucion } from "../../types";
-
 
 const ResolucionTSJ = ({ id }: { id: number }) => {
   const [resolucion, setResolucion] = useState<Resolucion>({} as Resolucion);
@@ -34,7 +33,6 @@ const ResolucionTSJ = ({ id }: { id: number }) => {
     setSubMenu((prev) => (prev === id ? null : id));
   };
 
-
   if (resolucion === null) {
     return (
       <div className="flex items-center justify-center" style={{ height: 800 }}>
@@ -52,7 +50,8 @@ const ResolucionTSJ = ({ id }: { id: number }) => {
               {(Object.keys(resolucion) as (keyof Resolucion)[]).map(
                 (key) =>
                   key !== "contenido" &&
-                  resolucion[key] && (
+                  resolucion[key] &&
+                  "id".includes(key) === false && (
                     <tr
                       className="border-2 border-gray-200 dark:border-gray-700"
                       key={key}
@@ -121,7 +120,10 @@ const ResolucionTSJ = ({ id }: { id: number }) => {
         );
       case 4:
         return (
-          <div ref={docRef} className="bg-white overflow-auto text-black p-4 m-5 rounded-lg">
+          <div
+            ref={docRef}
+            className="bg-white overflow-auto text-black p-4 m-5 rounded-lg"
+          >
             {resolucion.contenido
               ? resolucion.contenido.split("\r").map((line, index) =>
                   line === line.toUpperCase() ? (

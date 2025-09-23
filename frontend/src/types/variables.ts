@@ -70,12 +70,15 @@ export interface Resolucion {
   maxima?: string;
   sintesis?: string;
   contenido?: string;
+  periodo?: string;
   id?: number;
 }
+
 export interface Jurisprudencia {
   ratio?: string;
   descriptor?: string;
   restrictor?: string;
+  resolution_id?: string;
   tipo_jurisprudencia?: string;
 }
 

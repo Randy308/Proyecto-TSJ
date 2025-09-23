@@ -53,10 +53,12 @@ export const JurisprudenciaService = {
   obtenerCronologia: (formData: object) =>
     instance.post("/cronologias", formData, {
       responseType: "blob",
+      withCredentials: true,
     }),
   obtenerCronologiabyIds: (formData: object) =>
     instance.post("/cronologias-ids", formData, {
       responseType: "blob",
+      withCredentials: true,
     }),
   busquedaAvanzada: (params: object) =>
     instance.post("/buscar-jurisprudencia-avanzado", params, {

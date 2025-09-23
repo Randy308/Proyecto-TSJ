@@ -57,6 +57,19 @@ const MultiSelect = ({
     setIdCounter(idCounter + 1);
   };
 
+  const closeIcon = useMemo(
+    () => (
+      <IoMdClose className="group-hover:text-red-400 text-black dark:text-white" />
+    ),
+    []
+  );
+
+  const arrowIcon = useMemo(() => <IoIosArrowDown className="h-5 w-5" />, []);
+  const secondaryCloseIcon = useMemo(
+    () => <IoMdClose className="h-5 w-5" />,
+    []
+  );
+
   return (
     <div
       onMouseEnter={() => setShow(true)}
@@ -77,8 +90,10 @@ const MultiSelect = ({
                   )
                 }
               >
-                <span className="text-black dark:text-white">{option.field}</span>
-                <IoMdClose className="group-hover:text-red-400 text-black dark:text-white" />
+                <span className="text-black dark:text-white">
+                  {option.field}
+                </span>
+                {closeIcon}
               </div>
             ))}
           </div>
@@ -96,11 +111,11 @@ const MultiSelect = ({
             className="hover:text-gray-400 hover:cursor-pointer"
             onClick={() => setSelectedOptions([])}
           >
-            <IoMdClose className="h-5 w-5" />
+            {secondaryCloseIcon}
           </a>
         )}
         <a className="hover:text-gray-400 hover:cursor-pointer border-l-2 pl-2">
-          <IoIosArrowDown className="h-5 w-5" />
+          {arrowIcon}
         </a>
 
         {/* Lista desplegable */}
