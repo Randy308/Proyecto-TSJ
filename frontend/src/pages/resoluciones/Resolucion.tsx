@@ -4,7 +4,7 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import { ResolucionesService } from "../../services";
 import { titulo } from "../../utils/filterForm";
 import type { Jurisprudencia, Resolucion } from "../../types";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Document,
   Page,
@@ -22,6 +22,7 @@ import Modal from "../../components/modal/Modal";
 
 const Resolucion = () => {
   const { id } = useParams();
+  const navigate = useNavigate(); 
   const [resolucion, setResolucion] = useState<Resolucion>({} as Resolucion);
   const [bloques, setBloques] = useState<string[]>([]);
   const [titulos, setTitulos] = useState<string[]>([]);
@@ -66,17 +67,6 @@ const Resolucion = () => {
     family: "Oswald",
     src: "https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf",
   });
-
-  useEffect(() => {
-    ResolucionesService.obtenerResolucion(Number(id))
-      .then(({ data }) => {
-        setResolucion(data.resolucion);
-        setFichas(data.jurisprudencias);
-        setBloques(data.bloques);
-        setTitulos(data.titulos);
-      })
-      .catch(console.error);
-  }, [id]);
 
   const cambiarSubMenu = (id: number) =>
     setSubMenu((prev) => (prev === id ? null : id));
@@ -143,7 +133,7 @@ const Resolucion = () => {
       </Document>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [resolucion]
+    [bloques, titulos]
   );
 
   const renderDatosGenerales = () => (
@@ -212,11 +202,24 @@ const Resolucion = () => {
   useEffect(() => {
     updateInstance(MyDocument);
   }, [MyDocument, updateInstance]);
+
+  useEffect(() => {
+    ResolucionesService.obtenerResolucion(Number(id))
+      .then(({ data }) => {
+        setResolucion(data.resolucion);
+        setFichas(data.jurisprudencias);
+        setBloques(data.bloques);
+        setTitulos(data.titulos);
+      })
+      .catch(() => {
+        navigate("/");
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
   if (instance.loading) return <Loading />;
 
   if (instance.error) return <div>Something went wrong: {instance.error}</div>;
-
-  if (!resolucion) return <Loading />;
 
   return (
     <div className="flex flex-col h-screen">
