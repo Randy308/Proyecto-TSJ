@@ -475,7 +475,7 @@
     <div class="resolucion-card">
         <h2 class="resolucion-header">
             <tocentry content="{{ $item->titulo }}" level="1" />
-            <a class="resolucion-link" target="_blank" href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->id }}">
+            <a class="resolucion-link" target="_blank"  href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->id }}">
 
                 @if ($item->titulo)
                 <span>

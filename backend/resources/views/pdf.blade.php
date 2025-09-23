@@ -471,7 +471,7 @@
             </div>
             <div class="contenido">
                 <span class="resolution">
-                    <a href="http://samed-tsj.umss.edu.bo/resolucion/{{ $item->resolution_id }}">
+                    <a target="_blank" href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->resolution_id }}">
                         {{ $item->nro_resolucion }}
                     </a>
                 </span>
@@ -541,7 +541,7 @@
                     </span>
                 @endif
                 @if ($elemento->external_id)
-                    <a href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
+                    <a target="_blank" href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
                         Enlace
                     </a>
                 @endif
