@@ -48,7 +48,7 @@ class ResolutionResource extends JsonResource
             'maxima' => $this->maxima,
             'sintesis' => $this->sintesis,
             'precedente' => $this->precedente,
-            'contenido' => $this->content?->contenido,
-        ], fn ($value) => ! is_null($value));
+            'contenido' =>  str_replace('_x0007_', "\x07", $this->content?->contenido),
+        ], fn($value) => ! is_null($value));
     }
 }

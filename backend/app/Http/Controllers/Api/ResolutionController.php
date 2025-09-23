@@ -1143,7 +1143,39 @@ class ResolutionController extends Controller
         ]);
     }
 
-    public function show($id): JsonResponse
+    public function intToRoman(int $num): string
+    {
+        if ($num <= 0) {
+            return ''; // Roman numerals do not represent zero or negative numbers
+        }
+
+        $lookup = [
+            1000 => 'M',
+            900 => 'CM',
+            500 => 'D',
+            400 => 'CD',
+            100 => 'C',
+            90 => 'XC',
+            50 => 'L',
+            40 => 'XL',
+            10 => 'X',
+            9 => 'IX',
+            5 => 'V',
+            4 => 'IV',
+            1 => 'I'
+        ];
+
+        $result = '';
+        foreach ($lookup as $value => $roman) {
+            while ($num >= $value) {
+                $result .= $roman;
+                $num -= $value;
+            }
+        }
+        return $result;
+    }
+
+    public function showBasic($id): JsonResponse
     {
 
         try {
@@ -1155,7 +1187,122 @@ class ResolutionController extends Controller
 
             return response()->json([
                 'resolucion' => new ResolutionResource($resolution),
+                'jurisprudencias' => JurisprudenciaResource::collection($jurisprudencias)
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+
+            return response()->json([
+                'error' => 'Resolución no encontrada',
+            ], 404);
+        } catch (\Exception $e) {
+            // Manejar otras excepciones posibles
+            return response()->json([
+                'error' => 'Ocurrió un error al intentar obtener la resolución' . $e,
+            ], 500);
+        }
+    }
+
+    public function show($id): JsonResponse
+    {
+
+        try {
+
+            // @phpstan-ignore larastan.relationExistence
+            $resolution = Resolution::with('content', 'forma_resolucion', 'sala', 'departamento', 'magistrado')->findOrFail($id);
+            // @phpstan-ignore larastan.relationExistence
+            $jurisprudencias = Jurisprudencia::with('materia', 'tipo_descriptor')->where('resolution_id', $id)->get();
+
+
+            $result = DB::select(
+                "
+    SELECT
+        c.id,
+        to_json(
+            regexp_split_to_array(
+                c.contenido,
+                '(\r\n?\s{0,})(?=(?:[A-Z]{2,}|[IVXLCDM]+\\.\\s))'
+            )
+        ) AS bloques
+    FROM contents c
+    WHERE c.resolution_id = ?
+    ",
+                [$id]
+            );
+
+            $bloques = [];
+            $titulos = [];
+            $indices = [];
+            foreach ($result as  $row) {
+                $titulos = [];
+                $lastTitulo = null; // Último título procesado
+                $indices = [];
+
+                $bloques = json_decode($row->bloques, true);
+                $contadorTitulos = []; // Contador para títulos repetidos por fila
+
+                foreach ($bloques as $index => $bloque) {
+                    $bloque = trim($bloque);
+
+                    // Regex para capturar títulos hasta \t, \n, \r, . , .- o :
+                    if (preg_match('/^([A-Z0-9ÁÉÍÓÚÑ\s\.\,\-\(\)\/]+?)(?:\t|\n|\r|\.\s|\.\-|:|\))/u', $bloque, $matches)) {
+                        $titulo = trim($matches[1]);
+                    } else {
+
+                        if (preg_match('/^\p{Lu}[\p{Lu}\sÁÉÍÓÚÜÑ]*$/u', $bloque)) {
+                            $titulo = $bloque;
+                        } elseif (mb_strlen($bloque) <= 50) {
+                            $titulo = $bloque;
+                        } else {
+                            $titulo = explode(" ", $bloque)[0];
+                        }
+                    }
+
+                    // Manejar títulos repetidos dentro de la misma fila
+                    if (isset($contadorTitulos[$titulo])) {
+                        $contadorTitulos[$titulo]++;
+                        $romanNumeral = $this->intToRoman($contadorTitulos[$titulo]);
+                        $tituloUnico = $titulo . '.' . $romanNumeral;
+                    } else {
+                        $contadorTitulos[$titulo] = 0;
+                        $tituloUnico = $titulo;
+                    }
+
+
+                    $titulos[$index] = $tituloUnico;
+
+                    // --- Bucle adicional: agregar al array global ---
+                    if (!isset($todosTitulos[$tituloUnico])) {
+                        $todosTitulos[$tituloUnico] = 1;
+                    } else {
+                        $todosTitulos[$tituloUnico]++;
+                    }
+
+
+                    if (preg_match('/^[IVXLCDM]+(?:\.\d+)*$/', $titulo)) {
+                        $indices[$index] = $lastTitulo;
+                    } else {
+                        $indices[$index] = 0;
+                        $lastTitulo = $titulo;
+                    }
+                    $special_chars_to_remove = "#$%^&*()-+="; // Add all special characters you want to remove
+                    $bloques[$index] = ltrim(trim(substr($bloque, strlen($titulo) + 1)), $special_chars_to_remove);
+                    $bloques[$index] =  str_replace('_x0007_', "\x07", $bloques[$index]);
+                    // --- fin del bucle adicional ---
+                }
+
+                $row->bloques = $bloques;
+                $row->titulos = $titulos;
+                $row->indices = $indices;
+            }
+
+
+
+            return response()->json([
+                'resolucion' => new ResolutionResource($resolution),
                 'jurisprudencias' => JurisprudenciaResource::collection($jurisprudencias),
+                'bloques' => $bloques ?? [],
+                'titulos' => $titulos ?? [],
+                'indices' => $indices ?? [],
             ], 200);
         } catch (ModelNotFoundException $e) {
 

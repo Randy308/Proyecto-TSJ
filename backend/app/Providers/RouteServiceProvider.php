@@ -64,12 +64,12 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('cronologias', function (Request $request) {
             if ($request->user()) {
 
-                if ($request->user()->can('administrar_datos')) {
+                if ($request->user()->can('crear_cronologias')) {
                     return Limit::perMinute(60)->by($request->user()->id);
                 }
                 return Limit::perDay(6)->by($request->user()->id)->response(function () {
                     Log::warning('Límite de tasa alcanzado para cronologías', ['ip' => request()->ip()]);
-                    return response()->json(['rate' => true, 'message' => 'Has alcanzado el límite de solicitudes diarias para cronologías. Por favor, inténtalo de nuevo mañana o mejora '], 429);
+                    return response()->json(['rate' => true, 'message' => 'Has alcanzado el límite de solicitudes diarias para cronologías. Por favor, inténtalo de nuevo mañana o mejora tu plan'], 429);
                 });
             }
             // Visitante

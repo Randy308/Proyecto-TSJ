@@ -16,6 +16,11 @@ use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class WebScrappingController extends Controller
 {
 
@@ -55,6 +60,43 @@ class WebScrappingController extends Controller
     {
 
 
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sala_id = request()->input("sala_id", 2);
+        // Example data
+        $data = DB::table('resolutions as r')->join('resuelve_decisiones as rf', 'r.id', '=', 'rf.resolution_id')->whereNull('rf.resolution_id')->get(['nro_resolucion', 'fecha_emision', 'r.sala_id'])->toArray();
+
+        return $data;
+        // Encabezados
+        $headers = ['Nro Resolución', 'Fecha Emisión', 'Sala'];
+        foreach ($headers as $colIndex => $header) {
+            $colLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue($colLetter . '1', $header);
+        }
+        $rowNumber = 2; // empieza en fila 2
+        foreach ($data as $row) {
+            $colNumber = 1; // columna A
+            foreach ($row as $cell) {
+                $colLetter = Coordinate::stringFromColumnIndex($colNumber);
+                $sheet->setCellValue($colLetter . $rowNumber, $cell);
+                $colNumber++;
+            }
+            $rowNumber++;
+        }
+
+
+        // Generar respuesta para descarga
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment;filename="reporte.xlsx"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+
         $response = Ollama::agent(
             'Eres un microservicio que devuelve las respuestas en espanol en formato json.'
         )
@@ -64,7 +106,7 @@ class WebScrappingController extends Controller
             ->options(['temperature' => 0.1])
             ->ask();
 
-        return response()->json(['data'=> json_decode($response['response'],true)],200);
+        return response()->json(['data' => json_decode($response['response'], true)], 200);
 
         $sala_id = request()->input("sala_id", 2);
 
@@ -81,7 +123,7 @@ class WebScrappingController extends Controller
         $todosTitulos = []; // Array global para todos los títulos
 
 
-        foreach ($result as $rowIndex => $row) {
+        foreach ($result as  $row) {
             $titulos = [];
             $lastTitulo = null; // Último título procesado
             $indices = [];

@@ -452,7 +452,7 @@ class SearchController extends Controller
             )
             ->whereIn('r.id', $ids);
 
-        $resolutions = $query->orderBy('tipo_resolucion')->get();
+        $resolutions = $query->orderBy('tipo_resolucion')->orderBy('fecha_emision')->get();
 
         foreach ($resolutions as $resolution) {
 
@@ -481,6 +481,9 @@ class SearchController extends Controller
                     'R' => 'trebuc.ttf',
                     'B' => 'trebucbd.ttf',
                     'I' => 'trebucit.ttf',
+                ],
+                'script_mt' => [
+                    'R' => 'script-mt.ttf',
                 ],
                 'times_new_roman' => [
                     'R' => 'times-new-roman.ttf',

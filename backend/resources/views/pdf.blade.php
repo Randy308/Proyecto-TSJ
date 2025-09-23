@@ -275,13 +275,14 @@
                 <img src="{{ public_path('/images/facultad.jpeg') }}" alt="Image"
                     style="max-width: 100px; height: auto;" />
             </td>
-            <td style="width: 80%; padding: 10px;">
+
+             <td style="width: 80%; padding: 10px;">
                 <div
-                    style="font-size: 17pt;   font-family: 'cambria', sans-serif; font-weight: bold; font-style: italic;">
+                    style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Observatorio del derecho y la política boliviana
                 </div>
                 <div
-                    style="font-size: 17pt;   font-family: 'cambria', sans-serif; font-weight: bold; font-style: italic;">
+                    style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Serie Cronologías jurídicas y políticas
                 </div>
             </td>
@@ -339,6 +340,22 @@
                     <p style="font-size: 11pt;font-weight: bold;">Ver:</p>
                     <p style="font-size: 11pt; font-style: italic;">Guía de uso, en video adjunto</p>
                 </div>
+            </td>
+        </tr>
+    </table>
+    
+        <table style="width: 100%; text-align: center;margin-top: 80px; border-collapse: collapse;">
+        <tr>
+            <td style="width: 15%;">
+
+            </td>
+            <td style="width: 70%;">
+                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 400px; height: auto;" />
+
+            </td>
+
+
+            <td style="width: 15%;">
             </td>
         </tr>
     </table>

@@ -300,11 +300,11 @@
             </td>
             <td style="width: 80%; padding: 10px;">
                 <div
-                    style="font-size: 17pt;   font-family: 'cambria', sans-serif; font-weight: bold; font-style: italic;">
+                    style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Observatorio del derecho y la política boliviana
                 </div>
                 <div
-                    style="font-size: 17pt;   font-family: 'cambria', sans-serif; font-weight: bold; font-style: italic;">
+                    style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Serie Cronologías jurídicas y políticas
                 </div>
             </td>
@@ -486,7 +486,7 @@
             </a>
         </h2>
 
-        @foreach (['periodo','descriptor','restrictor' ,'ratio', 'sintesis','maxima','precedente', 'forma_resolucion', 'proceso'] as $field)
+        @foreach (['forma_resolucion', 'proceso','periodo','descriptor','restrictor' ,'ratio', 'sintesis','maxima','precedente'] as $field)
         @if (!empty($item->$field))
         <span>{{ ucfirst(str_replace("_", " de ", $field)) }}</span>
         <span class="resolucion-meta">

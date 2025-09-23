@@ -93,6 +93,8 @@ Route::prefix('v2')->group(function () {
     // rutas búsqueda
     Route::get('/busqueda-parametros', [CompareController::class, 'getParams'])->name('get-params');
     Route::get('/resoluciones/{id}', [ResolutionController::class, 'show']);
+    Route::get('/simple-resoluciones/{id}', [ResolutionController::class, 'showBasic']);
+    
     // predicción
     Route::get('/predicciones', [ArimaController::class, 'realizarPrediction']);
 

@@ -340,6 +340,10 @@ class TemaController extends Controller
                     'I' => 'Cambria-Italic.ttf',
                     'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
+
+                'script_mt' => [
+                    'R' => 'script-mt.ttf',
+                ],
                 'trebuchet_ms' => [
                     'R' => 'trebuc.ttf',
                     'B' => 'trebucbd.ttf',
@@ -457,6 +461,9 @@ class TemaController extends Controller
                     'B' => 'Cambria-Bold.ttf',
                     'I' => 'Cambria-Italic.ttf',
                     'BI' => 'Cambria-Bold-Italic.ttf',
+                ],
+                'script_mt' => [
+                    'R' => 'script-mt.ttf',
                 ],
                 'trebuchet_ms' => [
                     'R' => 'trebuc.ttf',
