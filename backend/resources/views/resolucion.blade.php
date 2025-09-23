@@ -237,7 +237,7 @@
             <div class="contenido">
                 <p class="resolution">
                     <b> Nro Resolución:</b>
-                    <a href="https://jurisprudencia.tsj.bo/resoluciones/{{ $item->original }}/pdf/">
+                    <a href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->original }}">
                         {{ $item->nro_resolucion }}
                     </a>
                 </p>
