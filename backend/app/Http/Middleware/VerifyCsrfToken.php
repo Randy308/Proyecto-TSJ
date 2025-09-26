@@ -20,5 +20,6 @@ class VerifyCsrfToken extends Middleware
         'api/v2/estadisticas-xy',
         'api/v2/actualizar-filtros',
         'api/v2/buscar-jurisprudencia-avanzado',
+        'api/v2/exportar-excel-ids'
     ];
 }

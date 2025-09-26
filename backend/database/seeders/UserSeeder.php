@@ -16,8 +16,15 @@ class UserSeeder extends Seeder
     {
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
         $arrayOfPermissionNames = [
-            'crear_cronologias',
-            'ver_dashboard',
+           // 'crear_cronologias',
+            //'ver_dashboard',
+            'exportar_datos',
+            'exportar_materias',
+            'editar',
+            'editar_materias',
+            'editar_jurisprudencia',
+            'editar_resoluciones',
+
         ];
 
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {

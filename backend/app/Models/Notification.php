@@ -23,6 +23,8 @@ class Notification extends Model
         'user_id',
         'mensaje',
         'estado',
+        'enlace',
+        'tipo',
     ];
 
     public function user()

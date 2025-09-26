@@ -9,11 +9,226 @@ use App\Jobs\ProcesarJurisprudencia;
 use App\Models\Sala;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use PhpOffice\PhpSpreadsheet\Style\Color;
 use Spatie\SimpleExcel\SimpleExcelReader;
 
 class ExcelController extends Controller
 {
+
+
+    public function exportarExcel(Request $request)
+    {
+        if (!Auth::user()->hasPermissionTo('exportar_datos')) {
+            return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
+        }
+
+
+        $validator = Validator::make($request->all(), [
+            'sala_id' => 'integer|required',
+            'gestion'=> 'integer|required'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sala_id = request()->input("sala_id", 1);
+        $gestion = request()->input("gestion", 2023);
+        // Example data
+        $query = DB::table('resolutions as r')
+            ->leftJoin('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('contents as c', 'c.resolution_id', '=', 'r.id')
+            ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->leftJoin('resuelve_decisiones as rd', 'rd.resolution_id', '=', 'r.id')
+            ->select(
+                'r.nro_resolucion',
+                'r.fecha_emision',
+                'tr.nombre as tipo_resolucion',
+                's.nombre as sala',
+                'd.nombre as departamento',
+                'r.proceso',
+                'fr.nombre as forma_resolucion',
+                'r.sintesis',
+                'r.maxima',
+                'r.precedente',
+                'j.ratio',
+                'j.descriptor',
+                'j.restrictor',
+                'c.contenido',
+                'r.id'
+            )
+            ->where('r.sala_id', $sala_id)->whereYear('r.fecha_emision', '=', $gestion)
+            ->whereNull('rd.resolution_id');
+
+
+        $data = $query->orderBy('tipo_resolucion')->orderBy('fecha_emision')->get()->toArray();
+
+
+        if($data==null || count($data)==0){
+            return response()->json(['mensaje' => 'No se encontraron datos para los filtros proporcionados.'], 404);
+        }
+        $headers = ['Nro Resolución', 'Fecha Emisión', 'Tipo Resolución', 'Sala', 'Departamento', 'Proceso', 'Forma Resolución', 'Síntesis', 'Máxima', 'Precedente', 'Ratio', 'Descriptor', 'Restrictor','Contenido'];
+        foreach ($headers as $colIndex => $header) {
+            $colLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue($colLetter . '1', $header);
+        }
+        $rowNumber = 2; // empieza en fila 2
+
+        foreach ($data as $row) {
+            $colNumber = 1; // columna A
+            $url = 'https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/' . $row->id;
+            foreach ($row as $cell) {
+                if ($cell === $row->id) {
+                    continue;
+                }
+                if ($cell instanceof \Carbon\Carbon) {
+                    $cell = $cell->format('Y-m-d');
+                }
+                if (is_null($cell)) {
+                    $cell = '';
+                }
+
+                $colLetter = Coordinate::stringFromColumnIndex($colNumber);
+                $cellCoordinate = $colLetter . $rowNumber;
+
+                // Ejemplo: si el valor empieza con "http" lo ponemos como enlace
+                if ($colNumber == 1) {
+                    $sheet->setCellValue($cellCoordinate, $cell); // Texto visible
+                    $sheet->getCell($cellCoordinate)->getHyperlink()->setUrl($url);
+
+                    $sheet->getStyle($cellCoordinate)->getFont()
+                        ->getColor()->setARGB(Color::COLOR_BLUE);
+                    $sheet->getStyle($cellCoordinate)->getFont()->setUnderline(true);
+                } else {
+                    $sheet->setCellValue($cellCoordinate, $cell);
+                }
+
+                $colNumber++;
+            }
+            $rowNumber++;
+        }
+
+        // Generar respuesta para descarga
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment;filename="reporte.xlsx"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+    }
+    public function exportarExcelIds(Request $request)
+    {
+
+
+
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array|min:1|max:1000',
+            'ids.*' => 'integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $ids = request()->input("ids", [2]);
+        // Example data
+
+        $query = DB::table(DB::raw('resolutions r FULL OUTER JOIN jurisprudencias j ON r.id = j.resolution_id'))
+            ->join('salas as s', 's.id', '=', 'r.sala_id')
+            ->join('forma_resolucions as fr', 'fr.id', '=', 'r.forma_resolucion_id')
+            ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
+            ->select(
+
+                'r.nro_resolucion',
+                'r.fecha_emision',
+                'tr.nombre as tipo_resolucion',
+                's.nombre as sala',
+                'r.proceso',
+                'fr.nombre as forma_resolucion',
+                'r.sintesis',
+                'r.maxima',
+                'r.precedente',
+                'j.ratio',
+                'j.descriptor',
+                'j.restrictor',
+                'r.id'
+            )
+            ->whereIn('r.id', $ids);
+
+        $data = $query->orderBy('tipo_resolucion')->orderBy('fecha_emision')->get()->toArray();
+        $headers = ['Nro Resolución', 'Fecha Emisión', 'Tipo Resolución', 'Sala', 'Proceso', 'Forma Resolución', 'Síntesis', 'Máxima', 'Precedente', 'Ratio', 'Descriptor', 'Restrictor'];
+        foreach ($headers as $colIndex => $header) {
+            $colLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
+            $sheet->setCellValue($colLetter . '1', $header);
+        }
+        $rowNumber = 2; // empieza en fila 2
+
+        foreach ($data as $row) {
+            $colNumber = 1; // columna A
+            $url = 'https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/' . $row->id;
+            foreach ($row as $cell) {
+                if ($cell === $row->id) {
+                    continue;
+                }
+                if ($cell instanceof \Carbon\Carbon) {
+                    $cell = $cell->format('Y-m-d');
+                }
+                if (is_null($cell)) {
+                    $cell = '';
+                }
+
+                $colLetter = Coordinate::stringFromColumnIndex($colNumber);
+                $cellCoordinate = $colLetter . $rowNumber;
+
+                // Ejemplo: si el valor empieza con "http" lo ponemos como enlace
+                if ($colNumber == 1) {
+                    $sheet->setCellValue($cellCoordinate, $cell); // Texto visible
+                    $sheet->getCell($cellCoordinate)->getHyperlink()->setUrl($url);
+
+                    $sheet->getStyle($cellCoordinate)->getFont()
+                        ->getColor()->setARGB(Color::COLOR_BLUE);
+                    $sheet->getStyle($cellCoordinate)->getFont()->setUnderline(true);
+                } else {
+                    $sheet->setCellValue($cellCoordinate, $cell);
+                }
+
+                $colNumber++;
+            }
+            $rowNumber++;
+        }
+
+        // Generar respuesta para descarga
+        $response = new StreamedResponse(function () use ($spreadsheet) {
+            $writer = new Xlsx($spreadsheet);
+            $writer->save('php://output');
+        });
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment;filename="reporte.xlsx"');
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+    }
     public function upload_resuelve_fondo(Request $request)
     {
 

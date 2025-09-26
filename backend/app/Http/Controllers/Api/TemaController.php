@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ProcessCronologia;
 use App\Models\Descriptor;
 use App\Models\Estilo;
 use App\Models\Jurisprudencia;
@@ -13,8 +14,12 @@ use App\Utils\Busqueda;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
+use Mpdf\HTMLParserMode;
+use Mpdf\Mpdf;
+use Mpdf\Output\Destination;
 
 function validarModelo($modelClassName, $field, $value)
 {
@@ -254,6 +259,7 @@ class TemaController extends Controller
 
         $results = $query->orderBy('j.descriptor')->get();
 
+
         if (! $results) {
             return response()->json(['error' => 'Sala no encontrada'], 404);
         }
@@ -266,6 +272,7 @@ class TemaController extends Controller
 
         foreach ($results as $element) {
             $pieces = explode(' / ', $element->descriptor);
+            $pieces[] = $element->restrictor;
             $indices = [];
 
             if (! empty($current)) {
@@ -316,7 +323,7 @@ class TemaController extends Controller
             }
         }
 
-        // return response()->json($results);
+        //return response()->json($results);
 
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
         $estilos = Estilo::where('tipo', 'Default')->get();
@@ -358,11 +365,39 @@ class TemaController extends Controller
             ],
         ]);
 
-        return $pdf->Output();
+        $content = $pdf->Output();
+
+        return response($content, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="documento.pdf"');
         // $pdf = LaravelMpdf::loadView('test');
         // return $pdf->stream('document.pdf');
     }
 
+    public function obtenerCronologiaMaterias(Request $request)
+    {
+
+        if (!Auth::user()->hasPermissionTo('exportar_materias')) {
+            return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
+        }
+
+        $request->validate([
+            'materia' => 'required|integer',
+        ]);
+
+        $tema_id = $request['materia'];
+
+        // Encuentra el tema por ID
+        $tema = Descriptor::where('id', $tema_id)->first();
+
+
+        if (! $tema) {
+            return response()->json(['error' => 'Materia no encontrada'], 404);
+        }
+
+        ProcessCronologia::dispatch($tema_id, Auth::id());
+        return response()->json(['message' => 'Tarea en cola para ser procesada.']);
+    }
     public function obtenerCronologias(Request $request)
     {
 
@@ -374,7 +409,14 @@ class TemaController extends Controller
         ]);
 
         $tema_id = $request['tema_id'];
-        $cantidad = $request['cantidad'];
+
+        // Encuentra el tema por ID
+        $tema = Descriptor::where('id', $tema_id)->first();
+
+        if (! $tema) {
+            return response()->json(['error' => 'Tema no encontrado'], 404);
+        }
+
 
         $seccion = filter_var($request['seccion'], FILTER_VALIDATE_BOOLEAN);
 
@@ -393,16 +435,15 @@ class TemaController extends Controller
             ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
             ->select('j.resolution_id', 'j.ratio', 'j.descriptor', 'j.restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion');
 
+
         if ($seccion === true) {
             $query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
         }
 
         $query->where('j.descriptor_id', $tema_id);
-        if ($cantidad) {
-            $query->limit($cantidad);
-        } else {
-            $query->limit(50);
-        }
+
+
+        $query->limit(20);
         $results = $query->orderBy('j.descriptor')->get();
 
         if (! $results) {
@@ -417,6 +458,7 @@ class TemaController extends Controller
 
         foreach ($results as $element) {
             $pieces = explode(' / ', $element->descriptor);
+            $pieces[] = $element->restrictor;
             $indices = [];
 
             if (! empty($current)) {
@@ -438,37 +480,36 @@ class TemaController extends Controller
             $element->indices = $indices;
         }
 
+
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
         $estilos = Estilo::where('tipo', 'Default')->get();
 
         $referencias = [];
 
-        // return $estilos;
-        // return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, 'fechaActual' => $fechaActual, 'referencias' => $referencias], [], [
+        $pdf = new Mpdf([
             'format' => 'letter',
-            'margin_left' => 25,  // 2.5 cm in mm
-            'margin_right' => 25,  // 2.5 cm in mm
-            'margin_top' => 25,  // 2.5 cm in mm
-            'margin_bottom' => 25,  // 2.5 cm in mm
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 25,
+            'margin_bottom' => 25,
             'orientation' => 'P',
             'title' => 'Documento',
             'author' => 'IIJP',
-            'custom_font_dir' => public_path('fonts/'),
-            'custom_font_data' => [
+            'fontDir' => public_path('fonts/'),
+            'fontdata' => [
                 'cambria' => [
                     'R' => 'Cambriax.ttf',
                     'B' => 'Cambria-Bold.ttf',
                     'I' => 'Cambria-Italic.ttf',
                     'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
-                'script_mt' => [
-                    'R' => 'script-mt.ttf',
-                ],
                 'trebuchet_ms' => [
                     'R' => 'trebuc.ttf',
                     'B' => 'trebucbd.ttf',
                     'I' => 'trebucit.ttf',
+                ],
+                'script_mt' => [
+                    'R' => 'script-mt.ttf',
                 ],
                 'times_new_roman' => [
                     'R' => 'times-new-roman.ttf',
@@ -479,9 +520,45 @@ class TemaController extends Controller
             ],
         ]);
 
-        // $pdf = LaravelMpdf::loadView('test');
-        return $pdf->Output();
-        // return $pdf->stream('document.pdf');
+        //$pdf->AddFontDirectory( public_path('fonts/'));
+
+        // 🔹 Cabecera (con estilos, subtítulo, fecha, etc.)
+        $header = view('header', [
+            'estilos' => $estilos,
+        ])->render();
+
+        $pdf->WriteHTML($header, HTMLParserMode::HEADER_CSS);
+
+        $cover = view('cover', [
+            'subtitulo' => $request->subtitulo,
+            'fechaActual' => $fechaActual,
+        ])->render();
+
+        $pdf->WriteHTML($cover, HTMLParserMode::HTML_BODY);
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2>Tabla de Contenido</h2>',
+        ]);
+
+        // 🔹 Dividir resoluciones en bloques de 100 (puedes ajustar el tamaño)
+        foreach (array_chunk($results->toArray(), 100) as $chunk) {
+            $body = view('contents', ['results' => $chunk])->render();
+            $pdf->WriteHTML($body, HTMLParserMode::HTML_BODY);
+        }
+
+        // 🔹 Footer (referencias, notas)
+        $footer = view('footer', ['referencias' => $referencias])->render();
+        $pdf->WriteHTML($footer, HTMLParserMode::HTML_BODY);
+
+
+        // 🔹 Mostrar en navegador como stream
+        //return $pdf->Output('documento.pdf', Destination::INLINE);
+        $content = $pdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+
+        return response($content, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="documento.pdf"');
     }
 
     public function getCronologia(Request $request)

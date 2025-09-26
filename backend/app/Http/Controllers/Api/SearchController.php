@@ -494,7 +494,12 @@ class SearchController extends Controller
             ],
         ]);
 
-        return $pdf->Output();
+        $content = $pdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+
+        return response($content, 200)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', 'inline; filename="documento.pdf"');
+
     }
 
     public function filtrarAutosSupremos(Request $request)

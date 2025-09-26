@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcesarLotes;
+use App\Models\Content;
+use App\Models\Descriptor;
+use App\Models\Jurisprudencia;
 use App\Models\Mapeo;
 use App\Models\Resolution;
 use Cloudstudio\Ollama\Facades\Ollama;
@@ -56,10 +59,8 @@ class WebScrappingController extends Controller
         return $result;
     }
 
-    public function testeo()
+    public function exportToExcel()
     {
-
-
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         $sala_id = request()->input("sala_id", 2);
@@ -83,28 +84,57 @@ class WebScrappingController extends Controller
             }
             $rowNumber++;
         }
-
-
         // Generar respuesta para descarga
         $response = new StreamedResponse(function () use ($spreadsheet) {
             $writer = new Xlsx($spreadsheet);
             $writer->save('php://output');
         });
 
+
         $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         $response->headers->set('Content-Disposition', 'attachment;filename="reporte.xlsx"');
         $response->headers->set('Cache-Control', 'max-age=0');
 
         return $response;
+    }
+    public function testeo(Request $request)
+    {
+
+
+        $jurisprudencias = Descriptor::where('nombre', 'LIKE', 'nan')->get();
+        foreach ($jurisprudencias as $jurisprudencia) {
+            $jurisprudencia->nombre = "Desconocido";
+            $jurisprudencia->save();
+        }
+        return response()->json(['message' => 'Funciona correctamente','jurisprudencias' => $jurisprudencias], 200);
+        $resolution_id = $request->input('id', 1);
+        $contenido = Content::where('resolution_id', '=', $resolution_id)->first();
 
         $response = Ollama::agent(
-            'Eres un microservicio que devuelve las respuestas en espanol en formato json.'
+            'Del siguiente texto extrae y devuelve un JSON con esta estructura exacta:
+{
+  "data": {
+    "ratio_decidendi": "Extrae el principio jurídico fundamental que justifica la decisión judicial",
+    "sintesis": "resumen sintético redactado de forma impersonal, comenzando con expresiones como ´Se considera que...´. No debe mencionar a la Sala, Corte ni Tribunal.",
+    "precedentes": [
+      {
+        "titulo": "nombre o referencia del precedente",
+        "descripcion": "explicación general del precedente",
+        "decision": "cuál fue la decisión del precedente",
+        "aplicacion": "cómo se aplica este precedente al caso actual"
+      }
+    ]
+  }
+}
+No uses listas ni arrays para ratio_decidendi ni para sintesis, deben ser solo cadenas de texto.  
+Incluye al menos un precedente si lo hay.  
+Texto a analizar:
+'
         )
-            ->prompt("explica la inflacion monetaria en 200 letras")
-            ->model('llama3.2:1b')
-            ->format('json')
-            ->options(['temperature' => 0.1])
-            ->ask();
+            ->prompt($contenido->contenido)
+            ->model('llama3.2:3b')
+            ->format('json')->ask();
+
 
         return response()->json(['data' => json_decode($response['response'], true)], 200);
 

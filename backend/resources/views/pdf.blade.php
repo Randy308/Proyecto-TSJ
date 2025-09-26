@@ -269,6 +269,7 @@
         <div style="text-align: center; color: #999;">IIJP</div>
     </htmlpageheader>
 
+    
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
         <tr>
             <td style="width: 10%;">
@@ -360,7 +361,7 @@
         </tr>
     </table>
 
-    <pagebreak even-footer-value="-1" resetpagenum="1" />
+    <pagebreak even-footer-value="-1" resetpagenum="1" suppress="1" />
 
 
     <div style="font-size: 10pt;  font-family: 'cambria', sans-serif; text-align: justify;padding-right:20% ">
@@ -413,7 +414,7 @@
 
 
 
-    <pagebreak even-footer-value="-1" resetpagenum="1" />
+    <pagebreak even-footer-value="-1" resetpagenum="1" suppress="1" />
 
 
 
@@ -445,30 +446,42 @@
         </div>
 
     </div>
-    <pagebreak even-footer-value="-1" resetpagenum="1" />
 
 
+    <pagebreak even-footer-value="-1" resetpagenum="1" suppress="0" />
     <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />
 
-    @foreach ($results as $item)
-        <div>
-            <div>
-                @foreach ($item->descriptor as $elemento)
-                    @if (!$loop->last && $item->indices[$loop->index] == 0)
-                        <pagebreak />
-                    @endif
+    
 
-                    <h2 class="descriptor{{ $item->indices[$loop->index] }}">
+    @foreach ($results as $item)
+        <div style="page-break-inside: avoid;">
+            <div style="page-break-inside: avoid;">
+                @foreach ($item->descriptor as $elemento)
+                                 
+                
+                    <!-- @if ($item->indices[$loop->index] == 0)
+                        <pagebreak />
+                    @endif -->
+
+                    @if ($loop->last)
+                    <h2 class="restrictor">
+                        [{{ $elemento }}]
+                    </h2>                    
+                    @else
+                     <h2 class="descriptor{{ $item->indices[$loop->index] }}">
                         <tocentry content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
                         {{ $elemento }}
                     </h2>
+
+                    @endif
+
                 @endforeach
 
             </div>
 
-            <div>
+            <!-- <div>
                 <p class="restrictor">{{ $item->restrictor }}</p>
-            </div>
+            </div> -->
             <div class="contenido">
                 <span class="resolution">
                     <a target="_blank" href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->resolution_id }}">

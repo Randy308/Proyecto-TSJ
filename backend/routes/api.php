@@ -47,7 +47,7 @@ Route::prefix('v2')->group(function () {
     });
 
 
-
+    Route::post('/exportar-excel-ids', [ExcelController::class, 'exportarExcelIds'])->name('exportar-excel-ids');
     // rutas de busqueda
     Route::get('/test', [SearchController::class, 'test']);
     Route::get('/filtrar-autos-supremos', [SearchController::class, 'filtrarAutosSupremos']);
@@ -94,7 +94,7 @@ Route::prefix('v2')->group(function () {
     Route::get('/busqueda-parametros', [CompareController::class, 'getParams'])->name('get-params');
     Route::get('/resoluciones/{id}', [ResolutionController::class, 'show']);
     Route::get('/simple-resoluciones/{id}', [ResolutionController::class, 'showBasic']);
-    
+
     // predicción
     Route::get('/predicciones', [ArimaController::class, 'realizarPrediction']);
 
@@ -117,6 +117,8 @@ Route::prefix('v2')->group(function () {
 
     Route::group(['middleware' => 'auth:sanctum'], function () {
         // Route::post('auth/logout', [AuthController::class, 'logout']);
+        Route::post('/cronologia-materia', [TemaController::class, 'obtenerCronologiaMaterias']);
+        Route::post('/resoluciones-excel', [ExcelController::class, 'exportarExcel']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/auth-user', [AuthController::class, 'Authuser']);
         Route::put('/actualizar-perfil', [AuthController::class, 'updateUser']);

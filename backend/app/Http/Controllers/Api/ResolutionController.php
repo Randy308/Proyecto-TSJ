@@ -1288,6 +1288,10 @@ class ResolutionController extends Controller
                     $bloques[$index] = ltrim(trim(substr($bloque, strlen($titulo) + 1)), $special_chars_to_remove);
                     $bloques[$index] =  str_replace('_x0007_', "\x07", $bloques[$index]);
                     // --- fin del bucle adicional ---
+
+                    if ($tituloUnico === 'POR TANTO') {
+                        break;
+                    }
                 }
 
                 $row->bloques = $bloques;
