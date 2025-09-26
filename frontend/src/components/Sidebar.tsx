@@ -44,22 +44,6 @@ const Sidebar = () => {
             </li>
           )}
 
-          <li>
-            <NavLink
-              to="/perfil-usuario"
-              onClick={() => setShow(false)}
-              className={({ isActive }) =>
-                `flex items-center p-2  rounded-lg  group ${
-                  isActive
-                    ? "dark:text-white text-gray-900"
-                    : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`
-              }
-            >
-              <FaUserEdit className="w-5 h-5  transition duration-75 " />
-              <span className="ms-3">Perfil de Usuario</span>
-            </NavLink>
-          </li>
           {can("ver_usuarios") && (
             <>
               <li>
@@ -202,6 +186,27 @@ const Sidebar = () => {
               </NavLink>
             </li>
           )}
+
+          {can("exportar_datos") && (
+            <>
+              <li>
+                <NavLink
+                  to="/admin/exportar"
+                  onClick={() => setShow(false)}
+                  className={({ isActive }) =>
+                    `flex items-center p-2  rounded-lg  group ${
+                      isActive
+                        ? "dark:text-white text-gray-900"
+                        : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                    }`
+                  }
+                >
+                  <FaUsers className="w-5 h-5  transition duration-75 " />
+                  <span className="ms-3">Exportar datos</span>
+                </NavLink>
+              </li>
+            </>
+          )}
         </>
       );
     }
@@ -263,7 +268,7 @@ const Sidebar = () => {
         }`}
         aria-label="Sidebar"
       >
-        <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+        <div className="h-full px-3 pb-4 overflow-y-auto flex flex-col justify-between bg-white dark:bg-gray-800">
           <ul className="space-y-2 font-medium">
             <li>
               <a
@@ -275,36 +280,54 @@ const Sidebar = () => {
                 <span className="ms-3">Inicio</span>
               </a>
             </li>
-            {notifications &&
-              notifications.length > 0 &&
-              notifications.filter((item) => item.estado === "unread").length >
-                0 && (
-                <li>
-                  <NavLink
-                    to="/user/notificaciones"
-                    className={({ isActive }) =>
-                      `flex items-center p-2  rounded-lg  group ${
-                        isActive
-                          ? "dark:text-white text-gray-900"
-                          : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }`
-                    }
-                    onClick={() => setShow(false)}
-                  >
-                    <FaMailBulk className="shrink-0 w-5 h-5 transition duration-75" />
-                    <span className="ms-3">Notificaciones</span>
+            <li>
+              <NavLink
+                to="/user/notificaciones"
+                className={({ isActive }) =>
+                  `flex items-center p-2  rounded-lg  group ${
+                    isActive
+                      ? "dark:text-white text-gray-900"
+                      : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`
+                }
+                onClick={() => setShow(false)}
+              >
+                <FaMailBulk className="shrink-0 w-5 h-5 transition duration-75" />
+                <span className="ms-3">Notificaciones</span>
 
+                {notifications &&
+                  notifications.length > 0 &&
+                  notifications.filter((item) => item.estado === "unread")
+                    .length > 0 && (
                     <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-red-800 bg-red-100 rounded-full dark:bg-red-900 dark:text-red-300">
                       {
                         notifications.filter((item) => item.estado === "unread")
                           .length
                       }
                     </span>
-                  </NavLink>
-                </li>
-              )}
+                  )}
+              </NavLink>
+            </li>
 
             {navLinks()}
+          </ul>
+          <ul>
+            <li>
+              <NavLink
+                to="/perfil-usuario"
+                onClick={() => setShow(false)}
+                className={({ isActive }) =>
+                  `flex items-center p-2  rounded-lg  group ${
+                    isActive
+                      ? "dark:text-white text-gray-900"
+                      : " text-gray-500 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`
+                }
+              >
+                <FaUserEdit className="w-5 h-5  transition duration-75 " />
+                <span className="ms-3">Perfil de Usuario</span>
+              </NavLink>
+            </li>
           </ul>
         </div>
       </aside>

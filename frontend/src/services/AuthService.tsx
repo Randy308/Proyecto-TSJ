@@ -1,9 +1,5 @@
 import axios from "axios";
-import type {
-  CreateUser,
-  Login,
-  ResueleveFondo,
-} from "../types";
+import type { CreateUser, Login, ResueleveFondo } from "../types";
 const endpoint = import.meta.env.VITE_REACT_APP_BACKEND;
 
 let csrfFetched = false;
@@ -72,7 +68,6 @@ export const AuthService = {
     tipo: number,
     sala_id: number,
     resuelve_fondo_id: number
-    
   ) =>
     instance.put(`actualizar-forma-decisiones`, {
       sala_id,
@@ -91,4 +86,10 @@ export const AuthService = {
     instance.post(`admin/grupo-salas`, { nombre }), // Crear grupo de sala
   updateSala: (grupoSalaId: number, salaId: number) =>
     instance.put(`admin/salas/${salaId}`, { grupo_sala_id: grupoSalaId }), // Actualizar sala con grupo
+  obtenerCronologiaMateria: (formData: object) =>
+    instance.post("/cronologia-materia", formData),
+  obtenerResolucionesExcel: (formData: object) =>
+    instance.post("/resoluciones-excel", formData, {
+      responseType: "blob", // 🔹 muy importante
+    }),
 };

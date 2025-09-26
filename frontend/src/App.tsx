@@ -56,6 +56,16 @@ const ListaRoles = lazy(() =>
 
 const Logs = lazy(() => import("./logs/Logs"));
 
+const ExportarMaterias = lazy(
+  () => import("./exportar/materias/ExportarMaterias")
+);
+
+const ExportarResoluciones = lazy(
+  () => import("./exportar/resoluciones/ExportarResoluciones")
+);
+
+const Exportar = lazy(() => import("./exportar/Exportar"));
+
 const PerfilUsuario = lazy(() => import("./pages/profile/Ajustes"));
 
 const Codificacion = lazy(() => import("./codificacion/Codificacion"));
@@ -99,6 +109,15 @@ function App() {
                   path="admin/realizar-web-scrapping"
                   element={<WebScrapping />}
                 />
+                <Route
+                  path="admin/exportar/materias"
+                  element={<ExportarMaterias />}
+                />
+                <Route
+                  path="admin/exportar/resoluciones"
+                  element={<ExportarResoluciones />}
+                />
+                <Route path="admin/exportar" element={<Exportar />} />
 
                 <Route path="admin/salas" element={<Salas />} />
                 <Route path="admin/usuarios" element={<Usuarios />} />

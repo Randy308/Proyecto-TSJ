@@ -60,6 +60,11 @@ export const JurisprudenciaService = {
       responseType: "blob",
       withCredentials: true,
     }),
+  importExcel: (formData: object) =>
+    instance.post("/exportar-excel-ids", formData, {
+      responseType: "blob",
+      withCredentials: true,
+    }),
   busquedaAvanzada: (params: object) =>
     instance.post("/buscar-jurisprudencia-avanzado", params, {
       withCredentials: true,

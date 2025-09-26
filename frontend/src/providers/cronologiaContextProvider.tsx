@@ -71,7 +71,7 @@ export interface CronologiaContextType {
   obtenerResoluciones: (page: number) => Promise<void>;
   limite: number;
   handlePage: (page: number) => number;
-
+  descargarBaseDatos: () => Promise<void>;
   advancedSearchBusqueda: (page: number) => Promise<void>;
   obtenerResolucionesBusqueda: (page: number) => Promise<void>;
   obtenerCronologiaBusqueda: (
@@ -145,6 +145,30 @@ export const CronologiaContextProvider = ({
   const vaciarNodo = () => {
     setArbol([]);
     setCurrentID(null);
+  };
+
+  const descargarBaseDatos = async () => {
+    try {
+      const response = await JurisprudenciaService.importExcel({
+        ids: selectedIds,
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"],
+      });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "base-de-datos.xlsx"; // Set your desired filename
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      // Handle error (e.g., show a message to the user)
+    }
   };
 
   const obtenerCronologia = async () => {
@@ -649,7 +673,7 @@ export const CronologiaContextProvider = ({
     obtenerResoluciones,
     limite,
     handlePage,
-
+    descargarBaseDatos,
     advancedSearchBusqueda,
     obtenerResolucionesBusqueda,
     obtenerCronologiaBusqueda,

@@ -14,6 +14,8 @@ const Notificaciones = () => {
   const [loadingButtons, setLoadingButtons] = useState<Record<string, boolean>>(
     {}
   );
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(0);
   const { hasAccess } = useAuthContext();
   if (!hasAccess()) {
     return null;
@@ -93,68 +95,121 @@ const Notificaciones = () => {
     }
   };
 
+  const allNotifications = async () => {
+    if (loadingButtons["allNotifications"]) return;
+    setLoadingButtons((prev) => ({ ...prev, allNotifications: true }));
+
+    if (page === lastPage && lastPage !== 0) {
+      setLoadingButtons((prev) => ({
+        ...prev,
+        allNotifications: false,
+      }));
+      return;
+    }
+    try {
+      const response = await UserService.getAllNotifications(page);
+
+      if (
+        response.data &&
+        response.data.data &&
+        response.data.data.length > 0
+      ) {
+        setNotifications(response.data.data);
+        const lastPage = response.data.last_page;
+        setLastPage(lastPage);
+        setPage((prev) => Math.min(prev + 1, lastPage));
+      } else {
+        console.log("No hay nuevas notificaciones");
+      }
+    } catch (error) {
+      console.error("Error sincronizando notificaciones:", error);
+    } finally {
+      setLoadingButtons((prev) => ({
+        ...prev,
+        allNotifications: false,
+      }));
+    }
+  };
   return (
     <div className="p-4">
       <div>
-        <h1 className="text-2xl font-bold mb-4 text-black dark:text-white">Notificaciones</h1>
+        <h1 className="text-2xl titulo font-bold mb-4 text-black dark:text-white">
+          Notificaciones
+        </h1>
         <p className="text-gray-600 dark:text-gray-400">
           Aquí puedes ver tus notificaciones recientes.
         </p>
       </div>
-      {notifications && notifications.length > 0 ? (
-        <div id="user-dropdown" className={`z-50 my-4 text-base list-none `}>
-          <div className="flex justify-start gap-4 flex-wrap items-center mb-4">
-            <AsyncButton
-              asyncFunction={markAllAsRead}
-              isLoading={loadingButtons["markAllAsRead"]}
-              name="Leer todas las notificaciones"
-              Icon={BsCheckAll}
-              full={false}
-            />
-            <AsyncButton
-              asyncFunction={synchronizeNotifications}
-              isLoading={loadingButtons["synchronizeNotifications"]}
-              name="Sincronizar notificaciones"
-              Icon={IoReloadOutline}
-              full={false}
-            />
-          </div>
-          <ul
-            className="py-2 flex flex-col gap-4"
-            aria-labelledby="user-menu-button"
-          >
-            {notifications.length > 0 ? (
-              notifications.map((notification, index) => (
-                <li
-                  key={index}
-                  className={`px-4 py-2  h-20 flex flex-col  justify-around text-xs bg-white rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600  ${
-                    notification.estado === "unread"
-                      ? "text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer hover:bg-gray-100"
-                      : "text-gray-500"
-                  }`}
-                  onClick={() => updateNotification(notification.id)}
-                >
-                  <p>{notification.mensaje}</p>
-                  <span className="text-red-octopus-900 dark:text-blue-700">
-                    {formatDistanceToNow(new Date(notification.created_at), {
-                      addSuffix: true,
-                      locale: es,
-                    })}
-                  </span>
-                </li>
-              ))
-            ) : (
-              <li className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
-                No hay notificaciones
-              </li>
-            )}
-          </ul>
+      <div id="user-dropdown" className={`z-50 my-4 text-base list-none `}>
+        <div className="flex justify-start gap-4 flex-wrap items-center mb-4">
+          {notifications && notifications.length > 0 && (
+            <>
+              <AsyncButton
+                asyncFunction={markAllAsRead}
+                isLoading={loadingButtons["markAllAsRead"]}
+                name="Leer todas las notificaciones"
+                Icon={BsCheckAll}
+                full={false}
+              />
+              <AsyncButton
+                asyncFunction={synchronizeNotifications}
+                isLoading={loadingButtons["synchronizeNotifications"]}
+                name="Sincronizar notificaciones"
+                Icon={IoReloadOutline}
+                full={false}
+              />
+            </>
+          )}
+          <AsyncButton
+            asyncFunction={allNotifications}
+            isLoading={loadingButtons["allNotifications"]}
+            name="Traer todas las notificaciones"
+            Icon={IoReloadOutline}
+            full={false}
+          />
         </div>
-      ) : (
-        <p className="p-4 my-4 text-xl text-gray-600 bg-white dark:bg-gray-900 rounded-lg shadow-lg">
-          No existen notificaciones recientes
-        </p>
-      )}
+        <ul
+          className="py-2 flex flex-col gap-4"
+          aria-labelledby="user-menu-button"
+        >
+          {notifications && notifications.length > 0 ? (
+            notifications.map((notification, index) => (
+              <li
+                key={index}
+                className={`px-4 py-2  h-20 flex flex-col  justify-around text-xs bg-white rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600  ${
+                  notification.estado === "unread"
+                    ? "text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer hover:bg-gray-100"
+                    : "text-gray-500"
+                }`}
+                onClick={() => updateNotification(notification.id)}
+              >
+                <p>{notification.mensaje}</p>
+                <span>
+                  {notification.enlace && (
+                    <a
+                      href={notification.enlace}
+                      className="text-blue-400 underline"
+                      target="_blank"
+                    >
+                      Abrir documento
+                    </a>
+                  )}
+                </span>
+                <span className="text-red-octopus-900 dark:text-blue-700">
+                  {formatDistanceToNow(new Date(notification.created_at), {
+                    addSuffix: true,
+                    locale: es,
+                  })}
+                </span>
+              </li>
+            ))
+          ) : (
+            <li className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+              No hay notificaciones
+            </li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 };

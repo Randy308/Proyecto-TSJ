@@ -159,6 +159,11 @@ const Notifications = () => {
                 onClick={() => updateNotification(notification.id)}
               >
                 {notification.mensaje}
+                <span>
+                  {notification.enlace  && (
+                    <a href={notification.enlace} target="_blank" >Enlace</a>
+                      )}
+                </span>
                 <br />
                 <span className="text-red-octopus-900 dark:text-blue-700">
                   {formatDistanceToNow(new Date(notification.created_at), {

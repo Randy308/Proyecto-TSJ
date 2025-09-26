@@ -10,7 +10,7 @@ export const NodosContextProvider = ({ children }: ContextProviderProps) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (location.pathname === "/cronojuridicas/generacion-rapida" && !hasFetched) {
+    if (location.pathname === "/cronojuridicas/generacion-rapida"  && !hasFetched) {
       obtenerData();
       setHasFetched(true);
     }

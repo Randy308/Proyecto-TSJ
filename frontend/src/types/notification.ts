@@ -3,5 +3,7 @@ export interface Notification {
     mensaje: string;
     estado: string;
     id: number;
+    enlace?:string;
+    tipo?:string;
     created_at:string;
 }
