@@ -111,13 +111,11 @@ const SerieTemporal = () => {
 
   const generarSerie = () => {
     if (originalData.length > 0) {
-      console.log("Datos ya cargados, no se vuelve a cargar");
       return;
     }
 
     StatsService.getTimeSeries(receivedForm)
       .then(({ data }) => {
-        console.log("Datos cargados desde API", data);
         if (data) {
           setOriginalData(data.data.length > 0 ? data.data : []);
           setTotal(data.total);

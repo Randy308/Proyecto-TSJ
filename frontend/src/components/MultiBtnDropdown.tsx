@@ -77,7 +77,6 @@ const MultiBtnDropdown = ({
   };
 
   const eliminarElemento = (variable: FiltroNombre) => {
-    console.log(listaX);
     const nuevaLista = listaX.filter((item) => item.name !== variable);
     setListaX(nuevaLista);
   };

@@ -71,14 +71,13 @@ const CrearRol = ({ permissions, setShowModal }: CrearRolProps) => {
       })
         .then(({ data }) => {
           if (data) {
-            console.log(data);
             setShowModal(false);
             obtenerRoles();
             toast.success("El rol ha sido creado exitosamente");
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
         });
     } catch (error: unknown) {
       console.error("Error Setting Up Request:", error);

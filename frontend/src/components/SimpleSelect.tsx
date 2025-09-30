@@ -25,6 +25,8 @@ const SimpleSelect = ({
       { id: "sintesis", nombre: "Síntesis" },
       { id: "maxima", nombre: "Máxima" },
       { id: "precedente", nombre: "Precedente" },
+      { id: "nro_resolucion", nombre: "Número de Resolución" },
+      { id: "nro_expediente", nombre: "Número de Expediente" },
     ];
 
     const options = [
@@ -33,6 +35,8 @@ const SimpleSelect = ({
       { id: "sintesis", nombre: "Síntesis" },
       { id: "maxima", nombre: "Maxima" },
       { id: "precedente", nombre: "Precedente" },
+      { id: "nro_resolucion", nombre: "Número de Resolución" },
+      { id: "nro_expediente", nombre: "Número de Expediente" },
       // { id: "demandado", nombre: "Demandado" },
       // { id: "demandante", nombre: "Demandante" },
     ];
@@ -43,15 +47,12 @@ const SimpleSelect = ({
     return options;
   }, [type]);
 
-
-  const handleSelectChange = (item:unknown) => {
+  const handleSelectChange = (item: unknown) => {
     const element = item as Select;
     updateFormData("campo", element.id);
   };
 
-  return (
-    <SelectDropdown  handleSelect={handleSelectChange} list={list} />
-  );
+  return <SelectDropdown handleSelect={handleSelectChange} list={list} />;
 };
 
 export default SimpleSelect;

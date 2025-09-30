@@ -1,28 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
-import Loading from "../../components/Loading";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { ResolucionesService } from "../../services";
 import { titulo } from "../../utils/filterForm";
 import type { Jurisprudencia, Resolucion } from "../../types";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Document,
-  Page,
-  PDFViewer,
-  StyleSheet,
-  Text,
-  View,
-  Font,
-  Image,
-  usePDF,
-} from "@react-pdf/renderer";
+
 import { IoArrowBackSharp } from "react-icons/io5";
 import { CiLink } from "react-icons/ci";
 import Modal from "../../components/modal/Modal";
 
 const Resolucion = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [resolucion, setResolucion] = useState<Resolucion>({} as Resolucion);
   const [bloques, setBloques] = useState<string[]>([]);
   const [titulos, setTitulos] = useState<string[]>([]);
@@ -32,41 +21,6 @@ const Resolucion = () => {
 
   const [modalDatos, setModalDatos] = useState(false);
   const [modalJuris, setModalJuris] = useState(false);
-
-  const styles = StyleSheet.create({
-    body: { paddingTop: 35, paddingBottom: 65, paddingHorizontal: 35 },
-    subtitle: { fontSize: 18, margin: 12, fontFamily: "Oswald" },
-    text: {
-      margin: 5,
-      fontSize: 12,
-      textAlign: "justify",
-      fontFamily: "Times-Roman",
-    },
-    header: {
-      fontSize: 14,
-      margin: 7,
-      fontFamily: "Oswald",
-    },
-    pageNumber: {
-      position: "absolute",
-      fontSize: 12,
-      bottom: 30,
-      left: 0,
-      right: 0,
-      textAlign: "center",
-      color: "grey",
-    },
-    image: {
-      marginVertical: 15,
-      width: 350,
-      marginHorizontal: 100,
-    },
-  });
-
-  Font.register({
-    family: "Oswald",
-    src: "https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf",
-  });
 
   const cambiarSubMenu = (id: number) =>
     setSubMenu((prev) => (prev === id ? null : id));
@@ -107,32 +61,24 @@ const Resolucion = () => {
   // Memoizamos el documento para evitar remounts innecesarios
   const MyDocument = useMemo(
     () => (
-      <Document>
-        <Page size="LETTER" style={styles.body}>
-          <Image style={styles.image} src="/tsj.png" />
+      <div>
+        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+          <div className="flex justify-center mb-4">
+            <img src="/tsj.png" className="w-auto h-24" />
+          </div>
           {bloques.map((line, index) => (
-            <View key={index} style={styles.text}>
-              <Text style={styles.header}>{titulos[index]}</Text>
+            <div key={index}>
+              <div className="font-bold text-xl">{titulos[index]}</div>
               {normalizeText(line)
                 .split("\r")
                 .map((part, idx) => (
-                  <Text key={idx} style={styles.text}>
-                    {part.replace(/\s+/g, " ").trim()}
-                  </Text>
+                  <div className="text-justify p-4" key={idx}>{part.replace(/\s+/g, " ").trim()}</div>
                 ))}
-            </View>
+            </div>
           ))}
-          <Text
-            style={styles.pageNumber}
-            render={({ pageNumber, totalPages }) =>
-              `${pageNumber} / ${totalPages}`
-            }
-            fixed
-          />
-        </Page>
-      </Document>
+        </div>
+      </div>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [bloques, titulos]
   );
 
@@ -197,12 +143,6 @@ const Resolucion = () => {
       </div>
     ));
 
-  const [instance, updateInstance] = usePDF({ document: MyDocument });
-
-  useEffect(() => {
-    updateInstance(MyDocument);
-  }, [MyDocument, updateInstance]);
-
   useEffect(() => {
     ResolucionesService.obtenerResolucion(Number(id))
       .then(({ data }) => {
@@ -214,16 +154,12 @@ const Resolucion = () => {
       .catch(() => {
         navigate("/");
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  if (instance.loading) return <Loading />;
-
-  if (instance.error) return <div>Something went wrong: {instance.error}</div>;
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 flex-wrap md:flex-nowrap md:overflow-hidden">
         {/* Sidebar */}
         <aside className="w-full sm:w-64 flex flex-col justify-between bg-gray-100 dark:bg-gray-900 p-4 overflow-y-auto">
           <div className="flex flex-col gap-2">
@@ -266,15 +202,6 @@ const Resolucion = () => {
             </button>
             {options && (
               <>
-                {instance.url && (
-                  <a
-                    className="p-4 flex bg-white items-center justify-center rounded-lg border-2 border-gray-200 text-gray-600 w-full"
-                    href={instance.url}
-                    download={`Resolucion-${id}.pdf`}
-                  >
-                    PDF
-                  </a>
-                )}
                 <button
                   className="p-4 flex bg-white items-center justify-center rounded-lg border-2 border-gray-200 text-gray-600 w-full"
                   onClick={downloadTextFile}
@@ -294,7 +221,7 @@ const Resolucion = () => {
 
         {/* Main Content (PDF) */}
         <main className="flex-1 overflow-y-auto bg-white dark:bg-gray-900 p-4">
-          <PDFViewer className="w-full h-screen">{MyDocument}</PDFViewer>
+          {MyDocument}
         </main>
       </div>
 

@@ -31,7 +31,7 @@ const EstadisticasBasicas = () => {
     []
   );
 
-  const [periodo, setPeriodo] = useState<string>("all");
+  const [periodo, setPeriodo] = useState<number[]>([]);
   const [validSalas, setValidSalas] = useState<ListaData[] | undefined>([]);
   const navigate = useNavigate();
 
@@ -44,32 +44,33 @@ const EstadisticasBasicas = () => {
 
   const handleClick = (name: Faceta) => {
     setSelectedDepto((prev) => {
-      if (prev.some(item => item.id === name.id)) {
+      if (prev.some((item) => item.id === name.id)) {
         // Remove it
         prev = prev.filter((item) => item.id !== name.id);
         return prev;
       } else {
         // Add it
-        return [...prev, {nombre: name.nombre, id: name.id,}];
+        return [...prev, { nombre: name.nombre, id: name.id }];
       }
     });
   };
 
-  const updateSalas = (periodo: string) => {
+  const updateSalas = (periodo: number[]) => {
     if (!variables || !variables.sala) {
       return;
     }
     const salas = variables?.sala as ListaData[];
-    if (periodo === "all" || periodo === null || salas.length <= 0) {
+    if (periodo.length <= 0 || salas.length <= 0) {
       setValidSalas(groupByGrupo(salas));
     } else {
-      const startDate = parseInt(periodo);
+      const startDate = Math.max(...periodo);
+      const endDate = Math.min(...periodo);
       const filteredData = salas.filter((item) => {
         const fechaMin = parseInt(item.fecha_min);
         const fechaMax = parseInt(item.fecha_max);
-        return fechaMax >= startDate && fechaMin <= startDate;
+        return fechaMax >= startDate && fechaMin <= endDate;
       });
-      setValidSalas(groupByGrupo(filteredData));
+       setValidSalas(groupByGrupo(filteredData));
     }
   };
 
@@ -101,10 +102,23 @@ const EstadisticasBasicas = () => {
   };
 
   const togglePeriodo = (nombre: string) => {
-    const next = periodo === nombre ? "all" : nombre;
-    setPeriodo(next);
+    //const next = periodo === nombre ? "all" : nombre;
+    if (nombre === "all") {
+      setPeriodo([]);
+      setSala(null);
+      updateSalas([]);
+      return;
+    }
+    let updatedPeriodo = periodo;
+    if (updatedPeriodo.includes(Number(nombre))) {
+      
+      updatedPeriodo = updatedPeriodo.filter((item) => item !== Number(nombre));
+    } else {
+      updatedPeriodo.push(Number(nombre));
+    }
+    setPeriodo(updatedPeriodo);
     setSala(null);
-    updateSalas(next);
+    updateSalas(updatedPeriodo);
   };
 
   const fetchData = async () => {
@@ -117,7 +131,7 @@ const EstadisticasBasicas = () => {
     setIsLoading(true);
 
     const validatedData = filterForm({
-      periodo: periodo,
+      periodo: periodo.map(item => ({ id: item, nombre: item })),
       departamento: selectedDepto,
     });
 
@@ -127,7 +141,7 @@ const EstadisticasBasicas = () => {
   };
 
   useEffect(() => {
-    updateSalas("all");
+    updateSalas(periodo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variables]);
 
@@ -143,7 +157,7 @@ const EstadisticasBasicas = () => {
                 <a
                   onClick={() => togglePeriodo("all")}
                   className={`flex-1 inline-flex text-center p-1 sm:p-4  border-2 border-gray-200 rounded-lg cursor-pointer  ${
-                    periodo == "all"
+                    periodo.length === 0
                       ? "text-white bg-red-octopus-500"
                       : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"
                   }`}
@@ -171,13 +185,13 @@ const EstadisticasBasicas = () => {
                         name={item.nombre}
                         value={item.nombre}
                         className="hidden"
-                        checked={periodo === item.nombre}
+                        checked={periodo.includes(Number(item.nombre))}
                         onChange={() => togglePeriodo(item.nombre)}
                       />
                       <label
                         htmlFor={item.nombre}
                         className={`inline-flex text-center p-1 sm:p-3 w-full lg:w-auto border-2 border-gray-200 rounded-lg cursor-pointer  ${
-                          periodo == item.nombre
+                          periodo.includes(Number(item.nombre))
                             ? "text-white bg-red-octopus-500"
                             : "text-gray-500 bg-white dark:hover:text-gray-300 dark:border-gray-700  hover:text-gray-600  hover:bg-gray-50 dark:text-gray-400 dark:bg-gray-700 dark:hover:bg-gray-700"
                         }`}
@@ -249,7 +263,9 @@ const EstadisticasBasicas = () => {
                   key={depto.id}
                   d={depto.d}
                   fill={
-                    selectedDepto.some(item => item.id === depto.id) ? "#0ea5e9" : "#cbd5e1"
+                    selectedDepto.some((item) => item.id === depto.id)
+                      ? "#0ea5e9"
+                      : "#cbd5e1"
                   }
                   stroke="#1e293b"
                   strokeWidth={0.9}

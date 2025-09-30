@@ -77,6 +77,8 @@ export interface CronologiaContextType {
   obtenerCronologiaBusqueda: (
     e: React.MouseEvent<HTMLButtonElement>
   ) => Promise<void>;
+  searchNodes: boolean;
+  setSearchNodes: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const CronologiaContextProvider = ({
@@ -122,6 +124,7 @@ export const CronologiaContextProvider = ({
   const [errorBusqueda, setErrorBusqueda] = useState("");
   const [resultados, setResultados] = useState<ResultadosBusqueda[]>([]);
 
+  const [searchNodes, setSearchNodes] = useState<boolean>(false);
   const limite = 40;
 
   const clearData = () => {
@@ -176,7 +179,7 @@ export const CronologiaContextProvider = ({
       return;
     }
     if (arbol.length <= 0) {
-      toast.error("Seleccione una materia primero");
+      toast.error("Seleccione una materia primero", { toastId: "samed" });
       return;
     }
     const nombresTemas = arbol.map((tema) => tema.nombre).join(" / ");
@@ -188,7 +191,6 @@ export const CronologiaContextProvider = ({
     setIsLoading(true);
     JurisprudenciaService.obtenerCronologia(validatedData)
       .then(({ data }) => {
-        console.log(data);
         const pdfBlob = new Blob([data], {
           type: "application/pdf",
         });
@@ -197,16 +199,15 @@ export const CronologiaContextProvider = ({
       })
       .catch(async (error) => {
         const text = await error.response.data.text(); // convierte Blob → string
-        const json = JSON.parse(text); // string → JSON
-        console.log(json.message);
+        const json = JSON.parse(text); 
         if (json.message) {
-          toast.error(json.message);
+          toast.error(json.message, { toastId: "samed" });
           return;
         }
         const message = error.response?.data?.error || "Ocurrió un error";
         console.error("Error fetching data:", message);
         if (error.response?.status === 429) {
-          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.");
+          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.", { toastId: "samed" });
         }
       })
       .finally(() => {
@@ -221,14 +222,13 @@ export const CronologiaContextProvider = ({
       })
         .then(({ data }) => {
           if (data) {
-            console.log(data);
             setArbol(data.nodos);
             setCurrentID(data.last);
             setResultados([]);
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
         });
     } catch (error: unknown) {
       let message = "Ocurrió un error";
@@ -249,10 +249,11 @@ export const CronologiaContextProvider = ({
     try {
       const nombresTemas = arbol.map(({ nombre }) => nombre).join(" / ");
 
-      JurisprudenciaService.busquedaRapida({
+      const validatedData = filterForm({
         busqueda: busqueda,
-        descriptor: nombresTemas,
-      })
+        ...(searchNodes ? { descriptor: nombresTemas } : {}),
+      });
+      JurisprudenciaService.busquedaRapida(validatedData)
         .then(({ data }) => {
           if (data) {
             setResultados(data);
@@ -260,7 +261,7 @@ export const CronologiaContextProvider = ({
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
           setErrorBusqueda("No se encontraron resultados");
           setResultados([]);
         });
@@ -277,11 +278,11 @@ export const CronologiaContextProvider = ({
 
   const advancedSearch = async (page: number = 1) => {
     if (Object.keys(searchFields).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda");
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
       return;
     }
     if (isLoading) {
-      console.log("Ya se está realizando una búsqueda");
+      toast.warning("Ya se está realizando una búsqueda", { toastId: "samed" });
       return;
     }
     setIsLoading(true);
@@ -293,7 +294,6 @@ export const CronologiaContextProvider = ({
 
     const validatedData = filterForm(searchFields);
     const validatedFilters = filterForm(formData);
-    console.log("Datos validados:", { ...validatedData, ...validatedFilters });
 
     setResoluciones([]);
     JurisprudenciaService.busquedaAvanzada({
@@ -309,15 +309,13 @@ export const CronologiaContextProvider = ({
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
-          const { proceso_facet } = response.data.facets;
-          console.log("Facetas recibidas:", proceso_facet);
 
           setFacetas(
             obtenerFacetas(response.data.facets, (data as Facetas) || {})
           );
           setTotalCount(response.data.total);
         } else {
-          toast.warning("No existen datos");
+          toast.warning("No existen datos", { toastId: "samed" });
         }
       })
       .catch((error: unknown) => {
@@ -331,7 +329,7 @@ export const CronologiaContextProvider = ({
 
   const obtenerCronologiabyIds = async () => {
     if (selectedIds.length <= 0) {
-      toast.error("Debe agregar resoluciones");
+      toast.error("Debe agregar resoluciones", { toastId: "samed" });
       return;
     }
 
@@ -342,7 +340,6 @@ export const CronologiaContextProvider = ({
     setIsLoading(true);
     JurisprudenciaService.obtenerCronologiabyIds(validatedData)
       .then(({ data }) => {
-        console.log(data);
         const pdfBlob = new Blob([data], {
           type: "application/pdf",
         });
@@ -351,10 +348,9 @@ export const CronologiaContextProvider = ({
       })
       .catch(async (error) => {
         const text = await error.response.data.text(); // convierte Blob → string
-        const json = JSON.parse(text); // string → JSON
-        console.log(json.message);
+        const json = JSON.parse(text); 
         if (json.message) {
-          toast.error(json.message);
+          toast.error(json.message, { toastId: "samed" });
           return;
         }
 
@@ -362,7 +358,7 @@ export const CronologiaContextProvider = ({
         console.error("Error fetching data:", message);
 
         if (error.response?.status === 429) {
-          toast.error(message); // usamos el mensaje real del backend
+          toast.error(message, { toastId: "samed" }); // usamos el mensaje real del backend
         }
       })
       .finally(() => {
@@ -372,7 +368,7 @@ export const CronologiaContextProvider = ({
 
   const obtenerResoluciones = async (page = 1) => {
     if (!selectedOptions.busqueda || !selectedOptions.campo) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda");
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
       return;
     }
     const validPage = page && !isNaN(page) && page > 0 ? page : 1;
@@ -399,7 +395,7 @@ export const CronologiaContextProvider = ({
           setPageCount(response.data.last_page);
           setTotalCount(response.data.total);
         } else {
-          toast.warning("No existen datos");
+          toast.warning("No existen datos", { toastId: "samed" });
         }
       })
       .catch((error) => {
@@ -444,7 +440,7 @@ export const CronologiaContextProvider = ({
     const capacidadRestante = limite - selectedIds.length;
 
     if (capacidadRestante <= 0) {
-      toast.error("Ya alcanzaste el límite de resoluciones seleccionadas");
+      toast.error("Ya alcanzaste el límite de resoluciones seleccionadas", { toastId: "samed" });
       return;
     }
 
@@ -487,7 +483,7 @@ export const CronologiaContextProvider = ({
 
   const obtenerResolucionesBusqueda = async (page: number = 1) => {
     if (Object.keys(selectedOptions).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda");
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
       return;
     }
     if (isLoading) {
@@ -515,15 +511,13 @@ export const CronologiaContextProvider = ({
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
-          const { proceso_facet } = response.data.facets;
-          console.log("Facetas recibidas:", proceso_facet);
 
           setFacetas(
             obtenerFacetas(response.data.facets, (data as Facetas) || {})
           );
           setTotalCount(response.data.total);
         } else {
-          toast.warning("No existen datos");
+          toast.warning("No existen datos", { toastId: "samed" });
         }
       })
       .catch((error) => {
@@ -541,7 +535,7 @@ export const CronologiaContextProvider = ({
     e.preventDefault();
 
     if (selectedIds.length <= 0) {
-      toast.error("Debe agregar resoluciones");
+      toast.error("Debe agregar resoluciones", { toastId: "samed" });
       return;
     }
 
@@ -560,17 +554,16 @@ export const CronologiaContextProvider = ({
       })
       .catch(async (error) => {
         const text = await error.response.data.text(); // convierte Blob → string
-        const json = JSON.parse(text); // string → JSON
-        console.log(json.message);
+        const json = JSON.parse(text); 
         if (json.message) {
-          toast.error(json.message);
+          toast.error(json.message, { toastId: "samed" });
           return;
         }
         if (error.response?.status === 403) {
-          toast.error("No tiene permiso para realizar esta acción");
+          toast.error("No tiene permiso para realizar esta acción", { toastId: "samed" });
         }
         if (error.response?.status === 429) {
-          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.");
+          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.", { toastId: "samed" });
         }
       })
       .finally(() => {
@@ -580,7 +573,7 @@ export const CronologiaContextProvider = ({
 
   const advancedSearchBusqueda = async (page: number = 1) => {
     if (Object.keys(searchFields).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda");
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
       return;
     }
     if (isLoading) {
@@ -615,7 +608,7 @@ export const CronologiaContextProvider = ({
           );
           setTotalCount(response.data.total);
         } else {
-          toast.warning("No existen datos");
+          toast.warning("No existen datos", { toastId: "samed" });
         }
       })
       .catch((error: unknown) => {
@@ -677,6 +670,8 @@ export const CronologiaContextProvider = ({
     advancedSearchBusqueda,
     obtenerResolucionesBusqueda,
     obtenerCronologiaBusqueda,
+    searchNodes,
+    setSearchNodes,
   };
 
   useEffect(() => {

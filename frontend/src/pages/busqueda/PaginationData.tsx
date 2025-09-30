@@ -41,7 +41,6 @@ const PaginationData = ({
     if (id) {
       setShowDetails(id);
     }
-    console.log(id);
   };
 
   const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {

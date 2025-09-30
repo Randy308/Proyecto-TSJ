@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Loading from "../../components/Loading";
 import AsyncButton from "../../components/AsyncButton";
-
 const ExportarResoluciones = () => {
   const { data: variables } = useVariablesContext();
   const [isLoading, setIsLoading] = useState(false);
@@ -24,22 +23,36 @@ const ExportarResoluciones = () => {
   const [materia, setMateria] = useState<Faceta | null>(null);
   const [gestion, setGestion] = useState<Faceta | null>(null);
 
+  const handleSelectOptions = (tema: Faceta) => {
+    setMateria(tema);
+    const currentPeriodos = [];
+    if (!tema.fecha_min || !tema.fecha_max) {
+      toast.error("No hay gestiones disponibles para esta sala", {
+        toastId: "samed",
+      });
+      return;
+    }
+    for (let i = Number(tema.fecha_min); i <= Number(tema.fecha_max); i++) {
+      currentPeriodos.push({ id: i, nombre: i.toString() });
+    }
+    setGestion(currentPeriodos[currentPeriodos.length - 1]);
+    setGestiones(currentPeriodos);
+  };
+
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedId = Number(event.target.value);
-    console.log(event);
     const selectedGestion = gestiones.find(
       (gestion) => gestion.id === selectedId
     );
-    console.log("Selected gestion:", selectedGestion);
     setGestion(selectedGestion || null);
   };
   const obtenerExcel = async () => {
     if (!materia) {
-      toast.error("Seleccione una sala", { toastId: "no-sala" });
+      toast.error("Seleccione una sala", { toastId: "samed" });
       return;
     }
     if (!gestion) {
-      toast.error("Seleccione una gestión", { toastId: "no-gestion" });
+      toast.error("Seleccione una gestión", { toastId: "samed" });
       return;
     }
     if (isLoading) return;
@@ -87,6 +100,7 @@ const ExportarResoluciones = () => {
     if (variables && variables.sala && variables.periodo) {
       setData(variables.sala || []);
       setGestiones(variables.periodo || []);
+      
     }
   }, [variables]);
 
@@ -145,9 +159,9 @@ const ExportarResoluciones = () => {
                   value={gestion ? gestion.id : 0}
                   className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 >
-                  <option value={0}>Seleccione una gestión</option>
+                  <option value={0} disabled>Seleccione una gestión</option>
                   {gestiones.map((tema) => (
-                    <option value={tema.id}>{tema.nombre}</option>
+                    <option key={tema.nombre} value={tema.id}>{tema.nombre}</option>
                   ))}
                 </select>
               </form>
@@ -170,7 +184,7 @@ const ExportarResoluciones = () => {
               <div
                 key={tema.id}
                 id={`tema-${tema.id}`}
-                onClick={() => setMateria(tema)}
+                onClick={() => handleSelectOptions(tema)}
                 className="p-5 flex flex-col items-center justify-center gap-3 rounded-2xl shadow-sm cursor-pointer transition-all bg-gradient-to-br bg-red-octopus-700 hover:bg-red-octopus-900 dark:from-blue-600 dark:to-blue-700 dark:hover:from-blue-700 dark:hover:to-blue-800 text-white"
               >
                 <span className="text-base font-medium text-center">

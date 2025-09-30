@@ -82,14 +82,13 @@ const CrearUsuario = ({ setShowModal }: CrearUsuarioProps) => {
       })
         .then(({ data }) => {
           if (data) {
-            console.log(data);
             setShowModal(false);
             obtenerUsers(1);
             toast.success("El usuario ha sido creado exitosamente");
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
         });
     } catch (error: unknown) {
       if (error instanceof axios.AxiosError) {

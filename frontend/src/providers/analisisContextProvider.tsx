@@ -124,7 +124,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
   const realizarAnalisis = async () => {
     setIsLoading(true);
 
-    if (listaX.length === 0) {
+    if (listaX.length === 0 && groupByDepartamento === false && groupByPeriodo === false) {
       toast.warning("Debe seleccionar al menos una variable para el análisis.");
       setIsLoading(false);
       return;
@@ -229,7 +229,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
         }
       })
       .catch((err) => {
-        console.log("Existe un error " + err);
+        console.error("Existe un error " + err);
         toast.error("Error al obtener los datos de análisis.");
         navigate("/analisis");
       })
@@ -274,7 +274,7 @@ export const AnalisisContextProvider = ({ children }: ContextProviderProps) => {
         }
       })
       .catch((err) => {
-        console.log("Existe un error " + err);
+        console.error("Existe un error " + err);
       });
   };
 

@@ -79,10 +79,6 @@ const Register = ({ setLoginMode }: Props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    console.log(error);
-  }, [error])
   
   return (
     <>

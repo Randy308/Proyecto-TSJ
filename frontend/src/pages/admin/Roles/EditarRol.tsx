@@ -79,14 +79,12 @@ const EditarRol = ({ id, permissions, setShowModal }: Props) => {
         }
       );
 
-      console.log("CSRF token retrieved successfully.");
 
       await RoleService.updateRole(id, {
         ...formData,
       })
         .then(({ data }) => {
           if (data) {
-            console.log(data);
             setShowModal(false);
             obtenerRoles();
             toast.success(
@@ -95,7 +93,7 @@ const EditarRol = ({ id, permissions, setShowModal }: Props) => {
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
         });
     } catch (error: unknown) {
       if (error instanceof axios.AxiosError) {

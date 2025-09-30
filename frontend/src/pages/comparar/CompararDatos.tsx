@@ -123,8 +123,6 @@ const CompararDatos = () => {
     })
       .then((response) => {
         if (response.data) {
-          console.log("Response:", response.data.departamentos);
-
           const res = response.data.departamentos;
 
           const total = res.reduce(
@@ -132,13 +130,11 @@ const CompararDatos = () => {
             0
           );
 
-          const periodosTotal = response.data.periodos.reduce(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (acc: number, item: any) => acc + item.cantidad,
-            0
-          );
-          console.log("Total periodos:", periodosTotal);
-          console.log("Total departamentos:", total);
+          // const periodosTotal = response.data.periodos.reduce(
+          //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          //   (acc: number, item: any) => acc + item.cantidad,
+          //   0
+          // );
           setResoluciones(response.data.periodos);
 
           setDepartamentos(

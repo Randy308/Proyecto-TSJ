@@ -88,7 +88,6 @@ const Notifications = () => {
     }
 
     if (notification.estado !== "unread") {
-      console.log(`La notificación con ID ${id} ya está leída`);
       return;
     }
 

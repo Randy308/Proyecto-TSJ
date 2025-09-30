@@ -16,7 +16,7 @@ const SimpleSearch = ({
   const [errorBusqueda, setErrorBusqueda] = React.useState("");
   const [label, setLabel] = React.useState("");
   const checkSearch = (valor: string) => {
-    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s'"’-]+$/;
+    const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s/'"’-]+$/;
 
     if (regex.test(valor) || valor === "") {
       return true;

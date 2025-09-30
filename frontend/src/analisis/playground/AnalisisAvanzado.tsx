@@ -75,7 +75,6 @@ const AnalisisAvanzado = () => {
 
     fetchStats
       .then(({ data }) => {
-        console.log("Datos cargados desde API", data);
         if (data) {
           setContenido(data.chart.length > 0 ? data.chart : []);
           setMultiVariable(data.multiVariable);
@@ -97,7 +96,7 @@ const AnalisisAvanzado = () => {
   const generarSerie = () => {
     if (listaX.length === 0) {
       toast.warning(
-        "Por favor, seleccione una variable para generar la serie de tiempo."
+        "Por favor, seleccione una variable para generar la serie de tiempo.", { toastId: "samed" }
       );
       return;
     }
@@ -171,7 +170,6 @@ const AnalisisAvanzado = () => {
 
       StatsService.getStatsX(receivedForm)
         .then(({ data }) => {
-          console.log("Datos cargados desde API", data);
           if (data) {
             setContenido(data.data.length > 0 ? data.data : []);
             setMultiVariable(data.multiVariable);
@@ -192,36 +190,6 @@ const AnalisisAvanzado = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [receivedForm]);
 
-  // const handleClick = useCallback(
-  //   (params: ECElementEvent) => {
-  //     if (
-  //       multiVariable &&
-  //       params.seriesName !== "Cantidad" &&
-  //       params.name !== "Cantidad"
-  //     ) {
-  //       const newItem = {
-  //         nameX: listaX[0].name,
-  //         valueX: params.name,
-  //         nameY: listaX[1].name,
-  //         valueY: params.seriesName,
-  //       };
-
-  //       console.log("Clicked on series:", newItem);
-  //     } else if (
-  //       params.seriesName === "Cantidad" ||
-  //       params.name === "Cantidad"
-  //     ) {
-  //       const newItem = {
-  //         nameX: listaX[0].name,
-  //         valueX: params.name != "Cantidad" ? params.name : params.seriesName,
-  //       };
-
-  //       console.log("Clicked on series:", newItem);
-  //     }
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [multiVariable]
-  // );
 
   return (
     <div className="p-0 md:p-2 lg:p-4 space-y-4">

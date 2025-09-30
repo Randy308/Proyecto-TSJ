@@ -47,7 +47,7 @@ const EliminarUsuario = ({ id, setShowModal }: UsuarioProps) => {
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
         });
     } catch (error: unknown) {
       if (error instanceof axios.AxiosError) {

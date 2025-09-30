@@ -46,11 +46,6 @@ const Ajustes = () => {
       return;
     }
     if (loading) return;
-    console.log("Perfil actualizado:", {
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-    });
     setLoading(true);
     AuthService.updateProfile({
       name: formData.name,
@@ -59,7 +54,6 @@ const Ajustes = () => {
     })
       .then((response) => {
         if (response.data) {
-          console.log("Perfil actualizado exitosamente");
           toast.success("Perfil actualizado exitosamente");
           setAuthUser(response.data.user);
         } else {

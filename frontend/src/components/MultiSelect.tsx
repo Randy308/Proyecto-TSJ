@@ -26,6 +26,8 @@ const MultiSelect = ({
       { value: "sintesis", nombre: "Síntesis" },
       { value: "maxima", nombre: "Máxima" },
       { value: "precedente", nombre: "Precedente" },
+      { value: "nro_resolucion", nombre: "Número de Resolución" },
+      { value: "nro_expediente", nombre: "Número de Expediente" },
     ];
 
     const list = [
@@ -34,6 +36,8 @@ const MultiSelect = ({
       { value: "sintesis", nombre: "Síntesis" },
       { value: "maxima", nombre: "Maxima" },
       { value: "precedente", nombre: "Precedente" },
+      { value: "nro_resolucion", nombre: "Número de Resolución" },
+      { value: "nro_expediente", nombre: "Número de Expediente" },
     ];
 
     return type === "jurisprudencia" ? lista : list;

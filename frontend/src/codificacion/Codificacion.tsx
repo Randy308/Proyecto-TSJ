@@ -11,7 +11,6 @@ const Codificacion = () => {
     const fetchResuelveFondos = async () => {
       try {
         const { data } = await AuthService.getResuelveFondo(); // suponiendo que devuelve ResueleveFondo[]
-        console.log(data.data);
         if (data.data) {
           setResuelveFondos(data.data);
         }

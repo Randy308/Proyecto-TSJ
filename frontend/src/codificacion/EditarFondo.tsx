@@ -55,7 +55,6 @@ export const EditarFondo = ({ item, setShowModal }: EditarFondoProps) => {
       setTipo(Number(item.tipo_decision));
       setClave(item.slug || undefined);
     }
-    console.log("Item to edit:", item);
   }, [item]);
 
   if (!data || !data.sala) {

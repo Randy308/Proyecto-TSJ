@@ -4,9 +4,10 @@ import { es } from "date-fns/locale";
 import { UserService } from "../../services";
 import { useAuthContext } from "../../context";
 import { BsCheckAll } from "react-icons/bs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AsyncButton from "../../components/AsyncButton";
 import { IoReloadOutline } from "react-icons/io5";
+import SimplePaginate from "../../components/tables/SimplePaginate";
 
 const Notificaciones = () => {
   const { notifications, setNotifications } = useNotificationContext();
@@ -15,11 +16,9 @@ const Notificaciones = () => {
     {}
   );
   const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState(0);
+  const [lastPage, setLastPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const { hasAccess } = useAuthContext();
-  if (!hasAccess()) {
-    return null;
-  }
 
   const updateNotification = async (id: number) => {
     const notification = (notifications || []).find((n) => n.id === id);
@@ -30,7 +29,6 @@ const Notificaciones = () => {
     }
 
     if (notification.estado !== "unread") {
-      console.log(`La notificación con ID ${id} ya está leída`);
       return;
     }
 
@@ -82,8 +80,7 @@ const Notificaciones = () => {
 
       if (response.data && response.data.length > 0) {
         setNotifications(response.data);
-      } else {
-        console.log("No hay nuevas notificaciones");
+        setTotalPages((prev) => prev + response.data.length);
       }
     } catch (error) {
       console.error("Error sincronizando notificaciones:", error);
@@ -95,7 +92,13 @@ const Notificaciones = () => {
     }
   };
 
-  const allNotifications = async () => {
+  const handlePageClick = (page: number) => {
+    const selectedPage = Math.min(page, lastPage);
+    setPage(selectedPage);
+    allNotifications(selectedPage);
+  };
+
+  const allNotifications = async (page: number) => {
     if (loadingButtons["allNotifications"]) return;
     setLoadingButtons((prev) => ({ ...prev, allNotifications: true }));
 
@@ -117,9 +120,7 @@ const Notificaciones = () => {
         setNotifications(response.data.data);
         const lastPage = response.data.last_page;
         setLastPage(lastPage);
-        setPage((prev) => Math.min(prev + 1, lastPage));
-      } else {
-        console.log("No hay nuevas notificaciones");
+        setTotalPages(response.data.total);
       }
     } catch (error) {
       console.error("Error sincronizando notificaciones:", error);
@@ -130,6 +131,15 @@ const Notificaciones = () => {
       }));
     }
   };
+
+  useEffect(() => {
+    setTotalPages((notifications || []).length);
+  }, [notifications]);
+
+  if (!hasAccess()) {
+    return null;
+  }
+
   return (
     <div className="p-4">
       <div>
@@ -173,36 +183,43 @@ const Notificaciones = () => {
           aria-labelledby="user-menu-button"
         >
           {notifications && notifications.length > 0 ? (
-            notifications.map((notification, index) => (
-              <li
-                key={index}
-                className={`px-4 py-2  h-20 flex flex-col  justify-around text-xs bg-white rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600  ${
-                  notification.estado === "unread"
-                    ? "text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer hover:bg-gray-100"
-                    : "text-gray-500"
-                }`}
-                onClick={() => updateNotification(notification.id)}
-              >
-                <p>{notification.mensaje}</p>
-                <span>
-                  {notification.enlace && (
-                    <a
-                      href={notification.enlace}
-                      className="text-blue-400 underline"
-                      target="_blank"
-                    >
-                      Abrir documento
-                    </a>
-                  )}
-                </span>
-                <span className="text-red-octopus-900 dark:text-blue-700">
-                  {formatDistanceToNow(new Date(notification.created_at), {
-                    addSuffix: true,
-                    locale: es,
-                  })}
-                </span>
-              </li>
-            ))
+            <SimplePaginate
+              totalCount={totalPages}
+              pageCount={lastPage}
+              handlePageClick={handlePageClick}
+              actualPage={page}
+            >
+              {notifications.map((notification, index) => (
+                <li
+                  key={index}
+                  className={`px-4 py-2  h-20 flex flex-col  justify-around text-xs bg-white rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600  ${
+                    notification.estado === "unread"
+                      ? "text-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer hover:bg-gray-100"
+                      : "text-gray-500"
+                  }`}
+                  onClick={() => updateNotification(notification.id)}
+                >
+                  <p>{notification.mensaje}</p>
+                  <span>
+                    {notification.enlace && (
+                      <a
+                        href={notification.enlace}
+                        className="text-blue-400 underline"
+                        target="_blank"
+                      >
+                        Abrir documento
+                      </a>
+                    )}
+                  </span>
+                  <span className="text-red-octopus-900 dark:text-blue-700">
+                    {formatDistanceToNow(new Date(notification.created_at), {
+                      addSuffix: true,
+                      locale: es,
+                    })}
+                  </span>
+                </li>
+              ))}
+            </SimplePaginate>
           ) : (
             <li className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
               No hay notificaciones

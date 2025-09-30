@@ -70,7 +70,6 @@ const CronologiasAvanzadas = () => {
     if (id) {
       setShowDetails(id);
     }
-    console.log(id);
   };
   const handlePageClick = (page: number) => {
     const selectedPage = handlePage(page);

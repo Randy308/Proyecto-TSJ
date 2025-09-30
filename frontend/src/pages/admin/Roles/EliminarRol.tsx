@@ -44,19 +44,16 @@ const EliminarRol = ({ id, setShowModal }: Props) => {
         withCredentials: true,
       });
 
-      console.log("CSRF token retrieved successfully.");
-
       await RoleService.deleteRole(id)
         .then(({ data }) => {
           if (data) {
-            console.log(data);
             setShowModal(false);
             obtenerRoles();
             toast.success("El rol ha sido eliminado exitosamente");
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
         });
     } catch (error: unknown) {
       if (error instanceof axios.AxiosError) {

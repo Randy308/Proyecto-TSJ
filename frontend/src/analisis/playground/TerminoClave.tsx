@@ -74,7 +74,6 @@ const TerminoClave = ({ listaX, setListaX }: SelectProps) => {
     }
   };
   const eliminarElemento = (variable: string) => {
-    console.log(listaX);
     const nuevaLista = listaX.filter((item) => item.name !== variable);
     setListaX(nuevaLista);
   };

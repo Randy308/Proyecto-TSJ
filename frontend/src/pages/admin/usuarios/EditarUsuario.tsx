@@ -66,7 +66,6 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const filteredData = filterForm({...data, role});
-    console.log(filteredData);
 
     if (!filteredData.role || role === "") {
       toast.error("Debe seleccionar un rol para el usuario");
@@ -84,7 +83,7 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
           }
         })
         .catch(({ err }) => {
-          console.log("Existe un error " + err);
+          console.error("Existe un error " + err);
         });
     } catch (error: unknown) {
       if (error instanceof axios.AxiosError) {
@@ -115,7 +114,6 @@ const EditarUsuario = ({ id, setShowModal }: UsuarioProps) => {
   useEffect(() => {
     if (users) {
       const user = users.find((item) => item.id === id);
-      console.log(user);
       if (user) {
         setRole(user.role || "");
         reset(user);
