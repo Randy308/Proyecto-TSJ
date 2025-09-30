@@ -128,7 +128,7 @@ class JurisprudenciasController extends Controller
                 DB::raw("DATE_TRUNC('year', fecha_emision)::date AS periodo"),
                 DB::raw('COUNT(*) as cantidad'),
             )
-                ->where($campo, 'ilike', '%'.$busqueda.'%')
+                ->where($campo, 'ilike', '%' . $busqueda . '%')
                 ->groupBy(DB::raw("DATE_TRUNC('year', fecha_emision)::date"))
                 ->orderBy(DB::raw("DATE_TRUNC('year', fecha_emision)::date"))
                 ->get();
@@ -138,7 +138,7 @@ class JurisprudenciasController extends Controller
                     DB::raw("DATE_TRUNC('year', r.fecha_emision)::date AS periodo"),
                     DB::raw('COUNT(DISTINCT(r.id)) as cantidad'),
                 )
-                ->where($campo, 'ilike', '%'.$busqueda.'%')
+                ->where($campo, 'ilike', '%' . $busqueda . '%')
                 ->groupBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
                 ->orderBy(DB::raw("DATE_TRUNC('year', r.fecha_emision)::date"))
                 ->get();
@@ -150,7 +150,7 @@ class JurisprudenciasController extends Controller
 
         return response()->json([
             'termino' => [
-                'name' => 'termino_'.$busqueda,
+                'name' => 'termino_' . $busqueda,
                 'id' => $busqueda,
                 'value' => ucfirst($busqueda),
                 'detalles' => $campo,
@@ -221,8 +221,8 @@ class JurisprudenciasController extends Controller
             ->groupBy('j.descriptor');
 
         if (! empty($descriptor)) {
-            $descriptor = $descriptor.' / ';
-            $query->where('j.descriptor', 'ilike', $descriptor.'%'.$busqueda);
+            $descriptor = $descriptor . ' / ';
+            $query->where('j.descriptor', 'ilike', $descriptor . '%' . $busqueda);
         } else {
 
             $query->whereRaw('? % j.restrictor or ? % j.descriptor', [$busqueda, $busqueda]);
@@ -255,19 +255,18 @@ class JurisprudenciasController extends Controller
         )->groupBy('j.descriptor');
 
         if (! empty($descriptor)) {
-            $descriptor = $descriptor.' / ';
-            $query->where('j.descriptor', 'ilike', $descriptor.'%'.$busqueda.'%');
+            $descriptor = $descriptor . ' / ';
+            $query->where('j.descriptor', 'ilike', $descriptor . '%' . $busqueda . '%');
         } else {
-            $query->where('j.descriptor', 'ilike', '%'.$busqueda.'%');
+            $query->where('j.descriptor', 'ilike', '%' . $busqueda . '%');
         }
 
         $resultados = $query
-            ->havingRaw('COUNT(j.resolution_id) > ?', [7])
             ->orderByDesc('cantidad')
             ->get();
 
         if ($resultados->isEmpty()) {
-            return response()->json(['mensaje' => 'No se encontraron resultados'], 404);
+            return response()->json(['mensaje' => 'No se encontraron resultados relevantes'], 404);
         }
 
         return response()->json($resultados);

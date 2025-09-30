@@ -32,7 +32,7 @@ class ExcelController extends Controller
 
         $validator = Validator::make($request->all(), [
             'sala_id' => 'integer|required',
-            'gestion'=> 'integer|required'
+            'gestion' => 'integer|required'
         ]);
 
         if ($validator->fails()) {
@@ -77,10 +77,10 @@ class ExcelController extends Controller
         $data = $query->orderBy('tipo_resolucion')->orderBy('fecha_emision')->get()->toArray();
 
 
-        if($data==null || count($data)==0){
+        if ($data == null || count($data) == 0) {
             return response()->json(['mensaje' => 'No se encontraron datos para los filtros proporcionados.'], 404);
         }
-        $headers = ['Nro Resolución', 'Fecha Emisión', 'Tipo Resolución', 'Sala', 'Departamento', 'Proceso', 'Forma Resolución', 'Síntesis', 'Máxima', 'Precedente', 'Ratio', 'Descriptor', 'Restrictor','Contenido'];
+        $headers = ['Nro Resolución', 'Fecha Emisión', 'Tipo Resolución', 'Sala', 'Departamento', 'Proceso', 'Forma Resolución', 'Síntesis', 'Máxima', 'Precedente', 'Ratio', 'Descriptor', 'Restrictor', 'Contenido'];
         foreach ($headers as $colIndex => $header) {
             $colLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
             $sheet->setCellValue($colLetter . '1', $header);
@@ -90,7 +90,7 @@ class ExcelController extends Controller
         foreach ($data as $row) {
             $colNumber = 1; // columna A
             $url = 'https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/' . $row->id;
-            foreach ($row as $cell) {
+            foreach ($row as $key => $cell) {
                 if ($cell === $row->id) {
                     continue;
                 }
@@ -103,6 +103,34 @@ class ExcelController extends Controller
 
                 $colLetter = Coordinate::stringFromColumnIndex($colNumber);
                 $cellCoordinate = $colLetter . $rowNumber;
+
+
+                if ($key == 'contenido' && strlen($cell) > 32767) {
+                    // Dividimos en chunks respetando palabras
+                    $chunks = [];
+                    $current = '';
+                    foreach (preg_split('/\s+/', $cell) as $word) {
+                        // +1 por el espacio
+                        if (strlen($current) + strlen($word) + 1 > 32767) {
+                            $chunks[] = trim($current);
+                            $current = $word . ' ';
+                        } else {
+                            $current .= $word . ' ';
+                        }
+                    }
+                    if (!empty(trim($current))) {
+                        $chunks[] = trim($current);
+                    }
+
+                    // Escribimos cada chunk en columnas sucesivas
+                    for ($i = 0; $i < count($chunks); $i++) {
+                        $colLetter = Coordinate::stringFromColumnIndex($colNumber + $i);
+                        $partCellCoordinate = $colLetter . $rowNumber;
+                        $sheet->setCellValue($partCellCoordinate, $chunks[$i]);
+                    }
+
+                    continue;
+                }
 
                 // Ejemplo: si el valor empieza con "http" lo ponemos como enlace
                 if ($colNumber == 1) {

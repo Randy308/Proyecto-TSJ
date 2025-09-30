@@ -230,7 +230,7 @@ class ResolutionController extends Controller
     public function obtenerEstadisticasMultivariableSala(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'filtros' => 'required|array',
+            'filtros' => 'nullable|array',
             'filtros.*.name' => 'required|string',
             'filtros.*.ids' => 'required|array|min:1',
             'filtros.*.ids.*' => 'required|integer|min:1',

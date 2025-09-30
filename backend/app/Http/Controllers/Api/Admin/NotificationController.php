@@ -26,7 +26,7 @@ class NotificationController extends Controller
         $userId = Auth::id();
         abort_if(! $userId, 403, 'El usuario no está autenticado');
 
-        $notifications = Notification::where('user_id', $userId)->paginate(10);
+        $notifications = Notification::where('user_id', $userId)->orderByDesc('created_at')->paginate(40);
 
         if ($notifications->isEmpty()) {
             return response()->json(['mensaje' => 'No tiene notificaciones'], 200);

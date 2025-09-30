@@ -391,10 +391,13 @@ class TemaController extends Controller
         $tema = Descriptor::where('id', $tema_id)->first();
 
 
+
+        
+        
         if (! $tema) {
             return response()->json(['error' => 'Materia no encontrada'], 404);
         }
-
+        
         ProcessCronologia::dispatch($tema_id, Auth::id());
         return response()->json(['message' => 'Tarea en cola para ser procesada.']);
     }

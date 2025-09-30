@@ -20,7 +20,7 @@
                     Observatorio del derecho y la política boliviana
                 </div>
                 <div
-                class="cover-subtitle"
+                    class="cover-subtitle"
                     style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Serie Cronologías jurídicas y políticas
                 </div>
@@ -33,10 +33,10 @@
     </table>
 
     <div style="background-color: #A40020; text-align: center; margin-top: 10%; color: white;">
-        <p style="font-size: 26pt;" class="titulo-portada">SERIE DE CRONOLOGÍAS JURÍDICAS (CRONOJURÍDICAS)</p>
+        <p style="font-size: 28pt;" class="titulo-portada">Tesauro de</p>
 
-        @if (isset($subtitulo))
-        <p style="font-size: 20pt;" class="titulo-portada">{{ $subtitulo }}</p>
+        @if (isset($titulo))
+        <p style="font-size: 28pt;" class="titulo-portada">{{ $titulo }}</p>
         @endif
 
 
@@ -81,13 +81,13 @@
         </tr>
     </table>
 
-    <table style="width: 100%; text-align: center;margin-top: 80px; border-collapse: collapse;">
+    <table style="width: 100%; text-align: center;margin-top: 20px; border-collapse: collapse;">
         <tr>
             <td style="width: 15%;">
 
             </td>
             <td style="width: 70%;">
-                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 400px; height: auto;" />
+                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 320px; height: auto;" />
 
             </td>
 

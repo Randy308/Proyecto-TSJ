@@ -256,8 +256,8 @@
         .titulo-portada {
             font-family: 'cambria', sans-serif;
             font-style: italic;
-            text-align: right;
-            padding: 0 10%;
+            text-align: left;
+            padding-left: 5%;
         }
 
         .titulo-referencias {
@@ -266,6 +266,7 @@
             text-align: center;
             padding: 0 10%;
         }
+
     </style>
 
 </head>

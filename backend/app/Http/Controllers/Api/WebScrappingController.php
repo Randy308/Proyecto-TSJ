@@ -100,13 +100,6 @@ class WebScrappingController extends Controller
     public function testeo(Request $request)
     {
 
-
-        $jurisprudencias = Descriptor::where('nombre', 'LIKE', 'nan')->get();
-        foreach ($jurisprudencias as $jurisprudencia) {
-            $jurisprudencia->nombre = "Desconocido";
-            $jurisprudencia->save();
-        }
-        return response()->json(['message' => 'Funciona correctamente','jurisprudencias' => $jurisprudencias], 200);
         $resolution_id = $request->input('id', 1);
         $contenido = Content::where('resolution_id', '=', $resolution_id)->first();
 

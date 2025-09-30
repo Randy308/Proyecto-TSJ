@@ -105,7 +105,9 @@ class SearchController extends Controller
             $operator = strtoupper($filter['operator']);
 
             // Escapar caracteres especiales si es necesario
-            $escapedValue = str_replace(['\\', '(', ')', '|', '-', '&', '!', '@'], ' ', $value);
+            //$escapedValue = str_replace(['\\', '(', ')', '|', '-', '&', '!', '@'], ' ', $value);
+
+            $escapedValue = $this->escapeMatchString($value);
 
             $part = "@$field $escapedValue";
 
@@ -134,7 +136,7 @@ class SearchController extends Controller
 
         $validator = Validator::make($request->all(), [
             'filtros' => 'required|array',
-            'filtros.*.field' => 'required|string|in:contenido,descriptor,sintesis,precedente,maxima,proceso,ratio,descriptor,restrictor',
+            'filtros.*.field' => 'required|string|in:contenido,descriptor,sintesis,precedente,maxima,proceso,ratio,descriptor,restrictor,nro_expediente,nro_resolucion',
             'filtros.*.value' => 'required|string',
             'filtros.*.operator' => 'required|string|in:AND,OR,NOT',
             'serie' => 'string',
@@ -261,7 +263,7 @@ class SearchController extends Controller
 
         $validator = Validator::make($request->all(), [
             'filtros' => 'required|array',
-            'filtros.*.field' => 'required|string|in:contenido,descriptor,sintesis,precedente,maxima,proceso',
+            'filtros.*.field' => 'required|string|in:contenido,descriptor,sintesis,precedente,maxima,proceso,nro_expediente,nro_resolucion',
             'filtros.*.value' => 'required|string',
             'filtros.*.operator' => 'required|string|in:AND,OR,NOT',
             'serie' => 'string',
@@ -499,7 +501,19 @@ class SearchController extends Controller
         return response($content, 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="documento.pdf"');
+    }
 
+    function escapeMatchString(string $value): string
+    {
+
+        $input = str_replace('"', '', $value);
+
+        // caracteres especiales de Manticore/Sphinx
+        $specials = ['\\', '(', ')', '|', '-', '!', '@', '~', '^', '$', '&', '/'];
+
+        // escapamos
+        $escaped =  str_replace($specials, array_map(fn($c) => '\\' . $c, $specials), $input);
+        return "\"{$escaped}\"";
     }
 
     public function filtrarAutosSupremos(Request $request)
@@ -549,6 +563,10 @@ class SearchController extends Controller
         }
 
 
+        $query = $this->escapeMatchString($query);
+
+
+        //return $query;
         $search = Resolution::search('', function (Builder $builder) use ($query, $perPage, $offset, $request, $select, $highlight) {
 
 
@@ -650,6 +668,8 @@ class SearchController extends Controller
 
 
 
+        $query = $this->escapeMatchString($query);
+
         $search = Jurisprudencia::search('', function (Builder $builder) use ($query, $perPage, $offset, $select) {
 
 
@@ -739,6 +759,8 @@ class SearchController extends Controller
             $select[] = "proceso_facet as proceso";
         }
 
+
+        $query = $this->escapeMatchString($query);
 
         $search = Jurisprudencia::search('', function (Builder $builder) use ($query, $campo, $perPage, $offset, $request, $select) {
 
