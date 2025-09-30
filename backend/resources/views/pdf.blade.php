@@ -449,7 +449,7 @@
 
 
     <pagebreak even-footer-value="-1" resetpagenum="1" suppress="0" />
-    <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" />
+    <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" toc-bookmarkText = "Tabla de Contenido" />
 
     
 
@@ -469,6 +469,7 @@
                     </h2>                    
                     @else
                      <h2 class="descriptor{{ $item->indices[$loop->index] }}">
+                         <bookmark content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
                         <tocentry content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
                         {{ $elemento }}
                     </h2>

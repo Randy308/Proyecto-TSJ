@@ -392,12 +392,12 @@ class TemaController extends Controller
 
 
 
-        
-        
+
+
         if (! $tema) {
             return response()->json(['error' => 'Materia no encontrada'], 404);
         }
-        
+
         ProcessCronologia::dispatch($tema_id, Auth::id());
         return response()->json(['message' => 'Tarea en cola para ser procesada.']);
     }
@@ -489,30 +489,32 @@ class TemaController extends Controller
 
         $referencias = [];
 
-        $pdf = new Mpdf([
+
+        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, 'fechaActual' => $fechaActual, 'referencias' => $referencias], [], [
             'format' => 'letter',
-            'margin_left' => 25,
-            'margin_right' => 25,
-            'margin_top' => 25,
-            'margin_bottom' => 25,
+            'margin_left' => 25,  // 2.5 cm in mm
+            'margin_right' => 25,  // 2.5 cm in mm
+            'margin_top' => 25,  // 2.5 cm in mm
+            'margin_bottom' => 25,  // 2.5 cm in mm
             'orientation' => 'P',
             'title' => 'Documento',
             'author' => 'IIJP',
-            'fontDir' => public_path('fonts/'),
-            'fontdata' => [
+            'custom_font_dir' => public_path('fonts/'),
+            'custom_font_data' => [
                 'cambria' => [
                     'R' => 'Cambriax.ttf',
                     'B' => 'Cambria-Bold.ttf',
                     'I' => 'Cambria-Italic.ttf',
                     'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
+
+                'script_mt' => [
+                    'R' => 'script-mt.ttf',
+                ],
                 'trebuchet_ms' => [
                     'R' => 'trebuc.ttf',
                     'B' => 'trebucbd.ttf',
                     'I' => 'trebucit.ttf',
-                ],
-                'script_mt' => [
-                    'R' => 'script-mt.ttf',
                 ],
                 'times_new_roman' => [
                     'R' => 'times-new-roman.ttf',
@@ -523,41 +525,7 @@ class TemaController extends Controller
             ],
         ]);
 
-        //$pdf->AddFontDirectory( public_path('fonts/'));
-
-        // 🔹 Cabecera (con estilos, subtítulo, fecha, etc.)
-        $header = view('header', [
-            'estilos' => $estilos,
-        ])->render();
-
-        $pdf->WriteHTML($header, HTMLParserMode::HEADER_CSS);
-
-        $cover = view('cover', [
-            'subtitulo' => $request->subtitulo,
-            'fechaActual' => $fechaActual,
-        ])->render();
-
-        $pdf->WriteHTML($cover, HTMLParserMode::HTML_BODY);
-
-        $pdf->TOCpagebreakByArray([
-            'links' => true,
-            'toc-preHTML' => '<h2>Tabla de Contenido</h2>',
-        ]);
-
-        // 🔹 Dividir resoluciones en bloques de 100 (puedes ajustar el tamaño)
-        foreach (array_chunk($results->toArray(), 100) as $chunk) {
-            $body = view('contents', ['results' => $chunk])->render();
-            $pdf->WriteHTML($body, HTMLParserMode::HTML_BODY);
-        }
-
-        // 🔹 Footer (referencias, notas)
-        $footer = view('footer', ['referencias' => $referencias])->render();
-        $pdf->WriteHTML($footer, HTMLParserMode::HTML_BODY);
-
-
-        // 🔹 Mostrar en navegador como stream
-        //return $pdf->Output('documento.pdf', Destination::INLINE);
-        $content = $pdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);
+        $content = $pdf->Output();
 
         return response($content, 200)
             ->header('Content-Type', 'application/pdf')
