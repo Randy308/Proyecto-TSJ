@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Models\Jurisprudencia;
 use App\Models\Mapeo;
 use App\Models\Notification;
+use App\Models\Resolution;
 use App\Models\ResuelveDecision;
 use App\Models\ResuelveFondo;
 use Illuminate\Bus\Queueable;
@@ -108,7 +110,7 @@ class ImportDecisionesChunk implements ShouldBeUnique, ShouldQueue
                             'sala_id' => $this->salaId,
                             'tipo_decision' => $tipo,
                             'observaciones' => $observacionTipo,
-                            'nombre'=>$tipo
+                            'nombre' => $tipo
                         ],
                         []
                     );
@@ -131,6 +133,35 @@ class ImportDecisionesChunk implements ShouldBeUnique, ShouldQueue
                 'tipo' => $decision,
                 'observaciones' => $observacionDecision,
             ]);
+
+            $res = Resolution::find($resolutionId);
+
+            if (!$res) {
+                // Manejo de error: la resolución no existe
+                Log::error("Error al indexar la resolucion con ID {$resolutionId}: ");
+                return;
+            }
+            // Buscar jurisprudencias asociadas
+            $jurisprudencias = Jurisprudencia::where('resolution_id', $resolutionId)->get();
+
+            // Indexar jurisprudencias si existen
+            if ($jurisprudencias->isNotEmpty()) {
+                foreach ($jurisprudencias as $jurisprudencia) {
+                    try {
+                        $jurisprudencia->searchable();
+                    } catch (\Throwable $e) {
+                        Log::error("Error al indexar la jurisprudencia con ID {$jurisprudencia->id}: " . $e->getMessage());
+                    }
+                }
+            }
+
+            // Indexar la resolución
+            try {
+                $res->searchable();
+            } catch (\Throwable $e) {
+                Log::error("Error al indexar la resolución con ID {$res->id}: " . $e->getMessage());
+            }
+
 
             $filasExitosas++;
         });
