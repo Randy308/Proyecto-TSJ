@@ -160,7 +160,7 @@ const MultiBtnDropdown = ({
   return (
     <>
       <div
-        className={`p-2 rounded-lg relative border flex items-center justify-between text-sm  me-2 mb-2`}
+        className={`p-2 dark:text-gray-400 dark:bg-gray-700 rounded-lg relative border flex items-center justify-between text-sm  me-2 mb-2`}
       >
         <div className="text-xs sm:text-sm text-black dark:text-gray-200">
           {" "}
@@ -196,7 +196,7 @@ const MultiBtnDropdown = ({
           </div>
         ) : (
           <ul
-            className={`gap-1 absolute border mt-2 w-full z-30 bg-white top-full left-0 p-2 shadow-xl  ${
+            className={`gap-1 absolute dark:text-gray-400 dark:bg-gray-700 border mt-2 w-full z-30 bg-white top-full left-0 p-2 shadow-xl  ${
               activo ? "" : "hidden"
             }`}
           >

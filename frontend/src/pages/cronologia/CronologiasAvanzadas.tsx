@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaRegCircle } from "react-icons/fa6";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaSync } from "react-icons/fa";
 import {
   filterAtributte,
   filterParams,
@@ -28,7 +28,6 @@ import MultiSearch from "../../components/MultiSearch";
 import { useCronologiaContext } from "../../context/cronologiaContext";
 import Modal from "../../components/modal/Modal";
 import ConfirmModal from "../../components/modal/ConfirmModal";
-
 
 const CronologiasAvanzadas = () => {
   const { data } = useVariablesContext();
@@ -80,9 +79,7 @@ const CronologiasAvanzadas = () => {
     }
   };
 
-  useEffect(() => {
-    setSelector(filterParams(formData, (data as Variables) || {}));
-
+  const updateSearch = () => {
     if (searchType) {
       if (Object.keys(searchFields).length < 1) {
         console.warn("Debe seleccionar al menos un campo de búsqueda");
@@ -96,8 +93,11 @@ const CronologiasAvanzadas = () => {
       }
       obtenerResoluciones(1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, formData]);
+  };
+
+  useEffect(() => {
+    setSelector(filterParams(formData, (data as Variables) || {}));
+  }, [formData, data, setSelector]);
 
   return (
     <div id="cronologia-container" className="sm:p-4 sm:m-4 m-2 p-2">
@@ -176,9 +176,23 @@ const CronologiasAvanzadas = () => {
         <div className="mt-4 pt-4">
           <div className="flex flex-row flex-wrap gap-4">
             <div className="w-auto md:w-52">
+              {facetas && Object.keys(facetas).length > 0 && (
+                <div className="flex justify-between items-center">
+                  <p className="text-2xl font-bold p-2 dark:text-white">
+                    Filtros
+                  </p>
+                  <button
+                    className="bg-gray-600 hover:bg-gray-400 text-white font-bold p-2 rounded m-2"
+                    onClick={updateSearch}
+                  >
+                    <FaSync className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
               {Object.entries(facetas).map(([name, contenido]) => (
                 <Filtros
                   key={name}
+                  updateSearch={updateSearch}
                   nombre={name as FiltroBusqueda}
                   data={contenido as Faceta[]}
                   formData={formData}
@@ -186,7 +200,7 @@ const CronologiasAvanzadas = () => {
                 />
               ))}
             </div>
-            <div className="md:flex-1">
+            <div className="md:flex-1 text-black dark:text-white">
               <>
                 {selector && Object.keys(selector).length > 0 && (
                   <div className="flex gap-4 items-center flex-wrap">

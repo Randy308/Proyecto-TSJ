@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import Filtros from "../../components/Filtros";
 import { titulo, filterParams } from "../../utils/filterForm";
@@ -15,6 +14,8 @@ import {
 import SimpleSearch from "../../components/SimpleSearch";
 import MultiSearch from "../../components/MultiSearch";
 import { useCronologiaContext } from "../../context/cronologiaContext";
+import { FaSync } from "react-icons/fa";
+import { useEffect } from "react";
 const Busqueda = () => {
   const { data } = useVariablesContext();
 
@@ -50,8 +51,7 @@ const Busqueda = () => {
     obtenerResolucionesBusqueda(selectedPage);
   };
 
-  useEffect(() => {
-    setSelector(filterParams(formData, (data as Variables) || {}));
+  const updateSearch = () => {
     if (searchType) {
       if (Object.keys(searchFields).length < 1) {
         console.warn("Debe seleccionar al menos un campo de búsqueda");
@@ -65,8 +65,11 @@ const Busqueda = () => {
       }
       obtenerResolucionesBusqueda(1);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, formData]);
+  };
+
+  useEffect(() => {
+    setSelector(filterParams(formData, (data as Variables) || {}));
+  }, [formData, data, setSelector]);
 
   return (
     <div className="pt-20 text-black dark:text-white">
@@ -107,13 +110,22 @@ const Busqueda = () => {
       <div className="flex flex-col sm:grid sm:grid-cols-4 lg:grid-cols-5 gap-4 p-4 m-4">
         {facetas && Object.keys(facetas).length > 0 ? (
           <div className="rounded-lg py-3">
-            <p className="text-2xl font-bold p-2">Filtros</p>
+            <div className="flex justify-between items-center">
+              <p className="text-2xl font-bold p-2">Filtros</p>
+              <button
+                className="bg-gray-600 hover:bg-gray-400 text-white font-bold p-2 rounded m-2"
+                onClick={updateSearch}
+              >
+                <FaSync className="h-5 w-5" />
+              </button>
+            </div>
             <div className="grid grid-cols-1 gap-4 p-2 my-2">
               {Object.entries(facetas).map(
                 ([name, contenido]) =>
                   !["materia", "tipo_jurisprudencia"].includes(name) && (
                     <Filtros
                       key={name}
+                      updateSearch={updateSearch}
                       nombre={name as FiltroBusqueda}
                       data={contenido as Faceta[]}
                       formData={formData}

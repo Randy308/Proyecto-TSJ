@@ -199,7 +199,7 @@ export const CronologiaContextProvider = ({
       })
       .catch(async (error) => {
         const text = await error.response.data.text(); // convierte Blob → string
-        const json = JSON.parse(text); 
+        const json = JSON.parse(text);
         if (json.message) {
           toast.error(json.message, { toastId: "samed" });
           return;
@@ -207,7 +207,9 @@ export const CronologiaContextProvider = ({
         const message = error.response?.data?.error || "Ocurrió un error";
         console.error("Error fetching data:", message);
         if (error.response?.status === 429) {
-          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.", { toastId: "samed" });
+          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.", {
+            toastId: "samed",
+          });
         }
       })
       .finally(() => {
@@ -278,7 +280,9 @@ export const CronologiaContextProvider = ({
 
   const advancedSearch = async (page: number = 1) => {
     if (Object.keys(searchFields).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", {
+        toastId: "samed",
+      });
       return;
     }
     if (isLoading) {
@@ -348,7 +352,7 @@ export const CronologiaContextProvider = ({
       })
       .catch(async (error) => {
         const text = await error.response.data.text(); // convierte Blob → string
-        const json = JSON.parse(text); 
+        const json = JSON.parse(text);
         if (json.message) {
           toast.error(json.message, { toastId: "samed" });
           return;
@@ -368,7 +372,9 @@ export const CronologiaContextProvider = ({
 
   const obtenerResoluciones = async (page = 1) => {
     if (!selectedOptions.busqueda || !selectedOptions.campo) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", {
+        toastId: "samed",
+      });
       return;
     }
     const validPage = page && !isNaN(page) && page > 0 ? page : 1;
@@ -440,7 +446,9 @@ export const CronologiaContextProvider = ({
     const capacidadRestante = limite - selectedIds.length;
 
     if (capacidadRestante <= 0) {
-      toast.error("Ya alcanzaste el límite de resoluciones seleccionadas", { toastId: "samed" });
+      toast.error("Ya alcanzaste el límite de resoluciones seleccionadas", {
+        toastId: "samed",
+      });
       return;
     }
 
@@ -464,6 +472,7 @@ export const CronologiaContextProvider = ({
     nombre: K,
     value: DatosArray[K] extends (infer U)[] ? U : number | string
   ) => {
+    console.log("Removing item:", nombre, value);
     setFormData((prev) => {
       const newFormData = { ...prev };
       const current = newFormData[nombre];
@@ -483,7 +492,9 @@ export const CronologiaContextProvider = ({
 
   const obtenerResolucionesBusqueda = async (page: number = 1) => {
     if (Object.keys(selectedOptions).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", {
+        toastId: "samed",
+      });
       return;
     }
     if (isLoading) {
@@ -511,7 +522,6 @@ export const CronologiaContextProvider = ({
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
-
           setFacetas(
             obtenerFacetas(response.data.facets, (data as Facetas) || {})
           );
@@ -554,16 +564,20 @@ export const CronologiaContextProvider = ({
       })
       .catch(async (error) => {
         const text = await error.response.data.text(); // convierte Blob → string
-        const json = JSON.parse(text); 
+        const json = JSON.parse(text);
         if (json.message) {
           toast.error(json.message, { toastId: "samed" });
           return;
         }
         if (error.response?.status === 403) {
-          toast.error("No tiene permiso para realizar esta acción", { toastId: "samed" });
+          toast.error("No tiene permiso para realizar esta acción", {
+            toastId: "samed",
+          });
         }
         if (error.response?.status === 429) {
-          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.", { toastId: "samed" });
+          toast.error("Demasiadas solicitudes. Por favor, intente más tarde.", {
+            toastId: "samed",
+          });
         }
       })
       .finally(() => {
@@ -573,7 +587,9 @@ export const CronologiaContextProvider = ({
 
   const advancedSearchBusqueda = async (page: number = 1) => {
     if (Object.keys(searchFields).length < 1) {
-      toast.warning("Debe seleccionar al menos un campo de búsqueda", { toastId: "samed" });
+      toast.warning("Debe seleccionar al menos un campo de búsqueda", {
+        toastId: "samed",
+      });
       return;
     }
     if (isLoading) {
@@ -602,7 +618,6 @@ export const CronologiaContextProvider = ({
           setResoluciones(response.data.data);
           setLastPage(response.data.last_page);
           setPageCount(response.data.last_page);
-
           setFacetas(
             obtenerFacetas(response.data.facets, (data as Facetas) || {})
           );

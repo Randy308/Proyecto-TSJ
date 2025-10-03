@@ -31,7 +31,7 @@ export const MultipleSelect = ({
 
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col" onMouseLeave={() => setShow(false)}>
       <p className="dark:text-white">{nombre}</p>
       <div className="relative flex flex-row justify-between items-center border-2 my-2 p-2 rounded-xl md:max-w-60">
         <div className="flex flex-row gap-2 items-center flex-wrap mt-2">
@@ -99,7 +99,7 @@ export const MultipleSelect = ({
                     !selectedValues.some(
                       (selected) => selected.nombre === option.nombre
                     ) && (
-                      <label className="group w-full flex" key={option.nombre}>
+                      <label className="group text-black dark:text-white w-full flex" key={option.nombre}>
                         <input
                           name={String(option.id)}
                           key={option.nombre}

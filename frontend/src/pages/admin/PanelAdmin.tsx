@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useVariablesContext } from "../../context/variablesContext";
 import { generatePastelColor, titulo } from "../../utils/filterForm";
-import Notificaciones from "../notificaciones/Notificaciones";
 import { useHistoricContext } from "../../context/historicContext";
 import Loading from "../../components/Loading";
 import SimpleChart from "../../components/charts/SimpleChart";
@@ -206,9 +205,6 @@ const PanelAdmin = () => {
             ) : (
               <Loading></Loading>
             )}
-          </div>
-          <div className="h-[600px] overflow-y-scroll p-4">
-            <Notificaciones />
           </div>
         </div>
         <div className="flex flex-col gap-2 bg-white dark:bg-gray-900 p-4 rounded-lg shadow-lg">

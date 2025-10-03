@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { titulo } from "../utils/filterForm";
 import type { DatosArray, Faceta, FiltroBusqueda } from "../types";
@@ -7,11 +7,20 @@ interface FiltrosProps {
   nombre: FiltroBusqueda;
   formData: DatosArray;
   data: Faceta[];
+  updateSearch: () => void;
   setFormData: React.Dispatch<React.SetStateAction<DatosArray>>;
 }
-const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
+const Filtros = ({
+  nombre,
+  data,
+  formData,
+  setFormData,
+  updateSearch,
+}: FiltrosProps) => {
   const selectedIds = (formData[nombre] || []) as (string | number)[];
+  const [changes, setChanges] = useState(0);
 
+  const [lista, setLista] = useState<Faceta[]>([]);
   const checkedAll = selectedIds.length === 0;
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +43,7 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
       ...prev,
       [nombre]: updated,
     }));
+    setChanges((prev) => prev + 1);
   };
 
   const handleCheckboxAll = () => {
@@ -42,6 +52,7 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
       delete newFormData[nombre];
       return newFormData;
     });
+    setChanges((prev) => prev + 1);
   };
 
   const [show, setShow] = useState(false);
@@ -50,8 +61,33 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
   const plus = useMemo(() => <FaPlus className="text-gray-500" />, []);
   const minus = useMemo(() => <FaMinus className="text-gray-500" />, []);
 
+  const [search, setSearch] = useState("");
+  const handleMouseLeave = () => {
+    if (changes > 0) {
+      updateSearch();
+      setChanges(0);
+    }
+  };
+
+  const updateList = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const termino = e.target.value.toLowerCase();
+    setSearch(e.target.value);
+    const filtered = data.filter((item) =>
+      String(item.nombre).toLowerCase().includes(termino)
+    );
+    setLista(filtered);
+  };
+
+  useEffect(() => {
+    setLista(data);
+    setSearch("");
+  }, [data])
+  
   return (
-    <div className="border-b border-gray-300 mb-4 dark:text-white text-black">
+    <div
+      onMouseLeave={handleMouseLeave}
+      className="border-b border-gray-300 mb-4 dark:text-white text-black"
+    >
       <button
         className="flex justify-between items-center p-2 text-left w-full hover:bg-gray-200 dark:hover:bg-gray-700"
         onClick={handleClick}
@@ -67,6 +103,18 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
             show ? "block" : "hidden"
           } pl-4 pr-2 py-1 text-gray-700 dark:text-gray-400`}
         >
+          {data && data.length > 10 && (
+            <div>
+              <input
+                type="text"
+                value={search}
+                onChange={updateList}
+                className="border w-full p-2 my-2"
+                placeholder="Buscador"
+              />
+            </div>
+          )}
+
           <label className="flex items-center">
             <input
               type="checkbox"
@@ -78,7 +126,7 @@ const Filtros = ({ nombre, data, formData, setFormData }: FiltrosProps) => {
           </label>
         </div>
 
-        {data.map((item) => (
+        {lista.map((item) => (
           <div
             key={item.id}
             className={`${
