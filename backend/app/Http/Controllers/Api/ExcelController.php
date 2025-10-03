@@ -47,6 +47,7 @@ class ExcelController extends Controller
         // Example data
         $query = DB::table('resolutions as r')
             ->leftJoin('jurisprudencias as j', 'r.id', '=', 'j.resolution_id')
+            ->join("mapeos as m", "m.resolution_id", "=", "r.id")
             ->join('salas as s', 's.id', '=', 'r.sala_id')
             ->join('contents as c', 'c.resolution_id', '=', 'r.id')
             ->join('departamentos as d', 'd.id', '=', 'r.departamento_id')
@@ -54,6 +55,8 @@ class ExcelController extends Controller
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->leftJoin('resuelve_decisiones as rd', 'rd.resolution_id', '=', 'r.id')
             ->select(
+
+                'm.external_id',
                 'r.nro_resolucion',
                 'r.fecha_emision',
                 'tr.nombre as tipo_resolucion',
@@ -68,7 +71,7 @@ class ExcelController extends Controller
                 'j.descriptor',
                 'j.restrictor',
                 'c.contenido',
-                'r.id'
+                'r.id',
             )
             ->where('r.sala_id', $sala_id)->whereYear('r.fecha_emision', '=', $gestion)
             ->whereNull('rd.resolution_id');
@@ -80,7 +83,7 @@ class ExcelController extends Controller
         if ($data == null || count($data) == 0) {
             return response()->json(['mensaje' => 'No se encontraron datos para los filtros proporcionados.'], 404);
         }
-        $headers = ['Nro Resolución', 'Fecha Emisión', 'Tipo Resolución', 'Sala', 'Departamento', 'Proceso', 'Forma Resolución', 'Síntesis', 'Máxima', 'Precedente', 'Ratio', 'Descriptor', 'Restrictor', 'Contenido'];
+        $headers = ["id", 'Nro Resolución', 'Fecha Emisión', 'Tipo Resolución', 'Sala', 'Departamento', 'Proceso', 'Forma Resolución', 'Síntesis', 'Máxima', 'Precedente', 'Ratio', 'Descriptor', 'Restrictor', 'Contenido'];
         foreach ($headers as $colIndex => $header) {
             $colLetter = Coordinate::stringFromColumnIndex($colIndex + 1);
             $sheet->setCellValue($colLetter . '1', $header);
@@ -133,7 +136,7 @@ class ExcelController extends Controller
                 }
 
                 // Ejemplo: si el valor empieza con "http" lo ponemos como enlace
-                if ($colNumber == 1) {
+                if ($key == 'nro_resolucion') {
                     $sheet->setCellValue($cellCoordinate, $cell); // Texto visible
                     $sheet->getCell($cellCoordinate)->getHyperlink()->setUrl($url);
 
