@@ -184,19 +184,6 @@ class ProcessCronologia implements ShouldQueue
         $cover = view('cover', ['titulo' => $tema->nombre, 'subtitulo' => '', 'fechaActual' => $fechaActual])->render();
         $pdf->WriteHTML($cover, HTMLParserMode::HTML_BODY);
 
-
-        $pdf->TOCpagebreakByArray([
-            'links' => true,
-            'toc-preHTML' => '<h2>Tabla de Contenido</h2>',
-            'toc-bookmarkText' => 'Tabla de Contenido',
-            'toc-suppress' => 'on',
-            'toc-resetpagenum' => 1,
-            'toc-odd-header-value' => "off", // This is the key setting
-            'toc-odd-footer-value' => "off", // You can keep the footer if needed
-            'resetpagenum' => 1,
-            'name' => "descriptor",
-        ]);
-
         //ini_set('max_execution_time', '500');
 
         $pdf->SetHTMLFooter('<table style="width:168mm;border: none; border-collapse: collapse; margin-left: -1.5mm;">
@@ -254,6 +241,18 @@ class ProcessCronologia implements ShouldQueue
             $pdf->WriteHTML($body, HTMLParserMode::HTML_BODY);
             usleep(50000);
         }
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2>Tabla de Contenido</h2>',
+            'toc-bookmarkText' => 'Tabla de contenido',
+            'toc-suppress' => 'on',
+            'toc-resetpagenum' => 1,
+            'toc-odd-header-value' => "off", // This is the key setting
+            'toc-odd-footer-value' => "off", // You can keep the footer if needed
+            'resetpagenum' => 1,
+            'name' => "descriptor",
+        ]);
 
         $pdf->TOCpagebreakByArray([
             'links' => true,
