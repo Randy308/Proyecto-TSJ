@@ -193,7 +193,8 @@ class ProcessCronologia implements ShouldQueue
             'toc-resetpagenum' => 1,
             'toc-odd-header-value' => "off", // This is the key setting
             'toc-odd-footer-value' => "off", // You can keep the footer if needed
-            'resetpagenum' => 1
+            'resetpagenum' => 1,
+            'name' => "descriptor",
         ]);
 
         //ini_set('max_execution_time', '500');
