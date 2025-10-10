@@ -233,9 +233,9 @@
         }
 
         .titulo-portada {
-            font-family: 'cambria', sans-serif;
-            font-style: italic;
+            font-family: 'bauer', sans-serif;
             text-align: right;
+
             padding: 0 10%;
         }
 
@@ -295,29 +295,35 @@
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
         <tr>
             <td style="width: 10%;">
-                <img src="{{ public_path('/images/facultad.jpeg') }}" alt="Image"
+                <img src="{{ public_path('/images/umss.png') }}" alt="Image"
                     style="max-width: 100px; height: auto;" />
             </td>
+
             <td style="width: 80%; padding: 10px;">
                 <div
                     style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Observatorio del derecho y la política boliviana
                 </div>
                 <div
+                    class="cover-subtitle"
                     style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Serie Cronologías jurídicas y políticas
                 </div>
             </td>
-
-
             <td style="width: 10%;">
-                <img src="{{ public_path('/images/iijp.png') }}" alt="Image" style="max-width: 100px; height: auto;" />
+                <img src="{{ public_path('/images/iijp.png') }}" alt="Image"
+                    style="max-width: 100px; height: auto;" />
             </td>
         </tr>
     </table>
 
-    <div style="background-color: #A40020; text-align: center; margin-top: 10%; color: white;">
-        <p style="font-size: 26pt;" class="titulo-portada">SERIE DE CRONOLOGÍAS JURÍDICAS (CRONOJURÍDICAS)</p>
+
+
+
+    <div style="padding: 100px;"></div>
+
+    <div style="position: absolute;right: 0;top: 200px; background: #A40020;background-color: #A40020; text-align: center;padding-top:20px; padding-bottom: 20px; color: white;">
+        <p style="font-size: 26pt;" class="titulo-portada">SERIE DE CRONOJURÍDICAS</p>
 
         @if (isset($subtitulo))
         <p style="font-size: 20pt;" class="titulo-portada">{{ $subtitulo }}</p>
@@ -325,12 +331,12 @@
 
 
     </div>
+
     <div style="margin-top: 5%; margin-left: 10%; text-align: right; border-bottom: 1px dashed black;">
         <p style="font-size: 11pt;">Índice del árbol jurisprudencial construido por el
-            TSJ</p>
+            TSJ y automatizado por SAMED-TSJ.</p>
         <p style="font-size: 11pt;">Reorganizado en un documento único y de acceso
             amigable</p>
-        <p style="font-size: 11pt;">Filtros temáticos e índice de sentencias</p>
         <p style="font-size: 11pt; ">Acceso directo vía Internet, desde el celular o la
             PC</p>
     </div>
@@ -338,8 +344,8 @@
 
     @if (isset($fechaActual))
     <div style="margin-top: 5%;margin-left: 10%;">
-        <p style="font-size: 11pt;">Actualizado al {{ $fechaActual }}</p>
-        <p style="font-size: 11pt;"> Con enlaces para acceder al texto completo</p>
+        <!-- <p style="font-size: 11pt;">Actualizado al {{ $fechaActual }}</p>
+        <p style="font-size: 11pt;"> Con enlaces para acceder al texto completo</p> -->
         <p style="font-size: 13pt;  font-family: 'times-new-roman', sans-serif;">Instituto de
             Investigaciones Jurídicas y Políticas </p>
     </div>
@@ -347,33 +353,28 @@
 
 
 
+    <div style="padding: 70px;"></div>
 
-    <table style="width: 100%;  border-collapse: collapse;">
-        <tr>
-            <td style="width: 50%;">
+    <div style="background-color: #A40020; text-align: center;color: white; padding: 3%;text-align: left; position: absolute;right: 0;top: 600px;padding-top:20px; padding-bottom: 20px;">
 
-            </td>
-
-
-            <td
-                style="width: 50%;background-color: #A40020; text-align: center;color: white; padding: 3%;text-align: left;">
-                <div>
-                    <p style="font-size: 11pt;font-weight: bold;">Ver:</p>
-                    <p style="font-size: 11pt; font-style: italic;">Guía de uso, en video adjunto</p>
-                </div>
-            </td>
-        </tr>
-    </table>
+        <p style="font-size: 11pt;font-weight: bold;">Ver:</p>
+        <p style="font-size: 11pt; font-style: italic;">Guía de uso, en video adjunto</p>
+    </div>
 
 
-
-    <table style="width: 100%; text-align: center;margin-top: 300px; border-collapse: collapse;">
+    <table style="width: 100%; text-align: center;margin-top: 80px; border-collapse: collapse;">
         <tr>
             <td style="width: 15%;">
 
             </td>
-            <td style="width: 70%; padding: 10px;">
-                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 400px; height: auto;" />
+            <td style="width: 35%;">
+
+                <!-- <p style="font-family: garamond; font-weight: bold;">SAMED-TSJ</p><br> -->
+                <img src="{{ public_path('/images/vite.png') }}" alt="Image" style="width: auto; height: 100px;" />
+
+            </td>
+            <td style="width: 35%;">
+                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 300px; height: auto;" />
 
             </td>
 
@@ -382,7 +383,6 @@
             </td>
         </tr>
     </table>
-
 
     <pagebreak even-footer-value="-1" resetpagenum="1" />
 
@@ -401,21 +401,23 @@
 
 
 
-        <p style="font-size: 10pt;">La Base de datos está compuesta por noticias, decisiones judiciales y todo otro
-            documento que contenga
-            información acerca de algún hecho legal o político. Los documentos se guardan en un repositorio del IIJP.
-            Estos
-            documentos, en formato digital, están adjuntos a sus referencias documentales o bibliográficas.Hay dos
-            versiones de las referencias; una trabaja con el programa Zotero; la otra, con EndNote. Si usted está
-            escribiendo algún trabajo académico relativo al tema del presente documento, sepa que, con un simple clic,
-            puede
-            introducir dichas referencias en su trabajo académico.La Base de datos es de acceso público y gratuito, a
-            condición de que su uso no tenga fines de lucro. Los
-            interesados
-            en toda la Base de datos pueden apersonarse a oficinas del IIJP; para descargar solo las referencias se
-            puede usar los
-            enlaces que se indican abajo. El uso que otras personas hagan la Base de datos no es responsabilidad del
-            IIJP.</p>
+        <p style="font-size: 10pt;">
+
+            El Tesauro de Jurisprudencia Penal ha sido elaborado de manera automatizada por el
+            programa SAMED-TSJ. Usa información de dos fuentes. La primera es la
+            jurisprudencia sistematizada por el Tribunal Supremo de Justicia (TSJ).
+            La segunda, la del Instituto de Investigaciones Jurídicas y Políticas (IIJP). No obstante el
+            reconocimiento expreso al TSJ, el presente trabajo, tal cual se la presenta a
+            continuación, es propiedad intelectual del IIJP. Esta obra está destinada para uso
+            exclusivo personal-profesional del destinatario que quiera adquirirlo. La obra ha
+            sido elaborada con la mayor buena fe, cuidando de que refleje de manera fidedigna
+            lo resuelto por el Tribunal Supremo de Justicia. Es una fuente de consulta, pero no
+            sustituye (nada lo hace) la necesidad de consultar los precedentes contradictorios
+            mismos, esto es, autos supremos y autos de vista. Adquirir y usar esta obra implica
+            cumplir las condiciones antes indicadas. Su infracción conlleva consecuencias
+            legales.
+
+        </p>
 
         <p style="padding-top: 3%;color: red;font-style: italic;font-size: 14pt; ">Serie Cronologías Jurídicas y
             Políticas</p>
@@ -475,7 +477,7 @@
     <div class="resolucion-card">
         <h2 class="resolucion-header">
             <tocentry content="{{ $item->titulo }}" level="1" />
-            <a class="resolucion-link" target="_blank"  href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->id }}">
+            <a class="resolucion-link" target="_blank" href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->id }}">
 
                 @if ($item->titulo)
                 <span>

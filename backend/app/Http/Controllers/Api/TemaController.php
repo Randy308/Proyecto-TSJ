@@ -257,7 +257,7 @@ class TemaController extends Controller
             $query->addSelect(DB::raw("substring(c.contenido from 'POR TANTO[:]?[\\s]?([[:space:][:print:]]+?)Reg[ií]strese') as resultado"));
         }
 
-        $results = $query->orderBy('j.descriptor')->get();
+        $results = $query->orderBy('j.descriptor')->orderBy('j.restrictor')->get();
 
 
         if (! $results) {
@@ -268,25 +268,51 @@ class TemaController extends Controller
             return response()->json(['error' => 'Datos no encontrados '], 404);
         }
 
+        // Preparar datos
         $current = [];
+        $current_restrictor = null;
 
         foreach ($results as $element) {
             $pieces = explode(' / ', $element->descriptor);
-            $pieces[] = $element->restrictor;
+            //$pieces[] =  $element->restrictor;
+            $temp_restrictor = $element->restrictor;
+
+            // Evita repetir restrictor
+            if ($current_restrictor === $temp_restrictor) {
+                $element->restrictor = "";
+            }
+            $current_restrictor = $temp_restrictor;
+
             $indices = [];
 
-            if (! empty($current)) {
+            if (!empty($current)) {
                 $newPieces = [];
+                $parentPath = "";
+
                 foreach ($pieces as $key => $piece) {
-                    if (! isset($current[$piece])) {
-                        $current[$piece] = true;
+                    // Generar path único
+                    $path = $parentPath . "/" . $this->getInitials($piece);
+
+                    // Solo si el path no existe aún, se guarda
+                    if (!isset($current[$path])) {
+                        $current[$path] = true; // ahora guardamos como set
                         $indices[] = $key;
                         $newPieces[] = $piece;
                     }
+
+                    $parentPath = $path;
                 }
+
                 $element->descriptor = array_values($newPieces);
             } else {
-                $current = array_fill_keys($pieces, true);
+                // Primer elemento
+                $parentPath = "";
+                foreach ($pieces as $key => $piece) {
+                    $path = $parentPath . "/" . $this->getInitials($piece);
+                    $current[$path] = true;
+                    $parentPath = $path;
+                }
+
                 $indices = array_keys($pieces);
                 $element->descriptor = $pieces;
             }
@@ -294,6 +320,11 @@ class TemaController extends Controller
             $element->indices = $indices;
         }
 
+
+
+
+        $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
+        $estilos = Estilo::where('tipo', 'Default')->get();
         $idsVistos = [];
         $referencias = [];
         foreach ($results as $item) {
@@ -323,31 +354,44 @@ class TemaController extends Controller
             }
         }
 
-        //return response()->json($results);
-
-        $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
-        $estilos = Estilo::where('tipo', 'Default')->get();
-
-        // return $estilos;
-        // return $request->estilos;
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, 'fechaActual' => $fechaActual, 'referencias' => $referencias], [], [
+        $pdf = new Mpdf([
             'format' => 'letter',
-            'margin_left' => 25,  // 2.5 cm in mm
-            'margin_right' => 25,  // 2.5 cm in mm
-            'margin_top' => 25,  // 2.5 cm in mm
-            'margin_bottom' => 25,  // 2.5 cm in mm
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 25,
+            'margin_bottom' => 25,
+            'margin_header' => 10,
+            'margin_footer' => 10,
             'orientation' => 'P',
             'title' => 'Documento',
             'author' => 'IIJP',
-            'custom_font_dir' => public_path('fonts/'),
-            'custom_font_data' => [
+            'fontDir' => public_path('fonts/'),
+            'fontdata' => [
                 'cambria' => [
                     'R' => 'Cambriax.ttf',
                     'B' => 'Cambria-Bold.ttf',
                     'I' => 'Cambria-Italic.ttf',
                     'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
-
+                'Arno_Pro' => [
+                    'R' => 'ArnoPro-Regular.ttf',
+                ],
+                'bodoni_antiqua' => [
+                    'R' => 'Bodoni-Antiqua.ttf',
+                ],
+                'chaparral' => [
+                    'R' => 'Chaparral.ttf',
+                ],
+                'garamond' => [
+                    'R' => 'Garamond.ttf',
+                    'I' => 'Garamond-Italic.ttf',
+                ],
+                'myriad' => [
+                    'R' => 'Myriad.ttf',
+                ],
+                'bauer' => [
+                    'R' => 'bauer.ttf',
+                ],
                 'script_mt' => [
                     'R' => 'script-mt.ttf',
                 ],
@@ -365,13 +409,114 @@ class TemaController extends Controller
             ],
         ]);
 
+        // Cabecera
+        $header = view('style', ['estilos' => $estilos])->render();
+        $pdf->WriteHTML($header, HTMLParserMode::HEADER_CSS);
+
+        // Portada
+        $cover = view('head', ['titulo' => "", 'subtitulo' => '', 'fechaActual' => $fechaActual])->render();
+        $pdf->WriteHTML($cover, HTMLParserMode::HTML_BODY);
+
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de Contenido</h2>',
+            'toc-bookmarkText' => 'Tabla de Contenido',
+            'toc-suppress' => 'on',
+            'toc-resetpagenum' => 1,
+            'name' => "descriptor",
+            'toc-odd-header-value' => "off", // This is the key setting
+            'toc-odd-footer-value' => "off", // You can keep the footer if needed
+            'resetpagenum' => 1
+        ]);
+
+        //ini_set('max_execution_time', '500');
+
+        $pdf->SetHTMLFooter('<table style="width:168mm;border: none; border-collapse: collapse; margin-left: -1.5mm;">
+        <tr>
+            <td style="width: 8mm;" align="center">1</td>
+            <td style="width: 8mm;" align="center">2</td>
+            <td style="width: 8mm;" align="center">3</td>
+            <td style="width: 8mm;" align="center">4</td>
+            <td style="width: 8mm;" align="center">5</td>
+            <td style="width: 8mm;" align="center">6</td>
+            <td style="width: 8mm;" align="center">7</td>
+            <td style="width: 112mm;" align="right"></td>
+        </tr>
+        <tr>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="right" class="footer-pagination">{PAGENO}</td>
+        </tr>
+    </table>
+');
+
+
+        $pdf->SetHTMLHeader('<table style="width:168mm;border: none; border-collapse: collapse; margin-left: -1.5mm;">
+        <tr>
+            <td style="width: 8mm;" align="center">1</td>
+            <td style="width: 8mm;" align="center">2</td>
+            <td style="width: 8mm;" align="center">3</td>
+            <td style="width: 8mm;" align="center">4</td>
+            <td style="width: 8mm;" align="center">5</td>
+            <td style="width: 8mm;" align="center">6</td>
+            <td style="width: 8mm;" align="center">7</td>
+            <td style="width: 112mm;" align="right">IIJP</td>
+        </tr>
+        <tr>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+        </tr>
+    </table>
+    ');
+
+
+
+        foreach (array_chunk($results->toArray(), 70) as $chunk) {
+            $body = view('contents', ['results' => $chunk])->render();
+            $pdf->WriteHTML($body, HTMLParserMode::HTML_BODY);
+            //usleep(50000);
+        }
+
+
+        $footer = view('footer', ['referencias' => $referencias])->render();
+        $pdf->WriteHTML($footer, HTMLParserMode::HTML_BODY);
+
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de contenido detallado</h2>',
+            'toc-bookmarkText' => 'Tabla de restrictores',
+            'toc-show-pagenumbers' => true,
+            'toc-resetpagenum' => 0,
+            'name' => 'restrictor', // 🔸 Solo entradas con este toc-id
+        ]);
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2 class="titulo-tabla">Indice de autos supremos,resoluciones y
+sentencias constitucionales</h2>',
+            'toc-bookmarkText' => 'Indice de autos supremos',
+            'toc-show-pagenumbers' => true,
+            'toc-resetpagenum' => 0,
+            'name' => 'autos', // 🔸 Solo entradas con este toc-id
+        ]);
+
         $content = $pdf->Output();
 
         return response($content, 200)
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', 'inline; filename="documento.pdf"');
-        // $pdf = LaravelMpdf::loadView('test');
-        // return $pdf->stream('document.pdf');
     }
 
     public function obtenerCronologiaMaterias(Request $request)
@@ -400,6 +545,18 @@ class TemaController extends Controller
 
         ProcessCronologia::dispatch($tema_id, Auth::id());
         return response()->json(['message' => 'Tarea en cola para ser procesada.']);
+    }
+
+    function getInitials(string $inputString): string
+    {
+        $words = explode(' ', $inputString);
+        $initials = '';
+        foreach ($words as $word) {
+            if (!empty($word)) { // Ensure the word is not empty (e.g., from multiple spaces)
+                $initials .= mb_substr($word, 0, 3, 'UTF-8'); // Use mb_substr for multi-byte support
+            }
+        }
+        return $initials;
     }
     public function obtenerCronologias(Request $request)
     {
@@ -459,23 +616,51 @@ class TemaController extends Controller
 
         $current = [];
 
+        // Preparar datos
+        $current = [];
+        $current_restrictor = null;
+
         foreach ($results as $element) {
             $pieces = explode(' / ', $element->descriptor);
-            $pieces[] = $element->restrictor;
+            //$pieces[] =  $element->restrictor;
+            $temp_restrictor = $element->restrictor;
+
+            // Evita repetir restrictor
+            if ($current_restrictor === $temp_restrictor) {
+                $element->restrictor = "";
+            }
+            $current_restrictor = $temp_restrictor;
+
             $indices = [];
 
-            if (! empty($current)) {
+            if (!empty($current)) {
                 $newPieces = [];
+                $parentPath = "";
+
                 foreach ($pieces as $key => $piece) {
-                    if (! isset($current[$piece])) {
-                        $current[$piece] = true;
+                    // Generar path único
+                    $path = $parentPath . "/" . $this->getInitials($piece);
+
+                    // Solo si el path no existe aún, se guarda
+                    if (!isset($current[$path])) {
+                        $current[$path] = true; // ahora guardamos como set
                         $indices[] = $key;
                         $newPieces[] = $piece;
                     }
+
+                    $parentPath = $path;
                 }
+
                 $element->descriptor = array_values($newPieces);
             } else {
-                $current = array_fill_keys($pieces, true);
+                // Primer elemento
+                $parentPath = "";
+                foreach ($pieces as $key => $piece) {
+                    $path = $parentPath . "/" . $this->getInitials($piece);
+                    $current[$path] = true;
+                    $parentPath = $path;
+                }
+
                 $indices = array_keys($pieces);
                 $element->descriptor = $pieces;
             }
@@ -484,30 +669,49 @@ class TemaController extends Controller
         }
 
 
+
         $fechaActual = Carbon::now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY');
         $estilos = Estilo::where('tipo', 'Default')->get();
 
-        $referencias = [];
 
-
-        $pdf = LaravelMpdf::loadView('pdf', ['results' => $results->toArray(), 'estilos' => $estilos, 'subtitulo' => $request->subtitulo, 'fechaActual' => $fechaActual, 'referencias' => $referencias], [], [
+        $pdf = new Mpdf([
             'format' => 'letter',
-            'margin_left' => 25,  // 2.5 cm in mm
-            'margin_right' => 25,  // 2.5 cm in mm
-            'margin_top' => 25,  // 2.5 cm in mm
-            'margin_bottom' => 25,  // 2.5 cm in mm
+            'margin_left' => 25,
+            'margin_right' => 25,
+            'margin_top' => 25,
+            'margin_bottom' => 25,
+            'margin_header' => 10,
+            'margin_footer' => 10,
             'orientation' => 'P',
             'title' => 'Documento',
             'author' => 'IIJP',
-            'custom_font_dir' => public_path('fonts/'),
-            'custom_font_data' => [
+            'fontDir' => public_path('fonts/'),
+            'fontdata' => [
                 'cambria' => [
                     'R' => 'Cambriax.ttf',
                     'B' => 'Cambria-Bold.ttf',
                     'I' => 'Cambria-Italic.ttf',
                     'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
-
+                'Arno_Pro' => [
+                    'R' => 'ArnoPro-Regular.ttf',
+                ],
+                'bodoni_antiqua' => [
+                    'R' => 'Bodoni-Antiqua.ttf',
+                ],
+                'chaparral' => [
+                    'R' => 'Chaparral.ttf',
+                ],
+                'garamond' => [
+                    'R' => 'Garamond.ttf',
+                    'I' => 'Garamond-Italic.ttf',
+                ],
+                'myriad' => [
+                    'R' => 'Myriad.ttf',
+                ],
+                'bauer' => [
+                    'R' => 'bauer.ttf',
+                ],
                 'script_mt' => [
                     'R' => 'script-mt.ttf',
                 ],
@@ -524,6 +728,107 @@ class TemaController extends Controller
                 ],
             ],
         ]);
+
+        // Cabecera
+        $header = view('style', ['estilos' => $estilos])->render();
+        $pdf->WriteHTML($header, HTMLParserMode::HEADER_CSS);
+
+        // Portada
+        $cover = view('head', ['titulo' => "", 'subtitulo' => '', 'fechaActual' => $fechaActual])->render();
+        $pdf->WriteHTML($cover, HTMLParserMode::HTML_BODY);
+
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2>Tabla de Contenido</h2>',
+            'toc-bookmarkText' => 'Tabla de Contenido',
+            'toc-suppress' => 'on',
+            'toc-resetpagenum' => 1,
+            'toc-odd-header-value' => "off", // This is the key setting
+            'toc-odd-footer-value' => "off", // You can keep the footer if needed
+            'resetpagenum' => 1,
+            'name' => "descriptor",
+        ]);
+
+        //ini_set('max_execution_time', '500');
+
+        $pdf->SetHTMLFooter('<table style="width:168mm;border: none; border-collapse: collapse; margin-left: -1.5mm;">
+        <tr>
+            <td style="width: 8mm;" align="center">1</td>
+            <td style="width: 8mm;" align="center">2</td>
+            <td style="width: 8mm;" align="center">3</td>
+            <td style="width: 8mm;" align="center">4</td>
+            <td style="width: 8mm;" align="center">5</td>
+            <td style="width: 8mm;" align="center">6</td>
+            <td style="width: 8mm;" align="center">7</td>
+            <td style="width: 112mm;" align="right"></td>
+        </tr>
+        <tr>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="right" class="footer-pagination">{PAGENO}</td>
+        </tr>
+    </table>
+');
+
+
+        $pdf->SetHTMLHeader('<table style="width:168mm;border: none; border-collapse: collapse; margin-left: -1.5mm;">
+        <tr>
+            <td style="width: 8mm;" align="center">1</td>
+            <td style="width: 8mm;" align="center">2</td>
+            <td style="width: 8mm;" align="center">3</td>
+            <td style="width: 8mm;" align="center">4</td>
+            <td style="width: 8mm;" align="center">5</td>
+            <td style="width: 8mm;" align="center">6</td>
+            <td style="width: 8mm;" align="center">7</td>
+            <td style="width: 112mm;" align="right">IIJP</td>
+        </tr>
+        <tr>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+        </tr>
+    </table>
+    ');
+
+
+
+        foreach (array_chunk($results->toArray(), 70) as $chunk) {
+            $body = view('contents', ['results' => $chunk])->render();
+            $pdf->WriteHTML($body, HTMLParserMode::HTML_BODY);
+            //usleep(50000);
+        }
+
+
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de contenido detallado</h2>',
+            'toc-bookmarkText' => 'Tabla de restrictores',
+            'toc-show-pagenumbers' => true,
+            'toc-resetpagenum' => 0,
+            'name' => 'restrictor', // 🔸 Solo entradas con este toc-id
+        ]);
+
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2 class="titulo-tabla">Indice de autos supremos,resoluciones y
+sentencias constitucionales</h2>',
+            'toc-bookmarkText' => 'Indice de autos supremos',
+            'toc-show-pagenumbers' => true,
+            'toc-resetpagenum' => 0,
+            'name' => 'autos', // 🔸 Solo entradas con este toc-id
+        ]);
+
 
         $content = $pdf->Output();
 

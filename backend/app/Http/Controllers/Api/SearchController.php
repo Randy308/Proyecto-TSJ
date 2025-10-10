@@ -479,13 +479,32 @@ class SearchController extends Controller
                     'I' => 'Cambria-Italic.ttf',
                     'BI' => 'Cambria-Bold-Italic.ttf',
                 ],
+                'Arno_Pro' => [
+                    'R' => 'ArnoPro-Regular.ttf',
+                ],
+                'bodoni_antiqua' => [
+                    'R' => 'Bodoni-Antiqua.ttf',
+                ],
+                'chaparral' => [
+                    'R' => 'Chaparral.ttf',
+                ],
+                'garamond' => [
+                    'R' => 'Garamond.ttf',
+                    'I' => 'Garamond-Italic.ttf',
+                ],
+                'myriad' => [
+                    'R' => 'Myriad.ttf',
+                ],
+                'bauer' => [
+                    'R' => 'bauer.ttf',
+                ],
+                'script_mt' => [
+                    'R' => 'script-mt.ttf',
+                ],
                 'trebuchet_ms' => [
                     'R' => 'trebuc.ttf',
                     'B' => 'trebucbd.ttf',
                     'I' => 'trebucit.ttf',
-                ],
-                'script_mt' => [
-                    'R' => 'script-mt.ttf',
                 ],
                 'times_new_roman' => [
                     'R' => 'times-new-roman.ttf',

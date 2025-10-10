@@ -16,20 +16,8 @@
             font-weight: bold;
         }
 
-        @foreach ($estilos as $elemento)
-            .{{ $elemento['nombre'] }} {
-                font-family: '{{ $elemento['fontFamily'] }}', sans-serif;
-                font-weight: {{ $elemento['fontWeight'] }};
-                font-size: {{ $elemento['fontSize'] }};
-                margin-left: {{ $elemento['marginLeft'] === 'auto' ? 'auto' : $elemento['marginLeft'] . '%' }};
-                padding-bottom: {{ $elemento['paddingBottom'] }}px;
-                margin-top: {{ $elemento['marginTop'] }}px;
-                text-align: {{ $elemento['textAlign'] }};
-                font-style: {{ $elemento['fontStyle'] }};
-                text-decoration: {{ $elemento['textDecoration'] }};
-                color: {{ $elemento['color'] }};
-            }
-        @endforeach
+
+
 
         .footer-pagination {
             color: gray;
@@ -248,8 +236,7 @@
         }
 
         .titulo-portada {
-            font-family: 'cambria', sans-serif;
-            font-style: italic;
+            font-family: 'bauer', sans-serif;
             text-align: right;
             padding: 0 10%;
         }
@@ -260,16 +247,195 @@
             text-align: center;
             padding: 0 10%;
         }
+
+
+        table.header-table td {
+            width: 25px;
+            text-align: center;
+            background-color: red;
+        }
+
+        .restrictor {
+            font-size: 12pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 34mm;
+            margin-top: 6px;
+            margin-bottom: 3px;
+            font-family: 'arno', sans-serif;
+        }
+
+        .descriptor0 {
+            font-size: 26pt;
+            font-weight: normal;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-family: 'bodoni_antiqua', sans-serif;
+        }
+
+        .descriptor1 {
+            font-size: 20pt;
+            font-weight: normal;
+            text-align: center;
+            margin-top: 18px;
+            margin-bottom: 9px;
+            font-family: 'bodoni_antiqua', sans-serif;
+        }
+
+        .descriptor2 {
+            font-size: 15pt;
+            font-weight: bold;
+            margin-left: 2mm;
+            text-align: left;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-family: 'myriad', sans-serif;
+        }
+
+        .descriptor3 {
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: left;
+            margin-left: 10mm;
+            margin-top: 14px;
+            margin-bottom: 7px;
+            font-family: 'garamond', sans-serif;
+        }
+
+        .descriptor4 {
+            font-size: 14pt;
+            font-style: italic;
+            font-weight: lighter;
+            text-align: left;
+            margin-left: 18mm;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            font-family: 'garamond', sans-serif;
+        }
+
+        .descriptor5 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 26mm;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-family: 'chaparal', sans-serif;
+        }
+
+        .descriptor6 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 34mm;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            font-family: 'myriad', sans-serif;
+        }
+
+        .descriptor7 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 42mm;
+            margin-top: 6px;
+            margin-bottom: 3px;
+            font-family: 'arno', sans-serif;
+        }
+
+        .descriptor8 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 50mm;
+            margin-top: 6px;
+            margin-bottom: 3px;
+            font-family: 'myriad', sans-serif;
+        }
+
+        .contenido {
+            text-align: justify;
+            font-weight: normal;
+            font-family: 'arno', sans-serif;
+            font-size: 12pt;
+            margin-bottom: 10px;
+            margin-left: 42mm;
+        }
     </style>
 
 </head>
 
+<!-- 
+        @foreach ($estilos as $elemento)
+            .{{ $elemento['nombre'] }} {
+                font-family: '{{ $elemento['fontFamily'] }}', sans-serif;
+                font-weight: {{ $elemento['fontWeight'] }};
+                font-size: {{ $elemento['fontSize'] }};
+                margin-left: {{ $elemento['marginLeft'] === 'auto' ? 'auto' : $elemento['marginLeft'] . 'mm' }};
+                padding-bottom: {{ $elemento['paddingBottom'] }}px;
+                margin-top: {{ $elemento['marginTop'] }}px;
+                text-align: {{ $elemento['textAlign'] }};
+                font-style: {{ $elemento['fontStyle'] }};
+                text-decoration: {{ $elemento['textDecoration'] }};
+                color: {{ $elemento['color'] }};
+            }
+        @endforeach -->
+
 <body>
     <htmlpageheader name="page-header">
-        <div style="text-align: center; color: #999;">IIJP</div>
+        <div style="position: absolute; top: 10mm; left: 9.5mm;margin-left: 17mm; width: 10mm; height: 10mm;">
+            1
+        </div>
+        <div style="position: absolute; top: 10mm; left: 9.5mm;margin-left: 25mm; width: 10mm; height: 10mm;">
+            2
+        </div>
+        <div style="position: absolute; top: 10mm; left: 9.5mm;margin-left: 33mm; width: 10mm; height: 10mm;">
+            3
+        </div>
+        <div style="position: absolute; top: 10mm; left: 9.5mm;margin-left: 41mm; width: 10mm; height: 10mm;">
+            4
+        </div>
+        <div style="position: absolute; top: 10mm; left: 9.5mm;margin-left: 49mm; width: 10mm; height: 10mm;">
+            5
+
+        </div>
+        <div style="position: absolute; top: 10mm; left: 9.5mm;margin-left: 57mm; width: 10mm; height: 10mm;">
+            6
+        </div>
+        <div style="position: absolute; top: 10mm; left: 9.5mm;margin-left: 65mm; width: 10mm; height: 10mm;">
+            7
+        </div>
+
+        <div style="position: absolute; top: 15mm; left: 10mm;margin-left: 17mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; top: 15mm; left: 10mm;margin-left: 25mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; top: 15mm; left: 10mm;margin-left: 33mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; top: 15mm; left: 10mm;margin-left: 41mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; top: 15mm; left: 10mm;margin-left: 49mm; width: 10mm; height: 10mm;">
+            |
+
+        </div>
+        <div style="position: absolute; top: 15mm; left: 10mm;margin-left: 57mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; top: 15mm; left: 10mm;margin-left: 65mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+
+        <div style="position: absolute; top: 15mm; right: 10mm; width: 10mm; height: 10mm;">
+            IIJP
+        </div>
     </htmlpageheader>
 
-    
+
     <table style="width: 100%; text-align: center; border-collapse: collapse;">
         <tr>
             <td style="width: 10%;">
@@ -277,7 +443,7 @@
                     style="max-width: 100px; height: auto;" />
             </td>
 
-             <td style="width: 80%; padding: 10px;">
+            <td style="width: 80%; padding: 10px;">
                 <div
                     style="font-size: 17pt;   font-family: 'script_mt', sans-serif;">
                     Observatorio del derecho y la política boliviana
@@ -296,62 +462,60 @@
         </tr>
     </table>
 
-    <div style="background-color: #A40020; text-align: center; margin-top: 10%; color: white;">
-        <p style="font-size: 26pt;" class="titulo-portada">SERIE DE CRONOLOGÍAS JURÍDICAS (CRONOJURÍDICAS)</p>
+    <div style="padding: 100px;"></div>
+
+    <div style="position: absolute;right: 0;top: 200px; background: #A40020;background-color: #A40020; text-align: center;padding-top:20px; padding-bottom: 20px; color: white;">
+        <p style="font-size: 26pt;" class="titulo-portada">SERIE DE CRONOJURÍDICAS</p>
 
         @if (isset($subtitulo))
-            <p style="font-size: 20pt;" class="titulo-portada">{{ $subtitulo }}</p>
+        <p style="font-size: 20pt;" class="titulo-portada">{{ $subtitulo }}</p>
         @endif
 
 
     </div>
+
     <div style="margin-top: 5%; margin-left: 10%; text-align: right; border-bottom: 1px dashed black;">
         <p style="font-size: 11pt;">Índice del árbol jurisprudencial construido por el
-            TSJ</p>
+            TSJ y automatizado por SAMED-TSJ.</p>
         <p style="font-size: 11pt;">Reorganizado en un documento único y de acceso
             amigable</p>
-        <p style="font-size: 11pt;">Filtros temáticos e índice de sentencias</p>
         <p style="font-size: 11pt; ">Acceso directo vía Internet, desde el celular o la
             PC</p>
     </div>
 
 
     @if (isset($fechaActual))
-        <div style="margin-top: 5%;margin-left: 10%;">
-            <p style="font-size: 11pt;">Actualizado al {{ $fechaActual }}</p>
-            <p style="font-size: 11pt;"> Con enlaces para acceder al texto completo</p>
-            <p style="font-size: 13pt;  font-family: 'times-new-roman', sans-serif;">Instituto de
-                Investigaciones Jurídicas y Políticas </p>
-        </div>
+    <div style="margin-top: 5%;margin-left: 10%;">
+        <p style="font-size: 13pt;  font-family: 'times-new-roman', sans-serif;">Instituto de
+            Investigaciones Jurídicas y Políticas </p>
+    </div>
     @endif
 
 
 
 
-    <table style="width: 100%;  border-collapse: collapse;">
-        <tr>
-            <td style="width: 50%;">
+    <div style="padding: 70px;"></div>
 
-            </td>
+    <div style="background-color: #A40020; text-align: center;color: white; padding: 3%;text-align: left; position: absolute;right: 0;top: 700px;padding-top:20px; padding-bottom: 20px;">
+
+        <p style="font-size: 11pt;font-weight: bold;">Ver:</p>
+        <p style="font-size: 11pt; font-style: italic;">Guía de uso, en video adjunto</p>
+    </div>
 
 
-            <td
-                style="width: 50%;background-color: #A40020; text-align: center;color: white; padding: 3%;text-align: left;">
-                <div>
-                    <p style="font-size: 11pt;font-weight: bold;">Ver:</p>
-                    <p style="font-size: 11pt; font-style: italic;">Guía de uso, en video adjunto</p>
-                </div>
-            </td>
-        </tr>
-    </table>
-    
-        <table style="width: 100%; text-align: center;margin-top: 80px; border-collapse: collapse;">
+    <table style="width: 100%; text-align: center;margin-top: 80px; border-collapse: collapse;">
         <tr>
             <td style="width: 15%;">
 
             </td>
-            <td style="width: 70%;">
-                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 400px; height: auto;" />
+            <td style="width: 35%;">
+
+                <!-- <p style="font-family: garamond; font-weight: bold;">SAMED-TSJ</p><br> -->
+                <img src="{{ public_path('/images/vite.png') }}" alt="Image" style="width: auto; height: 100px;" />
+
+            </td>
+            <td style="width: 35%;">
+                <img src="{{ public_path('/images/tsj.png') }}" alt="Image" style="width: 300px; height: auto;" />
 
             </td>
 
@@ -361,7 +525,7 @@
         </tr>
     </table>
 
-    <pagebreak even-footer-value="-1" resetpagenum="1" suppress="1" />
+    <pagebreak resetpagenum="1" suppress="1" even-footer-value="off" even-header-value="off" />
 
 
     <div style="font-size: 10pt;  font-family: 'cambria', sans-serif; text-align: justify;padding-right:20% ">
@@ -369,32 +533,34 @@
 
 
         @if (isset($fechaActual))
-            <p>Instituto de Investigaciones Jurídicas y Políticas (IIJP).
-                ({{ \Illuminate\Support\Str::afterLast($fechaActual, ' ') }}).
-                <em>Serie de Cronologías Jurídicas (CRONOJURÍDICAS)</em>. Cochabamba: IIJP.
-                Actualizado al {{ $fechaActual }}.
-            </p>
+        <p>Instituto de Investigaciones Jurídicas y Políticas (IIJP).
+            ({{ \Illuminate\Support\Str::afterLast($fechaActual, ' ') }}).
+            <em>Serie de Cronologías Jurídicas (CRONOJURÍDICAS)</em>. Cochabamba: IIJP.
+            Actualizado al {{ $fechaActual }}.
+        </p>
         @endif
 
 
 
 
+        <p style="font-size: 10pt;">
 
-        <p style="font-size: 10pt;">La Base de datos está compuesta por noticias, decisiones judiciales y todo otro
-            documento que contenga
-            información acerca de algún hecho legal o político. Los documentos se guardan en un repositorio del IIJP.
-            Estos
-            documentos, en formato digital, están adjuntos a sus referencias documentales o bibliográficas.Hay dos
-            versiones de las referencias; una trabaja con el programa Zotero; la otra, con EndNote. Si usted está
-            escribiendo algún trabajo académico relativo al tema del presente documento, sepa que, con un simple clic,
-            puede
-            introducir dichas referencias en su trabajo académico.La Base de datos es de acceso público y gratuito, a
-            condición de que su uso no tenga fines de lucro. Los
-            interesados
-            en toda la Base de datos pueden apersonarse a oficinas del IIJP; para descargar solo las referencias se
-            puede usar los
-            enlaces que se indican abajo. El uso que otras personas hagan la Base de datos no es responsabilidad del
-            IIJP.</p>
+            El Tesauro de Jurisprudencia Penal ha sido elaborado de manera automatizada por el
+            programa SAMED-TSJ. Usa información de dos fuentes. La primera es la
+            jurisprudencia sistematizada por el Tribunal Supremo de Justicia (TSJ).
+            La segunda, la del Instituto de Investigaciones Jurídicas y Políticas (IIJP). No obstante el
+            reconocimiento expreso al TSJ, el presente trabajo, tal cual se la presenta a
+            continuación, es propiedad intelectual del IIJP. Esta obra está destinada para uso
+            exclusivo personal-profesional del destinatario que quiera adquirirlo. La obra ha
+            sido elaborada con la mayor buena fe, cuidando de que refleje de manera fidedigna
+            lo resuelto por el Tribunal Supremo de Justicia. Es una fuente de consulta, pero no
+            sustituye (nada lo hace) la necesidad de consultar los precedentes contradictorios
+            mismos, esto es, autos supremos y autos de vista. Adquirir y usar esta obra implica
+            cumplir las condiciones antes indicadas. Su infracción conlleva consecuencias
+            legales.
+
+        </p>
+
 
         <p style="padding-top: 3%;color: red;font-style: italic;font-size: 14pt; ">Serie Cronologías Jurídicas y
             Políticas</p>
@@ -414,7 +580,7 @@
 
 
 
-    <pagebreak even-footer-value="-1" resetpagenum="1" suppress="1" />
+    <pagebreak resetpagenum="1" suppress="1" even-footer-value="off" even-header-value="off" />
 
 
 
@@ -448,126 +614,177 @@
     </div>
 
 
-    <pagebreak even-footer-value="-1" resetpagenum="1" suppress="0" />
-    <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" toc-bookmarkText = "Tabla de Contenido" />
+    <pagebreak resetpagenum="1" suppress="0" even-footer-value="off" even-header-value="off" />
+    <tocpagebreak toc-entries="off" links="1" toc-preHTML="Tabla de Contenido" toc-bookmarkText="Tabla de Contenido" />
 
-    
+
 
     @foreach ($results as $item)
+    <div style="page-break-inside: avoid;">
         <div style="page-break-inside: avoid;">
-            <div style="page-break-inside: avoid;">
-                @foreach ($item->descriptor as $elemento)
-                                 
-                
-                    <!-- @if ($item->indices[$loop->index] == 0)
+            @foreach ($item->descriptor as $elemento)
+
+
+            <!-- @if ($item->indices[$loop->index] == 0)
                         <pagebreak />
                     @endif -->
 
-                    @if ($loop->last)
-                    <h2 class="restrictor">
-                        [{{ $elemento }}]
-                    </h2>                    
-                    @else
-                     <h2 class="descriptor{{ $item->indices[$loop->index] }}">
-                         <bookmark content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
-                        <tocentry content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
-                        {{ $elemento }}
-                    </h2>
+            @if ($loop->last)
+            <h2 class="descriptor{{ $item->indices[$loop->index] }}">
+                [{{ $elemento }}]
+            </h2>
+            @else
+            <h2 class="descriptor{{ $item->indices[$loop->index] }}">
+                <bookmark content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
+                <tocentry content="{{ $elemento }}" level="{{ $item->indices[$loop->index] }}" />
+                {{ $elemento }}
+            </h2>
 
-                    @endif
+            @endif
 
-                @endforeach
+            @endforeach
 
-            </div>
+        </div>
 
-            <!-- <div>
+        <!-- <div>
                 <p class="restrictor">{{ $item->restrictor }}</p>
             </div> -->
-            <div class="contenido">
-                <span class="resolution">
-                    <a target="_blank" href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->resolution_id }}">
-                        {{ $item->nro_resolucion }}
-                    </a>
-                </span>
-                @if ($item->forma_resolucion)
-                    <span class="forma-resolucion">
-                        &nbsp;| {{ str_replace('_x000D_', "\n", $item->forma_resolucion) }}
-                    </span>
-                @endif
+        <div class="contenido">
+            <span class="resolution">
+                <a target="_blank" href="https://samed-tsj.umss.edu.bo/cronojuridicas/resolucion/{{ $item->resolution_id }}">
+                    {{ $item->nro_resolucion }}
+                </a>
+            </span>
+            @if ($item->forma_resolucion)
+            <span class="forma-resolucion">
+                &nbsp;| {{ str_replace('_x000D_', "\n", $item->forma_resolucion) }}
+            </span>
+            @endif
 
-                @if ($item->tipo_jurisprudencia)
-                    <span class="tipo-jurisprudencia">
-                        | {{ str_replace('_x000D_', "\n", $item->tipo_jurisprudencia) }}
-                    </span>
-                @endif
+            @if ($item->tipo_jurisprudencia)
+            <span class="tipo-jurisprudencia">
+                | {{ str_replace('_x000D_', "\n", $item->tipo_jurisprudencia) }}
+            </span>
+            @endif
 
 
-                @if ($item->proceso)
-                    <span class="proceso">
-                        | {{ str_replace('_x000D_', "\n", $item->proceso) }}
-                    </span>
-                @endif
+            @if ($item->proceso)
+            <span class="proceso">
+                | {{ str_replace('_x000D_', "\n", $item->proceso) }}
+            </span>
+            @endif
 
-                @if ($item->ratio)
-                    <span class="ratio">
-                        | {{ str_replace('_x000D_', "\n", $item->ratio) }}
-                    </span>
-                @endif
+            @if ($item->ratio)
+            <span class="ratio">
+                | {{ str_replace('_x000D_', "\n", $item->ratio) }}
+            </span>
+            @endif
 
-                @if (isset($item->resultado))
-                    <p class="resultado">Por tanto: {{ str_replace(["\r\n\r\n", '_x000D_'], '', $item->resultado) }}
-                    </p>
-                @endif
+            @if (isset($item->resultado))
+            <p class="resultado">Por tanto: {{ str_replace(["\r\n\r\n", '_x000D_'], '', $item->resultado) }}
+            </p>
+            @endif
 
-            </div>
         </div>
+    </div>
     @endforeach
 
 
 
     @if ($referencias && count($referencias) > 0)
-        <pagebreak even-footer-value="-1" resetpagenum="1" />
+    <pagebreak resetpagenum="1" />
 
 
-        <p style="font-size: 20pt;" class="titulo-referencias">Bibliografía consultada</p>
+    <p style="font-size: 20pt;" class="titulo-referencias">Bibliografía consultada</p>
 
-        @foreach ($referencias as $elemento)
-            <div style="margin-bottom: 1em; font-size: 12pt; line-height: 1.6; text-align: justify;">
+    @foreach ($referencias as $elemento)
+    <div style="margin-bottom: 1em; font-size: 12pt; line-height: 1.6; text-align: justify;">
 
-                @if ($elemento->tipo_resolucion)
-                    <span>
-                        {{ $elemento->tipo_resolucion }}
-                    </span>
-                @endif
-                @if ($elemento->nro_resolucion)
-                    <span>
-                        {{ ltrim($elemento->nro_resolucion, '0') }}
-                    </span>
-                @endif
-                @if ($elemento->fecha_emision)
-                    <span>
-                        de {{ $elemento->fecha_emision }}.
-                    </span>
-                @endif
-                @if ($elemento->sala)
-                    <span>
-                        Tribunal Supremo de Justicia, Sala {{ $elemento->sala }}.
-                    </span>
-                @endif
-                @if ($elemento->external_id)
-                    <a target="_blank" href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
-                        Enlace
-                    </a>
-                @endif
+        @if ($elemento->tipo_resolucion)
+        <span>
+            {{ $elemento->tipo_resolucion }}
+        </span>
+        @endif
+        @if ($elemento->nro_resolucion)
+        <span>
+            {{ ltrim($elemento->nro_resolucion, '0') }}
+        </span>
+        @endif
+        @if ($elemento->fecha_emision)
+        <span>
+            de {{ $elemento->fecha_emision }}.
+        </span>
+        @endif
+        @if ($elemento->sala)
+        <span>
+            Tribunal Supremo de Justicia, Sala {{ $elemento->sala }}.
+        </span>
+        @endif
+        @if ($elemento->external_id)
+        <a target="_blank" href=" https://jurisprudencia.tsj.bo/resoluciones/{{ $elemento->external_id }}/pdf">
+            Enlace
+        </a>
+        @endif
 
-            </div>
-        @endforeach
+    </div>
+    @endforeach
 
     @endif
 
 
     <htmlpagefooter name="page-footer">
-        <div style="color: gray; text-align: right;">{PAGENO}</div>
+
+        <div style="position: absolute; bottom: 10mm; left: 9.5mm;margin-left: 17mm; width: 10mm; height: 10mm;">
+            1
+        </div>
+        <div style="position: absolute; bottom: 10mm; left: 9.5mm;margin-left: 25mm; width: 10mm; height: 10mm;">
+            2
+        </div>
+        <div style="position: absolute; bottom: 10mm; left: 9.5mm;margin-left: 33mm; width: 10mm; height: 10mm;">
+            3
+        </div>
+        <div style="position: absolute; bottom: 10mm; left: 9.5mm;margin-left: 41mm; width: 10mm; height: 10mm;">
+            4
+        </div>
+        <div style="position: absolute; bottom: 10mm; left: 9.5mm;margin-left: 49mm; width: 10mm; height: 10mm;">
+            5
+
+        </div>
+        <div style="position: absolute; bottom: 10mm; left: 9.5mm;margin-left: 57mm; width: 10mm; height: 10mm;">
+            6
+        </div>
+        <div style="position: absolute; bottom: 10mm; left: 9.5mm;margin-left: 65mm; width: 10mm; height: 10mm;">
+            7
+        </div>
+
+        <div style="position: absolute; bottom: 15mm; left: 10mm;margin-left: 17mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; bottom: 15mm; left: 10mm;margin-left: 25mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; bottom: 15mm; left: 10mm;margin-left: 33mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; bottom: 15mm; left: 10mm;margin-left: 41mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; bottom: 15mm; left: 10mm;margin-left: 49mm; width: 10mm; height: 10mm;">
+            |
+
+        </div>
+        <div style="position: absolute; bottom: 15mm; left: 10mm;margin-left: 57mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; bottom: 15mm; left: 10mm;margin-left: 65mm; width: 10mm; height: 10mm;">
+            |
+        </div>
+        <div style="position: absolute; bottom: 15mm; right: 10mm; width: 10mm; height: 10mm;">
+            {PAGENO}
+        </div>
+
+
+
     </htmlpagefooter>
 
 </body>

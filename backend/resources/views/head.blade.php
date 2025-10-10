@@ -33,11 +33,11 @@
 
     <div style="padding: 100px;"></div>
 
-    <div style="position: absolute;left: 100px;width: 100% ;top: 200px; background: #A40020;background-color: #A40020; text-align: center;padding-left: 30px; padding-top:20px; padding-bottom: 20px; color: white;">
-        <p style="font-size: 28pt;" class="titulo-portada">Tesauro de</p>
+    <div style="position: absolute;left: 100px;width: 100% ;height:150px;top: 200px; background: #A40020;background-color: #A40020; text-align: center;padding-left: 30px; padding-top:20px; padding-bottom: 20px; color: white;">
+        <p style="font-size: 26pt;" class="titulo-portada">SERIE DE CRONOJURÍDICAS</p>
 
         @if (isset($titulo))
-        <p style="font-size: 28pt;" class="titulo-portada">{{ $titulo }}</p>
+        <p style="font-size: 20pt;" class="titulo-portada">{{ $titulo }}</p>
         @endif
 
     </div>
@@ -115,7 +115,7 @@
 
         <p style="font-size: 10pt;">
 
-            El Tesauro de {{ $titulo }} ha sido elaborado de manera automatizada por el
+            Las cronojuridicas han sido elaboradas de manera automatizada por el
             programa SAMED-TSJ. Usa información de dos fuentes. La primera es la
             jurisprudencia sistematizada por el Tribunal Supremo de Justicia (TSJ).
             La segunda, la del Instituto de Investigaciones Jurídicas y Políticas (IIJP). No obstante el

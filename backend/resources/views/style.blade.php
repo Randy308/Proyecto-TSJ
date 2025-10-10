@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-   
+
 
 <head>
     <meta charset="UTF-8">
@@ -17,25 +17,134 @@
         .titulo {
             font-weight: bold;
         }
+
         .cover-subtitle {
-            font-size: 15pt;   font-family: 'script_mt', sans-serif;
+            font-size: 15pt;
+            font-family: 'script_mt', sans-serif;
             margin-top: 5px;
         }
 
-        @foreach ($estilos as $elemento)
-            .{{ $elemento['nombre'] }} {
-                font-family: '{{ $elemento['fontFamily'] }}', sans-serif;
-                font-weight: {{ $elemento['fontWeight'] }};
-                font-size: {{ $elemento['fontSize'] }};
-                margin-left: {{ $elemento['marginLeft'] === 'auto' ? 'auto' : $elemento['marginLeft'] . '%' }};
-                padding-bottom: {{ $elemento['paddingBottom'] }}px;
-                margin-top: {{ $elemento['marginTop'] }}px;
-                text-align: {{ $elemento['textAlign'] }};
-                font-style: {{ $elemento['fontStyle'] }};
-                text-decoration: {{ $elemento['textDecoration'] }};
-                color: {{ $elemento['color'] }};
-            }
-        @endforeach
+        .descriptor0 {
+            font-size: 35pt;
+            font-weight: normal;
+            text-align: center;
+            font-family: 'bauer', sans-serif;
+            height: 100%;
+            display: flex;
+            padding-top: 40%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .titulo-tabla {
+            font-size: 26pt;
+            font-weight: normal;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 18px;
+            font-family: 'bodoni_antiqua', sans-serif;
+        }
+
+        .descriptor1 {
+            font-size: 26pt;
+            font-weight: normal;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 18px;
+            page-break-before: always;
+            font-family: 'bodoni_antiqua', sans-serif;
+        }
+
+        .descriptor2 {
+            font-size: 15pt;
+            font-weight: bold;
+            margin-left: 2mm;
+            text-align: left;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-family: 'myriad', sans-serif;
+        }
+
+        .descriptor3 {
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: left;
+            margin-left: 10mm;
+            margin-top: 14px;
+            margin-bottom: 7px;
+            font-family: 'garamond', sans-serif;
+        }
+
+        .descriptor4 {
+            font-size: 14pt;
+            font-style: italic;
+            font-weight: lighter;
+            text-align: left;
+            margin-left: 18mm;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            font-family: 'garamond', sans-serif;
+        }
+
+        .descriptor5 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 26mm;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            font-family: 'chaparal', sans-serif;
+        }
+
+        .descriptor6 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 34mm;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            font-family: 'myriad', sans-serif;
+        }
+
+        .descriptor7 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 42mm;
+            margin-top: 6px;
+            margin-bottom: 3px;
+            font-family: 'arno', sans-serif;
+        }
+
+
+        .descriptor8 {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 50mm;
+            margin-top: 6px;
+            margin-bottom: 3px;
+            font-family: 'myriad', sans-serif;
+        }
+
+        .contenido {
+            text-align: justify;
+            font-weight: normal;
+            font-family: 'arno', sans-serif;
+            font-size: 12pt;
+            margin-bottom: 10px;
+            margin-left: 42mm;
+        }
+
+        .restrictor {
+            font-size: 13pt;
+            text-align: left;
+            font-weight: normal;
+            margin-left: 34mm;
+            margin-top: 6px;
+            margin-bottom: 3px;
+            font-family: 'arno', sans-serif;
+        }
 
         .footer-pagination {
             color: gray;
@@ -254,8 +363,9 @@
         }
 
         .titulo-portada {
-            font-family: 'cambria', sans-serif;
+            font-family: 'bauer', sans-serif;
             font-style: italic;
+            text-transform: uppercase;
             text-align: left;
             padding-left: 5%;
         }
@@ -266,8 +376,8 @@
             text-align: center;
             padding: 0 10%;
         }
-
     </style>
 
 </head>
+
 </html>

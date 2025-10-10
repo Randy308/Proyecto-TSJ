@@ -93,8 +93,6 @@ class ProcessCronologia implements ShouldQueue
                         $current[$path] = true; // ahora guardamos como set
                         $indices[] = $key;
                         $newPieces[] = $piece;
-
-                        Log::info("Current Path: " . $path);
                     }
 
                     $parentPath = $path;
@@ -127,20 +125,57 @@ class ProcessCronologia implements ShouldQueue
             'margin_right' => 25,
             'margin_top' => 25,
             'margin_bottom' => 25,
+            'margin_header' => 10,
+            'margin_footer' => 10,
             'orientation' => 'P',
             'title' => 'Documento',
             'author' => 'IIJP',
             'fontDir' => public_path('fonts/'),
             'fontdata' => [
-                'cambria' => ['R' => 'Cambriax.ttf', 'B' => 'Cambria-Bold.ttf', 'I' => 'Cambria-Italic.ttf', 'BI' => 'Cambria-Bold-Italic.ttf'],
-                'trebuchet_ms' => ['R' => 'trebuc.ttf', 'B' => 'trebucbd.ttf', 'I' => 'trebucit.ttf'],
-                'script_mt' => ['R' => 'script-mt.ttf'],
-                'times_new_roman' => ['R' => 'times-new-roman.ttf', 'B' => 'times-new-roman-bold.ttf', 'I' => 'times-new-roman-italic.ttf', 'BI' => 'times-new-roman-bold-italic.ttf'],
+                'cambria' => [
+                    'R' => 'Cambriax.ttf',
+                    'B' => 'Cambria-Bold.ttf',
+                    'I' => 'Cambria-Italic.ttf',
+                    'BI' => 'Cambria-Bold-Italic.ttf',
+                ],
+                'Arno_Pro' => [
+                    'R' => 'ArnoPro-Regular.ttf',
+                ],
+                'bodoni_antiqua' => [
+                    'R' => 'Bodoni-Antiqua.ttf',
+                ],
+                'chaparral' => [
+                    'R' => 'Chaparral.ttf',
+                ],
+                'garamond' => [
+                    'R' => 'Garamond.ttf',
+                    'I' => 'Garamond-Italic.ttf',
+                ],
+                'myriad' => [
+                    'R' => 'Myriad.ttf',
+                ],
+                'bauer' => [
+                    'R' => 'bauer.ttf',
+                ],
+                'script_mt' => [
+                    'R' => 'script-mt.ttf',
+                ],
+                'trebuchet_ms' => [
+                    'R' => 'trebuc.ttf',
+                    'B' => 'trebucbd.ttf',
+                    'I' => 'trebucit.ttf',
+                ],
+                'times_new_roman' => [
+                    'R' => 'times-new-roman.ttf',
+                    'B' => 'times-new-roman-bold.ttf',
+                    'I' => 'times-new-roman-italic.ttf',
+                    'BI' => 'times-new-roman-bold-italic.ttf',
+                ],
             ],
         ]);
 
         // Cabecera
-        $header = view('header', ['estilos' => $estilos])->render();
+        $header = view('style', ['estilos' => $estilos])->render();
         $pdf->WriteHTML($header, HTMLParserMode::HEADER_CSS);
 
 
@@ -149,29 +184,94 @@ class ProcessCronologia implements ShouldQueue
         $cover = view('cover', ['titulo' => $tema->nombre, 'subtitulo' => '', 'fechaActual' => $fechaActual])->render();
         $pdf->WriteHTML($cover, HTMLParserMode::HTML_BODY);
 
+
         $pdf->TOCpagebreakByArray([
             'links' => true,
             'toc-preHTML' => '<h2>Tabla de Contenido</h2>',
             'toc-bookmarkText' => 'Tabla de Contenido',
             'toc-suppress' => 'on',
             'toc-resetpagenum' => 1,
+            'toc-odd-header-value' => "off", // This is the key setting
+            'toc-odd-footer-value' => "off", // You can keep the footer if needed
             'resetpagenum' => 1
         ]);
 
         //ini_set('max_execution_time', '500');
-        $pdf->SetHTMLHeader('<div style="text-align: center; color: #999;">IIJP</div>');
-        $pdf->SetHTMLFooter('<div style="color: gray; text-align: right;">{PAGENO}</div>');
+
+        $pdf->SetHTMLFooter('<table style="width:168mm;border: none; border-collapse: collapse; margin-left: -1.5mm;">
+        <tr>
+            <td style="width: 8mm;" align="center">1</td>
+            <td style="width: 8mm;" align="center">2</td>
+            <td style="width: 8mm;" align="center">3</td>
+            <td style="width: 8mm;" align="center">4</td>
+            <td style="width: 8mm;" align="center">5</td>
+            <td style="width: 8mm;" align="center">6</td>
+            <td style="width: 8mm;" align="center">7</td>
+            <td style="width: 112mm;" align="right"></td>
+        </tr>
+        <tr>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="right" class="footer-pagination">{PAGENO}</td>
+        </tr>
+    </table>
+');
 
 
-        foreach (array_chunk($results->toArray(), 70) as $chunk) {
+        $pdf->SetHTMLHeader('<table style="width:168mm;border: none; border-collapse: collapse; margin-left: -1.5mm;">
+        <tr>
+            <td style="width: 8mm;" align="center">1</td>
+            <td style="width: 8mm;" align="center">2</td>
+            <td style="width: 8mm;" align="center">3</td>
+            <td style="width: 8mm;" align="center">4</td>
+            <td style="width: 8mm;" align="center">5</td>
+            <td style="width: 8mm;" align="center">6</td>
+            <td style="width: 8mm;" align="center">7</td>
+            <td style="width: 112mm;" align="right">IIJP</td>
+        </tr>
+        <tr>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+            <td align="center">|</td>
+        </tr>
+    </table>
+    ');
+
+
+
+        foreach (array_chunk($results->toArray(), 50) as $chunk) {
             $body = view('contents', ['results' => $chunk])->render();
             $pdf->WriteHTML($body, HTMLParserMode::HTML_BODY);
             usleep(50000);
         }
 
-        // Footer
-        $footer = view('footer', ['referencias' => $referencias])->render();
-        $pdf->WriteHTML($footer, HTMLParserMode::HTML_BODY);
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de contenido detallado</h2>',
+            'toc-bookmarkText' => 'Tabla de contenido detallado',
+            'toc-show-pagenumbers' => true,
+            'toc-resetpagenum' => 0,
+            'name' => 'restrictor', // 🔸 Solo entradas con este toc-id
+        ]);
+
+        //         $pdf->TOCpagebreakByArray([
+        //             'toc-preHTML' => '<h2 class="titulo-tabla">Indice de autos supremos,resoluciones y
+        // sentencias constitucionales</h2>',
+        //             'toc-bookmarkText' => 'Indice de autos supremos',
+        //             'toc-show-pagenumbers' => true,
+        //             'toc-resetpagenum' => 0,
+        //             'name' => 'autos', // 🔸 Solo entradas con este toc-id
+        //         ]);
+
 
         // Guardar en storage
 
