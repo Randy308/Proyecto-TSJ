@@ -244,7 +244,7 @@ class ProcessCronologia implements ShouldQueue
 
         $pdf->TOCpagebreakByArray([
             'links' => true,
-            'toc-preHTML' => '<h2>Tabla de Contenido</h2>',
+            'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de Contenido</h2>',
             'toc-bookmarkText' => 'Tabla de contenido',
             'toc-suppress' => 'on',
             'toc-resetpagenum' => 1,
