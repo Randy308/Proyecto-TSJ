@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { Faceta } from "../../types";
 import { IoIosArrowDown, IoMdClose } from "react-icons/io";
 
@@ -28,7 +28,9 @@ export const MultipleSelect = ({
     setSelectedValues([]);
     setShow(false);
   };
-
+  const close = useMemo(() => <IoMdClose className="group-hover:text-red-400" />, []);
+  const closeIcon = useMemo(() => <IoMdClose className="h-5 w-5" />, []);
+  const arrowDownIcon = useMemo(() => <IoIosArrowDown className="h-5 w-5" />, []);
 
   return (
     <div className="flex flex-col" onMouseLeave={() => setShow(false)}>
@@ -47,7 +49,7 @@ export const MultipleSelect = ({
                 }
               >
                 <span>{periodo.nombre}</span>
-                <IoMdClose className="group-hover:text-red-400" />
+                {close}
               </div>
             ))
           ) : (
@@ -63,14 +65,14 @@ export const MultipleSelect = ({
               className="hover:text-gray-400 hover:cursor-pointer"
               onClick={() => setSelectedValues([])}
             >
-              <IoMdClose className="h-5 w-5" />
+              {closeIcon}
             </a>
           )}
           <a
             className="hover:text-gray-400 hover:cursor-pointer border-l-2 pl-2"
             onClick={() => setShow(!show)}
           >
-            <IoIosArrowDown className="h-5 w-5" />
+           {arrowDownIcon}
           </a>
           <div
             className={`absolute my-2 rounded-lg flex flex-col border shadow-lg top-full w-full left-0 bg-white dark:bg-gray-800 z-10 ${
