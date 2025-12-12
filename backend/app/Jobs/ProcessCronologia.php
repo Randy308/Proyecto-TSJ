@@ -256,14 +256,14 @@ class ProcessCronologia implements ShouldQueue
             'name' => "descriptor",
         ]);
 
-        $pdf->TOCpagebreakByArray([
-            'links' => true,
-            'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de contenido detallado</h2>',
-            'toc-bookmarkText' => 'Tabla de contenido detallado',
-            'toc-show-pagenumbers' => true,
-            'toc-resetpagenum' => 0,
-            'name' => 'restrictor', // 🔸 Solo entradas con este toc-id
-        ]);
+        // $pdf->TOCpagebreakByArray([
+        //     'links' => true,
+        //     'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de contenido detallado</h2>',
+        //     'toc-bookmarkText' => 'Tabla de contenido detallado',
+        //     'toc-show-pagenumbers' => true,
+        //     'toc-resetpagenum' => 0,
+        //     'name' => 'restrictor', // 🔸 Solo entradas con este toc-id
+        // ]);
 
         //         $pdf->TOCpagebreakByArray([
         //             'toc-preHTML' => '<h2 class="titulo-tabla">Indice de autos supremos,resoluciones y
