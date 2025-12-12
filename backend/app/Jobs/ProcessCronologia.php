@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Mpdf\Output\Destination;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ProcessCronologia implements ShouldQueue
 {
@@ -272,10 +273,8 @@ class ProcessCronologia implements ShouldQueue
         //             'name' => 'autos', // 🔸 Solo entradas con este toc-id
         //         ]);
 
-
-        // Guardar en storage
-
-        $fileName = 'pdfs/cronologia_' . $tema->nombre . '_' . time() . '.pdf';
+        $slug = Str::slug($tema->nombre);
+        $fileName = "pdfs/cronologia_{$slug}.pdf";
         Storage::disk('public')->put($fileName, $pdf->Output('', Destination::STRING_RETURN));
 
 
