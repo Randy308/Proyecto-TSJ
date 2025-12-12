@@ -269,6 +269,7 @@ const EstadisticasBasicas = () => {
                   }
                   stroke="#1e293b"
                   strokeWidth={0.9}
+                  
                   className="cursor-pointer transition-colors duration-200 hover:fill-blue-600"
                   onClick={() => handleClick(depto)}
                 />

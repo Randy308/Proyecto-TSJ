@@ -28,10 +28,8 @@ const getCsrfToken = async () => {
 };
 
 //intercepta peticiones post para agregar CSRF token
-instance.interceptors.request.use((config) => {
-  if (config.method === "post") {
-    getCsrfToken();
-  }
+instance.interceptors.request.use(async (config) => {
+  await getCsrfToken();
   return config;
 });
 
@@ -57,8 +55,9 @@ export const ResolucionesService = {
   obtenerVariables: () => instance.get("/variables"),
   obtenerFechas: () => instance.get("/fechas"),
   obtenerResolucion: (id: number) => instance.get(`/resoluciones/${id}`),
-  
-  obtenerResolucionSimple: (id: number) => instance.get(`/simple-resoluciones/${id}`),
+
+  obtenerResolucionSimple: (id: number) =>
+    instance.get(`/simple-resoluciones/${id}`),
   obtenerPrediccion: (params: FormData) =>
     instance.get("/predicciones", { params }),
   // descomponerSerie: (params:FormData) => instance.get("/descomponer-serie", { params }),
