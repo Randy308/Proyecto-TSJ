@@ -121,6 +121,7 @@ class ProcessCronologia implements ShouldQueue
         $referencias = [];
 
         $pdf = new Mpdf([
+            'tempDir' => storage_path('app/mpdf'),
             'format' => 'letter',
             'margin_left' => 25,
             'margin_right' => 25,

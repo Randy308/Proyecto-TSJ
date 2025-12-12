@@ -513,6 +513,7 @@ class SearchController extends Controller
                     'BI' => 'times-new-roman-bold-italic.ttf',
                 ],
             ],
+            'tempDir' => storage_path('app/mpdf') 
         ]);
 
         $content = $pdf->Output('', \Mpdf\Output\Destination::STRING_RETURN);

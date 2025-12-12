@@ -16,10 +16,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 use Mpdf\HTMLParserMode;
 use Mpdf\Mpdf;
-use Mpdf\Output\Destination;
 
 function validarModelo($modelClassName, $field, $value)
 {
@@ -355,6 +353,7 @@ class TemaController extends Controller
         }
 
         $pdf = new Mpdf([
+            'tempDir' => storage_path('app/mpdf'),
             'format' => 'letter',
             'margin_left' => 25,
             'margin_right' => 25,
@@ -676,6 +675,7 @@ sentencias constitucionales</h2>',
 
         $pdf = new Mpdf([
             'format' => 'letter',
+            'tempDir' => storage_path('app/mpdf'),
             'margin_left' => 25,
             'margin_right' => 25,
             'margin_top' => 25,
