@@ -58,7 +58,7 @@ class ProcessCronologia implements ShouldQueue
 
             ->orderBy('j.descriptor')->orderBy('j.restrictor');
 
-        if ($this->subtema_id) {
+        if ($this->subtema_id > 0) {
             $query->where('j.sub_tema', $this->subtema_id);
         } else {
             $query->where('j.root_id', $this->tema_id);
@@ -190,7 +190,7 @@ class ProcessCronologia implements ShouldQueue
 
         $tema = Descriptor::find($this->tema_id);
 
-        if ($this->subtema_id) {
+        if ($this->subtema_id > 0) {
             $subtema = Descriptor::find($this->subtema_id);
             $tema->nombre = $subtema->nombre;
         }

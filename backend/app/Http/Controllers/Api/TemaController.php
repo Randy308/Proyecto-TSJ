@@ -520,34 +520,41 @@ sentencias constitucionales</h2>',
 
     public function obtenerCronologiaMaterias(Request $request)
     {
-
         if (!Auth::user()->hasPermissionTo('exportar_materias')) {
             return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
         }
 
         $request->validate([
-            'materia' => 'required|integer',
+            'materia' => 'required|integer|exists:descriptors,id',
             'subtema' => 'nullable|integer',
         ]);
 
-        $tema_id = $request['materia'];
-        $subtema_id = $request->input('subtema', null);
+        $tema_id = $request->input('materia');
+        $subtema_id = $request->input('subtema', 0);
 
-        // Encuentra el tema por ID
-        $tema = Descriptor::where('id', $tema_id)->first();
+        // Validar solo la materia (obligatoria)
+        $tema = Descriptor::find($tema_id);
 
-        $subtema = Descriptor::where('id', $subtema_id)->first();
-
-
-
-        if (! $tema || ($subtema_id && ! $subtema)) {
+        if (!$tema) {
             return response()->json(['error' => 'Materia no encontrada'], 404);
         }
 
+        // Si el subtema no existe, se asigna 0
+        if ($subtema_id > 0) {
+            $subtemaExiste = Descriptor::where('id', $subtema_id)->exists();
+            if (!$subtemaExiste) {
+                $subtema_id = 0;
+            }
+        }
 
-        ProcessCronologia::dispatch($tema_id,$subtema_id, Auth::id());
-        return response()->json(['message' => 'Tarea en cola para ser procesada.']);
+        ProcessCronologia::dispatch($tema_id, $subtema_id, Auth::id());
+
+        return response()->json([
+            'message' => 'Tarea en cola para ser procesada.',
+            'subtema_usado' => $subtema_id
+        ]);
     }
+
 
     function getInitials(string $inputString): string
     {
