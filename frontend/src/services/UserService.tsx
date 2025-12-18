@@ -60,11 +60,11 @@ export const UserService = {
   deleteUser: (id: number) => instance.delete(`/admin/users/${id}`),
 
   // Notificaciones
+  getSubtemas:() => instance.get("/subtemas"),
   getUnreadNotifications: () => instance.get("/obtener-no-leidas"),
   getAllNotifications: (page = 1) =>
     instance.get("/notificaciones", { params: { page } }),
-  markNotificationAsRead: (id: number) =>
-    instance.put(`/notificaciones/${id}`),
+  markNotificationAsRead: (id: number) => instance.put(`/notificaciones/${id}`),
   markAllNotificationsAsRead: () =>
     instance.put("/actualizar-todas-notificaciones"),
   // Resoluciones
@@ -83,6 +83,9 @@ export const UserService = {
   AjustarDepartamentos: () => instance.post("/reparar-departamentos"),
   GenerarNodos: () => instance.post("/generar-nodos"),
   GenerarTérminosClave: () => instance.post("/generar-terminos-claves"),
+  ActualizarResoluciones: () => {
+    instance.post("/actualizar-jurisprudencias");
+  },
   subirResoluciones: (formData: FormData) =>
     instance.post("/subir-resoluciones", formData, {
       headers: {

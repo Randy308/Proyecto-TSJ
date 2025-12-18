@@ -37,6 +37,12 @@ const actions = [
     title: "Obtención de Términos Clave",
     description: "Presiona el botón para generar términos clave.",
   },
+  {
+    permission: "administrar_datos",
+    name: "Actualizar Resoluciones",
+    title: "Actualización de Resoluciones",
+    description: "Presiona el botón para actualizar las resoluciones.",
+  }
 ];
 
 const WebScrapping = () => {
@@ -58,6 +64,8 @@ const WebScrapping = () => {
 
   const handleAsyncAction = (name: string) => async () => {
     const methodName = name.replace(/\s+/g, ""); // Remove spaces
+
+    console.log("Invoking method:", methodName);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const serviceFn = (UserService as any)[methodName];
 

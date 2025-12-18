@@ -21,6 +21,7 @@ export interface Faceta {
   cantidad?: number;
   fecha_min?: string;
   fecha_max?: string;
+  descriptor_id?: string;
 }
 
 export interface Facetas {
