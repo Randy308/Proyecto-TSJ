@@ -864,6 +864,17 @@ class ResolutionController extends Controller
         ]);
     }
 
+    public function obtenerMaterias()
+    {
+        $materias = Descriptor::from('descriptors as d')
+            ->select('d2.id', 'd2.nombre','d.id as descriptor_id')
+            ->join('descriptors as d2', 'd.id', '=', 'd2.descriptor_id')
+            ->whereNull('d.descriptor_id')
+            ->orderBy('d2.nombre', 'asc')
+            ->get();
+
+        return response()->json($materias);
+    }
     public function obtenerVariables()
     {
 

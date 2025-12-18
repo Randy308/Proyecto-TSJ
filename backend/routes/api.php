@@ -68,6 +68,7 @@ Route::prefix('v2')->group(function () {
     // rutas validadas
     Route::post('/actualizar-filtros', [ResolutionController::class, 'actualizarFiltros']);
     Route::get('/variables', [ResolutionController::class, 'obtenerVariables']);
+    Route::get('/subtemas', [ResolutionController::class, 'obtenerMaterias']);
     Route::get('/estadisticas-por-sala', [ResolutionController::class, 'obtenerEstadisticasPorSala']);
     Route::get('/estadisticas', [ResolutionController::class, 'obtenerEstadisticas']);
     Route::post('/estadisticas-multivariables', [ResolutionController::class, 'obtenerEstadisticasMultivariable']);
@@ -145,6 +146,7 @@ Route::prefix('v2')->group(function () {
         Route::put('/notificaciones/{id}', [NotificationController::class, 'update']);
         Route::post('/generar-terminos-claves', [ConfigController::class, 'generarTerminosClaveUnificados']);
         Route::post('/reparar-departamentos', [ConfigController::class, 'repararDepartamentos']);
+        Route::post('/actualizar-jurisprudencias', [ConfigController::class, 'actualizarJurisprudencias']);
         Route::post('/reparar-fechas-emisiones', [ConfigController::class, 'repararFechasEmision']);
         Route::post('/generar-nodos', [ConfigController::class, 'generarResumenJerarquico']);
     });

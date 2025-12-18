@@ -23,11 +23,13 @@ class ProcessCronologia implements ShouldQueue
     use Queueable;
 
     protected int $tema_id;
+    protected int $subtema_id;
     protected int $user_id;
 
-    public function __construct($tema_id, $userId)
+    public function __construct($tema_id, $subtema_id, $userId)
     {
         $this->tema_id = $tema_id;
+        $this->subtema_id = $subtema_id;
         $this->user_id = $userId;
     }
 
@@ -53,9 +55,14 @@ class ProcessCronologia implements ShouldQueue
             ->join('tipo_resolucions as tr', 'tr.id', '=', 'r.tipo_resolucion_id')
             ->join('tipo_jurisprudencias as tj', 'tj.id', '=', 'j.tipo_jurisprudencia_id')
             ->select('j.resolution_id', 'j.descriptor', 'j.descriptor_id', 'j.ratio', 'j.restrictor', 'tj.nombre as tipo_jurisprudencia', 'r.nro_resolucion', 'tr.nombre as tipo_resolucion', 'r.proceso', 'fr.nombre as forma_resolucion')
-            ->where('j.root_id', $this->tema_id)
+
             ->orderBy('j.descriptor')->orderBy('j.restrictor');
 
+        if ($this->subtema_id) {
+            $query->where('j.sub_tema', $this->subtema_id);
+        } else {
+            $query->where('j.root_id', $this->tema_id);
+        }
         //$query->limit(100); // Limitar a 1000 resultados para evitar sobrecarga
         $results = $query->get();
 
@@ -182,6 +189,11 @@ class ProcessCronologia implements ShouldQueue
 
 
         $tema = Descriptor::find($this->tema_id);
+
+        if ($this->subtema_id) {
+            $subtema = Descriptor::find($this->subtema_id);
+            $tema->nombre = $subtema->nombre;
+        }
         // Portada
         $cover = view('cover', ['titulo' => $tema->nombre, 'subtitulo' => '', 'fechaActual' => $fechaActual])->render();
         $pdf->WriteHTML($cover, HTMLParserMode::HTML_BODY);
@@ -256,23 +268,23 @@ class ProcessCronologia implements ShouldQueue
             'name' => "descriptor",
         ]);
 
+        $pdf->TOCpagebreakByArray([
+            'links' => true,
+            'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de contenido detallado</h2>',
+            'toc-bookmarkText' => 'Tabla de contenido detallado',
+            'toc-show-pagenumbers' => true,
+            'toc-resetpagenum' => 0,
+            'name' => 'restrictor', // 🔸 Solo entradas con este toc-id
+        ]);
+
         // $pdf->TOCpagebreakByArray([
-        //     'links' => true,
-        //     'toc-preHTML' => '<h2 class="titulo-tabla">Tabla de contenido detallado</h2>',
-        //     'toc-bookmarkText' => 'Tabla de contenido detallado',
+        //     'toc-preHTML' => '<h2 class="titulo-tabla">Indice de autos supremos,resoluciones y
+        // sentencias constitucionales</h2>',
+        //     'toc-bookmarkText' => 'Indice de autos supremos',
         //     'toc-show-pagenumbers' => true,
         //     'toc-resetpagenum' => 0,
-        //     'name' => 'restrictor', // 🔸 Solo entradas con este toc-id
+        //     'name' => 'autos', // 🔸 Solo entradas con este toc-id
         // ]);
-
-        //         $pdf->TOCpagebreakByArray([
-        //             'toc-preHTML' => '<h2 class="titulo-tabla">Indice de autos supremos,resoluciones y
-        // sentencias constitucionales</h2>',
-        //             'toc-bookmarkText' => 'Indice de autos supremos',
-        //             'toc-show-pagenumbers' => true,
-        //             'toc-resetpagenum' => 0,
-        //             'name' => 'autos', // 🔸 Solo entradas con este toc-id
-        //         ]);
 
         $slug = Str::slug($tema->nombre);
         $fileName = "pdfs/cronologia_{$slug}.pdf";

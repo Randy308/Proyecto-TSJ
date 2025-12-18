@@ -527,22 +527,25 @@ sentencias constitucionales</h2>',
 
         $request->validate([
             'materia' => 'required|integer',
+            'subtema' => 'nullable|integer',
         ]);
 
         $tema_id = $request['materia'];
+        $subtema_id = $request->input('subtema', null);
 
         // Encuentra el tema por ID
         $tema = Descriptor::where('id', $tema_id)->first();
 
+        $subtema = Descriptor::where('id', $subtema_id)->first();
 
 
 
-
-        if (! $tema) {
+        if (! $tema || ($subtema_id && ! $subtema)) {
             return response()->json(['error' => 'Materia no encontrada'], 404);
         }
 
-        ProcessCronologia::dispatch($tema_id, Auth::id());
+
+        ProcessCronologia::dispatch($tema_id,$subtema_id, Auth::id());
         return response()->json(['message' => 'Tarea en cola para ser procesada.']);
     }
 

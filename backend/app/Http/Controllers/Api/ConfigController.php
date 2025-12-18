@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Departamento;
 use App\Models\Resolution;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -82,6 +83,30 @@ class ConfigController extends Controller
 
         return response()->json(['message' => 'Fechas actualizadas correctamente'], 200);
     }
+
+    public function actualizarJurisprudencias()
+    {
+
+
+        $temas = DB::table('descriptors')
+            ->whereNull('descriptor_id')
+            ->pluck('id');
+
+        if ($temas->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron temas con subtemas'], 404);
+        }
+
+
+        return response()->json(['message' => 'Subtemas actualizados correctamente'], 200);
+
+        foreach ($temas as $tema_id) {
+            $statement = "SELECT actualizar_subtemas($tema_id);";
+            DB::statement($statement);
+        }
+
+        return response()->json(['message' => 'Subtemas actualizados correctamente'], 200);
+    }
+
 
     public function generarTerminosClaveUnificados(Request $request)
     {
