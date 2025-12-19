@@ -249,10 +249,10 @@ const Sidebar = () => {
               <div className="flex items-center gap-4 ms-0 sm:ms-3">
                 <div>
                   {" "}
-                  <span className="self-center hidden sm:block text-sm font-semibold  text-white whitespace-nowrap ">
+                  {/* <span className="self-center hidden sm:block text-sm font-semibold  text-white whitespace-nowrap ">
                     {" "}
                     ESTA PÁGINA SE ENCUENTRA EN CONSTRUCCIÓN
-                  </span>
+                  </span> */}
                 </div>
                 <Settings reversed={true} />
               </div>

@@ -83,9 +83,8 @@ export const UserService = {
   AjustarDepartamentos: () => instance.post("/reparar-departamentos"),
   GenerarNodos: () => instance.post("/generar-nodos"),
   GenerarTérminosClave: () => instance.post("/generar-terminos-claves"),
-  ActualizarResoluciones: () => {
-    instance.post("/actualizar-jurisprudencias");
-  },
+  ActualizarResoluciones: () =>
+  instance.post("/actualizar-jurisprudencias"),
   subirResoluciones: (formData: FormData) =>
     instance.post("/subir-resoluciones", formData, {
       headers: {
