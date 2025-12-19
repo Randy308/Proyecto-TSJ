@@ -58,8 +58,10 @@ class ProcessCronologia implements ShouldQueue
 
             ->orderBy('j.descriptor')->orderBy('j.restrictor');
 
+        $limit = 0;
         if ($this->subtema_id > 0) {
             $query->where('j.sub_tema', $this->subtema_id);
+            $limit = 1;
         } else {
             $query->where('j.root_id', $this->tema_id);
         }
@@ -78,6 +80,7 @@ class ProcessCronologia implements ShouldQueue
         foreach ($results as $element) {
             $pieces = explode(' / ', $element->descriptor);
             //$pieces[] =  $element->restrictor;
+            array_splice($pieces, 0, $limit);
             $temp_restrictor = $element->restrictor;
 
             // Evita repetir restrictor

@@ -36,6 +36,7 @@ class Jurisprudencia extends Model
         'tipo_jurisprudencia_id',
         'ratio',
         'root_id',
+        'sub_tema'
     ];
 
     protected $hidden = [

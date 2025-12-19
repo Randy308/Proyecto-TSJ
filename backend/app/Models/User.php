@@ -28,6 +28,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
  * @mixin \Eloquent
+ * @method bool hasPermissionTo(string|array $permission, string|null $guardName = null)
+ * @method bool hasAnyPermission(array|string $permissions)
  */
 
 class User extends Authenticatable

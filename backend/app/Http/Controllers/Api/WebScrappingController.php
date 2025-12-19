@@ -215,7 +215,10 @@ Texto a analizar:
     public function buscarResolucionesTSJ(Request $request)
     {
 
+
+        /** @var \App\Models\User $user */
         $user = Auth::user();
+
 
         if (! $user) { // Verifica si el usuario no está autenticado
             return response()->json(['mensaje' => 'El usuario no está autenticado'], 403);
@@ -296,6 +299,7 @@ Texto a analizar:
     public function obtenerResolucionesTSJ(Request $request)
     {
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if (! $user) { // Verifica si el usuario no está autenticado

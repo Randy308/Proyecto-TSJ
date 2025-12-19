@@ -25,7 +25,10 @@ class ExcelController extends Controller
 
     public function exportarExcel(Request $request)
     {
-        if (!Auth::user()->hasPermissionTo('exportar_datos')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user->hasPermissionTo('exportar_datos')) {
             return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
         }
 
@@ -263,7 +266,10 @@ class ExcelController extends Controller
     public function upload_resuelve_fondo(Request $request)
     {
 
-        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        
+        if (!$user()->hasPermissionTo('subir_jurisprudencia')) {
             return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
         }
 
@@ -323,7 +329,10 @@ class ExcelController extends Controller
 
     public function upload_jurisprudencia(Request $request)
     {
-        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user->hasPermissionTo('subir_jurisprudencia')) {
             return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
         }
 
@@ -373,8 +382,11 @@ class ExcelController extends Controller
 
     public function handleUpload(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
         // Verificación de permisos
-        if (!Auth::user()->hasPermissionTo('subir_jurisprudencia')) {
+        if (!$user->hasPermissionTo('subir_jurisprudencia')) {
             return response()->json([
                 'success' => false,
                 'mensaje' => 'El usuario no cuenta con el permiso necesario',

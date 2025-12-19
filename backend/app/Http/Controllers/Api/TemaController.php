@@ -520,7 +520,10 @@ sentencias constitucionales</h2>',
 
     public function obtenerCronologiaMaterias(Request $request)
     {
-        if (!Auth::user()->hasPermissionTo('exportar_materias')) {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        if (!$user->hasPermissionTo('exportar_materias')) {
             return response()->json(['mensaje' => 'El usuario no cuenta con el permiso necesario.'], 403);
         }
 
